@@ -14,5 +14,10 @@ if(file_exists($view)) {
     require_once 'views/'.$default_view.'.php';
 }
 
-array_push($json_data, array('menu' => file_get_contents('views/menus/'.$post_section.'.php')));
+if($post_section!="driver" && $post_section!="client"){
+    $menu = 'start';
+} else {
+    $menu = $post_section;
+}
+array_push($json_data, array('menu' => file_get_contents('views/menus/'.$menu.'.php')));
 echo json_encode($json_data);

@@ -2,12 +2,13 @@ var tabs;
 var lasturl = '';
 var lastsection = '';
 var map, map_choice, marker, geocoder;
-var placeSearch, autocomplete, directionsService;
+var google, placeSearch, autocomplete, directionsService;
 var my_position = ["x","y"];
+var my_city,my_country,my_token,is_auth=false;
 
 $(document).ready(function(){
 
-/*    
+/*
 $.post("https://192.168.20.90/orders?token=56d49f6def11775acad8813944208bb3",
    function(data) {
      console.log( "Ok?: " + data.ok );
@@ -26,6 +27,12 @@ $.post("https://192.168.20.90/confirm?token=56d49f6def11775acad8813944208bb3&sms
      //console.log( "Token: " + data.token );
      console.log( "Messages: " + data.messages );
    }, "json");
+    
+$.post("test.php", { name: "John", time: "2pm" })
+    .done(function(data) {
+      //======
+    }, "json");
+    
 */
 
     geoFindMe();
@@ -70,9 +77,7 @@ $.post("https://192.168.20.90/confirm?token=56d49f6def11775acad8813944208bb3&sms
    
    //= Form order city =
     $('.content').on('submit', '.form-order-city', function(){
-        //saveAddress(localStorage.getItem('_address_from'), localStorage.getItem('_address_to'));
-        //localStorage.removeItem('_address_from');
-        //localStorage.removeItem('_address_to');
+        saveAddress($('.adress_from').val(), $('.adress_to').val());
         document.location= '#client__map';
         return false;
     });
@@ -91,9 +96,9 @@ $.post("https://192.168.20.90/confirm?token=56d49f6def11775acad8813944208bb3&sms
         
         geocoder.geocode({
             'latLng': latlng
-        },function (results, status) {
+        },function (results, status){
             if(status === google.maps.GeocoderStatus.OK){
-                localStorage.setItem('_address_'+name, results[0].formatted_address);
+                localStorage.setItem('_address_'+name, getStreenFromGoogle(results));
                 $('input[name="from"]').val(localStorage.getItem('_address_from'));
                 $('input[name="to"]').val(localStorage.getItem('_address_to'));
             }
@@ -150,10 +155,6 @@ function init(){
         $('input[name="to"]').val(localStorage.getItem('_address_to'));
     }
     
-    $('.content').on('click', '.where_i_am button', function(){
-        geoFindMe();
-    });
-    
     if($('#map_canvas_choice').length){
         //google.maps.event.addDomListener(window, 'load', initialize_choice);
         initialize_choice();
@@ -165,32 +166,41 @@ function init(){
     }
 
     $('.tabs_content').on('swipeleft', function(){
-        //var num_tab = $(this).data('tab-content');
-        //var num_tab = $('.tab--active').data('tab');
         swipeTabs(1);
     });
     $('.tabs_content').on('swiperight', function(){
-        //var num_tab = $(this).data('tab-content');
-        //var num_tab = $('.tab--active').data('tab');
         swipeTabs(-1);
     });
 }
 
-function geoFindMe() {
-  if (!navigator.geolocation){
-    alert("К сожалению, геолокация не поддерживается в вашем браузере");
-    return;
-  }
-  function success(position) {
-    var latitude  = position.coords.latitude;
-    var longitude = position.coords.longitude;
-    my_position.x = latitude;
-    my_position.y = longitude;
-  };
-  function error() {
-    alert("Скорее всего, на вашем устройстве не разрешен доступ к местоположению.");
-  };
-  navigator.geolocation.getCurrentPosition(success, error);
+function geoFindMe(){
+    if(!navigator.geolocation){
+        alert("К сожалению, геолокация не поддерживается в вашем браузере");
+        return;
+    }
+    function success(position) {
+        var latitude  = position.coords.latitude;
+        var longitude = position.coords.longitude;
+        my_position.x = latitude;
+        my_position.y = longitude;
+        geocoder = new google.maps.Geocoder();
+        var latlng = new google.maps.LatLng(latitude,longitude);
+        geocoder.geocode({
+            'latLng': latlng
+        },function (results, status) {
+            if(status === google.maps.GeocoderStatus.OK){
+                var obj = results[0].address_components,key;
+                for(key in obj) {
+                    if(obj[key].types[0]==="locality") my_city = obj[key].long_name;
+                    if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
+                }
+            }
+        });    
+    };
+    function error() {
+        alert("Скорее всего, на вашем устройстве не разрешен доступ к местоположению.");
+    };
+    navigator.geolocation.getCurrentPosition(success, error);
 }
 
 function searchCityForIntercity(city, parent){
@@ -262,36 +272,23 @@ function loadPage(url){
     });
 }
 
-function initialize_my_position(latitude, longitude){
-    var MyLatLng = new google.maps.LatLng(latitude, longitude);
-    var mapCanvas = document.getElementById('map_canvas_whereiam');
-    var mapOptions = {
-        center: MyLatLng,
-        zoom: 18, 
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(mapCanvas, mapOptions);
-    
-  var marker = new google.maps.Marker({
-    position: MyLatLng,
-    map: map,
-    title: 'Я здесь!'
-  });
-  
-}
-
-
 //= Google maps =
 function initialize(){
-    var KhabLatLng = new google.maps.LatLng(48.49, 135.07);
+    var LatLng = new google.maps.LatLng(48.49, 135.07);
     var mapCanvas = document.getElementById('map_canvas');
     var mapOptions = {
-        center: KhabLatLng,
+        center: LatLng,
         zoom: 12, 
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
-
+    /*
+    var marker = new google.maps.Marker({
+      position: MyLatLng,
+      map: map,
+      title: 'Я здесь!'
+    });
+    */
     directionsService = new google.maps.DirectionsService();
     var address = loadAddress();
     requestDirections(address[0], address[1], { strokeColor:'#ff0000' });
@@ -374,15 +371,10 @@ function saveAddress(adr_from, adr_to){
 }
 
 function loadAddress(){
-    var adr_from = localStorage.getItem('_address_from');
-    var adr_to = localStorage.getItem('_address_to');
-    var a;
-    if(adr_from) {
-        a = [adr_from, adr_to];
-    } else {
-        a = ['Хабаровск', 'Хабаровск'];
-    }
-    return a;
+    var adr_from = my_city+','+localStorage.getItem('_address_from');
+    var adr_to = my_city+','+localStorage.getItem('_address_to');
+    
+    return [adr_from, adr_to];
 }
 
 function point2LatLng(x, y, map) {
@@ -391,4 +383,13 @@ function point2LatLng(x, y, map) {
   var scale = Math.pow(2, map.getZoom());
   var worldPoint = new google.maps.Point(x / scale + bottomLeft.x, y / scale + topRight.y);
   return map.getProjection().fromPointToLatLng(worldPoint);
+}
+
+function getStreenFromGoogle(results){
+    var obj = results[0].address_components,key,address;
+    for(key in obj) {
+        if(obj[key].types[0]==="street_number") address = obj[key].long_name;
+        if(obj[key].types[0]==="route") address = obj[key].long_name + ',' + address;
+    }
+    return address;
 }

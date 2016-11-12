@@ -7,9 +7,7 @@
         <link href="css/main.css" type="text/css" rel="stylesheet" />
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
         <script type="text/javascript" src="js/vendor/hammer.min.js"></script>
-        <script type="text/javascript" src="js/app.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4"></script>
-        <script type="text/javascript" src="js/vendor/rest-client.min.js"></script>
     </head>
     <body>
         <div class="menu">
@@ -36,6 +34,7 @@
         </header>
         <main class="content"></main>
         <div class="loading"></div>
+        <script type="text/javascript" src="js/app.js"></script>
         <!--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4&libraries=places&callback=initAutocomplete" async defer></script>-->
     </body>
 </html>
