@@ -1,0 +1,25 @@
+/* ==|====================
+   Modules/maps
+   ======================= */
+#map_canvas{
+    height: 100%;
+    margin-top: 1em;
+}
+#map_canvas_whereiam{
+    height: 85%;
+}
+#map_canvas_choice{
+    height: 90%;
+    margin-top: 1em;
+}
+    .centerMarker{
+        position:absolute;
+        background:url(http://maps.gstatic.com/mapfiles/markers2/marker.png) no-repeat;
+        top:50%;left:50%;
+        z-index:1;
+        margin-left:-10px;
+        margin-top:-34px;
+        height:34px;
+        width:20px;
+        cursor:pointer;
+    }

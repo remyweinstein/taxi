@@ -1,0 +1,25 @@
+/* ===========================
+   Base
+   =========================== */
+
+html,body {
+    height: 100%;
+    font-size: $base_font_size;
+}
+
+a {
+    text-decoration: none;
+}
+ul{
+    padding: 0;
+    list-style: none;
+}
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+.strong{
+    font-weight: 600;
+}

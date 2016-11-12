@@ -1,0 +1,51 @@
+/* ==|====================
+   Modules/List-orders
+   ======================= */
+
+.list-orders{
+    width: 100%;
+    margin: 0;
+    li{
+        border-bottom: 1px solid grey;
+        padding: 0.25em 0;
+        display: flex;
+    }
+    &--inactive{
+        div {
+            opacity: 0.4;
+        }
+    }
+    &_norecords{
+        padding: 50% 0;
+        text-align: center;
+        font-size: 0.75em;
+    }
+    &_personal{
+        width: 20%;
+        text-align: center;
+        float: left;
+        font-size: 9px;
+        img{
+            width: 5em;
+        }
+    }
+    &_route{
+        width: 50%;
+        float: left;
+        font-size: 12px;
+        div{
+            line-height: 1.5em;
+        }
+        &_from{
+            font-weight: 600;
+        }
+        &_info{
+            span{
+                color: red;
+            }
+        }
+        &_additional{
+            font-style: italic;
+        }
+    }
+}

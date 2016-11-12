@@ -1,0 +1,56 @@
+/* ==|====================
+   Modules/myorders
+   ======================= */
+
+.myorders{
+    li{
+        border-bottom: 1px solid grey;
+    }
+    p{
+        padding-left: 2em;
+        position: relative;
+        font-size: 0.75em;
+        margin: 0.5em 0;
+        color: $inactive;
+    }
+    &__time{
+        padding-left: 1em;
+        &:before{
+            @extend .myorders__icon;
+            @extend .icon-calendar;
+        }
+    }
+    &__from{
+        padding-left: 1em;
+        &:before{
+            @extend .myorders__icon;
+            @extend .icon-left-circled;
+        }
+    }
+    &__to{
+        padding-left: 1em;
+        &:before{
+            @extend .myorders__icon;
+            @extend .icon-right-circled;
+        }
+    }
+    &__summa{
+        padding-left: 1em;
+        &:before{
+            @extend .myorders__icon;
+            @extend .icon-rouble;
+        }
+    }
+    &__info{
+        padding-left: 1em;
+    }
+    &__icon{
+        font-family: "fontello";
+        font-style: normal;
+        font-weight: normal;
+        speak: none;
+        font-size: 10px;
+        position: absolute;
+        left: 0.5em;
+    }
+}

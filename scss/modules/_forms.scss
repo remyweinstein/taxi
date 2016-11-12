@@ -1,0 +1,60 @@
+/* ==|====================
+   Modules/forms
+   ======================= */
+
+.form-feedback{
+    input,textarea,select{
+        width: 100%;
+            padding: 0.5em 0;
+    border: 1px solid grey;
+    }
+}
+.form-order-city{
+    margin-top: 1em;
+    input{
+        width: 90%;
+        border:0;
+        font-size: 10px;
+    }
+    &__label_field{
+        border-bottom: 1px solid $inactive;
+        color: $inactive;
+        padding: 0 0 0.5em 0.5em;
+        font-size: 0.75em;
+    }
+    &__field{
+        width: 100%;
+        height: 2em;
+        line-height: 2em;
+        position: relative;
+        i{
+            color: $inactive;
+        }
+        &_add{
+            position: absolute;
+            top: 0.55em;
+            right: 8%;
+            color: $active;
+            padding: 0 0.1em;
+            background-color: white;
+            cursor: pointer;            
+        }
+        &_delete{
+            position: absolute;
+            top: 0em;
+            right: 9.5%;
+            font-size: 10px;
+            color: #eaa3a3;
+            cursor: pointer;
+        }
+    }
+    &__wrap{
+        width:90%;
+        border-bottom: 1px solid grey;
+    }
+    &__label{
+        width: 10%;
+        top: 0.2em;
+        position: relative;
+    }
+}

@@ -1,0 +1,14 @@
+/* ==|====================
+   Modules/gBlock
+   ======================= */
+
+.gBlock{
+    background-color: #F2F2EB;
+    -webkit-box-shadow: inset 0px 3px 3px 0px rgba(220,220,209,1);
+    -moz-box-shadow: inset 0px 3px 3px 0px rgba(220,220,209,1);
+    box-shadow: inset 0px 3px 3px 0px rgba(220,220,209,1);
+    border-bottom: 1px solid #E2E2DE;
+    p:first-of-type{
+        padding-top: 0.7em;
+    }
+}

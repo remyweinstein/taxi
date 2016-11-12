@@ -1,0 +1,16 @@
+/* ==|====================
+   Modules/star-rating
+   ======================= */
+
+
+.star-rating{
+    [class^="icon-"]:before, [class*=" icon-"]:before {
+        margin: 0;
+    }
+    &__star{
+        color: #CCCCCC;
+        &--active{
+            color: #FFCC00;
+        }
+    }
+}

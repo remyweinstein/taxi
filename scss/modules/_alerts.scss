@@ -1,0 +1,19 @@
+/* ==|====================
+   Modules/Alerts
+   ======================= */
+
+.alert{
+    width:100%;
+    padding: 1em 0;
+    &__text{
+        padding: 0.8em 0.5em;
+        font-size: 10px;
+        margin: 1em 0.5em 0 0.5em;
+        border-radius: 0.4em;
+        &--blue{
+            @extend .alert__text;
+            background-color: #D9EDF7;
+            color: #63A1C0;
+        }
+    }
+}

@@ -1,0 +1,57 @@
+/* ==|====================
+   Modules/Tabs
+   ======================= */
+
+.tabs{
+    position: fixed;
+    width: 100%;
+    height: 2.55em;
+    line-height: 2.55em;
+    background-color: #F1F1F1;
+    z-index: 10;
+    ul{
+        margin:0;
+        li{
+            display: inline-block;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            font-size: 0.7em;
+            font-weight: 600;
+            cursor: pointer;
+            &:after{
+                content:"I";
+                float: right;
+                font-size: 1.5em;
+                color: #B4B4B4;
+            }
+            &:last-of-type{
+                &:after{
+                    content:"";
+                }
+            }
+            &.tab--active{
+                border-bottom: 0.25em solid $active;
+                height: 3.35em;
+            }
+        }
+    }
+    &__wrapper{
+        margin-top: 3em;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    &__viewport{
+        height: 100%;
+        position: relative;
+    }
+    &_content{
+        width:100%;
+        height: 100%;
+        position: relative;
+        float: left;
+        -webkit-transition: left 0.2s;
+        transition: left 0.2s;
+    }
+}

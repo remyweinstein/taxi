@@ -1,0 +1,63 @@
+/* ==|====================
+   Layout/Menu
+   ======================= */
+
+.menu{
+    background-color: $menu_bg;
+    height: 100%;
+    width: $width_menu;
+    color: $menu_font;
+    font-size: $menu_font_size;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    &__desc{
+        border-bottom: 1px solid #2E2E2E;
+        height: 4em;
+        padding: 1em;
+        &_avatar{
+            width: 4em;
+            height: 4em;
+            float: left;
+            padding-right: 1em;
+        }
+        &_info{
+            float: left;
+            padding-top: 0.7em;
+        }
+    }
+    &__list{
+        clear: both;
+        &--active{
+            background-color: #212121;
+        }
+        li{
+            height: 3em;
+            line-height: 3em;
+            padding: 0 0 0 0.7em;
+            cursor: pointer;
+            &:hover{
+                background-color: #212121;
+            }
+            a{
+                display: block;
+                width: 100%;
+                height: 100%;
+                color: $menu_font;
+            }
+            i{
+                color: $inactive;
+                font-size: $menu_icon_size;
+                margin-right: 0.7em;
+            }
+        }
+    }
+    .toggle_block{
+        float: right;
+        color: $active;
+        &--inactive{
+            @extend .toggle_block;
+            color: $inactive;
+        }
+    }
+}

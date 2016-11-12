@@ -1,0 +1,48 @@
+/* ==|====================
+   Modules/Buttons
+   ======================= */
+
+.button{
+    font-size: 12px;
+    text-align: center;
+    padding: 5px 0;
+    &_rounded{
+        color: white;
+        font-size: 10px;
+        text-align: center;
+        border-radius: 20px;
+        width: 100%;
+        margin: 0.5em 0;
+        padding: 0.8em 0;
+        border: 0;
+        &--green{
+            @extend .button_rounded;
+            background-color: #02C9A2;
+        }
+    }
+    &_wide{
+        @extend .button;
+        width: 100%;
+        &--green{
+            @extend .button_wide;
+            background-color: #71A336;
+            background-image: linear-gradient(#82B533, #669933);
+            background: #71A336;
+            background: linear-gradient(#82B533, #669933);
+        }
+        &--yellow{
+            @extend .button_wide;
+            background-color: #FFD30D;
+            background-image: linear-gradient(#FFF14D, #F6DC59);
+            background: #FFD30D;
+            background: linear-gradient(#FFF14D, #F6DC59);
+        }
+        &--gray{
+            @extend .button_wide;
+            background-color: #F0F0F0;
+            background-image: linear-gradient(#FAFAFA, #E8E8E8);
+            background: #F0F0F0;
+            background: linear-gradient(#FAFAFA, #E8E8E8);
+        }
+    }
+}
