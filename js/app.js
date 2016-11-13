@@ -1,39 +1,31 @@
 var tabs;
-var lasturl = '';
-var lastsection = '';
+var lasturl='';
+var lastsection='';
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService;
 var my_position = ["x","y"];
+var server_uri = '192.168.20.90';
 var my_city,my_country,my_token,is_auth=false;
 
 $(document).ready(function(){
+    if(localStorage.getItem('_is_auth')==="true") {
+        is_auth = true;
+    }
+    my_token = localStorage.getItem('_my_token');
+    
+    /*
+    $.post("https://192.168.20.90/orders?token=56d49f6def11775acad8813944208bb3",
+       function(data) {
+         console.log( "Ok?: " + data.ok );
+         console.log( "Orders: " + data.orders );
+         console.log( "Messages: " + data.messages );
+       }, "json");
 
-/*
-$.post("https://192.168.20.90/orders?token=56d49f6def11775acad8813944208bb3",
-   function(data) {
-     console.log( "Ok?: " + data.ok );
-     console.log( "Orders: " + data.orders );
-     console.log( "Messages: " + data.messages );
-   }, "json");
-$.post("https://192.168.20.90/register?phone=89242133339",
-   function(data) {
-     console.log( "Ok?: " + data.ok );
-     console.log( "Token: " + data.token );
-     console.log( "Messages: " + data.messages );
-   }, "json");
-$.post("https://192.168.20.90/confirm?token=56d49f6def11775acad8813944208bb3&smsCode=mqYQTT",
-   function(data) {//token 56d49f6def11775acad8813944208bb3
-     console.log( "Ok?: " + data.ok );
-     //console.log( "Token: " + data.token );
-     console.log( "Messages: " + data.messages );
-   }, "json");
-    
-$.post("test.php", { name: "John", time: "2pm" })
-    .done(function(data) {
-      //======
-    }, "json");
-    
-*/
+    $.post("test.php", { name: "John", time: "2pm" })
+        .done(function(data) {
+          //======
+        }, "json");    
+    */
 
     geoFindMe();
     
@@ -79,6 +71,40 @@ $.post("test.php", { name: "John", time: "2pm" })
     $('.content').on('submit', '.form-order-city', function(){
         saveAddress($('.adress_from').val(), $('.adress_to').val());
         document.location= '#client__map';
+        return false;
+    });
+   //=================
+   
+   //= Form auth =
+    $('.content').on('submit', '.form-auth', function(){
+        
+        var jqxhr = $.post("https://"+server_uri+"/register?phone=7"+$('.phone').val(), function(){}, "json")
+          .done(function(data) { 
+             //console.log( "Ok?: " + data.ok );
+             //console.log( "Token: " + data.token );
+             //console.log( "Messages: " + data.messages );
+             localStorage.setItem('_my_token', data.token);              
+             document.location= '#pages__sms';
+            }, "json");
+          //.fail(function() { alert("error"); })
+          //.always(function() { alert("finished"); });
+          //jqxhr.always(function(){ alert("second finished"); });
+        return false;
+    });
+   //=================
+   //
+   //= Form auth SMS =
+    $('.content').on('submit', '.form-auth-sms', function(){
+        var jqxhr = $.post("https://"+server_uri+"/confirm?token="+my_token+"&smsCode="+$('.sms').val(),
+           function() {}, "json")
+          .done(function(data) { 
+             //console.log( "Ok?: " + data.ok );
+             //console.log( "Messages: " + data.messages );
+             if(data.ok){
+                localStorage.setItem('_is_auth', 'true');              
+                document.location= '/';
+             }
+            }, "json");
         return false;
     });
    //=================
@@ -198,7 +224,7 @@ function geoFindMe(){
         });    
     };
     function error() {
-        alert("Скорее всего, на вашем устройстве не разрешен доступ к местоположению.");
+        alert("На вашем устройстве не разрешен доступ к местоположению.");
     };
     navigator.geolocation.getCurrentPosition(success, error);
 }
@@ -246,11 +272,16 @@ function checkURL(hash){
 }
 
 function loadPage(url){
+    if(!is_auth && url!=="#pages__sms") {
+        url = "#pages__login";
+        location.href=url;
+    }
     url = url.replace('#','');
     var data = url.split('__');
     $('.loading').css('visibility','visible');
     $.ajax({
         dataType: 'json',
+        //url: 'views/templates/'+app_template+'/'+data[0]+'/'+data[1]+'.php',
         url: 'routes.php',
         type: 'POST',
         data: {
