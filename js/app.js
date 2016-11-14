@@ -6,27 +6,31 @@ var google, placeSearch, autocomplete, directionsService;
 var my_position = ["x","y"];
 var server_uri = '192.168.20.90';
 var my_city,my_country,my_token,is_auth=false;
+var my_name, my_phone, my_avatar;
 
 $(document).ready(function(){
-    if(localStorage.getItem('_is_auth')==="true") {
-        is_auth = true;
-    }
-    my_token = localStorage.getItem('_my_token');
-    
+           
     /*
-    $.post("https://192.168.20.90/orders?token=56d49f6def11775acad8813944208bb3",
-       function(data) {
-         console.log( "Ok?: " + data.ok );
-         console.log( "Orders: " + data.orders );
-         console.log( "Messages: " + data.messages );
-       }, "json");
-
     $.post("test.php", { name: "John", time: "2pm" })
         .done(function(data) {
           //======
         }, "json");    
     */
-
+   
+    if(localStorage.getItem('_is_auth')==="true"){
+        is_auth = true;
+    }
+    my_token = localStorage.getItem('_my_token');
+    
+    /*
+    $.get("https://"+server_uri+"/orders?token="+my_token,
+        function(data) {
+            console.log('Ok?: ' + data.ok);
+            console.log('Orders: ' + data.orders);
+            console.log('Messages: ' + data.messages);
+        }, "json");
+    */
+   
     geoFindMe();
     
     //=Main Menu Events=
@@ -74,40 +78,95 @@ $(document).ready(function(){
         return false;
     });
    //=================
-   
+   //
    //= Form auth =
-    $('.content').on('submit', '.form-auth', function(){
-        
-        var jqxhr = $.post("https://"+server_uri+"/register?phone=7"+$('.phone').val(), function(){}, "json")
-          .done(function(data) { 
-             //console.log( "Ok?: " + data.ok );
-             //console.log( "Token: " + data.token );
-             //console.log( "Messages: " + data.messages );
-             localStorage.setItem('_my_token', data.token);              
-             document.location= '#pages__sms';
-            }, "json");
-          //.fail(function() { alert("error"); })
-          //.always(function() { alert("finished"); });
-          //jqxhr.always(function(){ alert("second finished"); });
+    $('.content').on('submit', '.jq_form-auth', function(){
+        var jqxhr = $.post("https://"+server_uri+"/register?phone=7"+$('input[name="phone"]').val(), function(){}, "json");
+        jqxhr.done(function(data){
+            if(data.ok){
+                localStorage.setItem('_my_token', data.token);
+                my_token = data.token;
+                document.location= '#pages__sms';
+            }
+        }, "json");
+            //.fail(function(){})
+            //.always(function(){});
         return false;
     });
    //=================
    //
    //= Form auth SMS =
-    $('.content').on('submit', '.form-auth-sms', function(){
-        var jqxhr = $.post("https://"+server_uri+"/confirm?token="+my_token+"&smsCode="+$('.sms').val(),
-           function() {}, "json")
-          .done(function(data) { 
-             //console.log( "Ok?: " + data.ok );
-             //console.log( "Messages: " + data.messages );
-             if(data.ok){
+    $('.content').on('submit', '.jq_form-auth-sms', function(){
+        var jqxhr = $.post("https://"+server_uri+"/confirm?token="+my_token+"&smsCode="+$('input[name="sms"]').val(), function() {}, "json");
+        jqxhr.done(function(data){ 
+            if(data.ok){
                 localStorage.setItem('_is_auth', 'true');              
                 document.location= '/';
-             }
-            }, "json");
+            }
+        }, "json");
+        return false;
+    });    
+   //=================
+   //
+   //= Form edit profile = 
+    $('.content').on('submit', '.jq_form-edit-profile', function(){
+        var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, { photo: $('input[name=ava_file]').prop('files')[0], name: $('input[name=name]').val(), birthday: dateToBase($('input[name=dob]').val()), city: $('select[name=city]').val(), sex: $('select[name=sex]').val() }, function() {}, "json");
+        jqxhr.done(function(data){
+                console.log(data.ok);
+                console.log(data);
+            if(data.ok){
+                document.location= '/';
+            }
+        }, "json");
+
         return false;
     });
-   //=================
+    $('body').on('click','.menu__desc', function(){
+        swipeMenu('-');
+        document.location = '#pages__edit_profile';
+    });
+   //=====================
+   //
+   //= Form edit auto =
+    $('.content').on('submit', '.jq_form-edit-auto', function(){
+        var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, 
+            { color: $('input[name="color"]').val(), number: $('input[name="number"]').val(), model: $('input[name="model"]').val(), tonnage: $('input[name="tonnage"]').val(), brand: $('select[name="brand"] option:selected').text() }, 
+            function() {}, "json");
+        jqxhr.done(function(data) {
+            if(data.ok){
+                document.location= '/';
+            }
+        }, "json");
+
+        return false;
+    });
+   //=====================
+   //
+   //= Form edit auto cog =
+    $('.content').on('submit', '.jq_form-edit-auto-cog', function(){
+        var jqxhr = $.post("https://"+server_uri+"/auto?token="+my_token, 
+            { conditioner: $('input[name="conditioner"]:checked').val(), type: $('select[name="type"] option:selected').val() }, 
+            function() {}, "json");
+        jqxhr.done(function(data) {
+            if(data.ok){
+                document.location= '/';
+            }
+        }, "json");
+
+        return false;
+    });
+   //=====================
+
+
+    
+   //=====================
+   //=====================
+    $('body').on('click','.menu__desc', function(){
+        swipeMenu('-');
+        document.location = '#pages__edit_profile';
+    });
+   //=====================
+   
 
     $('.content').on('click','.jq_location_choice',function(){
         document.location = '#client__city';
@@ -142,7 +201,28 @@ $(document).ready(function(){
       }
     });
    //====================
-   
+
+    $('.content').on('keypress', '.input_only_date', function(e) { // ONLY DATE
+        var text = $(this).val();
+        if(text.length>9){
+            return false;
+        }
+        e = e || event;
+        if(e.ctrlKey || e.altKey || e.metaKey) return;
+        var chr = getChar(e);
+        if((text.length===0 && chr>'3') || ((text.length===3||text.length===2) && chr>'1') || ((text.length===5||text.length===4) && chr>'2')){
+            return false;
+        }
+        if(text.length===2 || text.length===5){
+            $(this).val($(this).val()+".");
+        }
+
+        if(chr === null) return;
+        if(chr < '0' || chr > '9'){
+            return false;
+        }    
+    });
+    
    //= Filter Intercity Orders =
     $('.content').on('keyup', '.filter_intercity_to', function(){
         searchCityForIntercity($(this).val(),$(this).parent().parent().parent('.tabs_content'));
@@ -161,7 +241,64 @@ $(document).ready(function(){
 });
 
 function init(){
-    
+    $.get("https://"+server_uri+"/profile?token="+my_token,
+        function(data) {
+            if(!data.ok && lasturl !== "#pages__sms"){
+                is_auth = false;
+                my_token = "";
+                localStorage.removeItem('_is_auth');
+                localStorage.removeItem('_my_token');
+            } else {
+                //console.log(data.profile.photoId);
+                my_phone = data.profile.phone;
+                my_name = data.profile.name;
+                my_city = data.profile.city;
+                //console.log('messages: ' + data.messages);
+                if($('.jq_my_name').length){
+                    $('.jq_my_name').html(my_name);
+                    $('.jq_my_phone').html(my_phone);
+                }
+            }
+        }, "json");
+
+    //= Form edit auto =
+    if($('.jq_form-edit-auto').length){
+        $.get("https://"+server_uri+"/profile?token="+my_token,
+            function(data){
+                $('input[name="color"]').val(data.profile.color);
+                $('input[name="number"]').val(data.profile.number);
+                $('input[name="model"]').val(data.profile.model);
+                $('input[name="tonnage"]').val(data.profile.tonnage);
+                var brand = $('select[name="brand"] option[value="'+data.profile.brand+'"]');
+                    brand.attr('selected', 'true');
+            }, "json");
+    }  
+
+    //= Form edit auto cog =
+    if($('.jq_form-edit-auto-cog').length){
+        $.get("https://"+server_uri+"/auto?token="+my_token,
+            function(data){
+                var conditioner = (data.auto.conditioner)?$('input[name="conditioner"][value="1"]'):$('input[name="conditioner"][value="0"]');
+                    conditioner.attr('checked', 'checked');
+                var type = $('select[name="type"] option[value="'+data.auto.type+'"]');
+                    type.attr('selected', 'true');
+            }, "json");
+    }  
+
+    //= Form edit profile =
+    if($('.jq_form-edit-profile').length){
+        $.get("https://"+server_uri+"/profile?token="+my_token,
+            function(data) {
+                $('input[name="name"]').val(data.profile.name);
+                $('input[name="dob"]').val(dateFromBase(data.profile.birthday));
+                var sex = (data.profile.sex) ? $('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
+                    sex.attr('selected', 'true');
+                var city = $('select[name="city"] option[value="'+data.profile.city+'"]');
+                    city.attr('selected', 'true');
+                //$('input[name="city"]').val(data.city);             
+            }, "json");
+    }  
+
    //=Change height '.content'=
    $('.content').css('height',$(window).outerHeight() - $('.header').outerHeight());
    //==========================
@@ -217,7 +354,9 @@ function geoFindMe(){
             if(status === google.maps.GeocoderStatus.OK){
                 var obj = results[0].address_components,key;
                 for(key in obj) {
-                    if(obj[key].types[0]==="locality") my_city = obj[key].long_name;
+                    if(obj[key].types[0]==="locality" && my_city !== "") {
+                        my_city = obj[key].long_name;
+                    }
                     if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                 }
             }
@@ -274,14 +413,13 @@ function checkURL(hash){
 function loadPage(url){
     if(!is_auth && url!=="#pages__sms") {
         url = "#pages__login";
-        location.href=url;
+        document.location = url;
     }
     url = url.replace('#','');
     var data = url.split('__');
     $('.loading').css('visibility','visible');
     $.ajax({
         dataType: 'json',
-        //url: 'views/templates/'+app_template+'/'+data[0]+'/'+data[1]+'.php',
         url: 'routes.php',
         type: 'POST',
         data: {
@@ -424,3 +562,18 @@ function getStreenFromGoogle(results){
     }
     return address;
 }
+
+        function dateFromBase(dob){
+            if(dob === "0000-00-00") {
+                dob = "";
+            } else {
+                dob = dob.split("-");
+                dob = dob[2]+'.'+dob[1]+'.'+dob[0];
+            }
+            return dob;
+        }
+        function dateToBase(dob){
+            dob = dob.split('.');
+            dob = dob[2]+'-'+dob[1]+'-'+dob[0];
+            return dob;
+        }

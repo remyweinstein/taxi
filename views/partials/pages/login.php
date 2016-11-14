@@ -1,9 +1,10 @@
 <?php
 $json_data = array ('title' => 'Вход',
             'content' => '
-                <form class="form-auth" action="" method="post">
-                    <p>+7<input type="text" name="phone" placeholder="Ваш номер телефона" /></p>
-                    <p><button>Далее</button></p>
+                <form class="jq_form-auth form-login" action="" method="post">
+                    <p>Введите ваш номер телефона для входа</p>
+                    <p>+7<input type="text" class="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
+                    <p><button class="button_rounded--green">Далее</button></p>
                 </form>
     ');
 

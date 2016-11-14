@@ -9,6 +9,17 @@
     border: 1px solid grey;
     }
 }
+.form-login{
+    text-align: center;
+    p{
+        padding: 1em 0;
+    }
+    input {
+        line-height: normal;
+        padding: 0.25em;
+        margin-left: 0.5em;
+    }
+}
 .form-order-city{
     margin-top: 1em;
     input{
@@ -57,4 +68,7 @@
         top: 0.2em;
         position: relative;
     }
+}
+.form-edit-profile{
+    
 }

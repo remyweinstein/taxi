@@ -18,6 +18,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="#driver__my_auto">
+                        <i class="icon-cog-alt"></i>
+                        Мой авто
+                    </a>
+                </li>
+                <li>
                     <a href="#driver__options">
                         <i class="icon-cog-alt"></i>
                         Опции авто

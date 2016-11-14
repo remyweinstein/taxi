@@ -14,8 +14,8 @@
             <div class="menu__desc">
                 <img src="images/no_avatar.png" alt="" class="menu__desc_avatar" />
                 <div class="menu__desc_info">
-                    Василий<br />
-                    +79292992929
+                    <span class="jq_my_name"></span><br />
+                    <span class="jq_my_phone"></span>
                 </div>
             </div>
             <div class="menu__response"></div>
