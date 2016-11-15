@@ -9,7 +9,7 @@ var my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
 var default_avatar = 'images/no_avatar.png';
 
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function(){
            
     /*
     $.post("test.php", { name: "John", time: "2pm" })
@@ -33,7 +33,7 @@ $(document).ready(function(){
     geoFindMe();
     
     //=Main Menu Events=
-    new Hammer($('.menu')[0],{domEvents: true});
+    new Hammer(document.querySelectorAll('.menu')[0],{domEvents: true});
     $('.menu').on("swipeleft", function(){
         swipeMenu('-');
     });
@@ -411,7 +411,7 @@ function swipeTabs(route){
     }
 }
 function changeTab(tab){
-    step = $(window).width();
+    step = $(window).width();//document.querySelectorAll
     $('.tabs_content').css('left', (step-step*tab)+'px');
     tabs.removeClass('tab--active');
     $('*[data-tab="'+tab+'"]').addClass('tab--active');
@@ -430,13 +430,15 @@ function checkURL(hash){
 }
 
 function loadPage(url){
+    /*
     if(!is_auth && url!=="#pages__sms") {
         url = "#pages__login";
         document.location = url;
     }
+    */
     url = url.replace('#','');
     var data = url.split('__');
-    $('.loading').css('visibility','visible');
+    document.querySelectorAll(".loading")[0].style.visibility = "visible";
     $.ajax({
         dataType: 'json',
         url: 'routes.php',
@@ -447,13 +449,14 @@ function loadPage(url){
         },
         success: function(response){
             if(parseInt(response) !== 0){
-                $('.header__title').html(response.title);
-                $('.content').html(response.content);
+                document.querySelectorAll('.header__title')[0].innerHTML = response.title;
+                document.querySelectorAll('.content')[0].innerHTML = response.content;
                 if(data[0] !== lastsection || lastsection === '') {
-                    $('.menu__response').html(response[0].menu);
+                    document.querySelectorAll('.menu__response')[0].innerHTML = response[0].menu;
                 }
                 lastsection = data[0];
-                $('.loading').css('visibility','hidden');
+                
+                document.querySelectorAll(".loading")[0].style.visibility = "hidden";
                 init();
             }
         }
@@ -515,13 +518,13 @@ function initialize_choice(){
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map_choice = new google.maps.Map(mapCanvas, mapOptions);
-    var center_marker = $('<div/>').addClass('centerMarker').appendTo(map_choice.getDiv());
+    //var center_marker = $('<div/>').addClass('centerMarker').appendTo(map_choice.getDiv());
+    var center_marker = map_choice.getDiv().innerHTML += '<div class="centerMarker"></div>';
 
     google.maps.event.addListener(map_choice, 'drag', function(){
         var coords = point2LatLng(center_marker[0].offsetLeft, center_marker[0].offsetTop, map_choice);
         localStorage.setItem('_choice_coords', coords);
     }); 
-
 }
 
 function renderDirections(result, polylineOpts) {
@@ -595,17 +598,17 @@ function getStreenFromGoogle(results){
     return address;
 }
 
-        function dateFromBase(dob){
-            if(dob === "0000-00-00") {
-                dob = "";
-            } else {
-                dob = dob.split("-");
-                dob = dob[2]+'.'+dob[1]+'.'+dob[0];
-            }
-            return dob;
-        }
-        function dateToBase(dob){
-            dob = dob.split('.');
-            dob = dob[2]+'-'+dob[1]+'-'+dob[0];
-            return dob;
-        }
+function dateFromBase(dob){
+    if(dob === "0000-00-00") {
+        dob = "";
+    } else {
+        dob = dob.split("-");
+        dob = dob[2]+'.'+dob[1]+'.'+dob[0];
+    }
+    return dob;
+}
+function dateToBase(dob){
+    dob = dob.split('.');
+    dob = dob[2]+'-'+dob[1]+'-'+dob[0];
+    return dob;
+}
