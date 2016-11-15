@@ -1,5 +1,5 @@
 var tabs;
-var lasturl='';
+var lasturl='',sublasturl='';
 var lastsection='';
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService;
@@ -7,6 +7,7 @@ var my_position = ["x","y"];
 var server_uri = '192.168.20.90';
 var my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
+var default_avatar = 'images/no_avatar.png';
 
 $(document).ready(function(){
            
@@ -22,15 +23,13 @@ $(document).ready(function(){
     }
     my_token = localStorage.getItem('_my_token');
     
-    /*
     $.get("https://"+server_uri+"/orders?token="+my_token,
         function(data) {
             console.log('Ok?: ' + data.ok);
             console.log('Orders: ' + data.orders);
             console.log('Messages: ' + data.messages);
         }, "json");
-    */
-   
+    
     geoFindMe();
     
     //=Main Menu Events=
@@ -87,6 +86,7 @@ $(document).ready(function(){
                 localStorage.setItem('_my_token', data.token);
                 my_token = data.token;
                 document.location= '#pages__sms';
+                //loadPage('#pages__sms');
             }
         }, "json");
             //.fail(function(){})
@@ -110,14 +110,32 @@ $(document).ready(function(){
    //
    //= Form edit profile = 
     $('.content').on('submit', '.jq_form-edit-profile', function(){
-        var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, { photo: $('input[name=ava_file]').prop('files')[0], name: $('input[name=name]').val(), birthday: dateToBase($('input[name=dob]').val()), city: $('select[name=city]').val(), sex: $('select[name=sex]').val() }, function() {}, "json");
-        jqxhr.done(function(data){
-                console.log(data.ok);
-                console.log(data);
-            if(data.ok){
-                document.location= '/';
+        
+        var file = $('input[name=ava_file]').prop('files')[0];
+        var data = new FormData();
+        data.append('photo', file, file.name);
+        data.append('name', $('input[name=name]').val());
+        data.append('birthday', dateToBase($('input[name=dob]').val()));
+        data.append('city', $('select[name=city]').val());
+        data.append('sex', $('select[name=sex]').val());
+        
+        $.ajax({
+            processData: false,
+            enctype: 'multipart/form-data',
+            dataType: 'json',
+            contentType: false, 
+            url: 'https://'+server_uri+'/profile?token='+my_token,
+            type: 'POST',
+            data: data,
+            success: function(data){
+                if(data.ok){
+                    document.location= '/';
+                    //checkURL(sublasturl);
+                    //loadPage(sublasturl);
+                }
+                
             }
-        }, "json");
+        });
 
         return false;
     });
@@ -134,39 +152,39 @@ $(document).ready(function(){
             function() {}, "json");
         jqxhr.done(function(data) {
             if(data.ok){
-                document.location= '/';
+                //document.location= '/';
             }
         }, "json");
-
-        return false;
-    });
-   //=====================
-   //
-   //= Form edit auto cog =
-    $('.content').on('submit', '.jq_form-edit-auto-cog', function(){
-        var jqxhr = $.post("https://"+server_uri+"/auto?token="+my_token, 
+        var jqxhr2 = $.post("https://"+server_uri+"/auto?token="+my_token, 
             { conditioner: $('input[name="conditioner"]:checked').val(), type: $('select[name="type"] option:selected').val() }, 
             function() {}, "json");
-        jqxhr.done(function(data) {
+        jqxhr2.done(function(data) {
             if(data.ok){
                 document.location= '/';
             }
         }, "json");
-
+        
         return false;
     });
-   //=====================
-
-
-    
-   //=====================
-   //=====================
+   //===============================================//
+   //                                               //
+   //                                               //
+   //                                               //
+   //===============================================//
     $('body').on('click','.menu__desc', function(){
         swipeMenu('-');
         document.location = '#pages__edit_profile';
     });
    //=====================
-   
+    $('.content').on('click','.jq_clear_photo',function(){
+        var jqxhr = $.post("https://"+server_uri+"/clear-photo?token="+my_token, {}, function() {}, "json");
+        jqxhr.done(function(data) {
+            if(data.ok){
+                $('.avatar').prop('src', default_avatar);
+            }
+        }, "json");
+        return false;
+    });
 
     $('.content').on('click','.jq_location_choice',function(){
         document.location = '#client__city';
@@ -192,13 +210,13 @@ $(document).ready(function(){
    
    //= Input Filtering =
     $('.content').on('keypress', '.input_only_digits', function(e){ // ONLY DIGITS
-      e = e || event;
-      if(e.ctrlKey || e.altKey || e.metaKey) return;
-      var chr = getChar(e);
-      if(chr === null) return;
-      if(chr < '0' || chr > '9'){
-        return false;
-      }
+        e = e || event;
+        if(e.ctrlKey || e.altKey || e.metaKey) return;
+        var chr = getChar(e);
+        if(chr === null) return;
+        if(chr < '0' || chr > '9'){
+            return false;
+        }
     });
    //====================
 
@@ -241,6 +259,7 @@ $(document).ready(function(){
 });
 
 function init(){
+    
     $.get("https://"+server_uri+"/profile?token="+my_token,
         function(data) {
             if(!data.ok && lasturl !== "#pages__sms"){
@@ -249,14 +268,17 @@ function init(){
                 localStorage.removeItem('_is_auth');
                 localStorage.removeItem('_my_token');
             } else {
-                //console.log(data.profile.photoId);
                 my_phone = data.profile.phone;
                 my_name = data.profile.name;
                 my_city = data.profile.city;
-                //console.log('messages: ' + data.messages);
+                my_avatar = data.profile.photo;
                 if($('.jq_my_name').length){
                     $('.jq_my_name').html(my_name);
                     $('.jq_my_phone').html(my_phone);
+                    if(!my_avatar){
+                        my_avatar = default_avatar;
+                    }
+                    $('.menu__desc_avatar').prop('src', my_avatar);
                 }
             }
         }, "json");
@@ -272,10 +294,6 @@ function init(){
                 var brand = $('select[name="brand"] option[value="'+data.profile.brand+'"]');
                     brand.attr('selected', 'true');
             }, "json");
-    }  
-
-    //= Form edit auto cog =
-    if($('.jq_form-edit-auto-cog').length){
         $.get("https://"+server_uri+"/auto?token="+my_token,
             function(data){
                 var conditioner = (data.auto.conditioner)?$('input[name="conditioner"][value="1"]'):$('input[name="conditioner"][value="0"]');
@@ -291,11 +309,11 @@ function init(){
             function(data) {
                 $('input[name="name"]').val(data.profile.name);
                 $('input[name="dob"]').val(dateFromBase(data.profile.birthday));
-                var sex = (data.profile.sex) ? $('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
+                var sex = (data.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
                     sex.attr('selected', 'true');
                 var city = $('select[name="city"] option[value="'+data.profile.city+'"]');
                     city.attr('selected', 'true');
-                //$('input[name="city"]').val(data.city);             
+                $('.avatar').prop('src', my_avatar);
             }, "json");
     }  
 
@@ -400,8 +418,9 @@ function changeTab(tab){
 }
 
 function checkURL(hash){
+    sublasturl = lasturl;
     if(!hash) {
-        if(!window.location.hash) hash='#driver__city';
+        if(!window.location.hash) hash='#client__city';
             else hash = window.location.hash;
     }
     if(hash !== lasturl){
@@ -451,6 +470,19 @@ function initialize(){
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
+    
+    new google.maps.Polyline({
+                                //path: [from, to],
+                                geodesic: true,
+                                strokeColor: '#FF0000',
+                                strokeOpacity: 1.0,
+                                strokeWeight: 2
+                        });
+    
+        var polyline = new GPolyline([]);
+        map.addOverlay(polyline);
+        polyline.enableDrawing();
+    
     /*
     var marker = new google.maps.Marker({
       position: MyLatLng,

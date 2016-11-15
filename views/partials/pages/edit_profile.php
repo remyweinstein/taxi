@@ -1,10 +1,11 @@
 <?php
 $json_data = array ('title' => 'Редактирование',
             'content' => '
-                <form class="jq_form-edit-profile form-edit-profile" action="" method="post" enctype="multipart/form-data">
+                <form class="jq_form-edit-profile form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
                     <p>
-                        <img class="avatar" src="" alt="" style="width: 100px; height: 100px; background-color: grey;" />
-                        <input type="file" name="ava_file" />
+                        <img class="avatar" src="" alt="" />
+                        <input type="file" name="ava_file" /><br/>
+                        <a href="#" class="jq_clear_photo">удалить</a>
                         </p>
                     <p><input type="text" name="name" value="" /></p>
                     <p><input type="text" class="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>

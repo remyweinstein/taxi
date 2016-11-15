@@ -24,12 +24,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#driver__options">
-                        <i class="icon-cog-alt"></i>
-                        Опции авто
-                    </a>
-                </li>
-                <li>
                     <a href="#driver__my_account">
                         <i class="icon-money"></i>
                         Мой кабинет
