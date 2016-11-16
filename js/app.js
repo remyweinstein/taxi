@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function(){
     geoFindMe();
     
     //=Main Menu Events=
-    var menu = document.querySelectorAll('.menu')[0];
+    var menu = document.querySelector('.menu');
     new Hammer(menu,{domEvents: true});
     menu.addEventListener('swipeleft', function(){
         swipeMenu(-1);
@@ -52,11 +52,11 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     
-    document.querySelectorAll('.header__burger')[0].addEventListener('click', function(){
+    document.querySelector('.header__burger').addEventListener('click', function(){
         swipeMenu(1);
     });
     //=================
-    var content = document.querySelectorAll('.content')[0];
+    var content = document.querySelector('.content');
         content.addEventListener('click', function(event){
             var target = event.target;
             while(target !== this){
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.click === 'field_add'){
                     var just_add = document.querySelectorAll('.icon-record').length;
                     if(just_add < 3) {
-                        var el = document.querySelectorAll('.order-city-to')[0];                        
+                        var el = document.querySelector('.order-city-to');                        
                         var new_field = document.createElement('div');
                             new_field.className += 'form-order-city__field order-city-from';
                             new_field.innerHTML = '<i class="icon-record form-order-city__label"></i><span class="form-order-city__wrap"><input type="text" name="from_plus[]" value="" placeholder="Заезд"/></span><span data-click="field_delete" class="form-order-city__field_delete"><i class="icon-trash"></i></span>';
@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     },function (results, status){
                         if(status === google.maps.GeocoderStatus.OK){
                             localStorage.setItem('_address_'+name, getStreenFromGoogle(results));
-                            document.querySelectorAll('input[name="from"]')[0].value = localStorage.getItem('_address_from');
-                            document.querySelectorAll('input[name="to"]')[0].value = localStorage.getItem('_address_to');
+                            document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
+                            document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
                         }
                       });
                 }
@@ -138,10 +138,10 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                     //= Form Taxy Client City =
                 if(target.dataset.submit === 'taxy-client-city'){
-                    var from_address = document.querySelectorAll('.adress_from')[0].value;
-                    var to_address = document.querySelectorAll('.adress_to')[0].value;
-                    var price = document.querySelectorAll('[name="cost"]')[0].value;
-                    var comment = document.querySelectorAll('[name="description"]')[0].value;
+                    var from_address = document.querySelector('.adress_from').value;
+                    var to_address = document.querySelector('.adress_to').value;
+                    var price = document.querySelector('[name="cost"]').value;
+                    var comment = document.querySelector('[name="description"]').value;
                     
                     saveAddress(from_address, to_address);
                     
@@ -161,8 +161,8 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('babyChair', 0);
                         
                     var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/order?token='+my_token);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.open('POST', 'https://'+server_uri+'/order?token='+my_token, true);
+                        //xhr.setRequestHeader('Content-Type', 'application/json');
                         xhr.onload = function() {
                             if (xhr.status === 200) {
                                 var response = JSON.parse(xhr.responseText);
@@ -180,8 +180,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Form auth login =
                 if(target.dataset.submit === 'form-auth'){
                     var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/register?phone=7'+document.querySelectorAll('input[name="phone"]')[0].value);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.open('POST', 'https://'+server_uri+'/register?phone=7'+document.querySelector('input[name="phone"]').value, true);
+                        //xhr.setRequestHeader('Content-Type', 'application/json');
                         xhr.onload = function() {
                             if (xhr.status === 200) {
                                 var response = JSON.parse(xhr.responseText);
@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Form auth SMS =
                 if(target.dataset.submit === 'form-auth-sms'){
                     var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/confirm?token='+my_token+'&smsCode='+document.querySelectorAll('input[name="sms"]')[0].value);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.open('POST', 'https://'+server_uri+'/confirm?token='+my_token+'&smsCode='+document.querySelector('input[name="sms"]').value, true);
+                        //xhr.setRequestHeader('Content-Type', 'application/json');
                         xhr.onload = function() {
                             if (xhr.status === 200) {
                                 var response = JSON.parse(xhr.responseText);
@@ -214,17 +214,17 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                     //= Form edit profile = 
                 if(target.dataset.submit === 'form-edit-profile'){
-                    var file = document.querySelectorAll('input[name=ava_file]')[0].files[0];
+                    var file = document.querySelector('input[name=ava_file]').files[0];
                     var data = new FormData();
                     data.append('photo', file, file.name);
-                    data.append('name', document.querySelectorAll('input[name=name]')[0].value);
-                    data.append('birthday', dateToBase(document.querySelectorAll('input[name=dob]')[0].value));
-                    data.append('city', document.querySelectorAll('select[name=city]').value);
-                    data.append('sex', document.querySelectorAll('select[name=sex]').value);
+                    data.append('name', document.querySelector('input[name=name]').value);
+                    data.append('birthday', dateToBase(document.querySelector('input[name=dob]').value));
+                    data.append('city', document.querySelector('select[name=city]').value);
+                    data.append('sex', document.querySelector('select[name=sex]').value);
 
                     var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/profile?token='+my_token);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.open('POST', 'https://'+server_uri+'/profile?token='+my_token, true);
+                        //xhr.setRequestHeader('Content-Type', 'application/json');
                         xhr.onload = function() {
                             if (xhr.status === 200) {
                                 var response = JSON.parse(xhr.responseText);
@@ -241,11 +241,11 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Form edit auto =
                 if(target.dataset.submit === 'form-edit-auto'){
                     
-                    var sel_brand = document.querySelectorAll('select[name="brand"]')[0];
-                    var sel_type = document.querySelectorAll('select[name="type"]')[0];
+                    var sel_brand = document.querySelector('select[name="brand"]');
+                    var sel_type = document.querySelector('select[name="type"]');
                     
                     var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, 
-                        { color: document.querySelectorAll('input[name="color"]')[0].value, number: document.querySelectorAll('input[name="number"]')[0].value, model: document.querySelectorAll('input[name="model"]')[0].value, tonnage: document.querySelectorAll('input[name="tonnage"]')[0].value, brand: sel_brand.options[sel_brand.selectedIndex].text }, 
+                        { color: document.querySelector('input[name="color"]').value, number: document.querySelector('input[name="number"]').value, model: document.querySelector('input[name="model"]').value, tonnage: document.querySelector('input[name="tonnage"]').value, brand: sel_brand.options[sel_brand.selectedIndex].text }, 
                         function() {}, "json");
                     jqxhr.done(function(data) {
                         if(data.ok){
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         }
                     }, "json");
                     var jqxhr2 = $.post("https://"+server_uri+"/auto?token="+my_token, 
-                        { conditioner: document.querySelectorAll('input[name="conditioner"]:checked')[0].value, type: sel_type.options[sel_type.selectedIndex].text }, 
+                        { conditioner: document.querySelector('input[name="conditioner"]:checked').value, type: sel_type.options[sel_type.selectedIndex].text }, 
                         function() {}, "json");
                     jqxhr2.done(function(data) {
                         if(data.ok){
@@ -338,8 +338,11 @@ document.addEventListener('DOMContentLoaded', function(){
 function init(){
     if(my_token !=="" ){
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
+                //xhr.setRequestHeader('Access-Control-Allow-Origin', 'https://192.168.20.90');
+                //xhr.setRequestHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+                //xhr.setRequestHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
@@ -354,12 +357,12 @@ function init(){
                             my_city = response.profile.city;
                             my_avatar = response.profile.photo;
                             if(document.querySelectorAll('.jq_my_name').length){
-                                document.querySelectorAll('.jq_my_name')[0].innerHTML = my_name;
-                                document.querySelectorAll('.jq_my_phone')[0].innerHTML = my_phone;
+                                document.querySelector('.jq_my_name').innerHTML = my_name;
+                                document.querySelector('.jq_my_phone').innerHTML = my_phone;
                                 if(!my_avatar){
                                     my_avatar = default_avatar;
                                 }
-                                document.querySelectorAll('.menu__desc_avatar')[0].src = my_avatar;
+                                document.querySelector('.menu__desc_avatar').src = my_avatar;
                             }
                         }
                 }
@@ -369,14 +372,14 @@ function init(){
 
     if(document.querySelectorAll('[data-id="driver_city_orders"]').length){
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&fromCity='+my_city);
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&fromCity='+my_city, true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
                         console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                         console.log('Messages: ' + response.messages);
-                        var toAppend = document.querySelectorAll('.list-orders')[0];
+                        var toAppend = document.querySelector('.list-orders');
                         for(var i=0; i<response.orders.length; i++){
                             show('LI','<div class="list-orders_personal"><img src="'+response.orders[i].agent.photo+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+response.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
                         }
@@ -394,14 +397,14 @@ function init(){
     }
     if(document.querySelectorAll('[data-id="client_my_orders"]').length){
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&my=1');
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&my=1', true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
                     console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                     console.log('Messages: ' + response.messages);
-                    var toAppend = document.querySelectorAll('.myorders')[0];
+                    var toAppend = document.querySelector('.myorders');
                     for(var i=0; i < response.orders.length; i++){
                         show('LI','<p class="myorders__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__from">'+response.orders[i].fromAddress+'</p><p class="myorders__to">'+response.orders[i].toAddress0+'</p><p class="myorders__summa">'+response.orders[i].price+'</p><p class="myorders__info">'+response.orders[i].comment+'</p>');
                     }
@@ -421,23 +424,23 @@ function init(){
     //= Form edit auto =
     if(document.querySelectorAll('.jq_form-edit-auto').length){
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
-                    document.querySelectorAll('input[name="color"]')[0].value = response.profile.color;
-                    document.querySelectorAll('input[name="number"]')[0].value = response.profile.number;
-                    document.querySelectorAll('input[name="model"]')[0].value = response.profile.model;
-                    document.querySelectorAll('input[name="tonnage"]')[0].value = response.profile.tonnage;
+                    document.querySelector('input[name="color"]').value = response.profile.color;
+                    document.querySelector('input[name="number"]').value = response.profile.number;
+                    document.querySelector('input[name="model"]').value = response.profile.model;
+                    document.querySelector('input[name="tonnage"]').value = response.profile.tonnage;
                     var brand = $('select[name="brand"] option[value="'+response.profile.brand+'"]');
                         brand.attr('selected', 'true');
                 }
             };
             xhr.send();
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/auto?token='+my_token);
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/auto?token='+my_token, true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
@@ -453,28 +456,30 @@ function init(){
     //= Form edit profile =
     if(document.querySelectorAll('.jq_form-edit-profile').length){
         var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
-            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
-                    document.querySelectorAll('input[name="name"]')[0].value = response.profile.name;
-                    document.querySelectorAll('input[name="dob"]')[0].value = dateFromBase(response.profile.birthday);
+                    document.querySelector('input[name="name"]').value = response.profile.name;
+                    document.querySelector('input[name="dob"]').value = dateFromBase(response.profile.birthday);
                     var sex = (response.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
                         sex.attr('selected', 'true');
                     var city = $('select[name="city"] option[value="'+response.profile.city+'"]');
                         city.attr('selected', 'true');
-                    document.querySelectorAll('.avatar')[0].src = my_avatar;
+                    document.querySelector('.avatar').src = my_avatar;
                 }
             };
             xhr.send();
     }  
 
    //=Change height '.content'=
-   $('.content').css('height',$(window).outerHeight() - $('.header').outerHeight());
+   document.querySelector('.content').style.height = (window.innerHeight - outerHeight(document.querySelector('.header')))+'px';
    //==========================
    
     tabs = $('.tabs ul li');
+    //tabs = document.querySelectorAll('.tabs ul li');
+    //console.log(tabs);
     
     if(tabs.length){
         var tab_count = tabs.length;
@@ -485,8 +490,8 @@ function init(){
         new Hammer($('.tabs__wrapper')[0],{domEvents: true});
     }
     if(document.querySelectorAll('.form-order-city').length){
-        document.querySelectorAll('input[name="from"]')[0].value = localStorage.getItem('_address_from');
-        document.querySelectorAll('input[name="to"]')[0].value = localStorage.getItem('_address_to');
+        document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
+        document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
     }
     
     if(document.querySelectorAll('#map_canvas_choice').length){
@@ -541,7 +546,7 @@ function geoFindMe(){
 }
 
 function swipeMenu(route){
-    var menu = document.querySelectorAll('.menu')[0];
+    var menu = document.querySelector('.menu');
     var state = (route>0)?'opened':'closed';
     menu.classList.remove('menu--closed');
     menu.classList.remove('menu--opened');
@@ -582,29 +587,31 @@ function loadPage(url){
     */
     url = url.replace('#','');
     var data = url.split('__');
-    document.querySelectorAll(".loading")[0].style.visibility = "visible";
+    document.querySelector(".loading").style.visibility = "visible";
     
+    var data = new FormData();
+        data.append('section', data[0]);
+        data.append('page', data[1]);
     var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'routes.php');
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.open('POST', 'routes.php', true);
+        //xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
             if (xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
-                document.querySelectorAll('.header__title')[0].innerHTML = response.title;
-                document.querySelectorAll('.content')[0].innerHTML = response.content;
+                console.log(response);
+                console.log(response.content);
+                document.querySelector('.header__title').innerHTML = response.title;
+                document.querySelector('.content').innerHTML = response.content;
                 if(data[0] !== lastsection || lastsection === '') {
-                    document.querySelectorAll('.menu__response')[0].innerHTML = response[0].menu;
+                    document.querySelector('.menu__response').innerHTML = response[0].menu;
                 }
                 lastsection = data[0];
 
-                document.querySelectorAll(".loading")[0].style.visibility = "hidden";
+                document.querySelector(".loading").style.visibility = "hidden";
                 init();
             }
         };
-        xhr.send(JSON.stringify({
-            section: data[0],
-            page: data[1]
-        }));
+        xhr.send(data);
 }
 
 //= Google maps =
@@ -770,6 +777,13 @@ function dateToBase(dob){
     dob = dob[2]+'-'+dob[1]+'-'+dob[0];
     return dob;
 }
+function outerHeight(el) {
+  var height = el.offsetHeight;
+  var style = getComputedStyle(el);
+
+  height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+  return height;
+}
 function datetimeForPeople(date,options){
     if(options===undefined){
         options = "TIME_AND_TODAY";
@@ -788,7 +802,6 @@ function datetimeForPeople(date,options){
     }
     var dater = date[1].split(":");
     time_text = dater[0]+':'+dater[1];
-    
     
     if(options==="ONLY_TIME"){
         date = time_text;
