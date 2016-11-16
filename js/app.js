@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var menu = document.querySelectorAll('.menu')[0];
     new Hammer(menu,{domEvents: true});
     menu.addEventListener('swipeleft', function(){
-        swipeMenu('-');
+        swipeMenu(-1);
     });
     
         //= Main menu event click item =
@@ -40,11 +40,11 @@ document.addEventListener('DOMContentLoaded', function(){
                     }
                     li.className += 'menu__list--active';
                     //li.classList.add('menu__list--active');
-                    swipeMenu('-');
+                    swipeMenu(-1);
                 }
                     //= Click edit profile =
                 if(target.dataset.click === 'edit_profile'){
-                    swipeMenu('-');
+                    swipeMenu(-1);
                     document.location = '#pages__edit_profile';
                     return;
                 }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     
     document.querySelectorAll('.header__burger')[0].addEventListener('click', function(){
-        swipeMenu('+');
+        swipeMenu(1);
     });
     //=================
     var content = document.querySelectorAll('.content')[0];
@@ -159,55 +159,61 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('comment', comment);
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
-                    $.ajax({
-                        processData: false,
-                        enctype: 'multipart/form-data',
-                        dataType: 'json',
-                        contentType: false, 
-                        url: 'https://'+server_uri+'/order?token='+my_token,
-                        type: 'POST',
-                        data: data,
-                        success: function(data){
-                            console.log(data.messages);
-                            if(data.ok){
-                                console.log('id='+data.id);
-                                document.location= '#client__map';
+                        
+                    var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'https://'+server_uri+'/order?token='+my_token);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                    if(response.ok){
+                                        console.log('id='+response.id);
+                                        document.location= '#client__map';
+                                    }
                             }
-                        }
-                    });
+                        };
+                        xhr.send(data);
                     
                     return;
                 }
                 
                     //= Form auth login =
                 if(target.dataset.submit === 'form-auth'){
-                    var jqxhr = $.post("https://"+server_uri+"/register?phone=7"+$('input[name="phone"]').val(), function(){}, "json");
-                    jqxhr.done(function(data){
-                        if(data.ok){
-                            localStorage.setItem('_my_token', data.token);
-                            my_token = data.token;
-                            document.location= '#pages__sms';
-                            //loadPage('#pages__sms');
-                        }
-                    }, "json");
-                        //.fail(function(){})
-                        //.always(function(){});
+                    var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'https://'+server_uri+'/register?phone=7'+document.querySelectorAll('input[name="phone"]')[0].value);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                    if(response.ok){
+                                        localStorage.setItem('_my_token', response.token);
+                                        my_token = response.token;
+                                        document.location= '#pages__sms';
+                                    }
+                            }
+                        };
+                        xhr.send();
                 }
                 
                     //= Form auth SMS =
                 if(target.dataset.submit === 'form-auth-sms'){
-                    var jqxhr = $.post("https://"+server_uri+"/confirm?token="+my_token+"&smsCode="+$('input[name="sms"]').val(), function() {}, "json");
-                    jqxhr.done(function(data){ 
-                        if(data.ok){
-                            localStorage.setItem('_is_auth', 'true');              
-                            document.location= '/';
-                        }
-                    }, "json");
+                    var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'https://'+server_uri+'/confirm?token='+my_token+'&smsCode='+document.querySelectorAll('input[name="sms"]')[0].value);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                    if(response.ok){
+                                        localStorage.setItem('_is_auth', 'true');              
+                                        document.location= '/';
+                                    }
+                            }
+                        };
+                        xhr.send();
                 }
                 
                     //= Form edit profile = 
                 if(target.dataset.submit === 'form-edit-profile'){
-                    //var file = $('input[name=ava_file]').prop('files')[0];
                     var file = document.querySelectorAll('input[name=ava_file]')[0].files[0];
                     var data = new FormData();
                     data.append('photo', file, file.name);
@@ -216,23 +222,20 @@ document.addEventListener('DOMContentLoaded', function(){
                     data.append('city', document.querySelectorAll('select[name=city]').value);
                     data.append('sex', document.querySelectorAll('select[name=sex]').value);
 
-                    $.ajax({
-                        processData: false,
-                        enctype: 'multipart/form-data',
-                        dataType: 'json',
-                        contentType: false, 
-                        url: 'https://'+server_uri+'/profile?token='+my_token,
-                        type: 'POST',
-                        data: data,
-                        success: function(data){
-                            if(data.ok){
-                                document.location= '/';
-                                //checkURL(sublasturl);
-                                //loadPage(sublasturl);
+                    var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'https://'+server_uri+'/profile?token='+my_token);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                    if(response.ok){
+                                        document.location= '/';
+                                        //checkURL(sublasturl);
+                                        //loadPage(sublasturl);
+                                    }
                             }
-
-                        }
-                    });
+                        };
+                        xhr.send(data);
                 }
                 
                     //= Form edit auto =
@@ -334,101 +337,137 @@ document.addEventListener('DOMContentLoaded', function(){
 
 function init(){
     if(my_token !=="" ){
-        $.get("https://"+server_uri+"/profile?token="+my_token,
-            function(data) {
-                if(!data.ok && lasturl !== "#pages__sms"){
-                    is_auth = false;
-                    my_token = "";
-                    localStorage.removeItem('_is_auth');
-                    localStorage.removeItem('_my_token');
-                } else {
-                    my_phone = data.profile.phone;
-                    my_name = data.profile.name;
-                    my_city = data.profile.city;
-                    my_avatar = data.profile.photo;
-                    if(document.querySelectorAll('.jq_my_name').length){
-                        document.querySelectorAll('.jq_my_name')[0].innerHTML = my_name;
-                        document.querySelectorAll('.jq_my_phone')[0].innerHTML = my_phone;
-                        if(!my_avatar){
-                            my_avatar = default_avatar;
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                        if(!response.ok && lasturl !== "#pages__sms"){
+                            is_auth = false;
+                            my_token = "";
+                            localStorage.removeItem('_is_auth');
+                            localStorage.removeItem('_my_token');
+                        } else {
+                            my_phone = response.profile.phone;
+                            my_name = response.profile.name;
+                            my_city = response.profile.city;
+                            my_avatar = response.profile.photo;
+                            if(document.querySelectorAll('.jq_my_name').length){
+                                document.querySelectorAll('.jq_my_name')[0].innerHTML = my_name;
+                                document.querySelectorAll('.jq_my_phone')[0].innerHTML = my_phone;
+                                if(!my_avatar){
+                                    my_avatar = default_avatar;
+                                }
+                                document.querySelectorAll('.menu__desc_avatar')[0].src = my_avatar;
+                            }
                         }
-                        document.querySelectorAll('.menu__desc_avatar')[0].src = my_avatar;
-                    }
                 }
-            }, "json");
+            };
+            xhr.send();
     }
 
     if(document.querySelectorAll('[data-id="driver_city_orders"]').length){
-        $.get("https://"+server_uri+"/orders?token="+my_token+"&isIntercity=0&fromCity="+my_city,
-            function(data) {
-                console.log('Ok?: ' + data.ok + ', orders='+data.orders);
-                console.log('Messages: ' + data.messages);
-                var toAppend = document.querySelectorAll('.list-orders')[0];
-                for(var i=0; i<data.orders.length; i++){
-                    show('LI','<div class="list-orders_personal"><img src="'+data.orders[i].agent.photo+'" alt="" /><br/>'+data.orders[i].agent.name+'<br/>'+datetimeForPeople(data.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+data.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+data.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+data.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+data.orders[i].comment+'</div></div>');
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&fromCity='+my_city);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                        console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                        console.log('Messages: ' + response.messages);
+                        var toAppend = document.querySelectorAll('.list-orders')[0];
+                        for(var i=0; i<response.orders.length; i++){
+                            show('LI','<div class="list-orders_personal"><img src="'+response.orders[i].agent.photo+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+response.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
+                        }
+                        if(response.orders.length<1){
+                            show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                        }
+                        function show(nod, a){
+                            var node = document.createElement(nod);
+                            node.innerHTML = a;
+                            toAppend.appendChild(node);                    
+                        }
                 }
-                if(data.orders.length<1){
-                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-                }
-                function show(nod, a){
-                    var node = document.createElement(nod);
-                    node.innerHTML = a;
-                    toAppend.appendChild(node);                    
-                }
-            }, "json");
+            };
+            xhr.send();
     }
     if(document.querySelectorAll('[data-id="client_my_orders"]').length){
-        $.get("https://"+server_uri+"/orders?token="+my_token+"&isIntercity=0&my=1",
-            function(data) {
-                console.log('Ok?: ' + data.ok + ', orders='+data.orders);
-                console.log('Messages: ' + data.messages);
-                var toAppend = document.querySelectorAll('.myorders')[0];
-                for(var i=0; i < data.orders.length; i++){
-                    show('LI','<p class="myorders__time">'+datetimeForPeople(data.orders[i].created)+'</p><p class="myorders__from">'+data.orders[i].fromAddress+'</p><p class="myorders__to">'+data.orders[i].toAddress0+'</p><p class="myorders__summa">'+data.orders[i].price+'</p><p class="myorders__info">'+data.orders[i].comment+'</p>');
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&my=1');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                    console.log('Messages: ' + response.messages);
+                    var toAppend = document.querySelectorAll('.myorders')[0];
+                    for(var i=0; i < response.orders.length; i++){
+                        show('LI','<p class="myorders__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__from">'+response.orders[i].fromAddress+'</p><p class="myorders__to">'+response.orders[i].toAddress0+'</p><p class="myorders__summa">'+response.orders[i].price+'</p><p class="myorders__info">'+response.orders[i].comment+'</p>');
+                    }
+                    if(response.orders.length < 1){
+                        show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                    }
+                    function show(nod, a){
+                        var node = document.createElement(nod);
+                        node.innerHTML = a;
+                        toAppend.appendChild(node);                    
+                    }
                 }
-                if(data.orders.length < 1){
-                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-                }
-                function show(nod, a){
-                    var node = document.createElement(nod);
-                    node.innerHTML = a;
-                    toAppend.appendChild(node);                    
-                }
-            }, "json");
+            };
+            xhr.send();
     }
 
     //= Form edit auto =
     if(document.querySelectorAll('.jq_form-edit-auto').length){
-        $.get("https://"+server_uri+"/profile?token="+my_token,
-            function(data){
-                document.querySelectorAll('input[name="color"]')[0].value = data.profile.color;
-                document.querySelectorAll('input[name="number"]')[0].value = data.profile.number;
-                document.querySelectorAll('input[name="model"]')[0].value = data.profile.model;
-                document.querySelectorAll('input[name="tonnage"]')[0].value = data.profile.tonnage;
-                var brand = $('select[name="brand"] option[value="'+data.profile.brand+'"]');
-                    brand.attr('selected', 'true');
-            }, "json");
-        $.get("https://"+server_uri+"/auto?token="+my_token,
-            function(data){
-                var conditioner = (data.auto.conditioner)?$('input[name="conditioner"][value="1"]'):$('input[name="conditioner"][value="0"]');
-                    conditioner.attr('checked', 'checked');
-                var type = $('select[name="type"] option[value="'+data.auto.type+'"]');
-                    type.attr('selected', 'true');
-            }, "json");
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    document.querySelectorAll('input[name="color"]')[0].value = response.profile.color;
+                    document.querySelectorAll('input[name="number"]')[0].value = response.profile.number;
+                    document.querySelectorAll('input[name="model"]')[0].value = response.profile.model;
+                    document.querySelectorAll('input[name="tonnage"]')[0].value = response.profile.tonnage;
+                    var brand = $('select[name="brand"] option[value="'+response.profile.brand+'"]');
+                        brand.attr('selected', 'true');
+                }
+            };
+            xhr.send();
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/auto?token='+my_token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var conditioner = (response.auto.conditioner)?$('input[name="conditioner"][value="1"]'):$('input[name="conditioner"][value="0"]');
+                        conditioner.attr('checked', 'checked');
+                    var type = $('select[name="type"] option[value="'+response.auto.type+'"]');
+                        type.attr('selected', 'true');
+                }
+            };
+            xhr.send();
     }  
 
     //= Form edit profile =
-    if($('.jq_form-edit-profile').length){
-        $.get("https://"+server_uri+"/profile?token="+my_token,
-            function(data) {
-                document.querySelectorAll('input[name="name"]')[0].value = data.profile.name;
-                document.querySelectorAll('input[name="dob"]')[0].value = dateFromBase(data.profile.birthday);
-                var sex = (data.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
-                    sex.attr('selected', 'true');
-                var city = $('select[name="city"] option[value="'+data.profile.city+'"]');
-                    city.attr('selected', 'true');
-                document.querySelectorAll('.avatar')[0].src = my_avatar;
-            }, "json");
+    if(document.querySelectorAll('.jq_form-edit-profile').length){
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    document.querySelectorAll('input[name="name"]')[0].value = response.profile.name;
+                    document.querySelectorAll('input[name="dob"]')[0].value = dateFromBase(response.profile.birthday);
+                    var sex = (response.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
+                        sex.attr('selected', 'true');
+                    var city = $('select[name="city"] option[value="'+response.profile.city+'"]');
+                        city.attr('selected', 'true');
+                    document.querySelectorAll('.avatar')[0].src = my_avatar;
+                }
+            };
+            xhr.send();
     }  
 
    //=Change height '.content'=
@@ -460,11 +499,10 @@ function init(){
         initialize();
     }
 
-    var tabs_content = document.querySelectorAll('.tabs_content')[0];
-        tabs_content.addEventListener('swipeleft', function(){
+    $('.tabs_content').on('swipeleft', function(){
             swipeTabs(1);
         });
-        tabs_content.addEventListener('swiperight', function(){
+    $('.tabs_content').on('swiperight', function(){
             swipeTabs(-1);
         });
         
@@ -503,9 +541,11 @@ function geoFindMe(){
 }
 
 function swipeMenu(route){
-    $('.menu').animate({
-                    left: route+'=80%'
-                  }, 250);
+    var menu = document.querySelectorAll('.menu')[0];
+    var state = (route>0)?'opened':'closed';
+    menu.classList.remove('menu--closed');
+    menu.classList.remove('menu--opened');
+    menu.classList.add('menu--'+state);
 }
 
 function swipeTabs(route){
@@ -543,28 +583,28 @@ function loadPage(url){
     url = url.replace('#','');
     var data = url.split('__');
     document.querySelectorAll(".loading")[0].style.visibility = "visible";
-    $.ajax({
-        dataType: 'json',
-        url: 'routes.php',
-        type: 'POST',
-        data: {
-            section: data[0],
-            page: data[1]
-        },
-        success: function(response){
-            if(parseInt(response) !== 0){
+    
+    var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'routes.php');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
                 document.querySelectorAll('.header__title')[0].innerHTML = response.title;
                 document.querySelectorAll('.content')[0].innerHTML = response.content;
                 if(data[0] !== lastsection || lastsection === '') {
                     document.querySelectorAll('.menu__response')[0].innerHTML = response[0].menu;
                 }
                 lastsection = data[0];
-                
+
                 document.querySelectorAll(".loading")[0].style.visibility = "hidden";
                 init();
             }
-        }
-    });
+        };
+        xhr.send(JSON.stringify({
+            section: data[0],
+            page: data[1]
+        }));
 }
 
 //= Google maps =

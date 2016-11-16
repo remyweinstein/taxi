@@ -11,7 +11,14 @@
     position: fixed;
     top: 0;
     z-index: 100;
-    left: -80%;
+    &--opened{
+        transition: $speed_open_menu;
+        left: 0%;
+    }
+    &--closed{
+        transition: $speed_open_menu;
+        left: -80%;
+    }
     &__desc{
         border-bottom: 1px solid #2E2E2E;
         height: 4em;

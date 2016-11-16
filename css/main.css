@@ -556,8 +556,13 @@ button:focus {
   font-size: 0.85em;
   position: fixed;
   top: 0;
-  z-index: 100;
-  left: -80%; }
+  z-index: 100; }
+  .menu--opened {
+    transition: 0.2s;
+    left: 0%; }
+  .menu--closed {
+    transition: 0.2s;
+    left: -80%; }
   .menu__desc {
     border-bottom: 1px solid #2E2E2E;
     height: 4em;
