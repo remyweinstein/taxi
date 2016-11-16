@@ -1,7 +1,7 @@
 <?php
 $json_data = array ('title' => 'Мой авто',
             'content' => '
-                <form class="jq_form-edit-auto form-edit-auto" action="" method="post">
+                <form data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
                     <p>
                         <label>Марка:
                             <select name="brand">

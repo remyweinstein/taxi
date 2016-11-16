@@ -10,15 +10,15 @@ $json_data = array ('title' => 'Межгород',
             </nav>
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
+                <div data-tabcontent="1" data-tab-content="1" class="tabs_content" id="1">
                     <div class="filter-intercity">
                         <p>
                             <i class="icon-building"></i>
-                            <input type="text" class="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
+                            <input type="text" data-keyup="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
                         </p>
                         <p>
                             <i class="icon-building"></i>
-                            <input type="text" class="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
+                            <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
                         </p>
                     </div>
                     <ul class="list-extended">
@@ -49,7 +49,7 @@ $json_data = array ('title' => 'Межгород',
                         </li>
                     </ul>
                 </div>
-                <div data-tab-content="2" class="tabs_content">
+                <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
                     <div class="filter-intercity">
                         <p>
                             <i class="icon-building"></i>
@@ -75,7 +75,7 @@ $json_data = array ('title' => 'Межгород',
                         </li>
                     </ul>
                 </div>
-                <div data-tab-content="3" class="tabs_content">
+                <div data-tabcontent="3" data-tab-content="3" class="tabs_content">
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">

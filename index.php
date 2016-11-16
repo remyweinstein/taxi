@@ -11,7 +11,7 @@
     </head>
     <body>
         <div class="menu">
-            <div class="menu__desc">
+            <div data-click="edit_profile" class="menu__desc">
                 <img src="images/no_avatar.png" alt="" class="menu__desc_avatar" />
                 <div class="menu__desc_info">
                     <span class="jq_my_name"></span><br />
