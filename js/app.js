@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     },function (results, status){
                         if(status === google.maps.GeocoderStatus.OK){
                             localStorage.setItem('_address_'+name, getStreenFromGoogle(results));
-                            $('input[name="from"]').val(localStorage.getItem('_address_from'));
-                            $('input[name="to"]').val(localStorage.getItem('_address_to'));
+                            document.querySelectorAll('input[name="from"]')[0].value = localStorage.getItem('_address_from');
+                            document.querySelectorAll('input[name="to"]')[0].value = localStorage.getItem('_address_to');
                         }
                       });
                 }
@@ -207,13 +207,14 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                     //= Form edit profile = 
                 if(target.dataset.submit === 'form-edit-profile'){
-                    var file = $('input[name=ava_file]').prop('files')[0];
+                    //var file = $('input[name=ava_file]').prop('files')[0];
+                    var file = document.querySelectorAll('input[name=ava_file]')[0].files[0];
                     var data = new FormData();
                     data.append('photo', file, file.name);
-                    data.append('name', $('input[name=name]').val());
-                    data.append('birthday', dateToBase($('input[name=dob]').val()));
-                    data.append('city', $('select[name=city]').val());
-                    data.append('sex', $('select[name=sex]').val());
+                    data.append('name', document.querySelectorAll('input[name=name]')[0].value);
+                    data.append('birthday', dateToBase(document.querySelectorAll('input[name=dob]')[0].value));
+                    data.append('city', document.querySelectorAll('select[name=city]').value);
+                    data.append('sex', document.querySelectorAll('select[name=sex]').value);
 
                     $.ajax({
                         processData: false,
@@ -236,8 +237,12 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                     //= Form edit auto =
                 if(target.dataset.submit === 'form-edit-auto'){
+                    
+                    var sel_brand = document.querySelectorAll('select[name="brand"]')[0];
+                    var sel_type = document.querySelectorAll('select[name="type"]')[0];
+                    
                     var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, 
-                        { color: $('input[name="color"]').val(), number: $('input[name="number"]').val(), model: $('input[name="model"]').val(), tonnage: $('input[name="tonnage"]').val(), brand: $('select[name="brand"] option:selected').text() }, 
+                        { color: document.querySelectorAll('input[name="color"]')[0].value, number: document.querySelectorAll('input[name="number"]')[0].value, model: document.querySelectorAll('input[name="model"]')[0].value, tonnage: document.querySelectorAll('input[name="tonnage"]')[0].value, brand: sel_brand.options[sel_brand.selectedIndex].text }, 
                         function() {}, "json");
                     jqxhr.done(function(data) {
                         if(data.ok){
@@ -245,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         }
                     }, "json");
                     var jqxhr2 = $.post("https://"+server_uri+"/auto?token="+my_token, 
-                        { conditioner: $('input[name="conditioner"]:checked').val(), type: $('select[name="type"] option:selected').val() }, 
+                        { conditioner: document.querySelectorAll('input[name="conditioner"]:checked')[0].value, type: sel_type.options[sel_type.selectedIndex].text }, 
                         function() {}, "json");
                     jqxhr2.done(function(data) {
                         if(data.ok){
@@ -341,13 +346,13 @@ function init(){
                     my_name = data.profile.name;
                     my_city = data.profile.city;
                     my_avatar = data.profile.photo;
-                    if($('.jq_my_name').length){
-                        $('.jq_my_name').html(my_name);
-                        $('.jq_my_phone').html(my_phone);
+                    if(document.querySelectorAll('.jq_my_name').length){
+                        document.querySelectorAll('.jq_my_name')[0].innerHTML = my_name;
+                        document.querySelectorAll('.jq_my_phone')[0].innerHTML = my_phone;
                         if(!my_avatar){
                             my_avatar = default_avatar;
                         }
-                        $('.menu__desc_avatar').prop('src', my_avatar);
+                        document.querySelectorAll('.menu__desc_avatar')[0].src = my_avatar;
                     }
                 }
             }, "json");
@@ -393,13 +398,13 @@ function init(){
     }
 
     //= Form edit auto =
-    if($('.jq_form-edit-auto').length){
+    if(document.querySelectorAll('.jq_form-edit-auto').length){
         $.get("https://"+server_uri+"/profile?token="+my_token,
             function(data){
-                $('input[name="color"]').val(data.profile.color);
-                $('input[name="number"]').val(data.profile.number);
-                $('input[name="model"]').val(data.profile.model);
-                $('input[name="tonnage"]').val(data.profile.tonnage);
+                document.querySelectorAll('input[name="color"]')[0].value = data.profile.color;
+                document.querySelectorAll('input[name="number"]')[0].value = data.profile.number;
+                document.querySelectorAll('input[name="model"]')[0].value = data.profile.model;
+                document.querySelectorAll('input[name="tonnage"]')[0].value = data.profile.tonnage;
                 var brand = $('select[name="brand"] option[value="'+data.profile.brand+'"]');
                     brand.attr('selected', 'true');
             }, "json");
@@ -416,13 +421,13 @@ function init(){
     if($('.jq_form-edit-profile').length){
         $.get("https://"+server_uri+"/profile?token="+my_token,
             function(data) {
-                $('input[name="name"]').val(data.profile.name);
-                $('input[name="dob"]').val(dateFromBase(data.profile.birthday));
+                document.querySelectorAll('input[name="name"]')[0].value = data.profile.name;
+                document.querySelectorAll('input[name="dob"]')[0].value = dateFromBase(data.profile.birthday);
                 var sex = (data.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
                     sex.attr('selected', 'true');
                 var city = $('select[name="city"] option[value="'+data.profile.city+'"]');
                     city.attr('selected', 'true');
-                $('.avatar').prop('src', my_avatar);
+                document.querySelectorAll('.avatar')[0].src = my_avatar;
             }, "json");
     }  
 
@@ -440,27 +445,29 @@ function init(){
 
         new Hammer($('.tabs__wrapper')[0],{domEvents: true});
     }
-    if($('.form-order-city').length){
-        $('input[name="from"]').val(localStorage.getItem('_address_from'));
-        $('input[name="to"]').val(localStorage.getItem('_address_to'));
+    if(document.querySelectorAll('.form-order-city').length){
+        document.querySelectorAll('input[name="from"]')[0].value = localStorage.getItem('_address_from');
+        document.querySelectorAll('input[name="to"]')[0].value = localStorage.getItem('_address_to');
     }
     
-    if($('#map_canvas_choice').length){
+    if(document.querySelectorAll('#map_canvas_choice').length){
         //google.maps.event.addDomListener(window, 'load', initialize_choice);
         initialize_choice();
     }
     
-    if($('#map_canvas').length){
+    if(document.querySelectorAll('#map_canvas').length){
         //google.maps.event.addDomListener(window, 'load', initialize);
         initialize();
     }
 
-    $('.tabs_content').on('swipeleft', function(){
-        swipeTabs(1);
-    });
-    $('.tabs_content').on('swiperight', function(){
-        swipeTabs(-1);
-    });
+    var tabs_content = document.querySelectorAll('.tabs_content')[0];
+        tabs_content.addEventListener('swipeleft', function(){
+            swipeTabs(1);
+        });
+        tabs_content.addEventListener('swiperight', function(){
+            swipeTabs(-1);
+        });
+        
 }
 
 function geoFindMe(){
