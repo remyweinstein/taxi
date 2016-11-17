@@ -54,11 +54,11 @@ $json_data = array ('title' => 'Грузоперевозки',
                 <div data-tab-content="3" class="tabs_content">
                 <ul class="myorders">
                     <li>
-                        <p class="myorders__time">Вчера, 23:19</p>
-                        <p class="myorders__from">Ленина, 57</p>
-                        <p class="myorders__to">Карла Маркса 108</p>
-                        <p class="myorders__summa">150</p>
-                        <p class="myorders__info">Рано утром</p>
+                        <p class="myorders__item__time">Вчера, 23:19</p>
+                        <p class="myorders__item__from">Ленина, 57</p>
+                        <p class="myorders__item__to">Карла Маркса 108</p>
+                        <p class="myorders__item__summa">150</p>
+                        <p class="myorders__item__info">Рано утром</p>
                     </li>
                 </ul>
                 </div>

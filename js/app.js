@@ -1,10 +1,10 @@
-var tabs;
+var tabs_content, tabs;
 var lasturl='',sublasturl='';
 var lastsection='';
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService;
 var my_position = ["x","y"];
-var server_uri = '192.168.20.90';
+var server_uri = 'https://192.168.20.90';
 var my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
 var default_avatar = 'images/no_avatar.png';
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         var el = document.querySelector('.order-city-to');                        
                         var new_field = document.createElement('div');
                             new_field.className += 'form-order-city__field order-city-from';
-                            new_field.innerHTML = '<i class="icon-record form-order-city__label"></i><span class="form-order-city__wrap"><input type="text" name="from_plus[]" value="" placeholder="Заезд"/></span><span data-click="field_delete" class="form-order-city__field_delete"><i class="icon-trash"></i></span>';
+                            new_field.innerHTML = '<i class="icon-record form-order-city__label"></i><span class="form-order-city__wrap"><input type="text" name="to_plus'+(just_add+1)+'" value="" placeholder="Заезд"/></span><span data-click="field_delete" class="form-order-city__field_delete"><i class="icon-trash"></i></span>';
                             var parentDiv = el.parentNode;
                             parentDiv.insertBefore(new_field, el);
 
@@ -95,12 +95,12 @@ document.addEventListener('DOMContentLoaded', function(){
 
                     //= Delete Photo Edit Profile =
                 if(target.dataset.click === 'clear_photo'){
-                    var jqxhr = $.post("https://"+server_uri+"/clear-photo?token="+my_token, {}, function() {}, "json");
-                    jqxhr.done(function(data){
-                        if(data.ok){
-                            $('.avatar').prop('src', default_avatar);
+                    RequestAJAX(server_uri, 'POST', 'clear-photo', my_token, '', '', function(response){
+                        if(response && response.ok){
+                            document.querySelector('.avatar').src = default_avatar;
                         }
-                    }, "json");
+                    });
+                    return;
                 }
                 
                     //= I choose location =
@@ -124,7 +124,30 @@ document.addEventListener('DOMContentLoaded', function(){
                             document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
                         }
                       });
+                    return;
                 }
+                
+                    //= Menu my Orders Item =
+                if(target.dataset.click === 'myorders_item_menu'){
+                    var menu = target.parentNode.children[1];
+                    var currentState = menu.style.display;
+                    if(currentState === 'none' || currentState === ''){
+                        menu.style.display = 'inline-block';
+                    } else {
+                        menu.style.display = 'none';
+                    }
+                    return;
+                }
+                        //= Menu my Orders Item DELETE order =
+                    if(target.dataset.click === 'myorders_item_menu_delete'){
+                        RequestAJAX(server_uri, 'GET', 'delete-order', my_token, '&id='+target.dataset.id, '', function(response){
+                            if(response && response.ok){
+                                var item = target.parentNode.parentNode.parentNode;
+                                    item.style.display = 'none';
+                            }
+                        });
+                    return;
+                    }
 
                 target = target.parentNode;
             }
@@ -142,125 +165,155 @@ document.addEventListener('DOMContentLoaded', function(){
                     var to_address = document.querySelector('.adress_to').value;
                     var price = document.querySelector('[name="cost"]').value;
                     var comment = document.querySelector('[name="description"]').value;
+                    var to1="",to2="",to3="";
+                    var data = new FormData();
                     
                     saveAddress(from_address, to_address);
+
+                    if(document.querySelector('[name="to_plus1"]')){
+                        to1 = document.querySelector('[name="to_plus1"]').value;
+                        data.append('toAddress1', to1);
+                    }
+                    if(document.querySelector('[name="to_plus2"]')){
+                        to2 = document.querySelector('[name="to_plus2"]').value;
+                        data.append('toAddress2', to2);
+                    }
+                    if(document.querySelector('[name="to_plus3"]')){
+                        to3 = document.querySelector('[name="to_plus3"]').value;
+                        data.append('toAddress3', to3);
+                    }
+                    saveWaypoints(to1,to2,to3);
                     
-                    var data = new FormData();
                         data.append('fromCity', my_city);
                         data.append('fromAddress', from_address);
                         data.append('toCity0', my_city);
                         data.append('toAddress0', to_address);
-                        //data.append('toAddress1', '');
-                        //data.append('toAddress2', '');
-                        //data.append('toAddress3', '');
                         data.append('isIntercity', 0);
                         //data.append('bidId', '');
                         data.append('price', price);
                         data.append('comment', comment);
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
-                        
-                    var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/order?token='+my_token, true);
-                        //xhr.setRequestHeader('Content-Type', 'application/json');
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
-                                    if(response.ok){
-                                        console.log('id='+response.id);
-                                        document.location= '#client__map';
-                                    }
-                            }
-                        };
-                        xhr.send(data);
-                    
+                    RequestAJAX(server_uri, 'POST', 'order', my_token, '', data, function(response){
+                        if(response && response.ok){
+                            console.log('id='+response.id);
+                            document.location= '#client__map';
+                        }
+                    });
                     return;
                 }
                 
                     //= Form auth login =
                 if(target.dataset.submit === 'form-auth'){
-                    var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/register?phone=7'+document.querySelector('input[name="phone"]').value, true);
-                        //xhr.setRequestHeader('Content-Type', 'application/json');
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
-                                    if(response.ok){
-                                        localStorage.setItem('_my_token', response.token);
-                                        my_token = response.token;
-                                        document.location= '#pages__sms';
-                                    }
-                            }
-                        };
-                        xhr.send();
+                    var phone = document.querySelector('input[name="phone"]').value;
+                    RequestAJAX(server_uri, 'POST', 'register', '', '?phone=7'+phone, '', function(response){
+                        if (response && response.ok) {
+                            localStorage.setItem('_my_token', response.token);
+                            my_token = response.token;
+                            document.location= '#pages__sms';
+                        }
+                    });
+                    return;
                 }
                 
                     //= Form auth SMS =
                 if(target.dataset.submit === 'form-auth-sms'){
-                    var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/confirm?token='+my_token+'&smsCode='+document.querySelector('input[name="sms"]').value, true);
-                        //xhr.setRequestHeader('Content-Type', 'application/json');
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
-                                    if(response.ok){
-                                        localStorage.setItem('_is_auth', 'true');              
-                                        document.location= '/';
-                                    }
-                            }
-                        };
-                        xhr.send();
+                    var sms = document.querySelector('input[name="sms"]').value;
+                    RequestAJAX(server_uri, 'POST', 'confirm', my_token, '&smsCode='+sms, '', function(response){
+                        if(response && response.ok){
+                            localStorage.setItem('_is_auth', 'true');              
+                            document.location= '/';
+                        }
+                    });
+                    return;
                 }
                 
                     //= Form edit profile = 
                 if(target.dataset.submit === 'form-edit-profile'){
                     var file = document.querySelector('input[name=ava_file]').files[0];
                     var data = new FormData();
-                    data.append('photo', file, file.name);
-                    data.append('name', document.querySelector('input[name=name]').value);
-                    data.append('birthday', dateToBase(document.querySelector('input[name=dob]').value));
-                    data.append('city', document.querySelector('select[name=city]').value);
-                    data.append('sex', document.querySelector('select[name=sex]').value);
-
-                    var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'https://'+server_uri+'/profile?token='+my_token, true);
-                        //xhr.setRequestHeader('Content-Type', 'application/json');
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
-                                    if(response.ok){
-                                        document.location= '/';
-                                        //checkURL(sublasturl);
-                                        //loadPage(sublasturl);
-                                    }
-                            }
-                        };
-                        xhr.send(data);
+                        data.append('photo', file, file.name);
+                        data.append('name', document.querySelector('input[name=myname]').value);
+                        data.append('birthday', dateToBase(document.querySelector('input[name=dob]').value));
+                        data.append('city', document.querySelector('select[name=city]').value);
+                        data.append('sex', document.querySelector('select[name=sex]').value);
+                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                        if(response && response.ok) {
+                            document.location= '/';
+                        }
+                    });
+                    return;
                 }
                 
                     //= Form edit auto =
                 if(target.dataset.submit === 'form-edit-auto'){
-                    
                     var sel_brand = document.querySelector('select[name="brand"]');
                     var sel_type = document.querySelector('select[name="type"]');
-                    
-                    var jqxhr = $.post("https://"+server_uri+"/profile?token="+my_token, 
-                        { color: document.querySelector('input[name="color"]').value, number: document.querySelector('input[name="number"]').value, model: document.querySelector('input[name="model"]').value, tonnage: document.querySelector('input[name="tonnage"]').value, brand: sel_brand.options[sel_brand.selectedIndex].text }, 
-                        function() {}, "json");
-                    jqxhr.done(function(data) {
-                        if(data.ok){
-                            //document.location= '/';
-                        }
-                    }, "json");
-                    var jqxhr2 = $.post("https://"+server_uri+"/auto?token="+my_token, 
-                        { conditioner: document.querySelector('input[name="conditioner"]:checked').value, type: sel_type.options[sel_type.selectedIndex].text }, 
-                        function() {}, "json");
-                    jqxhr2.done(function(data) {
-                        if(data.ok){
+                    var data = new FormData();
+                        data.append('color', document.querySelector('input[name="color"]').value);
+                        data.append('number', document.querySelector('input[name="number"]').value);
+                        data.append('model', document.querySelector('input[name="model"]').value);
+                        data.append('tonnage', document.querySelector('input[name="tonnage"]').value);
+                        data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);                        
+                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){});
+                    var data2 = new FormData();
+                        data2.append('conditioner', document.querySelector('input[name="conditioner"]:checked').value);
+                        data2.append('type', sel_type.options[sel_type.selectedIndex].text);
+                    RequestAJAX(server_uri, 'POST', 'auto', my_token, '', data2, function(response){
+                        if(response && response.ok){
                             document.location= '/';
                         }
-                    }, "json");
+                    });
+                    return;
                 }
+                
+                    //= Client Order Intercity =
+                if(target.dataset.submit === 'client_order_intercity'){
+                    
+                    var from_city = document.querySelector('[name="city_from"]').value;
+                    var to_city = document.querySelector('[name="city_to"]').value;
+                    var from_address = document.querySelector('[name="adress_from"]').value;
+                    var to_address = document.querySelector('[name="adress_to"]').value;
+                    var price = document.querySelector('[name="cost"]').value;
+                    var comment = document.querySelector('[name="description"]').value;
+                    var to1="",to2="",to3="";
+                    var data = new FormData();
+                    
+                    saveAddress(from_address, to_address);
+
+                    if(document.querySelector('[name="to_plus1"]')){
+                        to1 = document.querySelector('[name="to_plus1"]').value;
+                        data.append('toAddress1', to1);
+                    }
+                    if(document.querySelector('[name="to_plus2"]')){
+                        to2 = document.querySelector('[name="to_plus2"]').value;
+                        data.append('toAddress2', to2);
+                    }
+                    if(document.querySelector('[name="to_plus3"]')){
+                        to3 = document.querySelector('[name="to_plus3"]').value;
+                        data.append('toAddress3', to3);
+                    }
+                    saveWaypoints(to1,to2,to3);
+                    
+                        data.append('fromCity', from_city);
+                        data.append('fromAddress', from_address);
+                        data.append('toCity0', to_city);
+                        data.append('toAddress0', to_address);
+                        data.append('isIntercity', 1);
+                        //data.append('bidId', '');
+                        data.append('price', price);
+                        data.append('comment', comment);
+                        data.append('minibus', 0);
+                        data.append('babyChair', 0);
+                    RequestAJAX(server_uri, 'POST', 'order', my_token, '', data, function(response){
+                        if(response && response.ok){
+                            console.log('id='+response.id);
+                            changeTab(3);
+                        }
+                    });
+                    return;
+                }
+                
 
                 target = target.parentNode;
             }
@@ -285,7 +338,6 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Input Filtering ONLY DATE =
                 if(target.dataset.keypress === 'input_only_date'){
                     var text = target.value;
-                    console.log(text);
                     if(text.length>9){
                         e.preventDefault();
                     }
@@ -336,158 +388,183 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function init(){
-    if(my_token !=="" ){
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-                //xhr.setRequestHeader('Access-Control-Allow-Origin', 'https://192.168.20.90');
-                //xhr.setRequestHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-                //xhr.setRequestHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                        if(!response.ok && lasturl !== "#pages__sms"){
-                            is_auth = false;
-                            my_token = "";
-                            localStorage.removeItem('_is_auth');
-                            localStorage.removeItem('_my_token');
-                        } else {
-                            my_phone = response.profile.phone;
-                            my_name = response.profile.name;
-                            my_city = response.profile.city;
-                            my_avatar = response.profile.photo;
-                            if(document.querySelectorAll('.jq_my_name').length){
-                                document.querySelector('.jq_my_name').innerHTML = my_name;
-                                document.querySelector('.jq_my_phone').innerHTML = my_phone;
-                                if(!my_avatar){
-                                    my_avatar = default_avatar;
-                                }
-                                document.querySelector('.menu__desc_avatar').src = my_avatar;
-                            }
+    console.log('my_token'+my_token);
+    if(my_token !== "" ){
+        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+            if(response){
+                console.log('profile='+response.messages);
+                if(!response.ok && lasturl !== "#pages__sms"){
+                    is_auth = false;
+                    my_token = "";
+                    localStorage.removeItem('_is_auth');
+                    localStorage.removeItem('_my_token');
+                } else {
+                    my_phone = response.profile.phone;
+                    my_name = response.profile.name;
+                    my_city = response.profile.city;
+                    my_avatar = response.profile.photo;
+                    if(document.querySelectorAll('.jq_my_name').length){
+                        document.querySelector('.jq_my_name').innerHTML = my_name;
+                        document.querySelector('.jq_my_phone').innerHTML = my_phone;
+                        if(!my_avatar){
+                            my_avatar = default_avatar;
                         }
+                        document.querySelector('.menu__desc_avatar').src = my_avatar;
+                    }
                 }
-            };
-            xhr.send();
+            }
+        });
     }
 
     if(document.querySelectorAll('[data-id="driver_city_orders"]').length){
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&fromCity='+my_city, true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                        console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                        console.log('Messages: ' + response.messages);
-                        var toAppend = document.querySelector('.list-orders');
-                        for(var i=0; i<response.orders.length; i++){
-                            show('LI','<div class="list-orders_personal"><img src="'+response.orders[i].agent.photo+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+response.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
-                        }
-                        if(response.orders.length<1){
-                            show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-                        }
-                        function show(nod, a){
-                            var node = document.createElement(nod);
-                            node.innerHTML = a;
-                            toAppend.appendChild(node);                    
-                        }
+        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
+            if (response && response.ok) {
+                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                console.log('Messages: ' + response.messages);
+                var toAppend = document.querySelector('.list-orders');
+                for(var i=0; i<response.orders.length; i++){
+                    show('LI','<div class="list-orders_personal"><img src="'+response.orders[i].agent.photo+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+response.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
                 }
-            };
-            xhr.send();
+                if(response.orders.length<1){
+                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                }
+                function show(nod, a){
+                    var node = document.createElement(nod);
+                    node.innerHTML = a;
+                    toAppend.appendChild(node);                    
+                }
+            }
+        });
     }
-    if(document.querySelectorAll('[data-id="client_my_orders"]').length){
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/orders?token='+my_token+'&isIntercity=0&my=1', true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                    console.log('Messages: ' + response.messages);
-                    var toAppend = document.querySelector('.myorders');
-                    for(var i=0; i < response.orders.length; i++){
-                        show('LI','<p class="myorders__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__from">'+response.orders[i].fromAddress+'</p><p class="myorders__to">'+response.orders[i].toAddress0+'</p><p class="myorders__summa">'+response.orders[i].price+'</p><p class="myorders__info">'+response.orders[i].comment+'</p>');
-                    }
-                    if(response.orders.length < 1){
-                        show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-                    }
-                    function show(nod, a){
-                        var node = document.createElement(nod);
-                        node.innerHTML = a;
-                        toAppend.appendChild(node);                    
-                    }
+    
+    if(document.querySelectorAll('[data-controller="taxy_client_intercity_myorders"]').length){
+        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=1&my=1', '', function(response){
+            if (response && response.ok) {
+                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                console.log('Messages: ' + response.messages);
+                var toAppend = document.querySelector('.myorders');
+                for(var i=0; i < response.orders.length; i++){
+                    show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromCity+'</p><p class="myorders__item__to">'+response.orders[i].toCity0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
-            };
-            xhr.send();
+                if(response.orders.length < 1){
+                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                }
+                function show(nod, a){
+                    var node = document.createElement(nod);
+                    node.classList.add('myorders__item');
+                    node.innerHTML = a;
+                    toAppend.appendChild(node);                    
+                }
+            }
+        });
+    }
+    
+    if(document.querySelectorAll('[data-controller="taxy_driver_list_orders_intercity"]').length){
+        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=1', '', function(response){
+            if (response && response.ok) {
+                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                console.log('Messages: ' + response.messages);
+                var toAppend = document.querySelector('[data-controller="taxy_driver_list_orders_intercity"]');
+                for(var i=0; i < response.orders.length; i++){
+                    show('LI','<div class="list-extended__personal"><img src="'+response.orders[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+response.orders[i].agent.name+'</div><div class="list-extended__route_time">'+datetimeForPeople(response.orders[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+response.orders[i].fromCity+'</div><div class="list-extended__route_to">'+response.orders[i].toCity0+'</div><div class="list-extended__route_sum">'+response.orders[i].price+' руб.</div><div class="list-extended__route_info">'+response.orders[i].comment+'</div></div>');
+                }
+                if(response.orders.length < 1){
+                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                }
+                function show(nod, a){
+                    var node = document.createElement(nod);
+                    //node.classList.add('myorders__item');
+                    node.innerHTML = a;
+                    toAppend.appendChild(node);                    
+                }
+            }
+        });
+    }
+
+    
+    if(document.querySelectorAll('[data-id="client_my_orders"]').length){
+        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&my=1', '', function(response){
+            if (response && response.ok) {
+                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                console.log('Messages: ' + response.messages);
+                var toAppend = document.querySelector('.myorders');
+                for(var i=0; i < response.orders.length; i++){
+                    show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromAddress+'</p><p class="myorders__item__to">'+response.orders[i].toAddress0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+                }
+                if(response.orders.length < 1){
+                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                }
+                function show(nod, a){
+                    var node = document.createElement(nod);
+                    node.classList.add('myorders__item');
+                    node.innerHTML = a;
+                    toAppend.appendChild(node);                    
+                }
+            }
+        });
     }
 
     //= Form edit auto =
-    if(document.querySelectorAll('.jq_form-edit-auto').length){
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    document.querySelector('input[name="color"]').value = response.profile.color;
-                    document.querySelector('input[name="number"]').value = response.profile.number;
-                    document.querySelector('input[name="model"]').value = response.profile.model;
-                    document.querySelector('input[name="tonnage"]').value = response.profile.tonnage;
-                    var brand = $('select[name="brand"] option[value="'+response.profile.brand+'"]');
-                        brand.attr('selected', 'true');
-                }
-            };
-            xhr.send();
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/auto?token='+my_token, true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    var conditioner = (response.auto.conditioner)?$('input[name="conditioner"][value="1"]'):$('input[name="conditioner"][value="0"]');
-                        conditioner.attr('checked', 'checked');
-                    var type = $('select[name="type"] option[value="'+response.auto.type+'"]');
-                        type.attr('selected', 'true');
-                }
-            };
-            xhr.send();
+    if(document.querySelectorAll('.form-edit-auto').length){
+        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+            if (response && response.ok) {
+                document.querySelector('input[name="color"]').value = response.profile.color;
+                document.querySelector('input[name="number"]').value = response.profile.number;
+                document.querySelector('input[name="model"]').value = response.profile.model;
+                document.querySelector('input[name="tonnage"]').value = response.profile.tonnage;
+                var brand = document.querySelector('select[name="brand"] option[value="'+response.profile.brand+'"]');
+                    brand.selected = true;
+            }
+        });
+        RequestAJAX(server_uri, 'GET', 'auto', my_token, '', '', function(response){
+            if (response && response.ok) {
+                var conditioner = (response.auto.conditioner)?document.querySelector('input[name="conditioner"][value="1"]'):document.querySelector('input[name="conditioner"][value="0"]');
+                    conditioner.checked = true;
+                var type = document.querySelector('select[name="type"] option[value="'+response.auto.type+'"]');
+                    type.selected = true;
+            }
+        });
     }  
 
     //= Form edit profile =
-    if(document.querySelectorAll('.jq_form-edit-profile').length){
-        var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://'+server_uri+'/profile?token='+my_token, true);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    document.querySelector('input[name="name"]').value = response.profile.name;
-                    document.querySelector('input[name="dob"]').value = dateFromBase(response.profile.birthday);
-                    var sex = (response.profile.sex)?$('select[name="sex"] option[value="1"]'):$('select[name="sex"] option[value="0"]');
-                        sex.attr('selected', 'true');
-                    var city = $('select[name="city"] option[value="'+response.profile.city+'"]');
-                        city.attr('selected', 'true');
-                    document.querySelector('.avatar').src = my_avatar;
-                }
-            };
-            xhr.send();
+    if(document.querySelectorAll('.form-edit-profile').length){
+        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+            if (response && response.ok) {
+                document.querySelector('input[name="myname"]').value = response.profile.name;
+                document.querySelector('input[name="dob"]').value = dateFromBase(response.profile.birthday);
+                var sex = (response.profile.sex)?document.querySelector('select[name="sex"] option[value="1"]'):document.querySelector('select[name="sex"] option[value="0"]');
+                    sex.attr('selected', 'true');
+                var city = document.querySelector('select[name="city"] option[value="'+response.profile.city+'"]');
+                    city.selected = true;
+                document.querySelector('.avatar').src = my_avatar;
+            }
+        });
     }  
 
    //=Change height '.content'=
    document.querySelector('.content').style.height = (window.innerHeight - outerHeight(document.querySelector('.header')))+'px';
    //==========================
    
-    tabs = $('.tabs ul li');
-    //tabs = document.querySelectorAll('.tabs ul li');
-    //console.log(tabs);
+    tabs = document.querySelectorAll('.tabs ul li');
+    tabs_content = document.querySelectorAll('.tabs_content');
     
     if(tabs.length){
+        new Hammer(document.querySelector('.tabs__wrapper'),{domEvents: true});
         var tab_count = tabs.length;
-        tabs.css('width',(100/tab_count-1)+'%');
-        $('.tabs__viewport').css('width', tab_count*$(window).width()+'px');
-        $('.tabs_content').css('width', $(window).width());
-
-        new Hammer($('.tabs__wrapper')[0],{domEvents: true});
+        for(var i=0; i<tab_count; i++){
+            tabs[i].style.width = (100/tab_count-1)+'%';
+        }
+        document.querySelector('.tabs__viewport').style.width = (tab_count * window.innerWidth)+'px';
+        document.querySelector('.tabs__wrapper').style.height = (window.innerHeight - outerHeight(document.querySelector('.header')) - outerHeight(document.querySelector('.tabs')))+'px';
+        for(var i=0;i<tabs_content.length; i++){
+            tabs_content[i].style.width = (window.innerWidth)+'px';
+            tabs_content[i].addEventListener('swipeleft', function(){
+                swipeTabs(1);
+            });
+            tabs_content[i].addEventListener('swiperight', function(){
+                swipeTabs(-1);
+            });
+        }
     }
     if(document.querySelectorAll('.form-order-city').length){
         document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
@@ -503,13 +580,6 @@ function init(){
         //google.maps.event.addDomListener(window, 'load', initialize);
         initialize();
     }
-
-    $('.tabs_content').on('swipeleft', function(){
-            swipeTabs(1);
-        });
-    $('.tabs_content').on('swiperight', function(){
-            swipeTabs(-1);
-        });
         
 }
 
@@ -554,16 +624,22 @@ function swipeMenu(route){
 }
 
 function swipeTabs(route){
-    var current_tab = $('.tab--active').data('tab');
-    if((current_tab + route) < (tabs.length + 1) && (current_tab + route) > 0){
-        changeTab(current_tab + route);
+    var current_tab = document.querySelector('.tab--active').dataset.tab;
+    var val_route = parseInt(current_tab) + parseInt(route);
+    if(val_route <= tabs.length &&  val_route > 0){
+        changeTab(val_route);
     }
 }
+
 function changeTab(tab){
-    step = $(window).width();//document.querySelectorAll
-    $('.tabs_content').css('left', (step-step*tab)+'px');
-    tabs.removeClass('tab--active');
-    $('*[data-tab="'+tab+'"]').addClass('tab--active');
+    step = window.innerWidth;
+        for(var i=0; i<tabs_content.length; i++){
+            tabs_content[i].style.left = (step-step*tab)+'px';
+        }
+        for(var i=0; i<tabs.length; i++){
+            tabs[i].classList.remove('tab--active');
+        }
+    document.querySelector('[data-tab="'+tab+'"]').classList.add('tab--active');
 }
 
 function checkURL(hash){
@@ -586,32 +662,24 @@ function loadPage(url){
     }
     */
     url = url.replace('#','');
-    var data = url.split('__');
+    var datar = url.split('__');
     document.querySelector(".loading").style.visibility = "visible";
     
     var data = new FormData();
-        data.append('section', data[0]);
-        data.append('page', data[1]);
-    var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'routes.php', true);
-        //xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                console.log(response);
-                console.log(response.content);
-                document.querySelector('.header__title').innerHTML = response.title;
-                document.querySelector('.content').innerHTML = response.content;
-                if(data[0] !== lastsection || lastsection === '') {
-                    document.querySelector('.menu__response').innerHTML = response[0].menu;
-                }
-                lastsection = data[0];
-
-                document.querySelector(".loading").style.visibility = "hidden";
-                init();
+        data.append('section', datar[0]);
+        data.append('page', datar[1]);
+    RequestAJAX('https://192.168.20.29', 'POST', 'routes.php', '', '', data, function(response){
+        if(response){
+            document.querySelector('.header__title').innerHTML = response.title;
+            document.querySelector('.content').innerHTML = response.content;
+            if(datar[0] !== lastsection || lastsection === '') {
+                document.querySelector('.menu__response').innerHTML = response[0].menu;
             }
-        };
-        xhr.send(data);
+            lastsection = datar[0];
+            document.querySelector(".loading").style.visibility = "hidden";
+            init();
+        }
+    });
 }
 
 //= Google maps =
@@ -644,9 +712,31 @@ function initialize(){
       title: 'Я здесь!'
     });
     */
-    directionsService = new google.maps.DirectionsService();
+   
     var address = loadAddress();
-    requestDirections(address[0], address[1], { strokeColor:'#ff0000' });
+    var waypoints = loadWaypoints();
+    directionsService = new google.maps.DirectionsService();
+    //requestDirections(address[0], address[1], { strokeColor:'#ff0000' });
+    directionsDisplay = new google.maps.DirectionsRenderer();
+
+    var request = {
+        origin: address[0],
+        destination: address[1],
+        waypoints: waypoints,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+
+    directionsService.route(request, function(response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+            
+            console.log(response.routes[0].legs[0].distance.text);
+            
+            directionsDisplay.setDirections(response);
+        }
+    });
+
+    directionsDisplay.setMap(map);
+    
 }
 
 //= Google maps =
@@ -733,6 +823,32 @@ function loadAddress(){
     return [adr_from, adr_to];
 }
 
+function saveWaypoints(adr_to1,adr_to2,adr_to3){
+    localStorage.setItem('_address_to1', adr_to1);
+    localStorage.setItem('_address_to2', adr_to2);
+    localStorage.setItem('_address_to3', adr_to3);
+    
+    return true;
+}
+
+function loadWaypoints(){
+    var wp = [];
+
+    var adr_to1 = localStorage.getItem('_address_to1');
+    var adr_to2 = localStorage.getItem('_address_to2');
+    var adr_to3 = localStorage.getItem('_address_to3');
+        
+    if(adr_to1 !== "") wp.push({location:my_city+','+adr_to1, stopover:true});
+    if(adr_to2 !== "") wp.push({location:my_city+','+adr_to2, stopover:true});
+    if(adr_to3 !== "") wp.push({location:my_city+','+adr_to3, stopover:true});
+    
+    localStorage.removeItem('_address_to1');
+    localStorage.removeItem('_address_to2');
+    localStorage.removeItem('_address_to3');
+    
+    return wp;
+}
+
 function point2LatLng(x, y, map) {
   var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
   var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
@@ -814,4 +930,18 @@ function datetimeForPeople(date,options){
     }
     
     return date;
+}
+
+function RequestAJAX(server, crud, method, token, add_query, data, success){
+    token = (token === '')?'':'?token='+token;
+    var xhr = new XMLHttpRequest();
+        xhr.open(crud, server+'/'+method+token+add_query, true);
+        //xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                success(response);
+            }
+        };
+        xhr.send(data);
 }

@@ -10,7 +10,7 @@ $json_data = array ('title' => 'Межгород',
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
                 <div data-tab-content="1" class="tabs_content">
-                    <form action="" method="POST" class="form-order-city">
+                    <form action="" method="POST" data-submit="client_order_intercity" class="form-order-city">
                         <div class="form-order-city__label_field">
                         ОТКУДА
                         </div>
@@ -39,7 +39,7 @@ $json_data = array ('title' => 'Межгород',
                         </div>
                         <div class="form-order-city__field">
                             <i class="icon-commerical-building form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="from" value="" placeholder="Примечания"/></span>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Примечания"/></span>
                         </div>
                         <div class="gBlock">
                             <button class="button_rounded--green">Заказать</button>
@@ -82,22 +82,7 @@ $json_data = array ('title' => 'Межгород',
                     </ul>
                 </div>
                 <div data-tab-content="3" class="tabs_content">
-                    <ul class="myorders">
-                        <li>
-                            <p class="myorders__time">Вчера, 23:19</p>
-                            <p class="myorders__from">Хабаровск</p>
-                            <p class="myorders__to">Владивосток</p>
-                            <p class="myorders__summa">150</p>
-                            <p class="myorders__info">Рано утром</p>
-                        </li>
-                        <li>
-                            <p class="myorders__time">Сегодня, 23:19</p>
-                            <p class="myorders__from">Владивосток</p>
-                            <p class="myorders__to">Хабаровск</p>
-                            <p class="myorders__summa">150</p>
-                            <p class="myorders__info">Поздно вечером</p>
-                        </li>
-                    </ul>
+                    <ul class="myorders" data-controller="taxy_client_intercity_myorders"></ul>
                 </div>
               </div>
             </div>

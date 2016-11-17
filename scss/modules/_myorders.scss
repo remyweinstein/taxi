@@ -3,9 +3,6 @@
    ======================= */
 
 .myorders{
-    li{
-        border-bottom: 1px solid grey;
-    }
     p{
         padding-left: 2em;
         position: relative;
@@ -13,44 +10,71 @@
         margin: 0.5em 0;
         color: $inactive;
     }
-    &__time{
-        padding-left: 1em;
-        &:before{
-            @extend .myorders__icon;
-            @extend .icon-calendar;
+    &__item{
+        border-bottom: 1px solid grey;
+        div{
+            display: inline-block;
+            width: 90%;
+            vertical-align: top;
         }
-    }
-    &__from{
-        padding-left: 1em;
-        &:before{
-            @extend .myorders__icon;
-            @extend .icon-left-circled;
+        &__menu{
+            width: 10% !important;
+            padding-top: 0.5em;
+            color: $inactive;
+            cursor: pointer;
+            span{
+                position: relative;
+                right: 3em;
+                top: 0.5em;
+                border: 2px solid lightgrey;
+                padding: 0.5em;
+                background-color: white;
+                font-size: 0.75em;
+                display: none;
+                a{
+                    
+                }
+            }
         }
-    }
-    &__to{
-        padding-left: 1em;
-        &:before{
-            @extend .myorders__icon;
-            @extend .icon-right-circled;
+        &__time{
+            padding-left: 1em;
+            &:before{
+                @extend .myorders__item__icon;
+                @extend .icon-calendar;
+            }
         }
-    }
-    &__summa{
-        padding-left: 1em;
-        &:before{
-            @extend .myorders__icon;
-            @extend .icon-rouble;
+        &__from{
+            padding-left: 1em;
+            &:before{
+                @extend .myorders__item__icon;
+                @extend .icon-left-circled;
+            }
         }
-    }
-    &__info{
-        padding-left: 1em;
-    }
-    &__icon{
-        font-family: "fontello";
-        font-style: normal;
-        font-weight: normal;
-        speak: none;
-        font-size: 10px;
-        position: absolute;
-        left: 0.5em;
+        &__to{
+            padding-left: 1em;
+            &:before{
+                @extend .myorders__item__icon;
+                @extend .icon-right-circled;
+            }
+        }
+        &__summa{
+            padding-left: 1em;
+            &:before{
+                @extend .myorders__item__icon;
+                @extend .icon-rouble;
+            }
+        }
+        &__info{
+            padding-left: 1em;
+        }
+        &__icon{
+            font-family: "fontello";
+            font-style: normal;
+            font-weight: normal;
+            speak: none;
+            font-size: 10px;
+            position: absolute;
+            left: 0.5em;
+        }
     }
 }

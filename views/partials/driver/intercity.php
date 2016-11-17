@@ -21,33 +21,7 @@ $json_data = array ('title' => 'Межгород',
                             <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
                         </p>
                     </div>
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Борис</div>
-                                <div class="list-extended__route_time">12:45</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Владивосток</div>
-                                <div class="list-extended__route_sum">100 руб.</div>
-                                <div class="list-extended__route_info">Два места</div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Гульнара</div>
-                                <div class="list-extended__route_time">16:37</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Благовещенск</div>
-                                <div class="list-extended__route_info">Два места</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <ul class="list-extended" data-controller="taxy_driver_list_orders_intercity"></ul>
                 </div>
                 <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
                     <div class="filter-intercity">
