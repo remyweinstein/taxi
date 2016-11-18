@@ -5,4 +5,5 @@ $json_data = array ('title' => 'Выбор места на карте',
                 <div class="gBlock">
                     <button data-click="i_choice_location" class="button_wide--green">Выбери адрес на карте</button>
                 </div>
-                ');
+                ',
+    'pageType' => 'back-arrow');

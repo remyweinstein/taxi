@@ -30,3 +30,9 @@ button:focus {
     width: 100px;
     height: 100px;
 }
+.is_not_auth{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 2px solid #f00;
+}

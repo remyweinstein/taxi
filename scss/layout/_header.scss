@@ -19,6 +19,9 @@
         i{
             color: $active;
         }
+        i:last-child{
+            display: none;
+        }
     }
     &__title{
         display: inline-block;

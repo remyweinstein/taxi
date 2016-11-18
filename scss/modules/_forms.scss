@@ -22,15 +22,17 @@
 }
 .form-order-city{
     margin-top: 1em;
+    height: 96%;
+    //position: relative;
     input{
         width: 90%;
         border:0;
-        font-size: 10px;
+        font-size: 0.75em;
     }
     &__label_field{
         border-bottom: 1px solid $inactive;
         color: $inactive;
-        padding: 0 0 0.5em 0.5em;
+        padding: 0.5em 0 0.5em 0.5em;
         font-size: 0.75em;
     }
     &__field{
@@ -38,12 +40,13 @@
         height: 2em;
         line-height: 2em;
         position: relative;
+        margin-bottom: 0.5em;
         i{
             color: $inactive;
         }
         &_add{
             position: absolute;
-            top: 0.55em;
+            top: 1em;
             right: 8%;
             color: $active;
             padding: 0 0.1em;
@@ -54,7 +57,7 @@
             position: absolute;
             top: 0em;
             right: 9.5%;
-            font-size: 10px;
+            font-size: 0.75em;
             color: #eaa3a3;
             cursor: pointer;
         }
@@ -62,6 +65,7 @@
     &__wrap{
         width:90%;
         border-bottom: 1px solid grey;
+        display: inline-block;
     }
     &__label{
         width: 10%;

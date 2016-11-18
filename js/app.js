@@ -10,11 +10,30 @@ var my_name, my_phone, my_avatar;
 var default_avatar = 'images/no_avatar.png';
 
 document.addEventListener('DOMContentLoaded', function(){
+    //localStorage.removeItem('_my_token');
 
     if(localStorage.getItem('_is_auth')==="true"){
         is_auth = true;
     }
     my_token = localStorage.getItem('_my_token');
+    if(!my_token){
+        RequestAJAX(server_uri, 'GET', 'token', '', '', '', function(response){
+            console.log('try get token... response: '+response.messages);
+            if(response && response.ok){
+                localStorage.setItem('_my_token', response.token);
+                my_token = response.token;
+                my_name = 'Гость';
+                //my_city = 'Хабаровск';
+                    var data = new FormData();
+                        data.append('name', my_name);
+                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                        if(response && response.ok){
+                            init();
+                        }
+                    });
+            }
+        });
+    }
         
     geoFindMe();
     
@@ -52,14 +71,23 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     
-    document.querySelector('.header__burger').addEventListener('click', function(){
+    document.querySelector('[data-click="menu-burger"]').addEventListener('click', function(){
         swipeMenu(1);
+    });
+    document.querySelector('[data-click="back-burger"]').addEventListener('click', function(){
+        window.history.back();
     });
     //=================
     var content = document.querySelector('.content');
         content.addEventListener('click', function(event){
             var target = event.target;
             while(target !== this){
+                
+                    //=  Close Menu on Click body  =
+                if(document.querySelector('.menu').classList.contains('menu--opened')){
+                    console.log('try close');
+                    swipeMenu(-1);
+                }                
                     //=  Tabs Events  =
                 if(target.dataset.tab > 0) {
                     changeTab(target.dataset.tab);
@@ -67,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 }
                     //= Click choose location =
                 if(target.dataset.click === 'choice_location'){
-                    document.location= '#client__choice_location_map';
+                    document.location = '#client__choice_location_map';
                     setTempRequestLS(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
                     return;
                 }
@@ -195,10 +223,11 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
                     RequestAJAX(server_uri, 'POST', 'order', my_token, '', data, function(response){
+                        console.log(response);
                         if(response && response.ok){
                             console.log('id='+response.id);
                             document.location= '#client__map';
-                        }
+                        } else alert('Укажите в профиле ваш город');
                     });
                     return;
                 }
@@ -206,7 +235,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Form auth login =
                 if(target.dataset.submit === 'form-auth'){
                     var phone = document.querySelector('input[name="phone"]').value;
-                    RequestAJAX(server_uri, 'POST', 'register', '', '?phone=7'+phone, '', function(response){
+                    var token = (my_token)?my_token:"";
+                    RequestAJAX(server_uri, 'POST', 'register', token, '?phone=7'+phone, '', function(response){
                         if (response && response.ok) {
                             localStorage.setItem('_my_token', response.token);
                             my_token = response.token;
@@ -232,14 +262,16 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.submit === 'form-edit-profile'){
                     var file = document.querySelector('input[name=ava_file]').files[0];
                     var data = new FormData();
-                        data.append('photo', file, file.name);
+                        data.append('photo', file);
                         data.append('name', document.querySelector('input[name=myname]').value);
                         data.append('birthday', dateToBase(document.querySelector('input[name=dob]').value));
                         data.append('city', document.querySelector('select[name=city]').value);
                         data.append('sex', document.querySelector('select[name=sex]').value);
                     RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                        console.log(response.messages);
                         if(response && response.ok) {
-                            document.location= '/';
+                            //document.location= '/';
+                            window.history.back();
                         }
                     });
                     return;
@@ -255,13 +287,14 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('model', document.querySelector('input[name="model"]').value);
                         data.append('tonnage', document.querySelector('input[name="tonnage"]').value);
                         data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);                        
-                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){});
+                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(){});
                     var data2 = new FormData();
                         data2.append('conditioner', document.querySelector('input[name="conditioner"]:checked').value);
                         data2.append('type', sel_type.options[sel_type.selectedIndex].text);
                     RequestAJAX(server_uri, 'POST', 'auto', my_token, '', data2, function(response){
                         if(response && response.ok){
-                            document.location= '/';
+                            //document.location= '/';
+                            window.history.back();
                         }
                     });
                     return;
@@ -269,7 +302,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                     //= Client Order Intercity =
                 if(target.dataset.submit === 'client_order_intercity'){
-                    
                     var from_city = document.querySelector('[name="city_from"]').value;
                     var to_city = document.querySelector('[name="city_to"]').value;
                     var from_address = document.querySelector('[name="adress_from"]').value;
@@ -388,20 +420,18 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function init(){
-    console.log('my_token'+my_token);
-    if(my_token !== "" ){
+    if(my_token){
         RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
             if(response){
-                console.log('profile='+response.messages);
                 if(!response.ok && lasturl !== "#pages__sms"){
                     is_auth = false;
                     my_token = "";
                     localStorage.removeItem('_is_auth');
-                    localStorage.removeItem('_my_token');
+                    //localStorage.removeItem('_my_token');
                 } else {
                     my_phone = response.profile.phone;
-                    my_name = response.profile.name;
-                    my_city = response.profile.city;
+                    my_name = (response.profile.name!=="")?response.profile.name:my_name;
+                    my_city = (response.profile.city!=="")?response.profile.city:my_city;
                     my_avatar = response.profile.photo;
                     if(document.querySelectorAll('.jq_my_name').length){
                         document.querySelector('.jq_my_name').innerHTML = my_name;
@@ -416,14 +446,18 @@ function init(){
         });
     }
 
-    if(document.querySelectorAll('[data-id="driver_city_orders"]').length){
+    if(document.querySelectorAll('[data-controller="driver_city_orders"]').length){
         RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
+            //alert(response.ok);
             if (response && response.ok) {
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('.list-orders');
+                    toAppend.innerHTML = '';
                 for(var i=0; i<response.orders.length; i++){
-                    show('LI','<div class="list-orders_personal"><img src="'+response.orders[i].agent.photo+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created)+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+response.orders[i].price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
+                    var photo_img = (response.orders[i].agent.photo)?response.orders[i].agent.photo:default_avatar;
+                    var price = (response.orders[i].price)?response.orders[i].price:0;
+                    show('LI','<div class="list-orders_personal"><img src="'+photo_img+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created, 'TIME_AND TODAY_ONLY')+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
                 }
                 if(response.orders.length<1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -443,6 +477,7 @@ function init(){
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('.myorders');
+                    toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
                     show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromCity+'</p><p class="myorders__item__to">'+response.orders[i].toCity0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
@@ -465,6 +500,7 @@ function init(){
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('[data-controller="taxy_driver_list_orders_intercity"]');
+                    toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
                     show('LI','<div class="list-extended__personal"><img src="'+response.orders[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+response.orders[i].agent.name+'</div><div class="list-extended__route_time">'+datetimeForPeople(response.orders[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+response.orders[i].fromCity+'</div><div class="list-extended__route_to">'+response.orders[i].toCity0+'</div><div class="list-extended__route_sum">'+response.orders[i].price+' руб.</div><div class="list-extended__route_info">'+response.orders[i].comment+'</div></div>');
                 }
@@ -488,6 +524,7 @@ function init(){
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('.myorders');
+                    toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
                     show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromAddress+'</p><p class="myorders__item__to">'+response.orders[i].toAddress0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
@@ -530,10 +567,10 @@ function init(){
     if(document.querySelectorAll('.form-edit-profile').length){
         RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
             if (response && response.ok) {
-                document.querySelector('input[name="myname"]').value = response.profile.name;
+                document.querySelector('input[name="myname"]').value = (my_name)?my_name:response.profile.name;
                 document.querySelector('input[name="dob"]').value = dateFromBase(response.profile.birthday);
                 var sex = (response.profile.sex)?document.querySelector('select[name="sex"] option[value="1"]'):document.querySelector('select[name="sex"] option[value="0"]');
-                    sex.attr('selected', 'true');
+                    sex.selected = true;
                 var city = document.querySelector('select[name="city"] option[value="'+response.profile.city+'"]');
                     city.selected = true;
                 document.querySelector('.avatar').src = my_avatar;
@@ -601,8 +638,17 @@ function geoFindMe(){
             if(status === google.maps.GeocoderStatus.OK){
                 var obj = results[0].address_components,key;
                 for(key in obj) {
-                    if(obj[key].types[0]==="locality" && my_city !== "") {
+                    if(obj[key].types[0]==="locality" && !my_city) {
                         my_city = obj[key].long_name;
+                            var data = new FormData();
+                                data.append('name', my_name);
+                                data.append('city', my_city);
+                            RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                                console.log('after geofind='+response.ok);
+                                if(response && response.ok) {
+                                    init();
+                                }
+                            });
                     }
                     if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                 }
@@ -677,6 +723,13 @@ function loadPage(url){
             }
             lastsection = datar[0];
             document.querySelector(".loading").style.visibility = "hidden";
+            if(response.pageType === "back-arrow"){
+                document.querySelector('[data-click="menu-burger"]').style.display = "none";
+                document.querySelector('[data-click="back-burger"]').style.display = "block";
+            } else {
+                document.querySelector('[data-click="menu-burger"]').style.display = "block";
+                document.querySelector('[data-click="back-burger"]').style.display = "none";
+            }
             init();
         }
     });
@@ -716,7 +769,6 @@ function initialize(){
     var address = loadAddress();
     var waypoints = loadWaypoints();
     directionsService = new google.maps.DirectionsService();
-    //requestDirections(address[0], address[1], { strokeColor:'#ff0000' });
     directionsDisplay = new google.maps.DirectionsRenderer();
 
     var request = {
@@ -727,11 +779,14 @@ function initialize(){
     };
 
     directionsService.route(request, function(response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {
-            
-            console.log(response.routes[0].legs[0].distance.text);
-            
+        if (status === google.maps.DirectionsStatus.OK) {            
             directionsDisplay.setDirections(response);
+            mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+            //order_info = new google.maps.Map(mapCanvas, mapOptions);
+            
+            //order_info.getDiv().insertAdjacentHTML('beforeend', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+            //var info_block = document.querySelector('.map_order_info');
+            //info_block.insertAdjacentHTML('beforeend', '<p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p>');
         }
     });
 
@@ -760,7 +815,7 @@ function initialize_choice(){
     };
     map_choice = new google.maps.Map(mapCanvas, mapOptions);
     map_choice.getDiv().insertAdjacentHTML('beforeend', '<div class="centerMarker"></div>');
-    var center_marker = document.querySelectorAll('.centerMarker')[0];
+    var center_marker = document.querySelector('.centerMarker');
 
     google.maps.event.addListener(map_choice, 'drag', function(){
         var coords = point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
@@ -896,7 +951,6 @@ function dateToBase(dob){
 function outerHeight(el) {
   var height = el.offsetHeight;
   var style = getComputedStyle(el);
-
   height += parseInt(style.marginTop) + parseInt(style.marginBottom);
   return height;
 }
@@ -905,20 +959,20 @@ function datetimeForPeople(date,options){
         options = "TIME_AND_TODAY";
     }
     date = date.split(" ");
+    var date_order = date[0].split("-");
+    var time_order = date[1].split(":");
+    var today_text = '';
+    var time_text = time_order[0]+':'+time_order[1];
     var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
-    var other = date[0].valueOf();
+    var today = new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).valueOf();
+    var other = new Date(date_order[0], date_order[1], date_order[2]).valueOf();
     if (other < today - 86400000) {
-        var dater = date[0].split("-");
-        today_text = dater[2]+'.'+dater[1]+'.'+dater[0];
+        today_text = date_order[2]+'.'+date_order[1]+'.'+date_order[0];
     } else if (other < today) {
         today_text = "Вчера";
     } else {
         today_text = "Сегодня";
     }
-    var dater = date[1].split(":");
-    time_text = dater[0]+':'+dater[1];
-    
     if(options==="ONLY_TIME"){
         date = time_text;
     }
@@ -928,7 +982,9 @@ function datetimeForPeople(date,options){
     if(options==="TIME_AND_TODAY"){
         date = today_text+', '+time_text;
     }
-    
+    if(options==="TIME_AND TODAY_ONLY"){
+        date = (today_text!=="Вчера" && today_text!=="Сегодня")?today_text:today_text+', '+time_text;
+    }
     return date;
 }
 
@@ -937,6 +993,7 @@ function RequestAJAX(server, crud, method, token, add_query, data, success){
     var xhr = new XMLHttpRequest();
         xhr.open(crud, server+'/'+method+token+add_query, true);
         //xhr.setRequestHeader('Content-Type', 'application/json');
+        //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
         xhr.onload = function() {
             if (xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);

@@ -9,7 +9,7 @@ $json_data = array ('title' => 'Город',
             </nav>
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content" data-id="driver_city_orders">
+                <div data-tab-content="1" class="tabs_content" data-controller="driver_city_orders">
                     <ul class="list-orders"></ul>
                 </div>
                 <div data-tab-content="2" class="tabs_content">

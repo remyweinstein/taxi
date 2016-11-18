@@ -48,4 +48,10 @@
                         Помощь
                     </a>
                 </li>
+                <li>
+                    <a href="#pages__login">
+                        <i class="icon-login"></i>
+                        Войти
+                    </a>
+                </li>
             </ul>

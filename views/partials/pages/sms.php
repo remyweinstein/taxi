@@ -6,5 +6,6 @@ $json_data = array ('title' => 'Введите СМС',
                     <p><input type="text" name="sms" placeholder="Код из смс" /></p>
                     <p><button class="button_rounded--green">Далее</button></p>
                 </form>
-    ');
+    ',
+    'pageType' => 'back-arrow');
 

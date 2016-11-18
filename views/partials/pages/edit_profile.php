@@ -7,7 +7,7 @@ $json_data = array ('title' => 'Редактирование',
                         <input type="file" name="ava_file" /><br/>
                         <a href="#" data-click="clear_photo">удалить</a>
                         </p>
-                    <p><input type="text" name="name" value="" /></p>
+                    <p><input type="text" name="myname" value="" /></p>
                     <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>
                     <p>
                         <select name="sex">
@@ -24,7 +24,8 @@ $json_data = array ('title' => 'Редактирование',
                         </select>
                     </p>
                     <p><button class="button_rounded--green">Сохранить</button></p>
-                </form>
-    ');
+                </form>',
+    'pageType' => 'back-arrow'
+    );
 
 

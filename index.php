@@ -22,7 +22,8 @@
         <header class="header">
             <div class="header__wrapper">
                 <div class="header__burger">
-                    <i class="icon-menu"></i>
+                    <i class="icon-menu" data-click="menu-burger"></i>
+                    <i class="icon-left" data-click="back-burger"></i>
                 </div>
                 <div class="header__title"></div>
                 <div class="header__toggle"></div>

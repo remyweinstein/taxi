@@ -19,7 +19,7 @@ $json_data = array ('title' => 'Город',
                     <i class="icon-commerical-building form-order-city__label"></i>
                     <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
                 </div>
-                <div class="gBlock">
+                <div class="gBlock gBlock--float">
                     <button class="button_rounded--green">Заказать</button>
                 </div>
             </form>');
