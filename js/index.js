@@ -1,15 +1,19 @@
-var tabs_content, tabs;
 var lasturl='',sublasturl='';
 var lastsection='';
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService;
 var my_position = ["x","y"];
 var server_uri = 'https://192.168.20.90';
+var home_server = 'https://indriver.ru';        //https://192.168.20.29
 var my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
 var default_avatar = 'images/no_avatar.png';
 
 document.addEventListener('DOMContentLoaded', function(){
+    //Funcs.init();
+    MainMenu.init();
+    
+    
     //localStorage.removeItem('_my_token');
 
     if(localStorage.getItem('_is_auth')==="true"){
@@ -17,16 +21,15 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     my_token = localStorage.getItem('_my_token');
     if(!my_token){
-        RequestAJAX(server_uri, 'GET', 'token', '', '', '', function(response){
+        Ajax.request(server_uri, 'GET', 'token', '', '', '', function(response){
             console.log('try get token... response: '+response.messages);
             if(response && response.ok){
                 localStorage.setItem('_my_token', response.token);
                 my_token = response.token;
                 my_name = 'Гость';
-                //my_city = 'Хабаровск';
                     var data = new FormData();
                         data.append('name', my_name);
-                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                    Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
                         if(response && response.ok){
                             init();
                         }
@@ -37,66 +40,16 @@ document.addEventListener('DOMContentLoaded', function(){
         
     geoFindMe();
     
-    //=Main Menu Events=
-    var menu = document.querySelector('.menu');
-    new Hammer(menu,{domEvents: true});
-    menu.addEventListener('swipeleft', function(){
-        swipeMenu(-1);
-    });
-    
-        //= Main menu event click item =
-        menu.addEventListener('click', function(event) {
-            var target = event.target;
-            while (target !== this) {
-                    //= Change Item menu =
-                if(target.tagName === 'A') {
-                    var li = target.parentNode;
-                    var lis = li.parentNode.querySelectorAll('li');
-                    for(var i=0; i<lis.length; i++){
-                        lis[i].className = 
-                            lis[i].className.replace(/^menu__list--active$/, '');
-                        //lis[i].classList.remove('menu__list--active');
-                    }
-                    li.className += 'menu__list--active';
-                    //li.classList.add('menu__list--active');
-                    swipeMenu(-1);
-                }
-                    //= Click edit profile =
-                if(target.dataset.click === 'edit_profile'){
-                    swipeMenu(-1);
-                    document.location = '#pages__edit_profile';
-                    return;
-                }
-                target = target.parentNode;
-            }
-        });
-    
-    document.querySelector('[data-click="menu-burger"]').addEventListener('click', function(){
-        swipeMenu(1);
-    });
-    document.querySelector('[data-click="back-burger"]').addEventListener('click', function(){
-        window.history.back();
-    });
     //=================
     var content = document.querySelector('.content');
         content.addEventListener('click', function(event){
             var target = event.target;
             while(target !== this){
                 
-                    //=  Close Menu on Click body  =
-                if(document.querySelector('.menu').classList.contains('menu--opened')){
-                    console.log('try close');
-                    swipeMenu(-1);
-                }                
-                    //=  Tabs Events  =
-                if(target.dataset.tab > 0) {
-                    changeTab(target.dataset.tab);
-                    return;
-                }
                     //= Click choose location =
                 if(target.dataset.click === 'choice_location'){
                     document.location = '#client__choice_location_map';
-                    setTempRequestLS(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+                    Funcs.setTempRequestLS(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
                     return;
                 }
                     //= Form add new point order =
@@ -123,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
                     //= Delete Photo Edit Profile =
                 if(target.dataset.click === 'clear_photo'){
-                    RequestAJAX(server_uri, 'POST', 'clear-photo', my_token, '', '', function(response){
+                    Ajax.request(server_uri, 'POST', 'clear-photo', my_token, '', '', function(response){
                         if(response && response.ok){
                             document.querySelector('.avatar').src = default_avatar;
                         }
@@ -134,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= I choose location =
                 if(target.dataset.click === 'i_choice_location'){
                     document.location = '#client__city';
-                    var name = getTempRequestLS();
+                    var name = Funcs.getTempRequestLS();
                     geocoder = new google.maps.Geocoder();
                     var latl = localStorage.getItem('_choice_coords');
                     latl = latl.replace("(","");
@@ -147,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         'latLng': latlng
                     },function (results, status){
                         if(status === google.maps.GeocoderStatus.OK){
-                            localStorage.setItem('_address_'+name, getStreenFromGoogle(results));
+                            localStorage.setItem('_address_'+name, Funcs.getStreetFromGoogle(results));
                             document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
                             document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
                         }
@@ -168,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 }
                         //= Menu my Orders Item DELETE order =
                     if(target.dataset.click === 'myorders_item_menu_delete'){
-                        RequestAJAX(server_uri, 'GET', 'delete-order', my_token, '&id='+target.dataset.id, '', function(response){
+                        Ajax.request(server_uri, 'GET', 'delete-order', my_token, '&id='+target.dataset.id, '', function(response){
                             if(response && response.ok){
                                 var item = target.parentNode.parentNode.parentNode;
                                     item.style.display = 'none';
@@ -196,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     var to1="",to2="",to3="";
                     var data = new FormData();
                     
-                    saveAddress(from_address, to_address);
+                    Funcs.saveAddress(from_address, to_address);
 
                     if(document.querySelector('[name="to_plus1"]')){
                         to1 = document.querySelector('[name="to_plus1"]').value;
@@ -210,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         to3 = document.querySelector('[name="to_plus3"]').value;
                         data.append('toAddress3', to3);
                     }
-                    saveWaypoints(to1,to2,to3);
+                    Funcs.saveWaypoints(to1,to2,to3);
                     
                         data.append('fromCity', my_city);
                         data.append('fromAddress', from_address);
@@ -222,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('comment', comment);
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
-                    RequestAJAX(server_uri, 'POST', 'order', my_token, '', data, function(response){
+                    Ajax.request(server_uri, 'POST', 'order', my_token, '', data, function(response){
                         console.log(response);
                         if(response && response.ok){
                             console.log('id='+response.id);
@@ -236,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.submit === 'form-auth'){
                     var phone = document.querySelector('input[name="phone"]').value;
                     var token = (my_token)?my_token:"";
-                    RequestAJAX(server_uri, 'POST', 'register', token, '?phone=7'+phone, '', function(response){
+                    Ajax.request(server_uri, 'POST', 'register', token, '?phone=7'+phone, '', function(response){
                         if (response && response.ok) {
                             localStorage.setItem('_my_token', response.token);
                             my_token = response.token;
@@ -249,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Form auth SMS =
                 if(target.dataset.submit === 'form-auth-sms'){
                     var sms = document.querySelector('input[name="sms"]').value;
-                    RequestAJAX(server_uri, 'POST', 'confirm', my_token, '&smsCode='+sms, '', function(response){
+                    Ajax.request(server_uri, 'POST', 'confirm', my_token, '&smsCode='+sms, '', function(response){
                         if(response && response.ok){
                             localStorage.setItem('_is_auth', 'true');              
                             document.location= '/';
@@ -264,10 +217,10 @@ document.addEventListener('DOMContentLoaded', function(){
                     var data = new FormData();
                         data.append('photo', file);
                         data.append('name', document.querySelector('input[name=myname]').value);
-                        data.append('birthday', dateToBase(document.querySelector('input[name=dob]').value));
+                        data.append('birthday', Dates.dateToBase(document.querySelector('input[name=dob]').value));
                         data.append('city', document.querySelector('select[name=city]').value);
                         data.append('sex', document.querySelector('select[name=sex]').value);
-                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                    Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
                         console.log(response.messages);
                         if(response && response.ok) {
                             //document.location= '/';
@@ -287,11 +240,11 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('model', document.querySelector('input[name="model"]').value);
                         data.append('tonnage', document.querySelector('input[name="tonnage"]').value);
                         data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);                        
-                    RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(){});
+                    Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(){});
                     var data2 = new FormData();
                         data2.append('conditioner', document.querySelector('input[name="conditioner"]:checked').value);
                         data2.append('type', sel_type.options[sel_type.selectedIndex].text);
-                    RequestAJAX(server_uri, 'POST', 'auto', my_token, '', data2, function(response){
+                    Ajax.request(server_uri, 'POST', 'auto', my_token, '', data2, function(response){
                         if(response && response.ok){
                             //document.location= '/';
                             window.history.back();
@@ -311,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     var to1="",to2="",to3="";
                     var data = new FormData();
                     
-                    saveAddress(from_address, to_address);
+                    Funcs.saveAddress(from_address, to_address);
 
                     if(document.querySelector('[name="to_plus1"]')){
                         to1 = document.querySelector('[name="to_plus1"]').value;
@@ -325,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         to3 = document.querySelector('[name="to_plus3"]').value;
                         data.append('toAddress3', to3);
                     }
-                    saveWaypoints(to1,to2,to3);
+                    Funcs.saveWaypoints(to1,to2,to3);
                     
                         data.append('fromCity', from_city);
                         data.append('fromAddress', from_address);
@@ -337,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('comment', comment);
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
-                    RequestAJAX(server_uri, 'POST', 'order', my_token, '', data, function(response){
+                    Ajax.request(server_uri, 'POST', 'order', my_token, '', data, function(response){
                         if(response && response.ok){
                             console.log('id='+response.id);
                             changeTab(3);
@@ -360,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     //= Input Filtering ONLY DIGITS =
                 if(target.dataset.keypress === 'input_only_digits'){
                     if(e.ctrlKey || e.altKey || e.metaKey) return;
-                    var chr = getChar(e);
+                    var chr = Funcs.getChar(e);
                     if(chr < '0' || chr > '9'){
                         e.preventDefault();
                     }
@@ -374,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         e.preventDefault();
                     }
                     if(e.ctrlKey || e.altKey || e.metaKey) return;
-                    var chr = getChar(e);
+                    var chr = Funcs.getChar(e);
                     if((text.length===0 && chr>'3') || ((text.length===3||text.length===2) && chr>'1') || ((text.length===5||text.length===4) && chr>'2')){
                         e.preventDefault();
                     }
@@ -399,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.keyup === 'filter_intercity_to'){
                     var parent_id = target.parentNode.parentNode.parentNode.dataset.tabcontent;
                     var parent = document.querySelectorAll('[data-tabcontent="'+parent_id+'"]')[0];
-                    searchCityForIntercity(target.value, parent);
+                    Funcs.searchCityForIntercity(target.value, parent);
                     
                     return;
                 }
@@ -415,13 +368,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
     checkURL();        
     setInterval('checkURL()',250);
-    init();
+    //init();
     
 });
 
 function init(){
+    Tabs.init();
     if(my_token){
-        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+        Ajax.request(server_uri, 'GET', 'profile', my_token, '', '', function(response){
             if(response){
                 if(!response.ok && lasturl !== "#pages__sms"){
                     is_auth = false;
@@ -447,7 +401,7 @@ function init(){
     }
 
     if(document.querySelectorAll('[data-controller="driver_city_orders"]').length){
-        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
+        Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
             //alert(response.ok);
             if (response && response.ok) {
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
@@ -457,7 +411,7 @@ function init(){
                 for(var i=0; i<response.orders.length; i++){
                     var photo_img = (response.orders[i].agent.photo)?response.orders[i].agent.photo:default_avatar;
                     var price = (response.orders[i].price)?response.orders[i].price:0;
-                    show('LI','<div class="list-orders_personal"><img src="'+photo_img+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+datetimeForPeople(response.orders[i].created, 'TIME_AND TODAY_ONLY')+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
+                    show('LI','<div class="list-orders_personal"><img src="'+photo_img+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+Dates.datetimeForPeople(response.orders[i].created, 'TIME_AND TODAY_ONLY')+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div>');
                 }
                 if(response.orders.length<1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -472,14 +426,14 @@ function init(){
     }
     
     if(document.querySelectorAll('[data-controller="taxy_client_intercity_myorders"]').length){
-        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=1&my=1', '', function(response){
+        Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=1&my=1', '', function(response){
             if (response && response.ok) {
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('.myorders');
                     toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromCity+'</p><p class="myorders__item__to">'+response.orders[i].toCity0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromCity+'</p><p class="myorders__item__to">'+response.orders[i].toCity0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
                 if(response.orders.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -495,14 +449,14 @@ function init(){
     }
     
     if(document.querySelectorAll('[data-controller="taxy_driver_list_orders_intercity"]').length){
-        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=1', '', function(response){
+        Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=1', '', function(response){
             if (response && response.ok) {
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('[data-controller="taxy_driver_list_orders_intercity"]');
                     toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div class="list-extended__personal"><img src="'+response.orders[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+response.orders[i].agent.name+'</div><div class="list-extended__route_time">'+datetimeForPeople(response.orders[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+response.orders[i].fromCity+'</div><div class="list-extended__route_to">'+response.orders[i].toCity0+'</div><div class="list-extended__route_sum">'+response.orders[i].price+' руб.</div><div class="list-extended__route_info">'+response.orders[i].comment+'</div></div>');
+                    show('LI','<div class="list-extended__personal"><img src="'+response.orders[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+response.orders[i].agent.name+'</div><div class="list-extended__route_time">'+Dates.datetimeForPeople(response.orders[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+response.orders[i].fromCity+'</div><div class="list-extended__route_to">'+response.orders[i].toCity0+'</div><div class="list-extended__route_sum">'+response.orders[i].price+' руб.</div><div class="list-extended__route_info">'+response.orders[i].comment+'</div></div>');
                 }
                 if(response.orders.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -516,17 +470,16 @@ function init(){
             }
         });
     }
-
     
-    if(document.querySelectorAll('[data-id="client_my_orders"]').length){
-        RequestAJAX(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&my=1', '', function(response){
+    if(document.querySelectorAll('[data-controller="client_my_orders"]').length){
+        Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&my=1', '', function(response){
             if (response && response.ok) {
                 console.log('Ok?: ' + response.ok + ', orders='+response.orders);
                 console.log('Messages: ' + response.messages);
                 var toAppend = document.querySelector('.myorders');
                     toAppend.innerHTML = '';
                 for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div><p class="myorders__item__time">'+datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromAddress+'</p><p class="myorders__item__to">'+response.orders[i].toAddress0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromAddress+'</p><p class="myorders__item__to">'+response.orders[i].toAddress0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
                 if(response.orders.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -542,8 +495,8 @@ function init(){
     }
 
     //= Form edit auto =
-    if(document.querySelectorAll('.form-edit-auto').length){
-        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+    if(document.querySelectorAll('[data-controller="form-edit-auto"]').length){
+        Ajax.request(server_uri, 'GET', 'profile', my_token, '', '', function(response){
             if (response && response.ok) {
                 document.querySelector('input[name="color"]').value = response.profile.color;
                 document.querySelector('input[name="number"]').value = response.profile.number;
@@ -553,7 +506,7 @@ function init(){
                     brand.selected = true;
             }
         });
-        RequestAJAX(server_uri, 'GET', 'auto', my_token, '', '', function(response){
+        Ajax.request(server_uri, 'GET', 'auto', my_token, '', '', function(response){
             if (response && response.ok) {
                 var conditioner = (response.auto.conditioner)?document.querySelector('input[name="conditioner"][value="1"]'):document.querySelector('input[name="conditioner"][value="0"]');
                     conditioner.checked = true;
@@ -564,11 +517,11 @@ function init(){
     }  
 
     //= Form edit profile =
-    if(document.querySelectorAll('.form-edit-profile').length){
-        RequestAJAX(server_uri, 'GET', 'profile', my_token, '', '', function(response){
+    if(document.querySelectorAll('[data-controller="form-edit-profile"]').length){
+        Ajax.request(server_uri, 'GET', 'profile', my_token, '', '', function(response){
             if (response && response.ok) {
                 document.querySelector('input[name="myname"]').value = (my_name)?my_name:response.profile.name;
-                document.querySelector('input[name="dob"]').value = dateFromBase(response.profile.birthday);
+                document.querySelector('input[name="dob"]').value = Dates.dateFromBase(response.profile.birthday);
                 var sex = (response.profile.sex)?document.querySelector('select[name="sex"] option[value="1"]'):document.querySelector('select[name="sex"] option[value="0"]');
                     sex.selected = true;
                 var city = document.querySelector('select[name="city"] option[value="'+response.profile.city+'"]');
@@ -579,30 +532,9 @@ function init(){
     }  
 
    //=Change height '.content'=
-   document.querySelector('.content').style.height = (window.innerHeight - outerHeight(document.querySelector('.header')))+'px';
+   document.querySelector('.content').style.height = (window.innerHeight - Funcs.outerHeight(document.querySelector('.header')))+'px';
    //==========================
    
-    tabs = document.querySelectorAll('.tabs ul li');
-    tabs_content = document.querySelectorAll('.tabs_content');
-    
-    if(tabs.length){
-        new Hammer(document.querySelector('.tabs__wrapper'),{domEvents: true});
-        var tab_count = tabs.length;
-        for(var i=0; i<tab_count; i++){
-            tabs[i].style.width = (100/tab_count-1)+'%';
-        }
-        document.querySelector('.tabs__viewport').style.width = (tab_count * window.innerWidth)+'px';
-        document.querySelector('.tabs__wrapper').style.height = (window.innerHeight - outerHeight(document.querySelector('.header')) - outerHeight(document.querySelector('.tabs')))+'px';
-        for(var i=0;i<tabs_content.length; i++){
-            tabs_content[i].style.width = (window.innerWidth)+'px';
-            tabs_content[i].addEventListener('swipeleft', function(){
-                swipeTabs(1);
-            });
-            tabs_content[i].addEventListener('swiperight', function(){
-                swipeTabs(-1);
-            });
-        }
-    }
     if(document.querySelectorAll('.form-order-city').length){
         document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
         document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
@@ -634,58 +566,31 @@ function geoFindMe(){
         var latlng = new google.maps.LatLng(latitude,longitude);
         geocoder.geocode({
             'latLng': latlng
-        },function (results, status) {
-            if(status === google.maps.GeocoderStatus.OK){
-                var obj = results[0].address_components,key;
-                for(key in obj) {
-                    if(obj[key].types[0]==="locality" && !my_city) {
-                        my_city = obj[key].long_name;
-                            var data = new FormData();
-                                data.append('name', my_name);
-                                data.append('city', my_city);
-                            RequestAJAX(server_uri, 'POST', 'profile', my_token, '', data, function(response){
-                                console.log('after geofind='+response.ok);
-                                if(response && response.ok) {
-                                    init();
-                                }
-                            });
+            },function (results, status) {
+                if(status === google.maps.GeocoderStatus.OK){
+                    var obj = results[0].address_components,key;
+                    for(key in obj) {
+                        if(obj[key].types[0]==="locality" && !my_city) {
+                            my_city = obj[key].long_name;
+                                var data = new FormData();
+                                    data.append('name', my_name);
+                                    data.append('city', my_city);
+                                Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                                    console.log('after geofind='+response.ok);
+                                    if(response && response.ok) {
+                                        init();
+                                    }
+                                });
+                        }
+                        if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                     }
-                    if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                 }
-            }
-        });    
+            });    
     };
     function error() {
         alert("На вашем устройстве не разрешен доступ к местоположению.");
     };
     navigator.geolocation.getCurrentPosition(success, error);
-}
-
-function swipeMenu(route){
-    var menu = document.querySelector('.menu');
-    var state = (route>0)?'opened':'closed';
-    menu.classList.remove('menu--closed');
-    menu.classList.remove('menu--opened');
-    menu.classList.add('menu--'+state);
-}
-
-function swipeTabs(route){
-    var current_tab = document.querySelector('.tab--active').dataset.tab;
-    var val_route = parseInt(current_tab) + parseInt(route);
-    if(val_route <= tabs.length &&  val_route > 0){
-        changeTab(val_route);
-    }
-}
-
-function changeTab(tab){
-    step = window.innerWidth;
-        for(var i=0; i<tabs_content.length; i++){
-            tabs_content[i].style.left = (step-step*tab)+'px';
-        }
-        for(var i=0; i<tabs.length; i++){
-            tabs[i].classList.remove('tab--active');
-        }
-    document.querySelector('[data-tab="'+tab+'"]').classList.add('tab--active');
 }
 
 function checkURL(hash){
@@ -714,10 +619,11 @@ function loadPage(url){
     var data = new FormData();
         data.append('section', datar[0]);
         data.append('page', datar[1]);
-    RequestAJAX('https://192.168.20.29', 'POST', 'routes.php', '', '', data, function(response){
+    Ajax.request(home_server, 'POST', 'routes.php', '', '', data, function(response){
         if(response){
             document.querySelector('.header__title').innerHTML = response.title;
             document.querySelector('.content').innerHTML = response.content;
+
             if(datar[0] !== lastsection || lastsection === '') {
                 document.querySelector('.menu__response').innerHTML = response[0].menu;
             }
@@ -766,8 +672,8 @@ function initialize(){
     });
     */
    
-    var address = loadAddress();
-    var waypoints = loadWaypoints();
+    var address = Funcs.loadAddress(my_city);
+    var waypoints = Funcs.loadWaypoints(my_city);
     directionsService = new google.maps.DirectionsService();
     directionsDisplay = new google.maps.DirectionsRenderer();
 
@@ -796,15 +702,14 @@ function initialize(){
 
 //= Google maps =
 function initialize_choice(){
-    zoom = 18;
-    if(my_position.x===undefined || my_position.y===undefined){
-        var x = 48.4;
-        var y = 135.07;
-        var zoom = 12;
+    var x,y,zoom = 18;
+    if(!my_position.x || !my_position.y){
+        x = 48.4;
+        y = 135.07;
+        zoom = 12;
     } else {
-        //undefined
-        var x = my_position.x;
-        var y = my_position.y;
+        x = my_position.x;
+        y = my_position.y;
     }
     var KhabLatLng = new google.maps.LatLng(x,y);
     var mapCanvas = document.getElementById('map_canvas_choice');
@@ -818,187 +723,7 @@ function initialize_choice(){
     var center_marker = document.querySelector('.centerMarker');
 
     google.maps.event.addListener(map_choice, 'drag', function(){
-        var coords = point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
+        var coords = Funcs.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
         localStorage.setItem('_choice_coords', coords);
     }); 
-}
-
-function renderDirections(result, polylineOpts) {
-    var directionsRenderer = new google.maps.DirectionsRenderer();
-    directionsRenderer.setMap(map);
-    if(polylineOpts) {
-        directionsRenderer.setOptions({
-            polylineOptions: polylineOpts
-        });
-    }
-    directionsRenderer.setDirections(result);
-}
-function requestDirections(start, end, polylineOpts) {
-    directionsService.route({
-        origin: start,
-        destination: end,
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
-    }, function(result) {
-        renderDirections(result, polylineOpts);
-    });
-}
- 
-function getChar(event){
-  if (event.which === null){
-    if (event.keyCode < 32) return null;
-    return String.fromCharCode(event.keyCode);
-  }
-  if (event.which !== 0){
-          //&& event.charCode !== 0){
-    if (event.which < 32) return null;
-    return String.fromCharCode(event.which);
-  }
-  return null;
-}
-
-function setTempRequestLS(val){
-    localStorage.setItem('_temp_request', val);
-    return true;
-}
-function getTempRequestLS(){
-    var val = localStorage.getItem('_temp_request');
-    localStorage.removeItem('_temp_request');
-    return val;
-}
-function saveAddress(adr_from, adr_to){
-    localStorage.setItem('_address_from', adr_from);
-    localStorage.setItem('_address_to', adr_to);
-    return true;
-}
-
-function loadAddress(){
-    var adr_from = my_city+','+localStorage.getItem('_address_from');
-    var adr_to = my_city+','+localStorage.getItem('_address_to');
-    
-    return [adr_from, adr_to];
-}
-
-function saveWaypoints(adr_to1,adr_to2,adr_to3){
-    localStorage.setItem('_address_to1', adr_to1);
-    localStorage.setItem('_address_to2', adr_to2);
-    localStorage.setItem('_address_to3', adr_to3);
-    
-    return true;
-}
-
-function loadWaypoints(){
-    var wp = [];
-
-    var adr_to1 = localStorage.getItem('_address_to1');
-    var adr_to2 = localStorage.getItem('_address_to2');
-    var adr_to3 = localStorage.getItem('_address_to3');
-        
-    if(adr_to1 !== "") wp.push({location:my_city+','+adr_to1, stopover:true});
-    if(adr_to2 !== "") wp.push({location:my_city+','+adr_to2, stopover:true});
-    if(adr_to3 !== "") wp.push({location:my_city+','+adr_to3, stopover:true});
-    
-    localStorage.removeItem('_address_to1');
-    localStorage.removeItem('_address_to2');
-    localStorage.removeItem('_address_to3');
-    
-    return wp;
-}
-
-function point2LatLng(x, y, map) {
-  var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
-  var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
-  var scale = Math.pow(2, map.getZoom());
-  var worldPoint = new google.maps.Point(x / scale + bottomLeft.x, y / scale + topRight.y);
-  return map.getProjection().fromPointToLatLng(worldPoint);
-}
-
-function getStreenFromGoogle(results){
-    var obj = results[0].address_components,key,address;
-    for(key in obj) {
-        if(obj[key].types[0]==="street_number") address = obj[key].long_name;
-        if(obj[key].types[0]==="route") address = obj[key].long_name + ',' + address;
-    }
-    return address;
-}
-
-function searchCityForIntercity(city, parent){
-    var currentCity;
-    var li = parent.children[1].children;
-    for(var i=0; i<li.length; i++){
-        currentCity = li[i].children[1].children[3].innerHTML;
-        if(currentCity === city || city === '') {
-            li[i].style.display = 'flex';
-        } else {
-            li[i].style.display = 'none';
-        }
-    }
-}
-
-function dateFromBase(dob){
-    if(dob === "0000-00-00") {
-        dob = "";
-    } else {
-        dob = dob.split("-");
-        dob = dob[2]+'.'+dob[1]+'.'+dob[0];
-    }
-    return dob;
-}
-function dateToBase(dob){
-    dob = dob.split('.');
-    dob = dob[2]+'-'+dob[1]+'-'+dob[0];
-    return dob;
-}
-function outerHeight(el) {
-  var height = el.offsetHeight;
-  var style = getComputedStyle(el);
-  height += parseInt(style.marginTop) + parseInt(style.marginBottom);
-  return height;
-}
-function datetimeForPeople(date,options){
-    if(options===undefined){
-        options = "TIME_AND_TODAY";
-    }
-    date = date.split(" ");
-    var date_order = date[0].split("-");
-    var time_order = date[1].split(":");
-    var today_text = '';
-    var time_text = time_order[0]+':'+time_order[1];
-    var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).valueOf();
-    var other = new Date(date_order[0], date_order[1], date_order[2]).valueOf();
-    if (other < today - 86400000) {
-        today_text = date_order[2]+'.'+date_order[1]+'.'+date_order[0];
-    } else if (other < today) {
-        today_text = "Вчера";
-    } else {
-        today_text = "Сегодня";
-    }
-    if(options==="ONLY_TIME"){
-        date = time_text;
-    }
-    if(options==="ONLY_TIME_IF_TODAY"){
-        date = (today_text==="Сегодня")?time_text:today_text+', '+time_text;
-    }
-    if(options==="TIME_AND_TODAY"){
-        date = today_text+', '+time_text;
-    }
-    if(options==="TIME_AND TODAY_ONLY"){
-        date = (today_text!=="Вчера" && today_text!=="Сегодня")?today_text:today_text+', '+time_text;
-    }
-    return date;
-}
-
-function RequestAJAX(server, crud, method, token, add_query, data, success){
-    token = (token === '')?'':'?token='+token;
-    var xhr = new XMLHttpRequest();
-        xhr.open(crud, server+'/'+method+token+add_query, true);
-        //xhr.setRequestHeader('Content-Type', 'application/json');
-        //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                success(response);
-            }
-        };
-        xhr.send(data);
 }
