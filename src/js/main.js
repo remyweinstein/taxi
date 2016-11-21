@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.submit === 'form-auth'){
                     var phone = document.querySelector('input[name="phone"]').value;
                     var token = (my_token)?my_token:"";
-                    Ajax.request(server_uri, 'POST', 'register', token, '?phone=7'+phone, '', function(response){
+                    Ajax.request(server_uri, 'POST', 'register', token, '&phone=7'+phone, '', function(response){
                         if (response && response.ok) {
                             localStorage.setItem('_my_token', response.token);
                             my_token = response.token;
@@ -392,8 +392,8 @@ function init(){
                     //localStorage.removeItem('_my_token');
                 } else {
                     my_phone = response.profile.phone;
-                    my_name = (response.profile.name!=="")?response.profile.name:my_name;
-                    my_city = (response.profile.city!=="")?response.profile.city:my_city;
+                    my_name = response.profile.name!==""?response.profile.name:my_name;
+                    my_city = response.profile.city!==""?response.profile.city:my_city;
                     my_avatar = response.profile.photo;
                     if(document.querySelectorAll('.jq_my_name').length){
                         document.querySelector('.jq_my_name').innerHTML = my_name;
@@ -407,7 +407,11 @@ function init(){
             }
         });
     }
-
+    if(document.querySelectorAll('[data-controller="logout"]').length){
+        localStorage.removeItem('_my_token');
+        is_auth = false;
+        window.history.back();
+    }
     if(document.querySelectorAll('[data-controller="driver_city_orders"]').length){
         Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
             //alert(response.ok);
@@ -546,6 +550,26 @@ function init(){
     if(document.querySelectorAll('[data-controller="taxy-client-city"]').length){
         document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
         document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
+        
+            var defaultBounds = new google.maps.LatLngBounds();
+            var input = document.querySelector('input[name="from"]');
+
+            var options = {
+              bounds: defaultBounds,
+              types: ['address']
+            };
+
+            var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+            google.maps.event.addListener(autocomplete, 'place_changed', function() {
+              var place = autocomplete.getPlace(); //получаем место
+              console.log(place);
+              console.log(place.name);  //название места
+              console.log(place.id);  //уникальный идентификатор места
+            });
+
+        
+        
     }
     
     if(document.querySelectorAll('#map_canvas_choice').length){
@@ -556,6 +580,14 @@ function init(){
     if(document.querySelectorAll('#map_canvas').length){
         //google.maps.event.addDomListener(window, 'load', initialize);
         initialize();
+    }
+    
+    if(is_auth){
+        document.querySelector('.menu__list__item_login').style.display = 'none';
+        document.querySelector('.menu__list__item_logout').style.display = 'block';
+    } else {
+        document.querySelector('.menu__list__item_login').style.display = 'block';
+        document.querySelector('.menu__list__item_logout').style.display = 'none';
     }
         
 }
@@ -622,6 +654,7 @@ function loadPage(url){
     */
     url = url.replace('#','');
     var datar = url.split('__');
+    
     document.querySelector(".loading").style.visibility = "visible";
     
     var data = new FormData();

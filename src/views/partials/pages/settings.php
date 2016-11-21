@@ -14,8 +14,5 @@ $json_data = array ('title' => 'Настройки',
                     <p>
                         Оферта
                     </p>
-                    <p>
-                        Выйти
-                    </p>
-                </div>
-    ');
+                </div>',
+                'pageType' => 'back-arrow');

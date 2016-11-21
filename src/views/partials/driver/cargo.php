@@ -14,7 +14,7 @@ $json_data = array ('title' => 'Грузоперевозки',
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../images/no_avatar.png" alt="" />
+                                <img src="../../asset/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Борис</div>
@@ -27,7 +27,7 @@ $json_data = array ('title' => 'Грузоперевозки',
                         </li>
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../images/no_avatar.png" alt="" />
+                                <img src="../../asset/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Владимир</div>
@@ -56,7 +56,7 @@ $json_data = array ('title' => 'Грузоперевозки',
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../images/no_avatar.png" alt="" />
+                                <img src="../../asset/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Александр</div>

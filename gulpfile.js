@@ -17,7 +17,7 @@ var gulp = require('gulp'),
 var path = {
     build: {
         html: 'build/',
-        php: 'build/',
+        php: 'build/views/',
         js: 'build/asset/js/',
         vendor_js: 'build/asset/js/vendor/',
         css: 'build/asset/css/',
@@ -26,7 +26,7 @@ var path = {
     },
     src: {
         html: 'src/**/*.html',
-        php: 'src/*.php',
+        php: 'src/views/**/*.php',
         js: 'src/js/main.js',
         vendor_js: 'src/js/vendor/*.js',
         style: 'src/scss/main.scss',
@@ -35,7 +35,7 @@ var path = {
     },
     watch: {
         html: 'src/**/*.html',
-        php: 'src/*.php',
+        php: 'src/views/**/*.php',
         js: 'src/js/**/*.js',
         vendor_js: 'src/js/vendor/*.js',
         style: 'src/scss/**/*.scss',

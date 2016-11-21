@@ -26,7 +26,6 @@ $json_data = array ('title' => 'Редактирование',
                     </p>
                     <p><button class="button_rounded--green">Сохранить</button></p>
                 </form>',
-    'pageType' => 'back-arrow'
-    );
+                'pageType' => 'back-arrow');
 
 

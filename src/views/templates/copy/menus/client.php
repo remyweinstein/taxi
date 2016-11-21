@@ -24,7 +24,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#client__settings">
+                    <a href="#pages__settings">
                         <i class="icon-cog"></i>
                         Настройки
                     </a>
@@ -48,10 +48,16 @@
                         Помощь
                     </a>
                 </li>
-                <li>
+                <li class="menu__list__item_login">
                     <a href="#pages__login">
                         <i class="icon-login"></i>
                         Войти
+                    </a>
+                </li>
+                <li class="menu__list__item_logout">
+                    <a href="#pages__logout">
+                        <i class="icon-login"></i>
+                        Выйти
                     </a>
                 </li>
             </ul>
