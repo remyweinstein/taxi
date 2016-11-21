@@ -1,0 +1,50 @@
+/* ==|====================
+   Layout/Header
+   ======================= */
+
+.header {
+    width: 100%;
+    //padding: 1em 0;
+    height: $header_height;
+    line-height: $header_height;
+    top: 0;
+    position: fixed;
+    z-index: 90;
+    background-color: white;
+    &__burger{
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+        width: 14%;
+        i{
+            color: $active;
+        }
+        i:last-child{
+            display: none;
+        }
+    }
+    &__title{
+        display: inline-block;
+        font-weight: 600;
+        width: 55%;
+    }
+    &__toggle{
+        display: inline-block;
+        width: 14%;
+    }
+    &__link{
+        display: inline-block;
+        text-align: center;
+        width: 11%;
+        color: $active;
+        a{
+            color: $active;
+            &:hover{
+                color: $active;
+            }
+            &:visited{
+                color: $active;
+            }
+        }
+    }
+}

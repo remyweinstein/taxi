@@ -1,0 +1,22 @@
+{
+  "name": "indriver.ru",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "gulp": "^3.8.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://remyweinstein@github.com/remyweinstein/taxi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/remyweinstein/taxi/issues"
+  },
+  "homepage": "https://github.com/remyweinstein/taxi#readme"
+}
