@@ -21,9 +21,13 @@
     }
 }
 .form-order-city{
-    margin-top: 1em;
-    height: 96%;
-    //position: relative;
+    position: absolute;
+    top: -2em;
+    background-color: white;
+    left: 0;
+    width: 90%;
+    margin: 25% 3%;
+    padding: 2%;
     input{
         width: 90%;
         border:0;
@@ -71,6 +75,11 @@
         width: 10%;
         top: 0.2em;
         position: relative;
+    }
+    &__add-button{
+        top: 0.3em;
+        right: 0;
+        position: absolute;
     }
 }
 .form-edit-profile{

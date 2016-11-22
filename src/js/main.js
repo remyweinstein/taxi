@@ -17,6 +17,7 @@ var home_server = 'https://192.168.20.29';
 var my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
 var default_avatar = 'asset/images/no_avatar.png';
+var google_api_key = 'AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4';
 
 document.addEventListener('DOMContentLoaded', function(){
     //Funcs.init();
@@ -543,33 +544,82 @@ function init(){
         });
     }  
 
-   //=Change height '.content'=
-   document.querySelector('.content').style.height = (window.innerHeight - Funcs.outerHeight(document.querySelector('.header')))+'px';
-   //==========================
-   
-    if(document.querySelectorAll('[data-controller="taxy-client-city"]').length){
-        document.querySelector('input[name="from"]').value = localStorage.getItem('_address_from');
-        document.querySelector('input[name="to"]').value = localStorage.getItem('_address_to');
+    //=Change height '.content'=
+    document.querySelector('.content').style.height = (window.innerHeight - Funcs.outerHeight(document.querySelector('.header')))+'px';
+    //==========================
+    if(document.querySelectorAll('[data-controller="choose_address"]').length){
+        var input = document.querySelector('input[name="enter-address"]');
+        var result_block = document.querySelector('.choice-location__results-search');
+        input.addEventListener('input', onchange);
         
-            var defaultBounds = new google.maps.LatLngBounds();
-            var input = document.querySelector('input[name="from"]');
-
-            var options = {
-              bounds: defaultBounds,
-              types: ['address']
-            };
-
-            var autocomplete = new google.maps.places.Autocomplete(input, options);
-
-            google.maps.event.addListener(autocomplete, 'place_changed', function() {
-              var place = autocomplete.getPlace(); //получаем место
-              console.log(place);
-              console.log(place.name);  //название места
-              console.log(place.id);  //уникальный идентификатор места
+        function onchange(){
+            var query = my_city + ',' + input.value;
+            var pyrmont = {lat: my_position.x, lng: my_position.y};
+            var map = new google.maps.Map(document.getElementById('hide_map'), {
+              center: pyrmont,
+              zoom: 12
             });
+            var service = new google.maps.places.PlacesService(map);
+            var request = {
+                location: pyrmont,
+                radius: 50000,
+                query: query
+            };
+            service.textSearch(request, callback);
 
+            function callback(results, status) {
+                result_block.innerHTML = "";
+                for(var i=0;i<results.length;i++){
+                    
+                    var addr = results[i].formatted_address;
+                    var addr_arr = addr.split(',');
+                    for(var y= 0;y<addr_arr.length;y++){
+                        addr_arr[y] = addr_arr[y].trim();
+                    }
+                    var idx_city = addr_arr.indexOf(my_city);
+                    var address = addr_arr[idx_city-2]?addr_arr[idx_city-2]+', '+addr_arr[idx_city-1]:addr_arr[idx_city-1];
+                    
+                    result_block.innerHTML += '<p>' + results[i].name + '<span>' + address + '</span></p>';
+                }
+                if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                    console.error('status='+status);
+                    return;
+                }
+            }
+            result_block.addEventListener('click', function(e){
+                var target = e.target;
+                while(target !== this){
+                    if(target.tagName === 'P'){
+                        localStorage.setItem('_address_'+localStorage.getItem('_address_temp'), target.children[0].innerHTML);
+                        document.location = '#client__city';
+                    }
+                    target = target.parentNode;
+                }
+            });
+            
+        }
+    }
+    
+    if(document.querySelectorAll('[data-controller="taxy-client-city"]').length){
         
+        var from = document.querySelector('input[name="from"]');
+        var to = document.querySelector('input[name="to"]');
         
+        from.value = localStorage.getItem('_address_from');
+        to.value = localStorage.getItem('_address_to');
+        
+        from.addEventListener('click', function(event){
+            //var target = event.target;
+            localStorage.setItem('_address_temp', 'from');
+            document.location = '#client__choose_address';
+        });
+        to.addEventListener('click', function(event){
+            //var target = event.target;
+            localStorage.setItem('_address_temp', 'to');
+            document.location = '#client__choose_address';
+        });
+
+            initialize_iam();        
     }
     
     if(document.querySelectorAll('#map_canvas_choice').length){
@@ -597,40 +647,49 @@ function geoFindMe(){
         alert("К сожалению, геолокация не поддерживается в вашем браузере");
         return;
     }
+    var options = {
+        enableHighAccuracy: true, 
+        maximumAge        : 30000, 
+        timeout           : 27000
+    };
     function success(position) {
         var latitude  = position.coords.latitude;
         var longitude = position.coords.longitude;
         my_position.x = latitude;
         my_position.y = longitude;
-        geocoder = new google.maps.Geocoder();
-        var latlng = new google.maps.LatLng(latitude,longitude);
-        geocoder.geocode({
-            'latLng': latlng
-            },function (results, status) {
-                if(status === google.maps.GeocoderStatus.OK){
-                    var obj = results[0].address_components,key;
-                    for(key in obj) {
-                        if(obj[key].types[0]==="locality" && !my_city) {
-                            my_city = obj[key].long_name;
-                                var data = new FormData();
-                                    data.append('name', my_name);
-                                    data.append('city', my_city);
-                                Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
-                                    console.log('after geofind='+response.ok);
-                                    if(response && response.ok) {
-                                        init();
-                                    }
-                                });
+        
+        if(!my_city){ // TRY FIND CITY, IF !MY_CITY
+            geocoder = new google.maps.Geocoder();
+            var latlng = new google.maps.LatLng(latitude,longitude);
+            geocoder.geocode({
+                'latLng': latlng
+                },function (results, status) {
+                    if(status === google.maps.GeocoderStatus.OK){
+                        var obj = results[0].address_components,key;
+                        for(key in obj) {
+                            if(obj[key].types[0]==="locality" && !my_city) {
+                                my_city = obj[key].long_name;
+                                    var data = new FormData();
+                                        data.append('name', my_name);
+                                        data.append('city', my_city);
+                                    Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
+                                        console.log('after geofind = '+response.ok);
+                                        if(response && response.ok) {
+                                            init();
+                                        }
+                                    });
+                            }
+                            if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                         }
-                        if(obj[key].types[0]==="country") my_coutry = obj[key].long_name;
                     }
-                }
-            });    
+                });
+        }
     };
     function error() {
         alert("На вашем устройстве не разрешен доступ к местоположению.");
     };
-    navigator.geolocation.getCurrentPosition(success, error);
+    //navigator.geolocation.getCurrentPosition(success, error);
+    navigator.geolocation.watchPosition(success, error, options);
 }
 
 function checkURL(hash){
@@ -691,7 +750,9 @@ function initialize(){
     var mapCanvas = document.getElementById('map_canvas');
     var mapOptions = {
         center: LatLng,
-        zoom: 12, 
+        zoom: 12,
+        streetViewControl: false,
+        mapTypeControl: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
@@ -760,6 +821,8 @@ function initialize_choice(){
     var mapOptions = {
         center: KhabLatLng,
         zoom: zoom, 
+        streetViewControl: false,
+        mapTypeControl: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map_choice = new google.maps.Map(mapCanvas, mapOptions);
@@ -769,5 +832,33 @@ function initialize_choice(){
     google.maps.event.addListener(map_choice, 'drag', function(){
         var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
         localStorage.setItem('_choice_coords', coords);
+    }); 
+}
+
+// Google maps TAXY CLIENT CITY ORDER 
+function initialize_iam(){
+    var x,y,zoom = 17;
+        x = my_position.x;
+        y = my_position.y;
+        console.log('x='+x+',y='+y);
+    var MyLatLng = new google.maps.LatLng(x,y);
+    var mapCanvas = document.getElementById('map_canvas_iam');
+    var mapOptions = {
+        center: MyLatLng,
+        zoom: zoom,
+        streetViewControl: false,
+        mapTypeControl: false,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map_choice = new google.maps.Map(mapCanvas, mapOptions);
+    var marker = new google.maps.Marker({
+      position: MyLatLng,
+      map: map_choice,
+      title: 'Я здесь!'
+    });
+
+    google.maps.event.addListener(map_choice, 'drag', function(){
+        //var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
+        //localStorage.setItem('_choice_coords', coords);
     }); 
 }

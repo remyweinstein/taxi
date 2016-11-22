@@ -1,0 +1,22 @@
+/* ==|====================
+   Modules/choice-location
+   ======================= */
+
+
+.choice-location{
+    input[name="enter-address"]{
+        width: 100%;
+    }
+    &__results-search{
+        width: 100%;
+        p{
+            border-bottom: 1px solid lightgrey;
+            cursor: pointer;
+            span{
+                font-size: 0.75em;
+                color: lightgray;
+                display: block;
+            }
+        }
+    }
+}
