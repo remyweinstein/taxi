@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     rigger = require('gulp-rigger'),
     cssmin = require('gulp-minify-css'),
     imagemin = require('gulp-imagemin');
-    /*
+    /* //server
     browserSync = require("browser-sync"),
     reload = browserSync.reload;
     */
