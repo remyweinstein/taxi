@@ -3,7 +3,7 @@ var MainMenu = (function() {
     var contentClass = 'content';
 
     function swipeMenu(route){
-        var menu = document.querySelector('.menu');
+        var menu = Dom.sel('.menu');
         var state = (route>0)?'opened':'closed';
         menu.classList.remove('menu--closed');
         menu.classList.remove('menu--opened');
@@ -12,15 +12,15 @@ var MainMenu = (function() {
 
     return {
         init: function(){
-            var menu = document.querySelector('.menu');
+            var menu = Dom.sel('.menu');
 
             //EVENT ON CLICK BURGER MENU ICON
-            document.querySelector('[data-click="menu-burger"]').addEventListener('click', function(){
+            Dom.sel('[data-click="menu-burger"]').addEventListener('click', function(){
                 swipeMenu(1);
             });
             
             //EVENT ON CLICK BURGER BACK ICON
-            document.querySelector('[data-click="back-burger"]').addEventListener('click', function(){
+            Dom.sel('[data-click="back-burger"]').addEventListener('click', function(){
                 window.history.back();
             });
 
@@ -31,13 +31,13 @@ var MainMenu = (function() {
             });
 
             //EVENTS ON CLICK CONTENT FOR CLOSE MENU
-            var content = document.querySelector('.'+contentClass);
+            var content = Dom.sel('.'+contentClass);
             content.addEventListener('click', function(event){
                 var target = event.target;
                 while(target !== this){
 
                         //=  Close Menu on Click body  =
-                    if(document.querySelector('.menu').classList.contains('menu--opened')){
+                    if(Dom.sel('.menu').classList.contains('menu--opened')){
                         console.log('try close');
                         swipeMenu(-1);
                     }

@@ -1,0 +1,43 @@
+/* ==|====================
+   Modules/Wait Order Approve Block
+   ======================= */
+.wait-order-approve{
+    position: absolute;
+    top: 4.5em;
+    margin: 0 1%;
+    width: 96%;
+    padding: 1%;
+    background-color: #fff;
+    font-size: 0.75em;
+    &__route-info{
+        
+    }
+}
+.wait-bids-approve{
+    position: absolute;
+    top: 9em;
+    font-size: 0.75em;
+    background-color: white;
+    width: 96%;
+    margin: 0 1%;
+    padding: 1%;
+    &__item{
+        div{
+            img{
+                width: 4em;
+                height: 4em;
+                border-radius: 4em;
+            }
+            i{
+                color: $inactive;
+                font-size: 3em;
+                position: relative;
+                top: -2em;
+                cursor: pointer;
+            }
+        }
+        div:last-child{
+            float: right;
+        }
+    }
+}

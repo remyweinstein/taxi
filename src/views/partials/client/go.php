@@ -1,8 +1,8 @@
 <?php
-$json_data = array ('title' => 'Поиск водителя',
+$json_data = array ('title' => 'Заказ',
             'content' => '
-                <div id="map_canvas"></div>
-                <div class="wait-order-approve">
+                <div id="map_canvas_go"></div>
+                <div class="wait-order-approve" data-controller="go-order-client">
                     <div class="wait-order-approve__route-info">
                         <div class="wait-order-approve__route-info__route">
                             <div></div>
@@ -17,8 +17,5 @@ $json_data = array ('title' => 'Поиск водителя',
                         </div>                        
                     </div>
                 </div>
-                <div class="wait-bids-approve">
-                    
-                </div>
-                ',
-    'pageType' => 'back-arrow');
+                <div class="go-order__down"></div>
+            ');

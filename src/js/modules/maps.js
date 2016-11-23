@@ -38,6 +38,15 @@ var Maps = (function() {
                 if(obj[key].types[0]==="route") address = obj[key].long_name + ',' + address;
             }
             return address;
+        },
+        
+        addressToLatLng: function(address, success){
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                    success(results[0].geometry.location);
+                }
+            });
         }
         
     };

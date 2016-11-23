@@ -5,7 +5,7 @@ var Tabs = (function() {
 
     // SWIPE TAB CONTENT
     function swipeTabs(route){
-        var current_tab = document.querySelector('.'+active_tab_class).dataset.tab;
+        var current_tab = Dom.sel('.'+active_tab_class).dataset.tab;
         var val_route = parseInt(current_tab) + parseInt(route);
         if(val_route <= tabs.length &&  val_route > 0){
             changeTabs(val_route);
@@ -21,7 +21,7 @@ var Tabs = (function() {
             for(var i=0; i<tabs.length; i++){
                 tabs[i].classList.remove(active_tab_class);
             }
-        document.querySelector('[data-tab="'+tab+'"]').classList.add(active_tab_class);
+        Dom.sel('[data-tab="'+tab+'"]').classList.add(active_tab_class);
     }
 
     // HEIGHT ELEMENT WITH MARGINS
@@ -34,7 +34,7 @@ var Tabs = (function() {
     
     // CHANGE WIDTH AND HEIGHT CONTENTS
     function changeSizes(){
-        var header = document.querySelector('.header');
+        var header = Dom.sel('.header');
         var tab_count = tabs.length;
         for(var i=0; i<tab_count; i++){
             tabs[i].style.width = (100/tab_count-1)+'%';
@@ -47,12 +47,12 @@ var Tabs = (function() {
 
         init: function(){
             
-                tab = document.querySelector('.tabs');
+                tab = Dom.sel('.tabs');
                 if(tab){
-                        tabs = document.querySelectorAll('.tabs ul li');
-                        tabs_wrapper = document.querySelector('.tabs__wrapper');
-                        tabs_viewport = document.querySelector('.tabs__viewport');
-                        tabs_content = document.querySelectorAll('.tabs_content');
+                        tabs = Dom.selAll('.tabs ul li');
+                        tabs_wrapper = Dom.sel('.tabs__wrapper');
+                        tabs_viewport = Dom.sel('.tabs__viewport');
+                        tabs_content = Dom.selAll('.tabs_content');
                         
                     changeSizes();
 

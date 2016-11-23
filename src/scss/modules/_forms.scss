@@ -22,11 +22,11 @@
 }
 .form-order-city{
     position: absolute;
-    top: -2em;
+    top: 3em;
     background-color: white;
     left: 0;
     width: 90%;
-    margin: 25% 3%;
+    margin: 0 3%;
     padding: 2%;
     input{
         width: 90%;
@@ -38,6 +38,9 @@
         color: $inactive;
         padding: 0.5em 0 0.5em 0.5em;
         font-size: 0.75em;
+    }
+    &__bottom{
+        
     }
     &__field{
         width: 100%;

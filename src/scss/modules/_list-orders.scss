@@ -50,4 +50,16 @@
             font-style: italic;
         }
     }
+    &_phone{
+        i{
+        top: 0.5em;
+        font-size: 2em;
+        position: relative;
+        color: $inactive;
+        cursor: pointer;
+            &.active{
+                color: $active;
+            }
+        }
+    }
 }
