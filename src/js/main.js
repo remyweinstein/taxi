@@ -527,7 +527,7 @@ function init(){
                         markers[0] = new google.maps.Marker({
                                 position: VLatLng,
                                 map: map,
-                                icon: 'http://egypt.koppra.com/logo_images/car-xxl11.png',
+                                icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
                                 title: 'Водитель'
                               });
                     } else {
