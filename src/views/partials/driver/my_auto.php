@@ -138,7 +138,10 @@ $json_data = array ('title' => 'Мой авто',
                     </p>
                     <p>
                         <label>Модель:
-                            <input type="text" name="model" value="" placeholder="Модель автомобиля" />
+                            <select name="model">
+                                <option value="">Загрузка...</option>
+                            </select>
+                            <!--<input type="text" name="model" value="" placeholder="Модель автомобиля" />-->
                         </label>
                     </p>
                     <p>

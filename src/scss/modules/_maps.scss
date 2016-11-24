@@ -1,11 +1,7 @@
 /* ==|====================
    Modules/maps
    ======================= */
-#map_canvas{
-    height: 100%;
-    margin-top: 1em;
-}
-#map_canvas_go{
+#map_canvas,#map_canvas_go,#map_canvas_go_driver{
     height: 100%;
     margin-top: 1em;
 }

@@ -6,11 +6,12 @@ var my_position = ["x","y"];
 var server_uri = 'https://192.168.20.90';
 //var home_server = 'https://indriver.ru';
 var home_server = 'https://192.168.20.29';
-var my_city,my_country,my_token,is_auth=false;
+var agent_id,my_city,my_country,my_token,is_auth=false;
 var my_name, my_phone, my_avatar;
+var bid_id;
 var default_avatar = 'asset/images/no_avatar.png';
 var google_api_key = 'AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4';
-var timerSearchDriver,timerUpdateCoords,timerGetBidsTaxy,timerGetBidGo;
+var timerSearchDriver,timerGetBidsTaxy,timerGetBidGo,timerUpdateTaxiDriverOrder;
 
 //= modules/dom.js
 //= modules/ajax.js
@@ -27,14 +28,12 @@ var timerSearchDriver,timerUpdateCoords,timerGetBidsTaxy,timerGetBidGo;
 document.addEventListener('DOMContentLoaded', function(){
     
     my_city = localStorage.getItem('_my_city');
+    agent_id = localStorage.getItem('_agent_id');
     
     MainMenu.init();
     
     my_position.x = localStorage.getItem('_my_pos_lat');
-    my_position.y = localStorage.getItem('_my_pos_lon');
-
-    timerUpdateCoords = setInterval(Geo.updateUserCoord, 5000);
-    
+    my_position.y = localStorage.getItem('_my_pos_lon');    
 
     if(localStorage.getItem('_is_auth')==="true"){
         is_auth = true;
@@ -42,10 +41,12 @@ document.addEventListener('DOMContentLoaded', function(){
     my_token = localStorage.getItem('_my_token');
     if(!my_token){
         Ajax.request(server_uri, 'GET', 'token', '', '', '', function(response){
-            console.log('try get token... response: '+response.messages);
+            //console.log('try get token... response: ' + JSON.stringify(response));
             if(response && response.ok){
                 localStorage.setItem('_my_token', response.token);
                 my_token = response.token;
+                localStorage.setItem('_agent_id', response.id);
+                agent_id = response.id;
                 my_name = 'Гость';
                     var data = new FormData();
                         data.append('name', my_name);
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     }
         
-    Geo.geoFindMe();
+    Geo.init();
     
     // =================
     var content = Dom.sel('.content');
@@ -66,22 +67,50 @@ document.addEventListener('DOMContentLoaded', function(){
             var target = event.target;
             while(target !== this){
                 
+                    // Click taxi_driver arrived
+                if(target.dataset.click==="driver-arrived"){
+                    var el = target;
+                    Ajax.request(server_uri, 'POST', 'arrived-bid', my_token, '&id='+bid_id, '', function(response){
+                        Ajax.request(server_uri, 'GET', 'bid', my_token, '&id='+bid_id, '', function(response){
+                            //console.log('click driver arrived = '+JSON.stringify(response));
+                        });
+                    });
+                }
+
+                    // Click taxi_client in car
+                if(target.dataset.click==="client-incar"){
+                    var el = target;
+                    Ajax.request(server_uri, 'POST', 'in-car-bid', my_token, '&id='+bid_id, '', function(response){
+                        Ajax.request(server_uri, 'GET', 'bid', my_token, '&id='+bid_id, '', function(response){
+                            //console.log('click client incar = '+JSON.stringify(response));
+                        });
+                    });
+                }
+                
                     // Click taxi_bid
                 if(target.dataset.click==="taxi_bid"){
                     var el = target;
-                    Ajax.request(server_uri, 'POST', 'bid', my_token, '&id='+el.dataset.id, '', function(response){
-                        console.log(response);
-                        if(response && response.ok){
-                            el.classList.add('active');
-                        }
-                    });
+                    if(el.classList.contains('active')) {
+                        Ajax.request(server_uri, 'POST', 'delete-bid', my_token, '&id='+el.dataset.id, '', function(response){
+                            if(response && response.ok){
+                                el.classList.remove('active');
+                            }
+                        });
+                    } else {
+                        Ajax.request(server_uri, 'POST', 'bid', my_token, '&id='+el.dataset.id, '', function(response){
+                            //console.log(JSON.stringify('mess = '+response.messages));
+                            if(response && response.ok){
+                                el.classList.add('active');
+                            }
+                        });
+                    }
                 }
                 
                     // Click Client BID
                 if(target.dataset.click==="taxi_client_bid"){
                     var el = target;
                     Ajax.request(server_uri, 'POST', 'approve-bid', my_token, '&id='+el.dataset.id, '', function(response){
-                        console.log(response);
+                        //console.log(response);
                         if(response && response.ok){
                             localStorage.setItem('_current_id_bid',el.dataset.id);
                             document.location = "#client__go";
@@ -219,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('minibus', 0);
                         data.append('babyChair', 0);
                     Ajax.request(server_uri, 'POST', 'order', my_token, '', data, function(response){
-                        console.log(response);
+                        //console.log(response);
                         if(response && response.ok){
                             localStorage.setItem('_id_current_taxy_order', response.id);
                             document.location= '#client__map';
@@ -264,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('city', Dom.sel('select[name=city]').value);
                         data.append('sex', Dom.sel('select[name=sex]').value);
                     Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(response){
-                        console.log(response.messages);
+                        //console.log(response.messages);
                         if(response && response.ok) {
                             //document.location= '/';
                             window.history.back();
@@ -277,12 +306,14 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(target.dataset.submit === 'form-edit-auto'){
                     var sel_brand = Dom.sel('select[name="brand"]');
                     var sel_type = Dom.sel('select[name="type"]');
+                    var sel_model = Dom.sel('select[name="model"]');
                     var data = new FormData();
                         data.append('color', Dom.sel('input[name="color"]').value);
                         data.append('number', Dom.sel('input[name="number"]').value);
-                        data.append('model', Dom.sel('input[name="model"]').value);
+                        //data.append('model', Dom.sel('input[name="model"]').value);
                         data.append('tonnage', Dom.sel('input[name="tonnage"]').value);
-                        data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);                        
+                        data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);
+                        data.append('model', sel_model.options[sel_model.selectedIndex].text);
                     Ajax.request(server_uri, 'POST', 'profile', my_token, '', data, function(){});
                     var data2 = new FormData();
                         data2.append('conditioner', Dom.sel('input[name="conditioner"]:checked').value);
@@ -335,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         data.append('babyChair', 0);
                     Ajax.request(server_uri, 'POST', 'order', my_token, '', data, function(response){
                         if(response && response.ok){
-                            console.log('id='+response.id);
+                            //console.log('id='+response.id);
                             changeTab(3);
                         }
                     });
@@ -395,6 +426,7 @@ function init(){
     clearInterval(timerSearchDriver);
     clearInterval(timerGetBidsTaxy);
     clearInterval(timerGetBidGo);
+    clearInterval(timerUpdateTaxiDriverOrder);
     
     Tabs.init();
     if(my_token){
@@ -406,11 +438,15 @@ function init(){
                     localStorage.removeItem('_is_auth');
                     // localStorage.removeItem('_my_token');
                 } else {
-                    my_phone = response.profile.phone;
-                    my_name = response.profile.name!==""?response.profile.name:my_name;
-                    my_city = response.profile.city!==""?response.profile.city:my_city;
+                    var prfl = response.profile
+                    localStorage.setItem('_agent_id', prfl.id);
+                    agent_id = prfl.id;
+                    //console.log('from profile ... ' + JSON.stringify(response));
+                    my_phone = prfl.phone;
+                    my_name = prfl.name!==""?prfl.name:my_name;
+                    my_city = prfl.city!==""?prfl.city:my_city;
                     localStorage.setItem('_my_city', my_city);
-                    my_avatar = response.profile.photo;
+                    my_avatar = prfl.photo;
                     if(Dom.selAll('.jq_my_name').length){
                         Dom.sel('.jq_my_name').innerHTML = my_name;
                         Dom.sel('.jq_my_phone').innerHTML = my_phone;
@@ -428,56 +464,172 @@ function init(){
         is_auth = false;
         window.history.back();
     }
+    
     if(Dom.selAll('[data-controller="driver_city_orders"]').length){
-        Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
-            // alert(response.ok);
-            if (response && response.ok) {
-                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                console.log('Messages: ' + response.messages);
-                var toAppend = Dom.sel('.list-orders');
-                    toAppend.innerHTML = '';
-                for(var i=0; i<response.orders.length; i++){
-                    var photo_img = (response.orders[i].agent.photo)?response.orders[i].agent.photo:default_avatar;
-                    var price = (response.orders[i].price)?response.orders[i].price:0;
-                    show('LI','<div class="list-orders_personal"><img src="'+photo_img+'" alt="" /><br/>'+response.orders[i].agent.name+'<br/>'+Dates.datetimeForPeople(response.orders[i].created, 'TIME_AND TODAY_ONLY')+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+response.orders[i].fromAddress+'</div><div class="list-orders_route_to">'+response.orders[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+price+' руб.</span> <i class="icon-direction-outline"></i>? км</div><div class="list-orders_route_additional">'+response.orders[i].comment+'</div></div><div class="list-orders_phone"><i data-click="taxi_bid" data-id="'+response.orders[i].id+'" class="icon-ok-circled"></i></div>');
+        
+        update_taxi_order();
+        
+        timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 3000);
+        
+        function update_taxi_order(){
+            Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&fromCity='+my_city, '', function(response){
+                // alert(response.ok);
+                if (response && response.ok) {
+                    var toAppend = Dom.sel('.list-orders');
+                        toAppend.innerHTML = '';
+                    var ords = response.orders;
+                    for(var i=0; i<ords.length; i++){
+                        
+                        //console.log('order '+i+': '+JSON.stringify(response.orders[i]));
+                        
+                        var photo_img = (ords[i].agent.photo)?ords[i].agent.photo:default_avatar;
+                        var price = (ords[i].price)?ords[i].price:0;
+                        var bidId = ords[i].bidId;
+                        var active_bid = '';
+                        for(var y=0;y<ords[i].bids.length;y++){
+                            var agidbid = ords[i].bids[y].id;
+                            if(agidbid===bidId){
+                                localStorage.setItem('_current_id_bid', bidId);
+                                document.location = '#driver__go';
+                                break;
+                            }
+                        }
+                        for(var y=0;y<ords[i].bids.length;y++){
+                            var agidbid = ords[i].bids[y].agentId;
+                            if(agidbid===agent_id){
+                                active_bid = ' active';
+                                break;
+                            }
+                        }
+                        var long = ords[i].agent.distance.toFixed(1);
+
+                        show('LI','<div class="list-orders_personal"><img src="'+photo_img+'" alt="" /><br/>'+ords[i].agent.name+'<br/>'+Dates.datetimeForPeople(ords[i].created, 'TIME_AND TODAY_ONLY')+'</div><div class="list-orders_route"><div class="list-orders_route_from">'+ords[i].fromAddress+'</div><div class="list-orders_route_to">'+ords[i].toAddress0+'</div><div class="list-orders_route_info"><span>'+price+' руб.</span> <i class="icon-direction-outline"></i>'+long+' км</div><div class="list-orders_route_additional">'+ords[i].comment+'</div></div><div class="list-orders_phone"><i data-click="taxi_bid" data-id="'+ords[i].id+'" class="icon-ok-circled'+active_bid+'"></i></div>');
+                    }
+                    if(ords.length<1){
+                        show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
+                    }
+                    function show(el, a){
+                        var n = document.createElement(el);
+                        n.innerHTML = a;
+                        toAppend.appendChild(n);                    
+                    }
                 }
-                if(response.orders.length<1){
-                    show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-                }
-                function show(nod, a){
-                    var node = document.createElement(nod);
-                    node.innerHTML = a;
-                    toAppend.appendChild(node);                    
-                }
-            }
-        });
+            });
+        }
     }
     
     if(Dom.selAll('[data-controller="taxy_client_intercity_myorders"]').length){
         Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=1&my=1', '', function(response){
             if (response && response.ok) {
-                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                console.log('Messages: ' + response.messages);
-                var toAppend = Dom.sel('.myorders');
-                    toAppend.innerHTML = '';
-                for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromCity+'</p><p class="myorders__item__to">'+response.orders[i].toCity0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+                //console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                //console.log('Messages: ' + response.messages);
+                var t = Dom.sel('.myorders');
+                    t.innerHTML = '';
+                var ords = response.orders;
+                for(var i=0; i < ords.length; i++){
+                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(ords[i].created)+'</p><p class="myorders__item__from">'+ords[i].fromCity+'</p><p class="myorders__item__to">'+ords[i].toCity0+'</p><p class="myorders__item__summa">'+ords[i].price+'</p><p class="myorders__item__info">'+ords[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+ords[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
-                if(response.orders.length < 1){
+                if(ords.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
                 }
-                function show(nod, a){
-                    var node = document.createElement(nod);
-                    node.classList.add('myorders__item');
-                    node.innerHTML = a;
-                    toAppend.appendChild(node);      
+                function show(el, a){
+                    var n = document.createElement(el);
+                        n.classList.add('myorders__item');
+                        n.innerHTML = a;
+                        t.appendChild(n);      
                 }
             }
         });
     }
+
+    if(Dom.selAll('[data-controller="go-order-driver"]').length){
+            bid_id = localStorage.getItem('_current_id_bid');
+        var LatLng = new google.maps.LatLng(48.49, 135.07);
+        var mapCanvas = document.getElementById('map_canvas_go_driver');
+        var mapOptions = {
+            center: LatLng,
+            zoom: 12,
+            streetViewControl: false,
+            mapTypeControl: false,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(mapCanvas, mapOptions);
+        var markers = new Array;
+        var show_route = false;
+        var address,address_clear,waypoints;
+
+            Ajax.request(server_uri, 'GET', 'bid', my_token, '&id='+bid_id, '', function(response){
+                //console.log(JSON.stringify(response.bid.order));
+                if(response && response.ok){
+                    var ords = response.bid.order;
+
+                    address = [ords.toCity0+', '+ords.fromAddress, ords.toCity0+', '+ords.toAddress0];
+                    address_clear = [ords.fromAddress, ords.toAddress0];
+                    var waypoints = [];
+                    if(ords.toAddress1){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress1, stopover:true});
+                    }
+                    if(ords.toAddress2){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress2, stopover:true});
+                    }
+                    if(ords.toAddress3){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress3, stopover:true});
+                    }
+                    if(!show_route) setRoute();
+                }
+            });
+
+
+            function setRoute(){
+                    var el_route = Dom.sel('.wait-order-approve__route-info__route');
+                    var el_price = Dom.sel('.wait-order-approve__route-info__price');
+                        el_route.children[0].innerHTML = address_clear[0];
+                        el_route.children[2].innerHTML = address_clear[1];
+
+                directionsService = new google.maps.DirectionsService();
+                directionsDisplay = new google.maps.DirectionsRenderer();
+
+                var request = {
+                    origin: address[0],
+                    destination: address[1],
+                    waypoints: waypoints,
+                    travelMode: google.maps.DirectionsTravelMode.DRIVING
+                };
+
+                directionsService.route(request, function(response, status) {
+                    if (status === google.maps.DirectionsStatus.OK) {            
+                        directionsDisplay.setDirections(response);
+                        //mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+                    }
+                });
+
+                directionsDisplay.setMap(map);
+                show_route = true;
+            }
+        
+        function get_pos_driver(){
+            if(!markers[0]){
+                var VLatLng = new google.maps.LatLng(my_position.x, my_position.y);
+                markers[0] = new google.maps.Marker({
+                        position: VLatLng,
+                        map: map,
+                        icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+                        title: 'Я'
+                      });
+            } else {
+                markers[0].setPosition(new google.maps.LatLng(response.bid.agent.latitude, response.bid.agent.longitude));
+            }
+        }
+        
+        timerGetBidGo=setInterval(get_pos_driver,3000);//get_bids_driver
+        
+        
+
+    }
     
     if(Dom.selAll('[data-controller="go-order-client"]').length){
-        var bid_id = localStorage.getItem('_current_id_bid');
+            bid_id = localStorage.getItem('_current_id_bid');
+            
         var LatLng = new google.maps.LatLng(48.49, 135.07);
         var mapCanvas = document.getElementById('map_canvas_go');
         var mapOptions = {
@@ -489,41 +641,66 @@ function init(){
         };
         var map = new google.maps.Map(mapCanvas, mapOptions);
         var markers = new Array;              
+        var show_route = false;
+        var address,address_clear,waypoints;
+                
+            function setRoute(){
+                    var el_route = Dom.sel('.wait-order-approve__route-info__route');
+                    var el_price = Dom.sel('.wait-order-approve__route-info__price');
+                        el_route.children[0].innerHTML = address_clear[0];
+                        el_route.children[2].innerHTML = address_clear[1];
 
-        var address = Address.loadAddress(my_city);
-        var waypoints = Address.loadWaypoints(my_city);
-        
-        directionsService = new google.maps.DirectionsService();
-        directionsDisplay = new google.maps.DirectionsRenderer();
+                directionsService = new google.maps.DirectionsService();
+                directionsDisplay = new google.maps.DirectionsRenderer();
 
-        var request = {
-            origin: address[0],
-            destination: address[1],
-            waypoints: waypoints,
-            travelMode: google.maps.DirectionsTravelMode.DRIVING
-        };
+                var request = {
+                    origin: address[0],
+                    destination: address[1],
+                    waypoints: waypoints,
+                    travelMode: google.maps.DirectionsTravelMode.DRIVING
+                };
 
-        directionsService.route(request, function(response, status) {
-            if (status === google.maps.DirectionsStatus.OK) {            
-                directionsDisplay.setDirections(response);
-                //mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+                directionsService.route(request, function(response, status) {
+                    if (status === google.maps.DirectionsStatus.OK) {            
+                        directionsDisplay.setDirections(response);
+                        //mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+                    }
+                });
+
+                directionsDisplay.setMap(map);
+                show_route = true;
             }
-        });
-
-        directionsDisplay.setMap(map);
         
-        var route = Address.loadAddress();
-        var el_route = Dom.sel('.wait-order-approve__route-info__route');
-        var el_price = Dom.sel('.wait-order-approve__route-info__price');
-            el_route.children[0].innerHTML = route[0];
-            el_route.children[2].innerHTML = route[1];
+        get_pos_driver();
         
         function get_pos_driver(){
             Ajax.request(server_uri, 'GET', 'bid', my_token, '&id='+bid_id, '', function(response){
-                console.log(response);
+                //console.log(JSON.stringify(response.bid.order));
                 if(response && response.ok){
+                    var ords = response.bid.order;
+                    var agnt = response.bid.agent;
+                    
+                    address = [ords.toCity0+', '+ords.fromAddress, ords.toCity0+', '+ords.toAddress0];
+                    address_clear = [ords.fromAddress, ords.toAddress0];
+                    var waypoints = [];
+                    if(ords.toAddress1){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress1, stopover:true});
+                    }
+                    if(ords.toAddress2){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress2, stopover:true});
+                    }
+                    if(ords.toAddress3){
+                        waypoints.push({location:ords.toCity0+', '+ords.toAddress3, stopover:true});
+                    }
+                    
+                    if(!show_route) setRoute();
+                    
+                    if(response.bid.arrived){
+                        //console.log('driver arrived');
+                        Dom.sel('button[data-click="client-incar"]').disabled = false;
+                    }
                     if(!markers[0]){
-                        var VLatLng = new google.maps.LatLng(response.bid.agent.latitude, response.bid.agent.longitude);
+                        var VLatLng = new google.maps.LatLng(agnt.latitude, agnt.longitude);
                         markers[0] = new google.maps.Marker({
                                 position: VLatLng,
                                 map: map,
@@ -531,7 +708,7 @@ function init(){
                                 title: 'Водитель'
                               });
                     } else {
-                        markers[0].setPosition(new google.maps.LatLng(response.bid.agent.latitude, response.bid.agent.longitude));
+                        markers[0].setPosition(new google.maps.LatLng(agnt.latitude, agnt.longitude));
                     }
                 }
             });
@@ -544,21 +721,22 @@ function init(){
     if(Dom.selAll('[data-controller="taxy_driver_list_orders_intercity"]').length){
         Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=1', '', function(response){
             if (response && response.ok) {
-                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                console.log('Messages: ' + response.messages);
+                //console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                //console.log('Messages: ' + response.messages);
                 var toAppend = Dom.sel('[data-controller="taxy_driver_list_orders_intercity"]');
                     toAppend.innerHTML = '';
-                for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div class="list-extended__personal"><img src="'+response.orders[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+response.orders[i].agent.name+'</div><div class="list-extended__route_time">'+Dates.datetimeForPeople(response.orders[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+response.orders[i].fromCity+'</div><div class="list-extended__route_to">'+response.orders[i].toCity0+'</div><div class="list-extended__route_sum">'+response.orders[i].price+' руб.</div><div class="list-extended__route_info">'+response.orders[i].comment+'</div></div>');
+                var ords = response.orders;
+                for(var i=0; i < ords.length; i++){
+                    show('LI','<div class="list-extended__personal"><img src="'+ords[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+ords[i].agent.name+'</div><div class="list-extended__route_time">'+Dates.datetimeForPeople(ords[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+ords[i].fromCity+'</div><div class="list-extended__route_to">'+ords[i].toCity0+'</div><div class="list-extended__route_sum">'+ords[i].price+' руб.</div><div class="list-extended__route_info">'+ords[i].comment+'</div></div>');
                 }
-                if(response.orders.length < 1){
+                if(ords.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
                 }
-                function show(nod, a){
-                    var node = document.createElement(nod);
-                    // node.classList.add('myorders__item');
-                    node.innerHTML = a;
-                    toAppend.appendChild(node);                    
+                function show(el, a){
+                    var n = document.createElement(el);
+                    // n.classList.add('myorders__item');
+                    n.innerHTML = a;
+                    toAppend.appendChild(n);
                 }
             }
         });
@@ -567,12 +745,13 @@ function init(){
     if(Dom.selAll('[data-controller="client_my_orders"]').length){
         Ajax.request(server_uri, 'GET', 'orders', my_token, '&isIntercity=0&my=1', '', function(response){
             if (response && response.ok) {
-                console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-                console.log('Messages: ' + response.messages);
+                //console.log('Ok?: ' + response.ok + ', orders='+response.orders);
+                //console.log('Messages: ' + response.messages);
                 var toAppend = Dom.sel('.myorders');
                     toAppend.innerHTML = '';
-                for(var i=0; i < response.orders.length; i++){
-                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(response.orders[i].created)+'</p><p class="myorders__item__from">'+response.orders[i].fromAddress+'</p><p class="myorders__item__to">'+response.orders[i].toAddress0+'</p><p class="myorders__item__summa">'+response.orders[i].price+'</p><p class="myorders__item__info">'+response.orders[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+response.orders[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+                var ords = response.orders;
+                for(var i=0; i < ords.length; i++){
+                    show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(ords[i].created)+'</p><p class="myorders__item__from">'+ords[i].fromAddress+'</p><p class="myorders__item__to">'+ords[i].toAddress0+'</p><p class="myorders__item__summa">'+ords[i].price+'</p><p class="myorders__item__info">'+ords[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+ords[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
                 }
                 if(response.orders.length < 1){
                     show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
@@ -607,6 +786,16 @@ function init(){
                     type.selected = true;
             }
         });
+        var brand_el = Dom.sel('select[name="brand"]');
+            brand_el.addEventListener('change', function(){
+        var model_el = Dom.sel('select[name="model"]');
+                Ajax.request(server_uri, 'GET', 'models', my_token, '&brand='+brand_el.options[brand_el.selectedIndex].text, '', function(response){
+                    model_el.options.length = 0;
+                    for(var i=0;i<response.length;i++){
+                        model_el.options[i] = new Option(response[i], response[i]);
+                    }
+                });
+            });
     }
 
     // = Form edit profile =
@@ -671,7 +860,7 @@ function init(){
                     result_block.innerHTML += '<p>' + results[i].name + '<span>' + address + '</span></p>';
                 }
                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                    console.error('status='+status);
+                    //console.error('status='+status);
                     return;
                 }
             }
@@ -693,7 +882,7 @@ function init(){
                     if(address!=="") result_block.innerHTML += '<p>' + results[i].name + '<span>' + address + '</span></p>';
                 }
                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                    console.error('status='+status);
+                    //console.error('status='+status);
                     return;
                 }
             }
@@ -844,12 +1033,12 @@ function initialize(){
     
     function get_bids_driver(){
         Ajax.request(server_uri, 'GET', 'bids', my_token, '&id='+localStorage.getItem('_id_current_taxy_order'), '', function(response){
-                console.log('try get bids... order '+localStorage.getItem('_id_current_taxy_order'));
+                //console.log('try get bids... order '+localStorage.getItem('_id_current_taxy_order'));
             if(response && response.ok){
                 var el = Dom.sel('.wait-bids-approve');
                     el.innerHTML = "";
                 var bids = response.bids;
-                console.log(bids);
+                //console.log(bids);
                 for(var i=0;i<bids.length;i++){
                     var photo;
                         photo = bids[i].agent.photo?bids[i].agent.photo:default_avatar;
@@ -880,10 +1069,10 @@ function initialize_choice(){
         x = my_position.x;
         y = my_position.y;
     }
-    var KhabLatLng = new google.maps.LatLng(x,y);
+    var LatLng = new google.maps.LatLng(x,y);
     var mapCanvas = document.getElementById('map_canvas_choice');
     var mapOptions = {
-        center: KhabLatLng,
+        center: LatLng,
         zoom: zoom, 
         streetViewControl: false,
         mapTypeControl: false,
