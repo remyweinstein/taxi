@@ -772,10 +772,10 @@ function init(){
             if (response && response.ok) {
                 Dom.sel('input[name="color"]').value = response.profile.color;
                 Dom.sel('input[name="number"]').value = response.profile.number;
-                Dom.sel('input[name="model"]').value = response.profile.model;
                 Dom.sel('input[name="tonnage"]').value = response.profile.tonnage;
                 var brand = Dom.sel('select[name="brand"] option[value="'+response.profile.brand+'"]');
                     brand.selected = true;
+                changeModel(response.profile.brand, response.profile.model);
             }
         });
         Ajax.request(server_uri, 'GET', 'auto', my_token, '', '', function(response){
@@ -788,14 +788,21 @@ function init(){
         });
         var brand_el = Dom.sel('select[name="brand"]');
             brand_el.addEventListener('change', function(){
-        var model_el = Dom.sel('select[name="model"]');
-                Ajax.request(server_uri, 'GET', 'models', my_token, '&brand='+brand_el.options[brand_el.selectedIndex].text, '', function(response){
-                    model_el.options.length = 0;
-                    for(var i=0;i<response.length;i++){
-                        model_el.options[i] = new Option(response[i], response[i]);
-                    }
-                });
+                changeModel(brand_el.options[brand_el.selectedIndex].text);
             });
+        function changeModel(brand, model){
+            var model_el = Dom.sel('select[name="model"]', model);
+            Ajax.request(server_uri, 'GET', 'models', my_token, '&brand='+brand, '', function(response){
+                model_el.options.length = 0;
+                for(var i=0;i<response.length;i++){
+                    model_el.options[i] = new Option(response[i], response[i]);
+                }
+                if(model){
+                    var current = Dom.sel('select[name="model"] option[value="'+model+'"]');
+                        current.selected = true;
+                }
+            });
+        }
     }
 
     // = Form edit profile =
