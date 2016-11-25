@@ -1,7 +1,7 @@
 <?php
 $json_data = array ('title' => 'Поиск водителя',
             'content' => '
-                <div id="map_canvas"></div>
+                <div data-controller="taxi_client_map" id="map_canvas"></div>
                 <div class="wait-order-approve">
                     <div class="wait-order-approve__route-info">
                         <div class="wait-order-approve__route-info__route">

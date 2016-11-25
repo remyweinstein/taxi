@@ -11,11 +11,24 @@
     font-size: 0.75em;
     &__route-info{
         
+        div{
+            display: inline-block;
+        }
+        &__route{
+            width: 55%;
+        }
+        &__price{
+            font-size: 1.5em;
+            color: green;
+        }
+        &__cancel{
+            float: right;
+        }
     }
 }
 .wait-bids-approve{
     position: absolute;
-    top: 9em;
+    top: 8em;
     font-size: 0.75em;
     background-color: white;
     width: 96%;
@@ -28,16 +41,43 @@
                 height: 4em;
                 border-radius: 4em;
             }
+        }
+        &__distance{
+            display: inline-block;
+            width: 30%;
+            padding-right: 1em;
+            vertical-align: top;
+            span{
+                color: green;
+                font-size: 1.5em;
+            }
+        }
+        &__approve{
+            display: inline-block;
+            float: right;
+            position: relative;
             i{
                 color: $inactive;
                 font-size: 3em;
-                position: relative;
-                top: -2em;
+                position: absolute;
+                top: 0.25em;
+                right: 0;
                 cursor: pointer;
             }
         }
-        div:last-child{
-            float: right;
+        &__price{
+            display: inline-block;
+        }
+        &__driver{
+            display: inline-block;
+            width: 25%;
+            vertical-align: top;
+            text-align: center;
+        }
+        &__car{
+            display: inline-block;
+            text-align: center;
+            width: 40%;
         }
     }
 }

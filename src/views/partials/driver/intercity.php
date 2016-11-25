@@ -8,7 +8,7 @@ $json_data = array ('title' => 'Межгород',
                     <li data-tab="3">Мои заказы</li>
                 </ul>
             </nav>
-            <div class="tabs__wrapper">
+            <div class="tabs__wrapper" data-controller="taxy_driver_intercity">
               <div class="tabs__viewport">
                 <div data-tabcontent="1" data-tab-content="1" class="tabs_content" id="1">
                     <div class="filter-intercity">
@@ -21,7 +21,7 @@ $json_data = array ('title' => 'Межгород',
                             <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
                         </p>
                     </div>
-                    <ul class="list-extended" data-controller="taxy_driver_list_orders_intercity"></ul>
+                    <ul class="list-extended"></ul>
                 </div>
                 <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
                     <div class="filter-intercity">

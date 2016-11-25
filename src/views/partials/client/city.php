@@ -2,7 +2,7 @@
 $json_data = array ('title' => 'Город',
             'content' => '
             <div id="map_canvas_iam"></div>
-            <form action="/#client__map" method="POST" data-controller="taxy-client-city" data-submit="taxy-client-city" onsubmit="return false;" class="form-order-city">
+            <form action="/" method="POST" data-controller="taxy_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
                 <div class="form-order-city__field order-city-from">
                     <i class="icon-right-circled form-order-city__label"></i>
                     <span class="form-order-city__wrap"><input id="autocomplete" class="adress_from" type="text" name="from" value="" placeholder="Откуда" autocomplete="off" /></span>

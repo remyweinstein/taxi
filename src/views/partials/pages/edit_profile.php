@@ -2,7 +2,7 @@
 
 $json_data = array ('title' => 'Редактирование',
             'content' => '
-                <form data-controller="form-edit-profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
+                <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
                     <p>
                         <img class="avatar" src="" alt="" />
                         <input type="file" name="ava_file" /><br/>

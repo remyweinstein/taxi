@@ -7,7 +7,7 @@ $json_data = array ('title' => 'Межгород',
                     <li data-tab="3">Мои заказы</li>
                 </ul>
             </nav>
-            <div class="tabs__wrapper">
+            <div class="tabs__wrapper" data-controller="taxy_client_intercity_myorders">
               <div class="tabs__viewport">
                 <div data-tab-content="1" class="tabs_content">
                     <form action="" method="POST" data-submit="client_order_intercity" class="form-order-city">
@@ -82,7 +82,7 @@ $json_data = array ('title' => 'Межгород',
                     </ul>
                 </div>
                 <div data-tab-content="3" class="tabs_content">
-                    <ul class="myorders" data-controller="taxy_client_intercity_myorders"></ul>
+                    <ul class="myorders"></ul>
                 </div>
               </div>
             </div>

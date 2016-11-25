@@ -18,11 +18,15 @@ button:disabled{
         border-radius: 20px;
         width: 100%;
         margin: 0.5em 0;
-        padding: 0.8em 0;
+        padding: 0.5em 1em;
         border: 0;
         &--green{
             @extend .button_rounded;
             background-color: #02C9A2;
+        }
+        &--red{
+            @extend .button_rounded;
+            background-color: #C53929;
         }
     }
     &_wide{

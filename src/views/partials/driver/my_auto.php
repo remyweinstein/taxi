@@ -1,7 +1,7 @@
 <?php
 $json_data = array ('title' => 'Мой авто',
             'content' => '
-                <form data-controller="form-edit-auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
+                <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
                     <p>
                         <label>Марка:
                             <select name="brand">
@@ -153,6 +153,10 @@ $json_data = array ('title' => 'Мой авто',
                         <label>Гос номер:
                             <input type="text" name="number" value="" placeholder="Гос. Номер" />
                         </label>
+                    </p>
+                    <p>
+                        <img class="avatar" src="" alt="" />
+                        <input type="file" name="ava_file" /><br/>
                     </p>
                     <p>
                         <label>Доп. инфо:

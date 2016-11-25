@@ -16,6 +16,7 @@
             display: inline-block;
             width: 90%;
             vertical-align: top;
+            position: relative;
         }
         &__menu{
             width: 10% !important;
@@ -23,16 +24,18 @@
             color: $inactive;
             cursor: pointer;
             span{
-                position: relative;
-                right: 3em;
-                top: 0.5em;
+                position: absolute;
+                right: 1em;
+                top: 2em;
                 border: 2px solid lightgrey;
                 padding: 0.5em;
                 background-color: white;
                 font-size: 0.75em;
                 display: none;
                 a{
-                    
+                    display: block;
+                    text-decoration: none;
+                    padding: 0.5em 0.15em;
                 }
             }
         }
