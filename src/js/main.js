@@ -31,20 +31,15 @@ document.addEventListener('DOMContentLoaded', function(){
     
     my_city = localStorage.getItem('_my_city');
     agent_id = localStorage.getItem('_agent_id');
-    
-    MainMenu.init();
-    InpFlt.init();
-    
     my_position.x = localStorage.getItem('_my_pos_lat');
     my_position.y = localStorage.getItem('_my_pos_lon');    
-
+        
     if(localStorage.getItem('_is_auth')==="true"){
         is_auth = true;
     }
     my_token = localStorage.getItem('_my_token');
     if(!my_token){
         Ajax.request(server_uri, 'GET', 'token', '', '', '', function(response){
-            //console.log('try get token... response: ' + JSON.stringify(response));
             if(response && response.ok){
                 localStorage.setItem('_my_token', response.token);
                 my_token = response.token;
@@ -63,14 +58,15 @@ document.addEventListener('DOMContentLoaded', function(){
     }
         
     Geo.init();
-    
-   // = On Resize Window =
+    MainMenu.init();
+    InpFlt.init();
+    Router.init();
+
+    // = On Resize Window =
     window.addEventListener('resize', function() {
         init();
     });
 
-    Router.init();
-    
 });
 
 function init(){
@@ -127,58 +123,41 @@ function init(){
         });
     }
     
+    // = Form edit profile =
+    if(Dom.selAll('[data-controller="pages_edit_profile"]').length){
+        //= controllers/pages_edit_profile.js
+    }  
+
     if(Dom.sel('[data-controller="pages_login"]')){
         //= controllers/pages_login.js
     }
 
-    if(Dom.sel('[data-controller="pages_sms"]')){
-        //= controllers/pages_sms.js
-    }
-    
     if(Dom.selAll('[data-controller="pages_logout"]').length){
         //= controllers/pages_logout.js
     }
     
-    if(Dom.selAll('[data-controller="taxi_driver_city"]').length){
-        //= controllers/taxi_driver_city.js
+    if(Dom.sel('[data-controller="pages_sms"]')){
+        //= controllers/pages_sms.js
     }
     
-    if(Dom.selAll('[data-controller="taxy_client_intercity"]').length){
-        //= controllers/taxy_client_intercity.js
+    if(Dom.selAll('[data-controller="taxi_client_intercity"]').length){
+        //= controllers/taxi_client_intercity.js
     }
 
-    if(Dom.selAll('[data-controller="taxi_driver_go"]').length){
-        //= controllers/taxi_driver_go.js
-    }
-    
     if(Dom.selAll('[data-controller="taxi_client_go"]').length){
         //= controllers/taxi_client_go.js
-    }
-    
-    if(Dom.selAll('[data-controller="taxy_driver_intercity"]').length){
-        //= controllers/taxy_driver_intercity.js
     }
     
     if(Dom.selAll('[data-controller="taxi_client_my_orders"]').length){
         //= controllers/taxi_client_my_orders.js
     }
 
-    // = Form edit auto =
-    if(Dom.selAll('[data-controller="taxi_driver_my_auto"]').length){
-        //= controllers/taxi_driver_my_auto.js
-    }
-
-    // = Form edit profile =
-    if(Dom.selAll('[data-controller="pages_edit_profile"]').length){
-        //= controllers/pages_edit_profile.js
-    }  
-
     if(Dom.selAll('[data-controller="taxi_client_choose_address"]').length){
         //= controllers/taxi_client_choose_address.js
     }
     
-    if(Dom.selAll('[data-controller="taxy_client_city"]').length){
-        //= controllers/taxy_client_city.js
+    if(Dom.selAll('[data-controller="taxi_client_city"]').length){
+        //= controllers/taxi_client_city.js
     }
     
     if(Dom.selAll('[data-controller="taxi_client_choice_location_map"]').length){
@@ -187,5 +166,22 @@ function init(){
     
     if(Dom.selAll('[data-controller="taxi_client_map"]').length){
         //= controllers/taxi_client_map.js
-    }       
+    }
+    // = Form edit auto =
+    if(Dom.selAll('[data-controller="taxi_driver_my_auto"]').length){
+        //= controllers/taxi_driver_my_auto.js
+    }
+
+    if(Dom.selAll('[data-controller="taxi_driver_go"]').length){
+        //= controllers/taxi_driver_go.js
+    }
+    
+    if(Dom.selAll('[data-controller="taxi_driver_city"]').length){
+        //= controllers/taxi_driver_city.js
+    }
+    
+    if(Dom.selAll('[data-controller="taxi_driver_intercity"]').length){
+        //= controllers/taxi_driver_intercity.js
+    }
+    
 }
