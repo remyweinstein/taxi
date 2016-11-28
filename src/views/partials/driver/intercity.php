@@ -21,7 +21,7 @@ $json_data = array ('title' => 'Межгород',
                             <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
                         </p>
                     </div>
-                    <ul class="list-extended"></ul>
+                    <ul class="list-extended" data-controller="taxi_driver_intercity_list_orders"></ul>
                 </div>
                 <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
                     <div class="filter-intercity">
