@@ -1,4 +1,5 @@
 function Car() {
+  var default_vehicle = 'asset/images/no_vehicle.png';
 
   this.brand;
   this.model;

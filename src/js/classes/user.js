@@ -6,6 +6,9 @@ function User() { // Dom, Ajax
   var default_avatar = 'asset/images/no_avatar.png';
   var default_name = 'Гость';
   
+  this.default_avatar = default_avatar;
+  this.default_name = default_name;
+
   this.token = getToken();
   this.id = getId();
   this.lat;
@@ -29,11 +32,13 @@ function User() { // Dom, Ajax
         if (response) {
           if (!response.ok && lasturl !== "#pages__sms") {
             self.is_auth = false;
+             localStorage.removeItem('_is_auth');
             self.token = "";
-
-            localStorage.removeItem('_is_auth');
+             localStorage.removeItem('_my_token');
+             
+             self.initToken;
             
-          } else {
+          } else if (response.ok) {
             var prfl = response.profile;
              self.id = prfl.id;
              localStorage.setItem('_my_id', self.id);

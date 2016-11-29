@@ -1,6 +1,6 @@
     Ajax.request(server_uri, 'GET', 'orders', User.token, '&isIntercity=0&my=1', '', function(response) {
       if (response && response.ok) {
-        console.log('orders='+JSON.stringify(response.orders));
+        //console.log('orders='+JSON.stringify(response.orders));
         //console.log('Messages: ' + response.messages);
         
         var toAppend = Dom.sel('.myorders');
@@ -11,11 +11,42 @@
           var goto,del;
           
           if (!ords[i].comeout) {
-            goto = '<a href="#" data-id="'+ords[i].id+'" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
-            del = '<a href="#" data-id="'+ords[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+            goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
+            del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
           }
           
-          show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(ords[i].created)+'</p><p class="myorders__item__from">'+ords[i].fromAddress+'</p><p class="myorders__item__to">'+ords[i].toAddress0+'</p><p class="myorders__item__summa">'+Math.round(ords[i].price)+'</p><p class="myorders__item__info">'+ords[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span>'+goto+del+'</span></div>');
+          var arr = [ords[i].toAddress1, ords[i].toAddress2, ords[i].toAddress3];
+          var zaezdy = "";
+          for (var y = 0; y < arr.length; y++) {
+            if(arr[y] && arr[y] !== ""){
+              zaezdy += '<p class="myorders__item__to' + (y + 1) + '">\n\
+                              ' + arr[y] + '\
+                            </p>';
+            }
+          }
+          
+          show('LI','<div>\n\
+                      <p class="myorders__item__time">\n\
+                        ' + Dates.datetimeForPeople(ords[i].created, "LEFT_TIME_OR_DATE") + '\
+                      </p>\n\
+                      <p class="myorders__item__from">\n\
+                        ' + ords[i].fromAddress + '\
+                      </p>\n\
+                      ' + zaezdy + '\n\
+                      <p class="myorders__item__to">\n\
+                        ' + ords[i].toAddress0 + '\
+                      </p>\n\
+                      <p class="myorders__item__summa">\n\
+                        ' + Math.round(ords[i].price) + '\
+                      </p>\n\
+                      <p class="myorders__item__info">\n\
+                        ' + ords[i].comment + '\
+                      </p>\n\
+                    </div>\n\
+                    <div class="myorders__item__menu">\n\
+                      <i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>\n\
+                      <span>'+goto+del+'</span>\n\
+                    </div>');
         }
         
         if (response.orders.length < 1) {
@@ -64,12 +95,23 @@
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
             var elem = target;
-            var p = elem.parentNode.parentNode.parentNode.children[0].children[3].innerHTML;
+            var p = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__summa').innerHTML;
              p = p !== null && p ? p : 0;
              
-            var n = elem.parentNode.parentNode.parentNode.children[0].children[4].innerHTML;
+            var n = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__info').innerHTML;
             
-            Address.saveAddress(elem.parentNode.parentNode.parentNode.children[0].children[1].innerHTML, elem.parentNode.parentNode.parentNode.children[0].children[2].innerHTML);
+            var fromAdr0 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__from').innerHTML;
+            var toAdr0 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to').innerHTML;
+            
+            var to1 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to1');
+            var to2 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to2');
+            var to3 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to3');
+            if(to1) var toAdr1 = to1.innerHTML;
+            if(to2) var toAdr2 = to2.innerHTML;
+            if(to3) var toAdr3 = to3.innerHTML;
+            Address.saveWaypoints(toAdr1, toAdr2, toAdr3);
+            
+            Address.saveAddress(fromAdr0, toAdr0);
             localStorage.setItem('_id_current_taxy_order', elem.dataset.id);
             localStorage.setItem('_current_price_order', p);
             localStorage.setItem('_current_comment_order', n);

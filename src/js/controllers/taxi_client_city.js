@@ -114,7 +114,7 @@
       var to_address = Dom.sel('.adress_to').value;
       var price = Dom.sel('[name="cost"]').value;
       var comment = Dom.sel('[name="description"]').value;
-      var to1="",to2="",to3="";
+      var to1 = "", to2 = "", to3 = "";
       var data = new FormData();
       
       event.preventDefault();
@@ -136,7 +136,7 @@
         data.append('toAddress3', to3);
       }
       
-      Address.saveWaypoints(to1,to2,to3);
+      Address.saveWaypoints(to1, to2, to3);
 
       data.append('fromCity', User.city);
       data.append('fromAddress', from_address);

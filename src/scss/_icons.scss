@@ -36,42 +36,43 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-menu:before { content: '\e800'; }
-.icon-truck:before { content: '\e801'; }
-.icon-left-1:before { content: '\e802'; }
-.icon-suitcase:before { content: '\e803'; }
-.icon-user:before { content: '\e804'; }
-.icon-ok:before { content: '\e805'; }
-.icon-cog:before { content: '\e806'; }
-.icon-cog-alt:before { content: '\e807'; }
-.icon-ok-circled:before { content: '\e808'; }
-.icon-steering-wheel:before { content: '\e80a'; }
-.icon-money:before { content: '\e80c'; }
-.icon-attention:before { content: '\e80d'; }
-.icon-archive:before { content: '\e80e'; }
-.icon-star:before { content: '\e80f'; }
-.icon-direction-outline:before { content: '\e810'; }
-.icon-location-1:before { content: '\e811'; }
-.icon-plus-circle:before { content: '\e812'; }
-.icon-right-circled:before { content: '\e813'; }
-.icon-left-circled:before { content: '\e815'; }
-.icon-record:before { content: '\e816'; }
-.icon-location:before { content: '\e817'; }
-.icon-commerical-building:before { content: '\e818'; }
-.icon-trash:before { content: '\e819'; }
-.icon-left:before { content: '\e81a'; }
-.icon-phone-circled:before { content: '\e81b'; }
-.icon-calendar:before { content: '\e81c'; }
-.icon-right:before { content: '\e81d'; }
-.icon-dollar:before { content: '\e81e'; }
-.icon-share:before { content: '\e81f'; }
-.icon-login:before { content: '\f02c'; }
-.icon-mail-alt:before { content: '\f0e0'; }
-.icon-building:before { content: '\f0f7'; }
-.icon-ellipsis-vert:before { content: '\f142'; }
-.icon-rouble:before { content: '\f158'; }
-.icon-taxi:before { content: '\f1ba'; }
-.icon-lifebuoy:before { content: '\f1cd'; }
-.icon-toggle-off:before { content: '\f204'; }
-.icon-toggle-on:before { content: '\f205'; }
-.icon-street-view:before { content: '\f21d'; }
+.icon-menu:before { content: '\e800'; } /* 'о Ђ' */
+.icon-truck:before { content: '\e801'; } /* 'о Ѓ' */
+.icon-left-1:before { content: '\e802'; } /* 'о ‚' */
+.icon-suitcase:before { content: '\e803'; } /* 'о ѓ' */
+.icon-user:before { content: '\e804'; } /* 'о „' */
+.icon-ok:before { content: '\e805'; } /* 'о …' */
+.icon-cog:before { content: '\e806'; } /* 'о †' */
+.icon-cog-alt:before { content: '\e807'; } /* 'о ‡' */
+.icon-ok-circled:before { content: '\e808'; } /* 'о €' */
+.icon-minus-circled:before { content: '\e809'; } /* 'о ‰' */
+.icon-steering-wheel:before { content: '\e80a'; } /* 'о Љ' */
+.icon-money:before { content: '\e80c'; } /* 'о Њ' */
+.icon-attention:before { content: '\e80d'; } /* 'о Ќ' */
+.icon-archive:before { content: '\e80e'; } /* 'о Ћ' */
+.icon-star:before { content: '\e80f'; } /* 'о Џ' */
+.icon-direction-outline:before { content: '\e810'; } /* 'о ђ' */
+.icon-location-1:before { content: '\e811'; } /* 'о ‘' */
+.icon-plus-circle:before { content: '\e812'; } /* 'о ’' */
+.icon-right-circled:before { content: '\e813'; } /* 'о “' */
+.icon-left-circled:before { content: '\e815'; } /* 'о •' */
+.icon-record:before { content: '\e816'; } /* 'о –' */
+.icon-location:before { content: '\e817'; } /* 'о —' */
+.icon-commerical-building:before { content: '\e818'; } /* 'о �' */
+.icon-trash:before { content: '\e819'; } /* 'о ™' */
+.icon-left:before { content: '\e81a'; } /* 'о љ' */
+.icon-phone-circled:before { content: '\e81b'; } /* 'о ›' */
+.icon-calendar:before { content: '\e81c'; } /* 'о њ' */
+.icon-right:before { content: '\e81d'; } /* 'о ќ' */
+.icon-dollar:before { content: '\e81e'; } /* 'о ћ' */
+.icon-share:before { content: '\e81f'; } /* 'о џ' */
+.icon-login:before { content: '\f02c'; } /* 'пЂ¬' */
+.icon-mail-alt:before { content: '\f0e0'; } /* 'пѓ ' */
+.icon-building:before { content: '\f0f7'; } /* 'пѓ·' */
+.icon-ellipsis-vert:before { content: '\f142'; } /* 'п…‚' */
+.icon-rouble:before { content: '\f158'; } /* 'п…�' */
+.icon-taxi:before { content: '\f1ba'; } /* 'п†є' */
+.icon-lifebuoy:before { content: '\f1cd'; } /* 'п‡Ќ' */
+.icon-toggle-off:before { content: '\f204'; } /* 'п€„' */
+.icon-toggle-on:before { content: '\f205'; } /* 'п€…' */
+.icon-street-view:before { content: '\f21d'; } /* 'п€ќ' */

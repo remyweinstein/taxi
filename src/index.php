@@ -8,6 +8,8 @@
         <link href="asset/css/main.css" type="text/css" rel="stylesheet" />
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4&libraries=places"></script>
         <script type="text/javascript" src="asset/js/vendor/hammer.min.js"></script>
+        <script type="text/javascript" src="asset/js/vendor/javascript.util.js"></script>
+        <script type="text/javascript" src="asset/js/vendor/jsts.js"></script>
         <script type="text/javascript" src="asset/js/main.js"></script>
 
     </head>

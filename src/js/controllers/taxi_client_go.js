@@ -23,7 +23,29 @@
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
        el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
       var el = Dom.sel('.wait-bids-approve');
-       el.innerHTML += '<div class="wait-bids-approve__item"><div class="wait-bids-approve__item__distance">Автомобиль:<br/>Цвет: ' + dr_color + '<br/>Рег.номер: ' + dr_number + '</div><div class="wait-bids-approve__item__car"><div><img src="'+dr_vehicle+'" alt="" /></div><div>' + dr_model + '</div></div><div class="wait-bids-approve__item__driver"><div><img src="' + dr_photo + '" alt="" /></div><div>' + dr_name + '</div></div></div>';
+       el.innerHTML += '<div class="wait-bids-approve__item">\n\
+                          <div class="wait-bids-approve__item__distance">\n\
+                            Автомобиль:<br/>\n\
+                            Цвет: ' + dr_color + '<br/>\n\
+                            Рег.номер: ' + dr_number + '\
+                          </div>\n\
+                          <div class="wait-bids-approve__item__car">\n\
+                            <div>\n\
+                              <img src="' + dr_vehicle + '" alt="" />\n\
+                            </div>\n\
+                            <div>\n\
+                              ' + dr_model + '\
+                            </div>\n\
+                          </div>\n\
+                          <div class="wait-bids-approve__item__driver">\n\
+                            <div>\n\
+                              <img src="' + dr_photo + '" alt="" />\n\
+                            </div>\n\
+                            <div>\n\
+                              ' + dr_name + '\
+                            </div>\n\
+                          </div>\n\
+                        </div>';
 
       directionsService = new google.maps.DirectionsService();
       directionsDisplay = new google.maps.DirectionsRenderer();
@@ -32,18 +54,65 @@
         origin: address[0],
         destination: address[1],
         waypoints: waypoints,
+        provideRouteAlternatives: true,
         travelMode: google.maps.DirectionsTravelMode.DRIVING
       };
 
       directionsService.route(request, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
-          directionsDisplay.setDirections(response);
-          //mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+          
+          for (var i = 0, len = response.routes.length; i < len; i++) {
+            new google.maps.DirectionsRenderer({
+              map: map,
+              directions: response,
+              routeIndex: i
+            });
+          }
+
+          for(var i = 0; i < response.routes.length; i++){
+            var overviewPath = response.routes[i].overview_path;
+            
+            showPoly(overviewPath);
+          }
         }
       });
 
-      directionsDisplay.setMap(map);
       show_route = true;
+    }
+
+    function showPoly(overviewPath){
+      var overviewPathGeo = [];
+
+      for (var i = 0; i < overviewPath.length; i++) {
+        overviewPathGeo.push(
+          [overviewPath[i].lng(), overviewPath[i].lat()]
+        );
+      }
+
+      var distance = 0.5 / 111.12, // Roughly 10km
+      geoInput = {
+        type: "LineString",
+        coordinates: overviewPathGeo
+      };
+      var geoReader = new jsts.io.GeoJSONReader(),
+       geoWriter = new jsts.io.GeoJSONWriter();
+      var geometry = geoReader.read(geoInput).buffer(distance);
+      var polygon = geoWriter.write(geometry);
+
+      var oLanLng = [];
+      var oCoordinates;
+      oCoordinates = polygon.coordinates[0];
+
+      for (i = 0; i < oCoordinates.length; i++) {
+        var oItem;
+        oItem = oCoordinates[i];
+        oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
+      }
+
+      var polygone = new google.maps.Polygon({
+        paths: oLanLng,
+        map:map
+      });
     }
 
     get_pos_driver();

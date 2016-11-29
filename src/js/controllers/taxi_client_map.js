@@ -22,22 +22,28 @@
         origin: address[0],
         destination: address[1],
         waypoints: waypoints,
+        provideRouteAlternatives: true,
         travelMode: google.maps.DirectionsTravelMode.DRIVING
       };
 
       directionsService.route(request, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {            
-          directionsDisplay.setDirections(response);
-          mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+          for (var i = 0, len = response.routes.length; i < len; i++) {
+            new google.maps.DirectionsRenderer({
+              map: map,
+              directions: response,
+              routeIndex: i
+            });
+          }
+
+          mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: ' + response.routes[0].legs[0].distance.text + '</p></div>');
         }
       });
 
-      directionsDisplay.setMap(map);
-    
     }
     
     function get_bids_driver() {
-      Ajax.request(server_uri, 'GET', 'bids', User.token, '&id='+localStorage.getItem('_id_current_taxy_order'), '', function(response) {
+      Ajax.request(server_uri, 'GET', 'bids', User.token, '&id=' + localStorage.getItem('_id_current_taxy_order'), '', function(response) {
             //console.log('try get bids... order '+localStorage.getItem('_id_current_taxy_order'));
         if (response && response.ok) {
           var el = Dom.sel('.wait-bids-approve');
@@ -45,12 +51,33 @@
           var bids = response.bids;
           //console.log(JSON.stringify(bids));
           
-          for (var i=0; i<bids.length; i++) {
+          for (var i = 0; i < bids.length; i++) {
             var photo, vehicle;
              photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
              vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
              
-            el.innerHTML += '<div class="wait-bids-approve__item"><div class="wait-bids-approve__item__distance">Растояние до водителя, <span>' + bids[i].agent.distance.toFixed(1) + ' км</span></div><div class="wait-bids-approve__item__driver"><div><img src="' + photo + '" alt="" /></div><div>' + bids[i].agent.name + '</div></div><div class="wait-bids-approve__item__car"><div><img src="'+vehicle+'" alt="" /></div><div>' + bids[i].agent.brand + ' ' + bids[i].agent.model + '</div></div><div class="wait-bids-approve__item__approve"><i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i></div></div>';
+            el.innerHTML += '<div class="wait-bids-approve__item">\n\
+                              <div class="wait-bids-approve__item__distance">\n\
+                                Растояние до водителя, <span>' + bids[i].agent.distance.toFixed(1) + ' км</span>\n\
+                              </div>\n\
+                              <div class="wait-bids-approve__item__driver">\n\
+                                <div>\n\
+                                  <img src="' + photo + '" alt="" />\n\
+                                </div>\n\
+                                <div>' + bids[i].agent.name + '</div>\n\
+                              </div>\n\
+                              <div class="wait-bids-approve__item__car">\n\
+                                <div>\n\
+                                  <img src="' + vehicle + '" alt="" />\n\
+                                </div>\n\
+                                <div>\n\
+                                  ' + bids[i].agent.brand + ' ' + bids[i].agent.model + '\
+                                </div>\n\
+                              </div>\n\
+                              <div class="wait-bids-approve__item__approve">\n\
+                                <i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>\n\
+                              </div>\n\
+                            </div>';
           }
           
         }
@@ -63,6 +90,15 @@
     var el_route = Dom.sel('.wait-order-approve__route-info__route');
      el_route.children[0].innerHTML = route[0];
      el_route.children[2].innerHTML = route[1];
+     el_route.children[1].innerHTML = 'Заездов ';
+     
+    var waypointy = Address.loadWaypoints();
+    console.log('waypointy.length = ' + waypointy.length);
+     if (waypointy.length) {
+       el_route.children[1].innerHTML += waypointy.length;
+     } else {
+       el_route.children[1].innerHTML += 'нет';
+     }
      
     var el_price = Dom.sel('.wait-order-approve__route-info__price');
      el_price.innerHTML = localStorage.getItem('_current_price_order')+' руб';
@@ -74,9 +110,11 @@
     var content = Dom.sel('.content');
       content.addEventListener('click', function(event) {
         var target = event.target;
+        
         while (target !== this) {
           if (target.dataset.click === "taxi_client_bid") {
             var el = target;
+            
             Ajax.request(server_uri, 'POST', 'approve-bid', User.token, '&id='+el.dataset.id, '', function(response) {
               //console.log(response);
               if (response && response.ok) {

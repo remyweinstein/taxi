@@ -11,11 +11,15 @@
     font-size: 0.75em;
     &__route-info{
         
-        div{
+        &>div{
             display: inline-block;
+            vertical-align: top;
         }
         &__route{
             width: 55%;
+            div{
+                padding: 0.25em;
+            }
         }
         &__price{
             font-size: 1.5em;

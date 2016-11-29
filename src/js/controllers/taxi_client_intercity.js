@@ -87,7 +87,7 @@
         data.append('toAddress3', to3);
       }
       
-      Address.saveWaypoints(to1,to2,to3);
+      Address.saveWaypoints(to1, to2, to3);
 
       data.append('fromCity', from_city);
       data.append('fromAddress', from_address);

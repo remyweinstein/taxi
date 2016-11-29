@@ -6,10 +6,13 @@ var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService, directionsDisplay;
 
 var server_uri = 'https://192.168.20.90';
+//var server_uri = 'https://176.9.99.240/api';
 //var home_server = 'https://indriver.ru';
 var home_server = 'https://192.168.20.29';
+//var home_server = 'https://176.9.99.240';
 
 var User = new User();
+var MyCar = new Car();
 var my_vehicle;
 
 var bid_id;
@@ -32,6 +35,7 @@ var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrd
 //= modules/router.js
 
 //= classes/user.js
+//= classes/car.js
 
 User.initToken();
 
@@ -59,9 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function init(from) {
-  
-  if(from) console.log(from);
+function init() {
   
   User.getData();
     
