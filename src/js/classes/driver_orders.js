@@ -23,9 +23,9 @@ function DriverOrders(order, Old_Orders) {
                 if (order.toAddress3) self.toAddresses.push(order.toAddress3);
                 
                 self.id = order.id;
-                self.price = Old_Orders ? Old_Orders.price : Math.round(order.price);
+                self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
                 
-              //if(Old_Orders) if(order.id === "272") console.log('get value: ' + self.price);
+              //if(Old_Orders) console.log('get value: ' + self.price);
                 
                 self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
                 self.distance = order.agent.distance ? order.agent.distance.toFixed(1) : 0;

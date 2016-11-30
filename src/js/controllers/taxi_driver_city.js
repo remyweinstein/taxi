@@ -9,23 +9,26 @@ var Orders = [];
         if (response && response.ok) {
           var ords = response.orders;
           
-          //for (var i = 0; i < ords.length;) {
-          for (var i = ords.length - 1; i >= 0;) {
+          var tempOrder = Orders;
+          Orders = [];
+          for (var i = 0; i < ords.length;) {
             var ordId = ords[i].id;
+            var same_el = tempOrder.filter(function(ord) {
+              return ord.id === ordId;
+            });
             
-            var tempOrders = new DriverOrders(ords[i], Orders[ordId]);
+            var tempOrders = new DriverOrders(ords[i], same_el[0]);
             tempOrders.constructor(function(temp_order){
-              Orders[temp_order.id] = temp_order;
+              Orders.push(temp_order);
               
-              if (Orders[temp_order.id].agentBidId === Orders[temp_order.id].bidId) {
+              if (temp_order.agentBidId === temp_order.bidId) {
                 localStorage.setItem('_current_id_bid', bidId);
                 document.location = '#driver__go';
               }
               
-              --i;
+              i++;
             });            
           }
-          
           fillOrders(Orders);
         }
         
@@ -38,53 +41,59 @@ var Orders = [];
           if (toAppend) {
             toAppend.innerHTML = '';
 
-            Orders.forEach(function(order) {
+        for (var key in Orders) {
+            if (Orders.hasOwnProperty(key) &&
+                    /^0$|^[1-9]\d*$/.test(key) &&
+                    key <= 4294967294) {
+                    
+
               var active_bid = "";
               
-              if (order.active_bid) {
+              if (Orders[key].active_bid) {
                 active_bid = ' active';
               }
                 
               var zaezdy = '';
-              if(order.stops > 0){
+              if(Orders[key].stops > 0){
                 zaezdy = '<div class="list-orders_route_to">\n\
-                            остановок ' + order.stops + '\
+                            остановок ' + Orders[key].stops + '\
                           </div>';
               }
                 
-                var price_minus = active_bid === "" ? '<i class="icon-minus-circled" data-id="' + order.id + '" data-click="price_minus"></i>' : '';
-                var price_plus = active_bid === "" ? '<i class="icon-plus-circle" data-id="' + order.id + '" data-click="price_plus"></i>' : '';
+                var price_minus = active_bid === "" ? '<i class="icon-minus-circled" data-key="' + key + '" data-click="price_minus"></i>' : '';
+                var price_plus = active_bid === "" ? '<i class="icon-plus-circle" data-key="' + key + '" data-click="price_plus"></i>' : '';
                 
                 show('LI', '\
                             <div class="list-orders_route">\n\
                               <div class="list-orders_route_from">\n\
-                                ' + order.fromAddress + '\
+                                ' + Orders[key].fromAddress + '\
                               </div>\n\
                               ' + zaezdy + '\n\
                               <div class="list-orders_route_to">\n\
-                                ' + order.toAddress + '\
+                                ' + Orders[key].toAddress + '\
                               </div>\n\
                               <div class="list-orders_route_additional">\n\
-                                ' + order.comment + '\
+                                ' + Orders[key].comment + '\
                               </div>\n\
                               <div class="list-orders_route_info">\n\
-                                До клиента: ' + order.distance + ' км\n\
+                                До клиента: ' + Orders[key].distance + ' км\n\
                               </div>\n\
                               <div class="list-orders_route_price">\n\
                                 ' + price_minus + '\n\
-                                <span>' + order.price + ' руб.</span> \n\
+                                <span>' + Orders[key].price + ' руб.</span> \n\
                                 ' + price_plus + '\n\
                               </div>\n\
                             </div>\n\
                             <div class="list-orders_personal">\n\
-                              <img src="' + order.photo + '" alt="" /><br/>\n\
-                              ' + order.name + '<br/>\n\
-                              ' + order.created + '\
+                              <img src="' + Orders[key].photo + '" alt="" /><br/>\n\
+                              ' + Orders[key].name + '<br/>\n\
+                              ' + Orders[key].created + '\
                             </div>\n\
                             <div class="list-orders_phone">\n\
-                              <i data-click="taxi_bid" data-id="' + order.id + '" class="icon-ok-circled' + active_bid + '"></i>\n\
+                              <i data-click="taxi_bid" data-id="' + Orders[key].id + '" class="icon-ok-circled' + active_bid + '"></i>\n\
                             </div>');
-            });
+            }
+        }
 
             if (Orders.length < 1) {
               show('DIV', '<div class="list-orders_norecords">Нет заказов</div>');
@@ -119,7 +128,7 @@ var Orders = [];
               var get_price = el_price.innerHTML;
                 get_price = get_price.split(" ");
               Ajax.request(server_uri, 'POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0], '', function(response) {
-                console.log('error: ' + response.messages);
+                //console.log('error: ' + response.messages);
                 if (response && response.ok) {
                   el.classList.add('active');
                 }  
@@ -132,13 +141,11 @@ var Orders = [];
             
             var price_el = el.parentNode.children[1];
             var price = price_el.innerHTML;
-            if (Orders[el.dataset.id]) {
               price = price.split(" ");
               price = parseInt(price[0]) - 50;
               if (price < 0) price = 0;
               Orders[el.dataset.id].price = price;
               price_el.innerHTML = price + ' руб.';
-            }
           }
 
           if (target.dataset.click === "price_plus") {
@@ -146,12 +153,10 @@ var Orders = [];
             
             var price_el = el.parentNode.children[1];
             var price = price_el.innerHTML;
-            if (Orders[el.dataset.id]) {
               price = price.split(" ");
               price = parseInt(price[0]) + 50;
-              Orders[el.dataset.id].price = price;
+              Orders[el.dataset.key].price = price;
               price_el.innerHTML = price + ' руб.';
-            }
           }
 
           
