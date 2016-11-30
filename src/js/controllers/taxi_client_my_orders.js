@@ -20,8 +20,8 @@
           for (var y = 0; y < arr.length; y++) {
             if(arr[y] && arr[y] !== ""){
               zaezdy += '<p class="myorders__item__to' + (y + 1) + '">\n\
-                              ' + arr[y] + '\
-                            </p>';
+                           ' + arr[y] + '\
+                         </p>';
             }
           }
           

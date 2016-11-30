@@ -13,6 +13,7 @@ var home_server = 'https://192.168.20.29';
 
 var User = new User();
 var MyCar = new Car();
+
 var my_vehicle;
 
 var bid_id;
@@ -20,7 +21,7 @@ var bid_id;
 var default_vehicle = 'asset/images/no_vehicle.png';
 
 var google_api_key = 'AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4';
-var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerUpdateCoords;
+var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerUpdateCoords, timerGetMessages;
 
 //= modules/dom.js
 //= modules/ajax.js
@@ -36,6 +37,7 @@ var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrd
 
 //= classes/user.js
 //= classes/car.js
+//= classes/driver_orders.js
 
 User.initToken();
 
@@ -71,6 +73,7 @@ function init() {
   clearInterval(timerGetBidsTaxy);
   clearInterval(timerGetBidGo);
   clearInterval(timerUpdateTaxiDriverOrder);
+  clearInterval(timerGetMessages);
     
   Tabs.init();
     

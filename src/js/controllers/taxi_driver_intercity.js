@@ -6,7 +6,29 @@
         var ords = response.orders;
 
         for (var i=0; i < ords.length; i++) {
-          show('LI','<div class="list-extended__personal"><img src="'+ords[i].agent.photo+'" alt="" /></div><div class="list-extended__route"><div class="list-extended__route_name">'+ords[i].agent.name+'</div><div class="list-extended__route_time">'+Dates.datetimeForPeople(ords[i].created, "ONLY_TIME")+'</div><div class="list-extended__route_from">'+ords[i].fromCity+'</div><div class="list-extended__route_to">'+ords[i].toCity0+'</div><div class="list-extended__route_sum">'+ords[i].price+' руб.</div><div class="list-extended__route_info">'+ords[i].comment+'</div></div>');
+          show('LI','<div class="list-extended__personal">\n\
+                      <img src="' + ords[i].agent.photo + '" alt="" />\n\
+                    </div>\n\
+                    <div class="list-extended__route">\n\
+                      <div class="list-extended__route_name">\n\
+                        ' + ords[i].agent.name + '\
+                      </div>\n\
+                      <div class="list-extended__route_time">\n\
+                        ' + Dates.datetimeForPeople(ords[i].created, "ONLY_TIME") + '\
+                      </div>\n\
+                      <div class="list-extended__route_from">\n\
+                        ' + ords[i].fromCity + '\
+                      </div>\n\
+                      <div class="list-extended__route_to">\n\
+                        ' + ords[i].toCity0 + '\
+                      </div>\n\
+                      <div class="list-extended__route_sum">\n\
+                        ' + ords[i].price + ' руб.\n\
+                      </div>\n\
+                      <div class="list-extended__route_info">\n\
+                        ' + ords[i].comment + '\
+                      </div>\n\
+                    </div>');
         }
 
         if (ords.length < 1) {

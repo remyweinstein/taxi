@@ -21,7 +21,7 @@
         var ords = response.bid.order;
         address = [ords.toCity0 + ', ' + ords.fromAddress, ords.toCity0 + ', ' + ords.toAddress0];
         address_clear = [ords.fromAddress, ords.toAddress0];
-        price = Math.round(ords.price);
+        price = Math.round(response.bid.price);
         name_client = response.bid.order.agent.name;
         photo_client = response.bid.order.agent.photo;
         
@@ -50,13 +50,25 @@
        el_route.children[2].innerHTML = address_clear[1];
        
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
-       el_price.innerHTML = price+' руб.';
+       el_price.innerHTML = price + ' руб.';
        
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
        el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
        
       var el = Dom.sel('.wait-bids-approve');
-       el.innerHTML += '<div class="wait-bids-approve__item"><div class="wait-bids-approve__item__distance">Клиент:</div><div class="wait-bids-approve__item__driver"><div><img src="' + photo_client + '" alt="" /></div><div>' + name_client + '</div></div></div>';
+       el.innerHTML += '<div class="wait-bids-approve__item">\n\
+                          <div class="wait-bids-approve__item__distance">\n\
+                            Клиент:\n\
+                          </div>\n\
+                          <div class="wait-bids-approve__item__driver">\n\
+                            <div>\n\
+                              <img src="' + photo_client + '" alt="" />\n\
+                            </div>\n\
+                            <div>\n\
+                              ' + name_client + '\
+                            </div>\n\
+                          </div>\n\
+                        </div>';
 
       directionsService = new google.maps.DirectionsService();
       directionsDisplay = new google.maps.DirectionsRenderer();
@@ -78,8 +90,8 @@
       directionsDisplay.setMap(map);
     }
 
-    function get_pos_driver(){
-      if(!markers[0]){
+    function get_pos_driver() {
+      if (!markers[0]) {
         var VLatLng = new google.maps.LatLng(User.lat, User.lng);
         markers[0] = new google.maps.Marker({
           position: VLatLng,
@@ -92,7 +104,37 @@
       }
     }
 
-    timerGetBidGo=setInterval(get_pos_driver,3000);//get_bids_driver
+    timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
+    
+    function get_new_messages() {
+      Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
+        //response;
+        var textarea = Dom.sel('.go-order__down__messages__textarea');
+        
+        if (textarea) {
+          var innText = '';
+          for(var i = 0; i < response.messages.length; i++ ) {
+            var float = 'right';
+            var name = 'Клиент';
+            if(response.messages[i].sender.id === User.id) {
+              float = 'left';
+              name = 'Я';
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                          ';
+            } else {
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>:' + response.messages[i].text + '</p>\n\
+                          ';
+            }
+          }
+          if(innText) {
+            textarea.innerHTML = innText;
+            textarea.scrollTop = textarea.scrollHeight;
+          }
+        }
+      });
+    }
+    
+    timerGetMessages = setInterval(get_new_messages, 1000);
 
     var content = Dom.sel('.content');
       content.addEventListener('click', function(event) {
@@ -102,10 +144,12 @@
               // Click taxi_driver arrived
           if (target.dataset.click === "driver-arrived") {
             Ajax.request(server_uri, 'POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
-              Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function() {
-                //console.log('click driver arrived = '+JSON.stringify(response));
-              });
+              Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function () {});
             });
+          }
+
+          if (target.dataset.click === "send_message") {
+            Ajax.request(server_uri, 'POST', 'message', User.token, '&id=' + bid_id + '&text=' + Dom.sel('[data-text="new_message"]').value, '', function () {});
           }
           
           target = target.parentNode;

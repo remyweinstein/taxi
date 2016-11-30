@@ -19,7 +19,7 @@
        el_route.children[0].innerHTML = address_clear[0];
        el_route.children[2].innerHTML = address_clear[1];
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
-       el_price.innerHTML = price+' руб.';
+       el_price.innerHTML = price + ' руб.';
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
        el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
       var el = Dom.sel('.wait-bids-approve');
@@ -89,7 +89,7 @@
         );
       }
 
-      var distance = 0.5 / 111.12, // Roughly 10km
+      var distance = 0.5 / 111.12, // Roughly x km / 111.12
       geoInput = {
         type: "LineString",
         coordinates: overviewPathGeo
@@ -132,7 +132,7 @@
           dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
           address = [ords.toCity0 + ', ' + ords.fromAddress, ords.toCity0 + ', ' + ords.toAddress0];
           address_clear = [ords.fromAddress, ords.toAddress0];
-          price = Math.round(ords.price);
+          price = Math.round(response.bid.price);
           
           var waypoints = [];
           
@@ -171,12 +171,54 @@
     }
 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
+    
+    function get_new_messages() {
+      Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
+        //response;
+        var textarea = Dom.sel('.go-order__down__messages__textarea');
+        
+        if (textarea) {
+          var innText = '';
+          for(var i = 0; i < response.messages.length; i++ ) {
+            var float = 'right';
+            var name = 'Водитель';
+            if(response.messages[i].sender.id === User.id) {
+              float = 'left';
+              name = 'Я';
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                          ';
+            } else {
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>:' + response.messages[i].text + '</p>\n\
+                          ';
+            }
+          }
+          if(innText) {
+            textarea.innerHTML = innText;
+            textarea.scrollTop = textarea.scrollHeight;
+          }
+        }
+      });
+    }
+    
+    timerGetMessages = setInterval(get_new_messages, 1000);
 
         // Click taxi_client in car
     Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
         Ajax.request(server_uri, 'POST', 'in-car-bid', User.token, '&id=' + bid_id, '', function() {
-            Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function() {
-                //console.log('click client incar = '+JSON.stringify(response));
-            });
+            Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '');
         });
     });
+    
+    var content = Dom.sel('.content');
+      content.addEventListener('click', function(event) {
+        var target = event.target;
+        
+        while (target !== this) {
+          if (target.dataset.click === "send_message") {
+            Ajax.request(server_uri, 'POST', 'message', User.token, '&id=' + bid_id + '&text=' + Dom.sel('[data-text="new_message"]').value, '', function () {});
+          }
+          
+          target = target.parentNode;
+        }
+      });
+

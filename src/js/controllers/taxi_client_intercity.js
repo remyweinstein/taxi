@@ -7,7 +7,29 @@
         var ords = response.orders;
         
         for (var i=0; i < ords.length; i++) {
-          show('LI','<div><p class="myorders__item__time">'+Dates.datetimeForPeople(ords[i].created)+'</p><p class="myorders__item__from">'+ords[i].fromCity+'</p><p class="myorders__item__to">'+ords[i].toCity0+'</p><p class="myorders__item__summa">'+ords[i].price+'</p><p class="myorders__item__info">'+ords[i].comment+'</p></div><div class="myorders__item__menu"><i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i><span><a href="#" data-id="'+ords[i].id+'" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a></span></div>');
+          show('LI','<div>\n\
+                      <p class="myorders__item__time">\n\
+                        ' + Dates.datetimeForPeople(ords[i].created) + '\
+                      </p>\n\
+                      <p class="myorders__item__from">\n\
+                        ' + ords[i].fromCity + '\
+                      </p>\n\
+                      <p class="myorders__item__to">\n\
+                        ' + ords[i].toCity0 + '\
+                      </p>\n\
+                      <p class="myorders__item__summa">\n\
+                        ' + ords[i].price + '\
+                      </p>\n\
+                      <p class="myorders__item__info">\n\
+                       ' + ords[i].comment + '\
+                      </p>\n\
+                    </div>\n\
+                    <div class="myorders__item__menu">\n\
+                      <i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>\n\
+                      <span>\n\
+                        <a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>\n\
+                      </span>\n\
+                    </div>');
         }
         
         if (ords.length < 1) {

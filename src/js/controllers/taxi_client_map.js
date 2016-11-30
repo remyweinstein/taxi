@@ -49,12 +49,14 @@
           var el = Dom.sel('.wait-bids-approve');
            el.innerHTML = "";
           var bids = response.bids;
-          //console.log(JSON.stringify(bids));
           
           for (var i = 0; i < bids.length; i++) {
+            console.log(JSON.stringify(bids[i]));
+            
             var photo, vehicle;
              photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
              vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
+             
              
             el.innerHTML += '<div class="wait-bids-approve__item">\n\
                               <div class="wait-bids-approve__item__distance">\n\
@@ -76,6 +78,9 @@
                               </div>\n\
                               <div class="wait-bids-approve__item__approve">\n\
                                 <i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>\n\
+                              </div>\n\
+                              <div class="wait-bids-approve__item__bid-price">\n\
+                                Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>\n\
                               </div>\n\
                             </div>';
           }
@@ -118,7 +123,7 @@
             Ajax.request(server_uri, 'POST', 'approve-bid', User.token, '&id='+el.dataset.id, '', function(response) {
               //console.log(response);
               if (response && response.ok) {
-                localStorage.setItem('_current_id_bid',el.dataset.id);
+                localStorage.setItem('_current_id_bid', el.dataset.id);
                 document.location = "#client__go";
               }
             });

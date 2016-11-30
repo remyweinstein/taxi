@@ -21,5 +21,12 @@ $json_data = array ('title' => 'Заказ',
 
                 <div class="go-order__down">
                     <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                    <div class="go-order__down__messages">
+                        <div class="go-order__down__messages__textarea"></div>
+                        <div class="go-order__down__messages__textinput">
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                            <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                        </div>
+                    </div>
                 </div>
             ');

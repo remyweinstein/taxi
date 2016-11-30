@@ -42,6 +42,12 @@
         &_from{
             font-weight: 600;
         }
+        &_price{
+            color: $active;
+                span{
+                color: red;
+            }
+        }
         &_info{
             i{
                 color: $active;
