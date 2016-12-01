@@ -12,8 +12,8 @@
     
     var map = new google.maps.Map(mapCanvas, mapOptions);
     var markers = new Array;
-    var address,address_clear,waypoints,price;
-    var name_client,photo_client;
+    var address, address_clear, waypoints, price;
+    var name_client, photo_client;
 
     Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
       console.log(JSON.stringify(response.bid.agent));
@@ -22,8 +22,8 @@
         address = [ords.toCity0 + ', ' + ords.fromAddress, ords.toCity0 + ', ' + ords.toAddress0];
         address_clear = [ords.fromAddress, ords.toAddress0];
         price = Math.round(response.bid.price);
-        name_client = response.bid.order.agent.name;
-        photo_client = response.bid.order.agent.photo;
+        name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
+        photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
         
         var waypoints = [];
         
@@ -44,7 +44,7 @@
     });
 
 
-    function setRoute(){
+    function setRoute() {
       var el_route = Dom.sel('.wait-order-approve__route-info__route');
        el_route.children[0].innerHTML = address_clear[0];
        el_route.children[2].innerHTML = address_clear[1];
@@ -56,7 +56,7 @@
        el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
        
       var el = Dom.sel('.wait-bids-approve');
-       el.innerHTML += '<div class="wait-bids-approve__item">\n\
+       el.innerHTML = '<div class="wait-bids-approve__item">\n\
                           <div class="wait-bids-approve__item__distance">\n\
                             Клиент:\n\
                           </div>\n\
@@ -106,35 +106,7 @@
 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
     
-    function get_new_messages() {
-      Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
-        //response;
-        var textarea = Dom.sel('.go-order__down__messages__textarea');
-        
-        if (textarea) {
-          var innText = '';
-          for(var i = 0; i < response.messages.length; i++ ) {
-            var float = 'right';
-            var name = 'Клиент';
-            if(response.messages[i].sender.id === User.id) {
-              float = 'left';
-              name = 'Я';
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                          ';
-            } else {
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>:' + response.messages[i].text + '</p>\n\
-                          ';
-            }
-          }
-          if(innText) {
-            textarea.innerHTML = innText;
-            textarea.scrollTop = textarea.scrollHeight;
-          }
-        }
-      });
-    }
-    
-    timerGetMessages = setInterval(get_new_messages, 1000);
+    Chat.start('client');
 
     var content = Dom.sel('.content');
       content.addEventListener('click', function(event) {
@@ -146,10 +118,6 @@
             Ajax.request(server_uri, 'POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
               Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function () {});
             });
-          }
-
-          if (target.dataset.click === "send_message") {
-            Ajax.request(server_uri, 'POST', 'message', User.token, '&id=' + bid_id + '&text=' + Dom.sel('[data-text="new_message"]').value, '', function () {});
           }
           
           target = target.parentNode;

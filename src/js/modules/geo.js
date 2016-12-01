@@ -37,7 +37,7 @@
         
         updateUserCoord();
 
-        if (!User.city) {
+        if (!User.city || User.city === null || User.city === "null") {
           geocoder = new google.maps.Geocoder();
           var latlng = new google.maps.LatLng(latitude,longitude);
           geocoder.geocode({
@@ -47,8 +47,9 @@
                   var obj = results[0].address_components,key;
                   
                   for (key in obj) {
-                    if(obj[key].types[0] === "locality" && !User.city) {
+                    if(obj[key].types[0] === "locality") {
                       User.city = obj[key].long_name;
+                      //User.city = 'Хабаровск';
                       localStorage.setItem('_my_city', User.city);
                       
                       var data = new FormData();
@@ -83,6 +84,42 @@
         timerUpdateCoords = setInterval(geoFindMe, 5000);
         
         geoFindMe();
+      },
+      
+      showPoly: function(overviewPath, map) {
+        var overviewPathGeo = [];
+
+        for (var i = 0; i < overviewPath.length; i++) {
+          overviewPathGeo.push(
+            [overviewPath[i].lng(), overviewPath[i].lat()]
+          );
+        }
+
+        var distance = 0.25 / 111.12, // Roughly x km / 111.12
+        geoInput = {
+          type: "LineString",
+          coordinates: overviewPathGeo
+        };
+        var geoReader = new jsts.io.GeoJSONReader(),
+         geoWriter = new jsts.io.GeoJSONWriter();
+        var geometry = geoReader.read(geoInput).buffer(distance);
+        var polygon = geoWriter.write(geometry);
+
+        var oLanLng = [];
+        var oCoordinates;
+        oCoordinates = polygon.coordinates[0];
+
+        for (i = 0; i < oCoordinates.length; i++) {
+          var oItem;
+          oItem = oCoordinates[i];
+          oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
+        }
+
+        var polygone = new google.maps.Polygon({
+          paths: oLanLng,
+          map:map
+        });
       }
+      
     };
   })();

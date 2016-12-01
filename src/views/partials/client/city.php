@@ -23,7 +23,7 @@ $json_data = array ('title' => 'Город',
                         <i class="icon-rouble form-order-city__label"></i>
                         <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
                     </div>
-                    <button class="button_rounded--green">Заказать</button>
+                    <button class="button_rounded--green" data-click="order-taxi">Заказать</button>
                 </div>
             </form>
             ');

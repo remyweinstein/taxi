@@ -9,6 +9,11 @@
     -moz-box-shadow: inset 0px 3px 3px 0px rgba(220,220,209,1);
     box-shadow: inset 0px 3px 3px 0px rgba(220,220,209,1);
     border-bottom: 1px solid #E2E2DE;
+    &--bottom{
+        @extend .gBlock;
+        position: fixed;
+        bottom: 1em;
+    }
     &--float{
         //position: absolute;
         bottom: 0;

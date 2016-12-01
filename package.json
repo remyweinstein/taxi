@@ -1,7 +1,7 @@
 {
   "name": "indriver.ru",
   "version": "1.0.0",
-  "description": "",
+  "description": "tipa taxi",
   "main": "index.js",
   "dependencies": {
     "gulp": "^3.8.11"
@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/remyweinstein/taxi/issues"
   },
-  "homepage": "https://github.com/remyweinstein/taxi#readme"
+  "homepage": "https://github.com/remyweinstein/taxi#readme",
+  "devDependencies": {
+    "gulp-plumber": "^1.1.0",
+    "gulp-util": "^3.0.7"
+  }
 }

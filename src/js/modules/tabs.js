@@ -1,6 +1,6 @@
   var Tabs = (function() { // Dom, Hammer
 
-    var tab,tabs,tabs_wrapper,tabs_viewport,tabs_content;
+    var tab, tabs, tabs_wrapper, tabs_viewport, tabs_content;
     var active_tab_class = 'tab--active';
 
     // SWIPE TAB CONTENT

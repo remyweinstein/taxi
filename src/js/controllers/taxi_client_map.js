@@ -35,6 +35,15 @@
               routeIndex: i
             });
           }
+          
+          var overviewPath = [];
+          
+          for(var i = 0; i < response.routes.length; i++){
+            var temp = response.routes[i].overview_path;
+            overviewPath = overviewPath.concat( temp );
+          }
+          
+          Geo.showPoly(overviewPath, map);
 
           mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: ' + response.routes[0].legs[0].distance.text + '</p></div>');
         }
@@ -49,7 +58,7 @@
           var el = Dom.sel('.wait-bids-approve');
            el.innerHTML = "";
           var bids = response.bids;
-          
+          var innText = '';
           for (var i = 0; i < bids.length; i++) {
             console.log(JSON.stringify(bids[i]));
             
@@ -58,7 +67,7 @@
              vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
              
              
-            el.innerHTML += '<div class="wait-bids-approve__item">\n\
+            innText += '<div class="wait-bids-approve__item">\n\
                               <div class="wait-bids-approve__item__distance">\n\
                                 Растояние до водителя, <span>' + bids[i].agent.distance.toFixed(1) + ' км</span>\n\
                               </div>\n\
@@ -84,13 +93,14 @@
                               </div>\n\
                             </div>';
           }
-          
+          el.innerHTML = innText;
         }
         
       });
     }
 
     timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
+    
     var route = Address.loadAddress();
     var el_route = Dom.sel('.wait-order-approve__route-info__route');
      el_route.children[0].innerHTML = route[0];
@@ -98,7 +108,7 @@
      el_route.children[1].innerHTML = 'Заездов ';
      
     var waypointy = Address.loadWaypoints();
-    console.log('waypointy.length = ' + waypointy.length);
+    
      if (waypointy.length) {
        el_route.children[1].innerHTML += waypointy.length;
      } else {
@@ -106,7 +116,7 @@
      }
      
     var el_price = Dom.sel('.wait-order-approve__route-info__price');
-     el_price.innerHTML = localStorage.getItem('_current_price_order')+' руб';
+     el_price.innerHTML = localStorage.getItem('_current_price_order') + ' руб';
      
     var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
      el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
@@ -120,7 +130,7 @@
           if (target.dataset.click === "taxi_client_bid") {
             var el = target;
             
-            Ajax.request(server_uri, 'POST', 'approve-bid', User.token, '&id='+el.dataset.id, '', function(response) {
+            Ajax.request(server_uri, 'POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
               //console.log(response);
               if (response && response.ok) {
                 localStorage.setItem('_current_id_bid', el.dataset.id);

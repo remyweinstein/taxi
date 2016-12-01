@@ -29,6 +29,7 @@
       function callbackSt(results, status) {
         result_block.innerHTML = "";
         if (results.length) {
+          var innText = '';
           for (var i=0;i<results.length;i++) {
             var addr = results[i].formatted_address;
             var addr_arr = addr.split(',');
@@ -39,8 +40,9 @@
             var idx_city = addr_arr.indexOf(User.city);
             var address = addr_arr[idx_city-2]?addr_arr[idx_city-2]+', '+addr_arr[idx_city-1]:addr_arr[idx_city-1];
 
-            result_block.innerHTML += '<p>' + results[i].name + '<span>' + address + '</span></p>';
+            innText += '<p>' + results[i].name + '<span>' + address + '</span></p>';
           }
+          result_block.innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
           //console.error('status='+status);
@@ -52,6 +54,7 @@
         result_block.innerHTML = "";
 
         if (results.length) {
+          var innText = '';
           for (var i=0; i<results.length; i++) {
             var addr = results[i].vicinity;
             var addr_arr = addr.split(',');
@@ -68,9 +71,10 @@
               address = address.slice(0, -1);
             }
             if (address !== "") {
-              result_block.innerHTML += '<p>' + results[i].name + '<span>' + address + '</span></p>';
+              innText += '<p>' + results[i].name + '<span>' + address + '</span></p>';
             }
           }
+          result_block.innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
           //console.error('status='+status);

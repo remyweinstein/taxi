@@ -110,6 +110,7 @@
         
         // = Form Taxy Client City =
     Dom.sel('[data-submit="taxy_client_city"]').addEventListener('submit', function(event) {
+      Dom.sel('[data-click="order-taxi"]').disabled = true;
       var from_address = Dom.sel('.adress_from').value;
       var to_address = Dom.sel('.adress_to').value;
       var price = Dom.sel('[name="cost"]').value;

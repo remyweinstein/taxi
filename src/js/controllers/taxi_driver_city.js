@@ -22,7 +22,7 @@ var Orders = [];
               Orders.push(temp_order);
               
               if (temp_order.agentBidId === temp_order.bidId) {
-                localStorage.setItem('_current_id_bid', bidId);
+                localStorage.setItem('_current_id_bid', temp_order.bidId);
                 document.location = '#driver__go';
               }
               
@@ -60,8 +60,8 @@ var Orders = [];
                           </div>';
               }
                 
-                var price_minus = active_bid === "" ? '<i class="icon-minus-circled" data-key="' + key + '" data-click="price_minus"></i>' : '';
-                var price_plus = active_bid === "" ? '<i class="icon-plus-circle" data-key="' + key + '" data-click="price_plus"></i>' : '';
+                var price_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '';
+                var price_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="price_plus"></i>' : '';
                 
                 show('LI', '\
                             <div class="list-orders_route">\n\
@@ -144,7 +144,7 @@ var Orders = [];
               price = price.split(" ");
               price = parseInt(price[0]) - 50;
               if (price < 0) price = 0;
-              Orders[el.dataset.id].price = price;
+              Orders[el.dataset.key].price = price;
               price_el.innerHTML = price + ' руб.';
           }
 

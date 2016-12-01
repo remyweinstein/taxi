@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp'),
+    plumber = require('gulp-plumber'),
     watch = require('gulp-watch'),
     prefixer = require('gulp-autoprefixer'),
     uglify = require('gulp-uglify'),
@@ -100,12 +101,14 @@ gulp.task('css:build', function () {
 gulp.task('image:build', function () {
 
     gulp.src(path.src.img)
+        //.pipe(plumber())
         //.pipe(imagemin({
         //    progressive: true,
         //    svgoPlugins: [{removeViewBox: false}],
         //    use: [pngquant()],
         //    interlaced: true
         //}))
+        //.pipe(plumber.stop())
         .pipe(gulp.dest(path.build.img));
         //.pipe(reload({stream: true}));
 });

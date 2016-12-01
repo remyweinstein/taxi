@@ -3,7 +3,7 @@
 
     function swipeMenu(route) {
       var menu = Dom.sel('.menu');
-      var state = (route>0)?'opened':'closed';
+      var state = route > 0 ? 'opened' : 'closed';
        menu.classList.remove('menu--closed');
        menu.classList.remove('menu--opened');
        menu.classList.add('menu--'+state);
@@ -54,7 +54,7 @@
               var li = target.parentNode;
               var lis = li.parentNode.querySelectorAll('li');
               
-              for (var i=0; i<lis.length; i++) {
+              for (var i = 0; i < lis.length; i++) {
                 lis[i].classList.remove('menu__list--active');
               }
               

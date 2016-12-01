@@ -1,15 +1,9 @@
-'use strict';
+//  'use strict';
 
 var lasturl = '', sublasturl = '', lastsection = '';
 
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService, directionsDisplay;
-
-//var server_uri = 'https://192.168.20.90';
-var server_uri = 'https://176.9.99.240/api';
-var home_server = 'https://indriver.ru';
-//var home_server = 'https://192.168.20.29';
-//var home_server = 'https://176.9.99.240';
 
 var User = new User();
 var MyCar = new Car();
@@ -20,8 +14,7 @@ var bid_id;
 
 var default_vehicle = 'asset/images/no_vehicle.png';
 
-var google_api_key = 'AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4';
-var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerUpdateCoords, timerGetMessages;
+var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerUpdateCoords;
 
 //= modules/dom.js
 //= modules/ajax.js
@@ -33,6 +26,7 @@ var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrd
 //= modules/maps.js
 //= modules/menu.js
 //= modules/tabs.js
+//= modules/chat.js
 //= modules/router.js
 
 //= classes/user.js
@@ -73,8 +67,8 @@ function init() {
   clearInterval(timerGetBidsTaxy);
   clearInterval(timerGetBidGo);
   clearInterval(timerUpdateTaxiDriverOrder);
-  clearInterval(timerGetMessages);
     
+  Chat.stop();
   Tabs.init();
     
   Dom.sel('.content').style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';

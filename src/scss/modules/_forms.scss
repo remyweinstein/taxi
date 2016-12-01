@@ -40,7 +40,12 @@
         font-size: 0.75em;
     }
     &__bottom{
-        
+        position: fixed;
+        bottom: 1em;
+        width: 90%;
+        padding: 0 2.5%;
+        background-color: white;
+        left: 2.5%;
     }
     &__field{
         width: 100%;
