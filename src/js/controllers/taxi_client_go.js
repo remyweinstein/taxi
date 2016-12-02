@@ -1,8 +1,9 @@
     bid_id = localStorage.getItem('_current_id_bid');
-    var LatLng = new google.maps.LatLng(48.49, 135.07);
+    //var LatLng = new google.maps.LatLng(48.49, 135.07);
+    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     var mapCanvas = document.getElementById('map_canvas_go');
     var mapOptions = {
-      center: LatLng,
+      center: MyLatLng,
       zoom: 12,
       streetViewControl: false,
       mapTypeControl: false,
@@ -13,6 +14,13 @@
     var show_route = false;
     var address, address_clear, waypoints;
     var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle;
+    
+    var marker_mine = new google.maps.Marker({
+      position: MyLatLng,
+      map: map,
+      icon: 'http://labs.google.com/ridefinder/images/mm_20_orange.png',
+      title: 'Я здесь!'
+    });
 
     function setRoute() {
       var el_route = Dom.sel('.wait-order-approve__route-info__route');
@@ -82,9 +90,13 @@
 
       show_route = true;
     }
-
+    
+    function get_pos_mine() {
+      marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
+    }
+    timerGetMyPos = setInterval(get_pos_mine, 1000);
+    
     get_pos_driver();
-
     function get_pos_driver() {
       Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
         if (response && response.ok) {
@@ -137,8 +149,7 @@
         
       });
     }
-
-    timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
+    timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
     
     Chat.start('driver');
 

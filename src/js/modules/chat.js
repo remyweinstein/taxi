@@ -1,4 +1,4 @@
-  var Chat = (function() { //User Ajax Dom
+  var Chat = (function() { //Ajax Dom
     var timerGetMessages;
     var interlocutor = "client";
 

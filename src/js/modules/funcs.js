@@ -1,19 +1,6 @@
   var Funcs = (function() { //nothing
 
     return {
-      setTempRequestLS: function (val) {
-        localStorage.setItem('_temp_request', val);
-        
-        return true;
-      },
-
-      getTempRequestLS: function () {
-        var val = localStorage.getItem('_temp_request');
-        localStorage.removeItem('_temp_request');
-
-        return val;
-      },
-
       searchCityForIntercity: function (city, parent) {
         var currentCity;
         var li = parent.children[1].children;

@@ -1,16 +1,24 @@
     initialize();
 
     function initialize() {
-      var LatLng = new google.maps.LatLng(48.49, 135.07);
+      //var LatLng = new google.maps.LatLng(48.49, 135.07);
+      var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
       var mapCanvas = document.getElementById('map_canvas');
       var mapOptions = {
-        center: LatLng,
+        center: MyLatLng,
         zoom: 12,
         streetViewControl: false,
         mapTypeControl: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
       map = new google.maps.Map(mapCanvas, mapOptions);
+      
+      var marker_mine = new google.maps.Marker({
+        position: MyLatLng,
+        map: map,
+        icon: 'http://labs.google.com/ridefinder/images/mm_20_orange.png',
+        title: 'Я здесь!'
+      });
 
       var address = Address.loadAddress(User.city);
       var waypoints = Address.loadWaypoints(User.city);
@@ -45,7 +53,6 @@
           
           Geo.showPoly(overviewPath, map);
 
-          mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: ' + response.routes[0].legs[0].distance.text + '</p></div>');
         }
       });
 

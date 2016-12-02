@@ -1,5 +1,7 @@
     var from = Dom.sel('input[name="from"]');
     var to = Dom.sel('input[name="to"]');
+    var marker_a, marker_b;
+    var distanse;
 
     from.value = localStorage.getItem('_address_from');
     to.value = localStorage.getItem('_address_to');
@@ -21,10 +23,9 @@
 
     // Google maps TAXY CLIENT CITY ORDER 
     function initialize_iam() {
-      var x,y,zoom = 15;
-       x = User.lat;
-       y = User.lng;
-      var MyLatLng = new google.maps.LatLng(x,y);
+      var zoom = 15;
+      //var LatLng = new google.maps.LatLng(48.49, 135.07);
+      var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
       var mapCanvas = document.getElementById('map_canvas_iam');
       var mapOptions = {
         center: MyLatLng,
@@ -34,22 +35,69 @@
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
       var map_choice = new google.maps.Map(mapCanvas, mapOptions);
-      var marker = new google.maps.Marker({
+      var marker_mine = new google.maps.Marker({
         position: MyLatLng,
         map: map_choice,
+        icon: 'http://labs.google.com/ridefinder/images/mm_20_orange.png',
         title: 'Я здесь!'
       });
-
-      if (Dom.sel('.adress_from').value !== '') {
-        Maps.addressToLatLng(Dom.sel('.adress_from').value + ',' + User.city, function(latlng) {
-          addMarker(latlng, Dom.sel('.adress_from').value, 'https://yastatic.net/doccenter/images/tech-ru/maps/doc/freeze/s-eX54MUgq4nSFXzzxVYZ7SfVis.png', map_choice);
-        });
+      
+      var addr_from = Dom.sel('.adress_from').value;
+      var addr_to = Dom.sel('.adress_to').value;
+      
+      if (addr_from !== '' && addr_to === '') {
+        var addr_from = localStorage.getItem('_address_coord_from').split("-");
+        marker_a = addMarker(new google.maps.LatLng(addr_from[0], addr_from[1]), Dom.sel('.adress_from').value, '//www.google.com/mapfiles/markerA.png', map_choice);
       }
       
-      if (Dom.sel('.adress_to').value !== '') {
-        Maps.addressToLatLng(Dom.sel('.adress_to').value + ',' + User.city, function(latlng) {
-          addMarker(latlng, Dom.sel('.adress_to').value, 'https://yastatic.net/doccenter/images/tech-ru/maps/doc/freeze/Lg_lnltSypbyZteO0rX5V4E9Nzk.png', map_choice);
-        });
+      if (addr_to !== '' && addr_from === '') {
+        var addr_to = localStorage.getItem('_address_coord_to').split("-");
+        marker_b = addMarker(new google.maps.LatLng(addr_to[0], addr_to[1]), Dom.sel('.adress_to').value, '//www.google.com/mapfiles/markerB.png', map_choice);
+      }
+      
+      if (addr_from !== '' && addr_to !== '') drawLine();
+      
+      function drawLine() {
+        var directionsService = new google.maps.DirectionsService();
+        //if (marker_b && marker_a) {
+          marker_b = null;
+          marker_a = null;
+          var addr_from = localStorage.getItem('_address_coord_from').split("-");
+          var addr_to = localStorage.getItem('_address_coord_to').split("-");
+          var request = {
+            origin: new google.maps.LatLng(addr_from[0], addr_from[1]), 
+            destination: new google.maps.LatLng(addr_to[0], addr_to[1]),
+            //waypoints: waypoints,
+            provideRouteAlternatives: false,
+            travelMode: google.maps.DirectionsTravelMode.DRIVING
+          };
+
+          directionsService.route(request, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+              distanse = response.routes[0].legs[0].distance.value;
+              new google.maps.DirectionsRenderer({
+                map: map_choice,
+                directions: response,
+                routeIndex: 0
+              });
+            }
+          });
+          
+          /*
+          var findPathCoordinates = [
+            {lat: marker_b.getPosition().lat(), lng: marker_b.getPosition().lng()},
+            {lat: marker_a.getPosition().lat(), lng: marker_a.getPosition().lng()}
+          ];
+          var findPath = new google.maps.Polyline({
+            path: findPathCoordinates,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 1
+          });
+          findPath.setMap(map_choice);
+          */
+        //}
       }
 
       function addMarker(location, title, icon, map) {
@@ -60,6 +108,8 @@
           title: title,
           map: map
         });
+        
+        return marker;
       }
       
       google.maps.event.addListener(map_choice, 'drag', function() {
@@ -75,8 +125,8 @@
       while (target !== this) {
             // = Click choose location =
         if (target.dataset.click === 'choice_location') {
+          localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
           document.location = '#client__choice_location_map';
-          Funcs.setTempRequestLS(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
           
           return;
         }
@@ -89,7 +139,7 @@
             var new_field = document.createElement('div');
              new_field.className += 'form-order-city__field order-city-from';
              new_field.innerHTML = '<i class="icon-record form-order-city__label"></i><span class="form-order-city__wrap"><input type="text" name="to_plus'+(just_add+1)+'" value="" placeholder="Заезд"/></span><span data-click="field_delete" class="form-order-city__field_delete"><i class="icon-trash"></i></span>';
-            
+             
             var parentDiv = el.parentNode;
              parentDiv.insertBefore(new_field, el);
           }
@@ -125,30 +175,36 @@
       if (Dom.sel('[name="to_plus1"]')) {
         to1 = Dom.sel('[name="to_plus1"]').value;
         data.append('toAddress1', to1);
+        data.append('toLocation1', localStorage.getItem('_address_coord_to1'));
       }
       
       if (Dom.sel('[name="to_plus2"]')) {
         to2 = Dom.sel('[name="to_plus2"]').value;
         data.append('toAddress2', to2);
+        data.append('toLocation2', localStorage.getItem('_address_coord_to2'));
       }
       
       if (Dom.sel('[name="to_plus3"]')) {
         to3 = Dom.sel('[name="to_plus3"]').value;
         data.append('toAddress3', to3);
+        data.append('toLocation3', localStorage.getItem('_address_coord_to3'));
       }
       
       Address.saveWaypoints(to1, to2, to3);
 
       data.append('fromCity', User.city);
       data.append('fromAddress', from_address);
+      data.append('fromLocation', localStorage.getItem('_address_coord_from'));
       data.append('toCity0', User.city);
       data.append('toAddress0', to_address);
+      data.append('toLocation0', localStorage.getItem('_address_coord_to'));
       data.append('isIntercity', 0);
       //data.append('bidId', '');
       data.append('price', price);
       data.append('comment', comment);
       data.append('minibus', 0);
       data.append('babyChair', 0);
+      data.append('distance', distanse);
 
       Ajax.request(server_uri, 'POST', 'order', User.token, '', data, function(response) {
         //console.log(response);

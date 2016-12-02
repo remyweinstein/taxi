@@ -40,8 +40,7 @@
       while (target !== this) {
             // = I choose location =
         if (target.dataset.click === 'i_choice_location') {
-          document.location = '#client__city';
-          var name = Funcs.getTempRequestLS();
+          var name = localStorage.getItem('_address_temp');
           geocoder = new google.maps.Geocoder();
           
           var latl = localStorage.getItem('_choice_coords');
@@ -49,17 +48,19 @@
            latl = latl.replace(")","");
            latl = latl.replace(" ","");
            latl = latl.split(",");
-          var latlng = new google.maps.LatLng(latl[0],latl[1]);
+           
+          localStorage.setItem('_address_coord_' + name, latl[0] + '-' + latl[1]);
+          var latlng = new google.maps.LatLng(latl[0], latl[1]);
 
           geocoder.geocode ({
             'latLng': latlng
           }, function (results, status) {
                if (status === google.maps.GeocoderStatus.OK) {
-                 localStorage.setItem('_address_'+name, Maps.getStreetFromGoogle(results));
-                 Dom.sel('input[name="from"]').value = localStorage.getItem('_address_from');
-                 Dom.sel('input[name="to"]').value = localStorage.getItem('_address_to');
+                 localStorage.setItem('_address_' + name, Maps.getStreetFromGoogle(results));
+                 Dom.sel('input[name="' + name + '"]').value = localStorage.getItem('_address_' + name);
               }
             });
+          document.location = '#client__city';
 
           return;
         }

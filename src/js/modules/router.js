@@ -15,6 +15,14 @@
       url = url.replace('#','');
       var datar = url.split('__');
 
+      clearInterval(timerSearchDriver);
+      clearInterval(timerGetBidsTaxy);
+      clearInterval(timerGetBidGo);
+      clearInterval(timerUpdateTaxiDriverOrder);
+      clearInterval(timerGetMyPos);
+
+      Chat.stop();
+
       Dom.sel(".loading").style.visibility = "visible";
 
       var data = new FormData();

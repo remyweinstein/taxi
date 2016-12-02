@@ -1,7 +1,7 @@
   var Ajax = (function() { //nothing
 
     return {
-      request: function (server, crud, method, token, add_query, data, success) {
+      request: function (server, crud, method, token, add_query, data, success, error) {
         token = token === '' ? '' : '?token=' + token;
         var xhr = new XMLHttpRequest();
           xhr.open(crud, server + '/' + method + token + add_query, true);
@@ -12,6 +12,9 @@
               
               success(response);
             }
+          };
+          xhr.onerror = function() {            
+            error();
           };
           
           xhr.send(data);

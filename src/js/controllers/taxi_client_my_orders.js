@@ -7,8 +7,8 @@
          toAppend.innerHTML = '';
         var ords = response.orders;
         
-        for (var i=0; i < ords.length; i++) {
-          var goto,del;
+        for (var i = 0; i < ords.length; i++) {
+          var goto, del;
           
           if (!ords[i].comeout) {
             goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';

@@ -14,7 +14,12 @@ var bid_id;
 
 var default_vehicle = 'asset/images/no_vehicle.png';
 
-var timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerUpdateCoords;
+var timerSearchDriver, 
+    timerGetBidsTaxy, 
+    timerGetBidGo, 
+    timerUpdateTaxiDriverOrder, 
+    timerUpdateCoords, 
+    timerGetMyPos;
 
 //= modules/dom.js
 //= modules/ajax.js
@@ -63,12 +68,6 @@ function init() {
   
   User.getData();
     
-  clearInterval(timerSearchDriver);
-  clearInterval(timerGetBidsTaxy);
-  clearInterval(timerGetBidGo);
-  clearInterval(timerUpdateTaxiDriverOrder);
-    
-  Chat.stop();
   Tabs.init();
     
   Dom.sel('.content').style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
