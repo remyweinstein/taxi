@@ -47,7 +47,7 @@
     
         
 
-    Dom.sel('.content').addEventListener('keyup', function(e) {
+    content.addEventListener('keyup', function(e) {
       var target = e.target;
       
       while (target !== this) {

@@ -1,5 +1,4 @@
   var MainMenu = (function() { // Dom
-    var contentClass = 'content';
 
     function swipeMenu(route) {
       var menu = Dom.sel('.menu');
@@ -30,7 +29,6 @@
         });
 
         //EVENTS ON CLICK CONTENT FOR CLOSE MENU
-        var content = Dom.sel('.'+contentClass);
           content.addEventListener('click', function(event) {
             var target = event.target;
             

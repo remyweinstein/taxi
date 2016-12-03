@@ -53,7 +53,6 @@
       });
     }
         
-    var content = Dom.sel('.content');
       content.addEventListener('submit', function(event) {
         var target = event.target;
         while (target !== this) {

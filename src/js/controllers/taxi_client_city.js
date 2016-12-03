@@ -118,7 +118,6 @@
       }); 
     }
 
-    var content = Dom.sel('.content');
     content.addEventListener('click', function(event) {
       var target = event.target;
       
@@ -157,64 +156,73 @@
         target = target.parentNode;
       }
     });
+
+    
+    content.addEventListener('submit', function(event) {
+      var target = event.target;
+      
+      while (target !== this) {
+            // = Click choose location =
+        if (target.dataset.submit === "taxy_client_city") {
+            Dom.sel('[data-click="order-taxi"]').disabled = true;
+            var from_address = Dom.sel('.adress_from').value;
+            var to_address = Dom.sel('.adress_to').value;
+            var price = Dom.sel('[name="cost"]').value;
+            var comment = Dom.sel('[name="description"]').value;
+            var to1 = "", to2 = "", to3 = "";
+            var data = new FormData();
+
+            event.preventDefault();
+
+            Address.saveAddress(from_address, to_address);
+
+            if (Dom.sel('[name="to_plus1"]')) {
+              to1 = Dom.sel('[name="to_plus1"]').value;
+              data.append('toAddress1', to1);
+              data.append('toLocation1', localStorage.getItem('_address_coord_to1'));
+            }
+
+            if (Dom.sel('[name="to_plus2"]')) {
+              to2 = Dom.sel('[name="to_plus2"]').value;
+              data.append('toAddress2', to2);
+              data.append('toLocation2', localStorage.getItem('_address_coord_to2'));
+            }
+
+            if (Dom.sel('[name="to_plus3"]')) {
+              to3 = Dom.sel('[name="to_plus3"]').value;
+              data.append('toAddress3', to3);
+              data.append('toLocation3', localStorage.getItem('_address_coord_to3'));
+            }
+
+            Address.saveWaypoints(to1, to2, to3);
+
+            data.append('fromCity', User.city);
+            data.append('fromAddress', from_address);
+            data.append('fromLocation', localStorage.getItem('_address_coord_from'));
+            data.append('toCity0', User.city);
+            data.append('toAddress0', to_address);
+            data.append('toLocation0', localStorage.getItem('_address_coord_to'));
+            data.append('isIntercity', 0);
+            //data.append('bidId', '');
+            data.append('price', price);
+            data.append('comment', comment);
+            data.append('minibus', 0);
+            data.append('babyChair', 0);
+            data.append('distance', distanse);
+
+            Ajax.request(server_uri, 'POST', 'order', User.token, '', data, function(response) {
+              //console.log(response);
+              if (response && response.ok) {
+                localStorage.setItem('_id_current_taxy_order', response.id);
+                localStorage.setItem('_current_price_order', price);
+                localStorage.setItem('_current_comment_order', comment);
+                document.location= '#client__map';
+              } else alert('Укажите в профиле ваш город');
+            });
+      
+          return;
+        }
         
-        // = Form Taxy Client City =
-    Dom.sel('[data-submit="taxy_client_city"]').addEventListener('submit', function(event) {
-      Dom.sel('[data-click="order-taxi"]').disabled = true;
-      var from_address = Dom.sel('.adress_from').value;
-      var to_address = Dom.sel('.adress_to').value;
-      var price = Dom.sel('[name="cost"]').value;
-      var comment = Dom.sel('[name="description"]').value;
-      var to1 = "", to2 = "", to3 = "";
-      var data = new FormData();
-      
-      event.preventDefault();
-      
-      Address.saveAddress(from_address, to_address);
-
-      if (Dom.sel('[name="to_plus1"]')) {
-        to1 = Dom.sel('[name="to_plus1"]').value;
-        data.append('toAddress1', to1);
-        data.append('toLocation1', localStorage.getItem('_address_coord_to1'));
+        target = target.parentNode;
       }
-      
-      if (Dom.sel('[name="to_plus2"]')) {
-        to2 = Dom.sel('[name="to_plus2"]').value;
-        data.append('toAddress2', to2);
-        data.append('toLocation2', localStorage.getItem('_address_coord_to2'));
-      }
-      
-      if (Dom.sel('[name="to_plus3"]')) {
-        to3 = Dom.sel('[name="to_plus3"]').value;
-        data.append('toAddress3', to3);
-        data.append('toLocation3', localStorage.getItem('_address_coord_to3'));
-      }
-      
-      Address.saveWaypoints(to1, to2, to3);
-
-      data.append('fromCity', User.city);
-      data.append('fromAddress', from_address);
-      data.append('fromLocation', localStorage.getItem('_address_coord_from'));
-      data.append('toCity0', User.city);
-      data.append('toAddress0', to_address);
-      data.append('toLocation0', localStorage.getItem('_address_coord_to'));
-      data.append('isIntercity', 0);
-      //data.append('bidId', '');
-      data.append('price', price);
-      data.append('comment', comment);
-      data.append('minibus', 0);
-      data.append('babyChair', 0);
-      data.append('distance', distanse);
-
-      Ajax.request(server_uri, 'POST', 'order', User.token, '', data, function(response) {
-        //console.log(response);
-        if (response && response.ok) {
-          localStorage.setItem('_id_current_taxy_order', response.id);
-          localStorage.setItem('_current_price_order', price);
-          localStorage.setItem('_current_comment_order', comment);
-          document.location= '#client__map';
-        } else alert('Укажите в профиле ваш город');
-      });
-      
-      return false;
     });

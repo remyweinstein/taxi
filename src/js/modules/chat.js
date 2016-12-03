@@ -50,7 +50,6 @@
         get_new_messages();
         timerGetMessages = setInterval(get_new_messages, 1000);
         
-        var content = Dom.sel('.content');
           content.addEventListener('click', function(event) {
             var target = event.target;
 

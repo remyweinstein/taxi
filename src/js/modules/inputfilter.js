@@ -57,7 +57,7 @@
 
     return{
       init: function() {
-              document.querySelector('.content').addEventListener('keypress', function(e) {
+              content.addEventListener('keypress', function(e) {
                 var target = e.target;
                 while (target !== this) {
                       // = Input Filtering ONLY DIGITS =

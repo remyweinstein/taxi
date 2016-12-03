@@ -2,6 +2,8 @@
 
 var lasturl = '', sublasturl = '', lastsection = '';
 
+var content;
+
 var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService, directionsDisplay;
 
@@ -41,6 +43,7 @@ var timerSearchDriver,
 User.initToken();
 
 document.addEventListener('DOMContentLoaded', function() {
+  content = Dom.sel('.content');
   
   User.city = localStorage.getItem('_my_city');
   User.id = localStorage.getItem('_my_id');
@@ -70,7 +73,7 @@ function init() {
     
   Tabs.init();
     
-  Dom.sel('.content').style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
+  content.style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
   
   var item_login = Dom.sel('.menu__list__item_login');
   var item_logout = Dom.sel('.menu__list__item_logout');

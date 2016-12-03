@@ -129,7 +129,6 @@
      el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
 
 // Click Client BID
-    var content = Dom.sel('.content');
       content.addEventListener('click', function(event) {
         var target = event.target;
         

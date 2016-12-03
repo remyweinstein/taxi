@@ -20,7 +20,12 @@
       clearInterval(timerGetBidGo);
       clearInterval(timerUpdateTaxiDriverOrder);
       clearInterval(timerGetMyPos);
-
+      
+      content.removeEventListener('click');
+      content.removeEventListener('submit');
+      //content.removeEventListener('keyup');
+      //content.removeEventListener('keypress');
+      
       Chat.stop();
 
       Dom.sel(".loading").style.visibility = "visible";
@@ -32,7 +37,7 @@
       Ajax.request(home_server, 'POST', 'routes.php', '', '', data, function(response) {
         if (response) {
           Dom.sel('.header__title').innerHTML = response.title;
-          Dom.sel('.content').innerHTML = response.content;
+          content.innerHTML = response.content;
 
           if (datar[0] !== lastsection || lastsection === '') {
             Dom.sel('.menu__response').innerHTML = response[0].menu;

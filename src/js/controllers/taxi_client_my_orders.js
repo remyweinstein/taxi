@@ -65,7 +65,6 @@
       
     });
 
-    var content = Dom.sel('.content');
       content.addEventListener('click', function(event) {
         var target = event.target;
         while (target !== this) {
