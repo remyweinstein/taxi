@@ -54,7 +54,7 @@ var Orders = [];
               }
                 
               var zaezdy = '';
-              if(Orders[key].stops > 0){
+              if (Orders[key].stops > 0) {
                 zaezdy = '<div class="list-orders_route_to">\n\
                             остановок ' + Orders[key].stops + '\
                           </div>';
@@ -108,7 +108,7 @@ var Orders = [];
           }
     }
 
-      content.addEventListener('click', function(event) {
+      Event.click = function (event) {
         var target = event.target;
         
         while (target !== this) {
@@ -117,7 +117,7 @@ var Orders = [];
             var el = target;
             
             if (el.classList.contains('active')) {
-              Ajax.request(server_uri, 'POST', 'delete-bid', User.token, '&id='+el.dataset.id, '', function(response) {
+              Ajax.request(server_uri, 'POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
                 if (response && response.ok) {
                   el.classList.remove('active');
                 }
@@ -162,4 +162,6 @@ var Orders = [];
           target = target.parentNode;
         }
         
-      });
+      };
+      
+      content.addEventListener('click', Event.click);

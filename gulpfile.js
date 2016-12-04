@@ -1,7 +1,7 @@
 'use strict';
 
 var gulp = require('gulp'),
-    plumber = require('gulp-plumber'),
+    //plumber = require('gulp-plumber'),
     watch = require('gulp-watch'),
     prefixer = require('gulp-autoprefixer'),
     uglify = require('gulp-uglify'),

@@ -65,7 +65,7 @@
       
     });
 
-      content.addEventListener('click', function(event) {
+      Event.click = function (event) {
         var target = event.target;
         while (target !== this) {
               // = Menu my Orders Item =
@@ -123,4 +123,7 @@
           target = target.parentNode;
         }
         
-      });
+      };
+      
+      content.addEventListener('click', Event.click);
+     

@@ -14,14 +14,14 @@
       }
     });
 
-    content.addEventListener('click', function(event) {
+  Event.click = function (event) {
     var target = event.target;
     
     while (target !== this) {
       if (target.dataset.click === 'clear_photo') {
         Ajax.request(server_uri, 'POST', 'clear-photo', User.token, '', '', function(response) {
           if (response && response.ok) {
-            User.avatar = default_avatar;
+            User.avatar = User.default_avatar;
             Dom.sel('.avatar').src = User.avatar;
           }
         });
@@ -29,9 +29,11 @@
       
       target = target.parentNode;
     }
-  });
-        
-  content.addEventListener('submit', function(event) {
+  }
+    
+  content.addEventListener('click', Event.click);
+    
+  Event.submit = function (event) {
     var target = event.target;
     
     while (target !== this) {
@@ -56,4 +58,6 @@
         
       target = target.parentNode;
     }
-  });
+  };
+  
+  content.addEventListener('submit', Event.submit);

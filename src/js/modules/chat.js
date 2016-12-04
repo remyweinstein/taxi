@@ -50,7 +50,8 @@
         get_new_messages();
         timerGetMessages = setInterval(get_new_messages, 1000);
         
-          content.addEventListener('click', function(event) {
+          content.addEventListener('click', clickEvent(event));
+          function clickEvent(event) {
             var target = event.target;
 
             while (target !== this) {
@@ -65,7 +66,7 @@
 
               target = target.parentNode;
             }
-          });
+          }
       }
       
     };

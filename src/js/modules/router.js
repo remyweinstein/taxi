@@ -11,25 +11,18 @@
       }
     }
 
+    function ClearEvents() {            
+      Chat.stop();
+    }
+
     function loadPage(url) {
       url = url.replace('#','');
       var datar = url.split('__');
 
-      clearInterval(timerSearchDriver);
-      clearInterval(timerGetBidsTaxy);
-      clearInterval(timerGetBidGo);
-      clearInterval(timerUpdateTaxiDriverOrder);
-      clearInterval(timerGetMyPos);
-      
-      content.removeEventListener('click');
-      content.removeEventListener('submit');
-      //content.removeEventListener('keyup');
-      //content.removeEventListener('keypress');
-      
-      Chat.stop();
-
       Dom.sel(".loading").style.visibility = "visible";
-
+      
+      ClearEvents();
+      
       var data = new FormData();
         data.append('section', datar[0]);
         data.append('page', datar[1]);

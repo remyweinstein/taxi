@@ -33,38 +33,40 @@
     
   }
 
-    content.addEventListener('click', function(event) {
-      var target = event.target;
-      
-      while (target !== this) {
-            // = I choose location =
-        if (target.dataset.click === 'i_choice_location') {
-          var name = localStorage.getItem('_address_temp');
-          geocoder = new google.maps.Geocoder();
-          
-          var latl = localStorage.getItem('_choice_coords');
-           latl = latl.replace("(","");
-           latl = latl.replace(")","");
-           latl = latl.replace(" ","");
-           latl = latl.split(",");
-           
-          localStorage.setItem('_address_coord_' + name, latl[0] + '-' + latl[1]);
-          var latlng = new google.maps.LatLng(latl[0], latl[1]);
+    Event.click = function (event) {
+          var target = event.target;
 
-          geocoder.geocode ({
-            'latLng': latlng
-          }, function (results, status) {
-               if (status === google.maps.GeocoderStatus.OK) {
-                 localStorage.setItem('_address_' + name, Maps.getStreetFromGoogle(results));
-                 Dom.sel('input[name="' + name + '"]').value = localStorage.getItem('_address_' + name);
-              }
-            });
-          document.location = '#client__city';
+          while (target !== this) {
+                // = I choose location =
+            if (target.dataset.click === 'i_choice_location') {
+              var name = localStorage.getItem('_address_temp');
+              geocoder = new google.maps.Geocoder();
 
-          return;
-        }
-        
-        target = target.parentNode;
-      }
-      
-    });
+              var latl = localStorage.getItem('_choice_coords');
+               latl = latl.replace("(","");
+               latl = latl.replace(")","");
+               latl = latl.replace(" ","");
+               latl = latl.split(",");
+
+              localStorage.setItem('_address_coord_' + name, latl[0] + '-' + latl[1]);
+              var latlng = new google.maps.LatLng(latl[0], latl[1]);
+
+              geocoder.geocode ({
+                'latLng': latlng
+              }, function (results, status) {
+                   if (status === google.maps.GeocoderStatus.OK) {
+                     localStorage.setItem('_address_' + name, Maps.getStreetFromGoogle(results));
+                     Dom.sel('input[name="' + name + '"]').value = localStorage.getItem('_address_' + name);
+                  }
+                });
+              document.location = '#client__city';
+
+              return;
+            }
+
+            target = target.parentNode;
+          }
+
+        };
+
+    content.addEventListener('click', Event.click);

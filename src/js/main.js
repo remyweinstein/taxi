@@ -10,6 +10,8 @@ var google, placeSearch, autocomplete, directionsService, directionsDisplay;
 var User = new User();
 var MyCar = new Car();
 
+var Event = new Events();
+
 var my_vehicle;
 
 var bid_id;
@@ -39,6 +41,7 @@ var timerSearchDriver,
 //= classes/user.js
 //= classes/car.js
 //= classes/driver_orders.js
+//= classes/events.js
 
 User.initToken();
 
@@ -68,6 +71,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function init() {
+      clearInterval(timerSearchDriver);
+      clearInterval(timerGetBidsTaxy);
+      clearInterval(timerGetBidGo);
+      clearInterval(timerUpdateTaxiDriverOrder);
+      clearInterval(timerGetMyPos);
+      
+  content.removeEventListener('click', Event.click);
+  content.removeEventListener('submit', Event.submit);
+      //content.removeEventListener('keyup');
+      //content.removeEventListener('keypress');
   
   User.getData();
     
@@ -87,10 +100,7 @@ function init() {
     }
   }
     
-  if (Dom.selAll('[data-controller="pages_edit_profile"]').length) {
     //= controllers/pages_edit_profile.js
-  }  
-
   if (Dom.sel('[data-controller="pages_login"]')) {
     //= controllers/pages_login.js
   }

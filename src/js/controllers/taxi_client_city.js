@@ -38,7 +38,7 @@
       var marker_mine = new google.maps.Marker({
         position: MyLatLng,
         map: map_choice,
-        icon: 'http://labs.google.com/ridefinder/images/mm_20_orange.png',
+        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
         title: 'Я здесь!'
       });
       
@@ -118,7 +118,7 @@
       }); 
     }
 
-    content.addEventListener('click', function(event) {
+    Event.click = function (event) {
       var target = event.target;
       
       while (target !== this) {
@@ -155,10 +155,11 @@
         
         target = target.parentNode;
       }
-    });
+    };
 
-    
-    content.addEventListener('submit', function(event) {
+    content.addEventListener('click', Event.click);
+
+    Event.submit = function (event) {
       var target = event.target;
       
       while (target !== this) {
@@ -225,4 +226,6 @@
         
         target = target.parentNode;
       }
-    });
+    };
+    
+    content.addEventListener('submit', Event.submit);

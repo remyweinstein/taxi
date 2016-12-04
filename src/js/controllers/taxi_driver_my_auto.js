@@ -53,7 +53,7 @@
       });
     }
         
-      content.addEventListener('submit', function(event) {
+      Event.submit = function (event) {
         var target = event.target;
         while (target !== this) {
           if (target.dataset.submit === 'form-edit-auto') {
@@ -89,4 +89,7 @@
           
           target = target.parentNode;
         }
-      });
+      };
+      
+      content.addEventListener('submit', Event.submit);
+
