@@ -95,9 +95,22 @@
       show_route = true;
     }
     
+      function addMarker(location, title, icon, map) {
+        var marker = new google.maps.Marker({
+          position: location,
+          animation: google.maps.Animation.DROP,
+          icon: icon,
+          title: title,
+          map: map
+        });
+        
+        return marker;
+      }
+    
     function get_pos_mine() {
       marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
     }
+    
     timerGetMyPos = setInterval(get_pos_mine, 1000);
     
     get_pos_driver();
@@ -127,23 +140,23 @@
           if (ords.toAddress1) {
             var _to1 = ords.toLocation1.split(",");
             waypoints.push({location: new google.maps.LatLng(_to1[0], _to1[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to1[0], _to1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice);
+            addMarker(new google.maps.LatLng(_to1[0], _to1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map);
           }
           
           if (ords.toAddress2) {
             var _to2 = ords.toLocation2.split(",");
             waypoints.push({location: new google.maps.LatLng(_to2[0], _to2[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to2[0], _to2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice);
+            addMarker(new google.maps.LatLng(_to2[0], _to2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map);
           }
           
           if (ords.toAddress3) {
             var _to3 = ords.toLocation3.split(",");
             waypoints.push({location: new google.maps.LatLng(_to3[0], _to3[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to3[0], _to3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice);
+            addMarker(new google.maps.LatLng(_to3[0], _to3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map);
           }
 
-          addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
-          addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map_choice);
+          addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+          addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
           if (!show_route) setRoute();
 

@@ -87,23 +87,23 @@
           if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
             var _to_coord_1 = MyOrder.toCoords1.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice);
+            addMarker(new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map);
           }
 
           if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
             var _to_coord_2 = MyOrder.toCoords2.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice);
+            addMarker(new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map);
           }
 
           if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
             var _to_coord_3 = MyOrder.toCoords3.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice);
+            addMarker(new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map);
           }
 
-          addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
-          addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map_choice);
+          addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+          addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
         directionsService = new google.maps.DirectionsService();
         directionsDisplay = new google.maps.DirectionsRenderer();
@@ -141,6 +141,18 @@
 
       }
 
+      function addMarker(location, title, icon, map) {
+        var marker = new google.maps.Marker({
+          position: location,
+          animation: google.maps.Animation.DROP,
+          icon: icon,
+          title: title,
+          map: map
+        });
+        
+        return marker;
+      }
+      
       function get_bids_driver() {
         Ajax.request(server_uri, 'GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
               //console.log('try get bids... order '+localStorage.getItem('_id_current_taxy_order'));
