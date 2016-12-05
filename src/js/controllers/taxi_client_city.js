@@ -1,5 +1,10 @@
     var from = Dom.sel('input[name="from"]');
     var to = Dom.sel('input[name="to"]');
+    var rem_old_stops = Dom.selAll('.order-city-to_z');
+        for (var i = 0; i < rem_old_stops.length; i++) {
+            rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
+        }
+    
     var to_plus1 = Dom.sel('input[name="to_plus1"]');
     var to_plus2 = Dom.sel('input[name="to_plus2"]');
     var to_plus3 = Dom.sel('input[name="to_plus3"]');
@@ -153,7 +158,7 @@
     function AddNewZaezd(just_add) {
       var el = Dom.sel('.order-city-to');
       var new_field = document.createElement('div');
-       new_field.className += 'form-order-city__field order-city-from';
+       new_field.className += 'form-order-city__field order-city-to_z';
        new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>\n\
                               <span class="form-order-city__wrap">\n\
                                 <input type="text" name="to_plus' + just_add + '" value="" placeholder="Заезд"/>\n\
