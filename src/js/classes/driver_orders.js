@@ -5,6 +5,7 @@ function DriverOrders(order, Old_Orders) {
   this.toAddress;
   this.toAddresses = [];
   this.stops = 0;
+  this.distance2;
   this.distance;
   this.name;
   this.created;
@@ -28,7 +29,8 @@ function DriverOrders(order, Old_Orders) {
               //if(Old_Orders) console.log('get value: ' + self.price);
                 
                 self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
-                self.distance = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
+                self.distance2 = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
+                self.distance = order.distance ? order.distance : 0;
                 self.name = order.agent.name ? order.agent.name : User.default_name;
                 self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
                 self.photo = order.agent.photo ? order.agent.photo : User.default_avatar;

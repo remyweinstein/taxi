@@ -10,6 +10,8 @@ var google, placeSearch, autocomplete, directionsService, directionsDisplay;
 var User = new User();
 var MyCar = new Car();
 
+var MyOrder = new ClientOrder();
+
 var Event = new Events();
 
 var my_vehicle;
@@ -41,6 +43,7 @@ var timerSearchDriver,
 //= classes/user.js
 //= classes/car.js
 //= classes/driver_orders.js
+//= classes/client_order.js
 //= classes/events.js
 
 User.initToken();
@@ -100,7 +103,10 @@ function init() {
     }
   }
     
+  if (Dom.sel('[data-controller="pages_edit_profile"]')) {
     //= controllers/pages_edit_profile.js
+  }
+
   if (Dom.sel('[data-controller="pages_login"]')) {
     //= controllers/pages_login.js
   }

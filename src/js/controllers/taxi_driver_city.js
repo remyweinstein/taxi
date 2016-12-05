@@ -56,7 +56,7 @@ var Orders = [];
               var zaezdy = '';
               if (Orders[key].stops > 0) {
                 zaezdy = '<div class="list-orders_route_to">\n\
-                            остановок ' + Orders[key].stops + '\
+                            остановок по пути ' + Orders[key].stops + '\
                           </div>';
               }
                 
@@ -76,7 +76,10 @@ var Orders = [];
                                 ' + Orders[key].comment + '\
                               </div>\n\
                               <div class="list-orders_route_info">\n\
-                                До клиента: ' + Orders[key].distance + ' км\n\
+                                До клиента: ' + Orders[key].distance2 + ' км\n\
+                              </div>\n\
+                              <div class="list-orders_route_info">\n\
+                                Длина маршрута: ' + Math.round(Orders[key].distance / 1000, 2) + ' км\n\
                               </div>\n\
                               <div class="list-orders_route_price">\n\
                                 ' + price_minus + '\n\

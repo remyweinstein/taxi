@@ -45,7 +45,7 @@
                     </div>\n\
                     <div class="myorders__item__menu">\n\
                       <i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>\n\
-                      <span>'+goto+del+'</span>\n\
+                      <span>' + goto + del + '</span>\n\
                     </div>');
         }
         
@@ -94,28 +94,11 @@
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
             var elem = target;
-            var p = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__summa').innerHTML;
-             p = p !== null && p ? p : 0;
-             
-            var n = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__info').innerHTML;
             
-            var fromAdr0 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__from').innerHTML;
-            var toAdr0 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to').innerHTML;
-            
-            var to1 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to1');
-            var to2 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to2');
-            var to3 = elem.parentNode.parentNode.parentNode.children[0].querySelector('.myorders__item__to3');
-            if(to1) var toAdr1 = to1.innerHTML;
-            if(to2) var toAdr2 = to2.innerHTML;
-            if(to3) var toAdr3 = to3.innerHTML;
-            Address.saveWaypoints(toAdr1, toAdr2, toAdr3);
-            
-            Address.saveAddress(fromAdr0, toAdr0);
-            localStorage.setItem('_id_current_taxy_order', elem.dataset.id);
-            localStorage.setItem('_current_price_order', p);
-            localStorage.setItem('_current_comment_order', n);
-            
-            document.location = '#client__map';
+            MyOrder.id = elem.dataset.id;
+            MyOrder.getByID(function(){
+              document.location = '#client__map';
+            });
 
             return;
           }

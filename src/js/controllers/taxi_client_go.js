@@ -1,4 +1,6 @@
     bid_id = localStorage.getItem('_current_id_bid');
+    MyOrder.bid_id = bid_id;
+    
     //var LatLng = new google.maps.LatLng(48.49, 135.07);
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     var mapCanvas = document.getElementById('map_canvas_go');
@@ -12,7 +14,7 @@
     var map = new google.maps.Map(mapCanvas, mapOptions);
     var markers = new Array;              
     var show_route = false;
-    var address, address_clear, waypoints;
+    var fromCoords, toCoords, fromAddress, toAddress, waypoints;
     var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle;
     
     var marker_mine = new google.maps.Marker({
@@ -23,9 +25,10 @@
     });
 
     function setRoute() {
+      
       var el_route = Dom.sel('.wait-order-approve__route-info__route');
-       el_route.children[0].innerHTML = address_clear[0];
-       el_route.children[2].innerHTML = address_clear[1];
+       el_route.children[0].innerHTML = fromAddress;
+       el_route.children[2].innerHTML = toAddress;
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
        el_price.innerHTML = price + ' руб.';
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
@@ -59,8 +62,8 @@
       directionsDisplay = new google.maps.DirectionsRenderer();
 
       var request = {
-        origin: address[0],
-        destination: address[1],
+        origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+        destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
         waypoints: waypoints,
         provideRouteAlternatives: true,
         travelMode: google.maps.DirectionsTravelMode.DRIVING
@@ -97,9 +100,11 @@
     timerGetMyPos = setInterval(get_pos_mine, 1000);
     
     get_pos_driver();
+    
     function get_pos_driver() {
-      Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
+      Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function(response) {
         if (response && response.ok) {
+          
           var ords = response.bid.order;
           var agnt = response.bid.agent;
 
@@ -110,22 +115,27 @@
           dr_number = agnt.number;
           dr_photo = agnt.photo ? agnt.photo : User.avatar;
           dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
-          address = [ords.toCity0 + ', ' + ords.fromAddress, ords.toCity0 + ', ' + ords.toAddress0];
-          address_clear = [ords.fromAddress, ords.toAddress0];
+          fromCoords = ords.fromLocation.split(",");
+          toCoords = ords.toLocation0.split(",");
+          fromAddress = ords.fromAddress;
+          toAddress = ords.toAddress0;
           price = Math.round(response.bid.price);
           
-          var waypoints = [];
+          waypoints = [];
           
           if (ords.toAddress1) {
-            waypoints.push({location: ords.toCity0 + ', ' + ords.toAddress1, stopover: true});
+            var _to1 = ords.toLocation1.split(",");
+            waypoints.push({location: new google.maps.LatLng(_to1[0], _to1[1]), stopover: true});
           }
           
           if (ords.toAddress2) {
-            waypoints.push({location: ords.toCity0 + ', ' + ords.toAddress2, stopover: true});
+            var _to2 = ords.toLocation2.split(",");
+            waypoints.push({location: new google.maps.LatLng(_to2[0], _to2[1]), stopover: true});
           }
           
           if (ords.toAddress3) {
-            waypoints.push({location: ords.toCity0 + ', ' + ords.toAddress3, stopover: true});
+            var _to3 = ords.toLocation3.split(",");
+            waypoints.push({location: new google.maps.LatLng(_to3[0], _to3[1]), stopover: true});
           }
 
           if (!show_route) setRoute();
@@ -155,7 +165,7 @@
 
         // Click taxi_client in car
     Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
-        Ajax.request(server_uri, 'POST', 'in-car-bid', User.token, '&id=' + bid_id, '', function() {
-            Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '');
+        Ajax.request(server_uri, 'POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
+            Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
         });
     });

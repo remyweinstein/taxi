@@ -32,24 +32,14 @@
           var innText = '';
           for (var i = 0; i < results.length; i++) {
             var addr = results[i].formatted_address;
-            /*
-            var addr_arr = addr.split(',');
-
-            for (var y = 0; y < addr_arr.length; y++) {
-              addr_arr[y] = addr_arr[y].trim();
-            }
-            var idx_city = addr_arr.indexOf(User.city);
-            var address = addr_arr[idx_city-2] ? addr_arr[idx_city-2] + ', ' + addr_arr[idx_city-1] : addr_arr[idx_city-1];
-            */
             var lat = results[i].geometry.location.lat();
             var lng = results[i].geometry.location.lng();
-            innText += '<p data-latlng="' + lat + '-' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
+            innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
           }
           
           result_block.innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
-          //console.error('status='+status);
           return;
         }
       }
@@ -61,31 +51,15 @@
           var innText = '';
           for (var i = 0; i < results.length; i++) {
             var addr = results[i].vicinity;
-            /*
-            var addr_arr = addr.split(',');
-
-            for (var y = 0; y < addr_arr.length; y++) {
-              addr_arr[y] = addr_arr[y].trim();
-            }
-
-            delete addr_arr[y-1];
-
-            var address = addr_arr.join(',');
-
-            if (address.slice(-1)===',') {
-              address = address.slice(0, -1);
-            }
-            */
             if (addr !== "") {
               var lat = results[i].geometry.location.lat();
               var lng = results[i].geometry.location.lng();
-              innText += '<p data-latlng="' + lat + '-' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
+              innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
             }
           }
           result_block.innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
-          //console.error('status=' + status);
           return;
         }
       }
@@ -96,8 +70,33 @@
 
         while (target !== this) {
           if (target.tagName === 'P') {
-            localStorage.setItem('_address_' + localStorage.getItem('_address_temp'), target.children[0].innerHTML);
-            localStorage.setItem('_address_coord_' + localStorage.getItem('_address_temp'), target.dataset.latlng);
+            var _route = localStorage.getItem('_address_temp');
+            
+            if (_route === "from") {
+              MyOrder.fromAddress = target.children[0].innerHTML;
+              MyOrder.fromCoords = target.dataset.latlng;
+            }
+            
+            if (_route === "to") {
+              MyOrder.toAddress = target.children[0].innerHTML;
+              MyOrder.toCoords = target.dataset.latlng;
+            }
+            
+            if (_route === "to_plus1") {
+              MyOrder.toAddress1 = target.children[0].innerHTML;
+              MyOrder.toCoords1 = target.dataset.latlng;
+            }
+            
+            if (_route === "to_plus2") {
+              MyOrder.toAddress2 = target.children[0].innerHTML;
+              MyOrder.toCoords2 = target.dataset.latlng;
+            }
+            
+            if (_route === "to_plus3") {
+              MyOrder.toAddress3 = target.children[0].innerHTML;
+              MyOrder.toCoords3 = target.dataset.latlng;
+            }
+            
             document.location = '#client__city';
           }
 

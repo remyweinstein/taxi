@@ -11,31 +11,41 @@
     };
     
     var map = new google.maps.Map(mapCanvas, mapOptions);
-    var markers = new Array;
-    var address, address_clear, waypoints, price;
+    var markers = new Array, marker_client;
+    var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
+    var toAddress1, toAddress2, toAddress3;
     var name_client, photo_client;
 
     Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
       console.log(JSON.stringify(response.bid.agent));
       if (response && response.ok) {
         var ords = response.bid.order;
-        address = [ords.toCity0 + ', ' + ords.fromAddress, ords.toCity0 + ', ' + ords.toAddress0];
-        address_clear = [ords.fromAddress, ords.toAddress0];
+        fromAddress = ords.fromAddress;
+        toAddress = ords.toAddress0;
+        fromCoords = ords.fromLocation.split(",");
+        toCoords = ords.toLocation0.split(",");
         price = Math.round(response.bid.price);
         name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
         photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
         
-        var waypoints = [];
+        waypoints = [];
         
-        if (ords.toAddress1) {
-          waypoints.push({location:ords.toCity0 + ', ' + ords.toAddress1, stopover:true});
+        toAddress1 = ords.toAddress1;
+        toAddress2 = ords.toAddress2;
+        toAddress3 = ords.toAddress3;
+        
+        if (toAddress1 && toAddress1 !== "") {
+          var _wp = ords.toLocation1.split(",");
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
         }
         
-        if (ords.toAddress2) {
-          waypoints.push({location:ords.toCity0 + ', ' + ords.toAddress2, stopover:true});
+        if (toAddress2 && toAddress2 !== "") {
+          var _wp = ords.toLocation2.split(",");
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
         }
-        if (ords.toAddress3) {
-          waypoints.push({location:ords.toCity0 + ', ' + ords.toAddress3, stopover:true});
+        if (toAddress3 && toAddress3 !== "") {
+          var _wp = ords.toLocation3.split(",");
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
         }
         
         setRoute();
@@ -46,8 +56,8 @@
 
     function setRoute() {
       var el_route = Dom.sel('.wait-order-approve__route-info__route');
-       el_route.children[0].innerHTML = address_clear[0];
-       el_route.children[2].innerHTML = address_clear[1];
+       el_route.children[0].innerHTML = fromAddress;
+       el_route.children[2].innerHTML = toAddress;
        
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
        el_price.innerHTML = price + ' руб.';
@@ -74,8 +84,8 @@
       directionsDisplay = new google.maps.DirectionsRenderer();
 
       var request = {
-        origin: address[0],
-        destination: address[1],
+        origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+        destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
         waypoints: waypoints,
         travelMode: google.maps.DirectionsTravelMode.DRIVING
       };
@@ -102,6 +112,21 @@
       } else {
         markers[0].setPosition(new google.maps.LatLng(User.lat, User.lng));
       }
+      Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
+        if (response && response.ok) {
+          if (!marker_client) {
+            marker_client = new google.maps.Marker({
+              position: new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude),
+              map: map,
+              icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
+              title: 'Клиент'
+            });
+          } else {
+            marker_client.setPosition(new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude));
+          }
+        }
+      });
+
     }
 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver

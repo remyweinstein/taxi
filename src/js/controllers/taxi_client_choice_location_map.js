@@ -1,7 +1,7 @@
   initialize_choice();
 
   function initialize_choice() {
-    var x,y,zoom = 18;
+    var x, y, zoom = 18;
     
     if (!User.lat || !User.lng) {
       x = 48.4;
@@ -39,7 +39,7 @@
           while (target !== this) {
                 // = I choose location =
             if (target.dataset.click === 'i_choice_location') {
-              var name = localStorage.getItem('_address_temp');
+              var _route = localStorage.getItem('_address_temp');
               geocoder = new google.maps.Geocoder();
 
               var latl = localStorage.getItem('_choice_coords');
@@ -47,16 +47,60 @@
                latl = latl.replace(")","");
                latl = latl.replace(" ","");
                latl = latl.split(",");
+              var latlng = latl[0] + ',' + latl[1];
 
-              localStorage.setItem('_address_coord_' + name, latl[0] + '-' + latl[1]);
+              if (_route === "from") {
+                MyOrder.fromCoords = latlng;
+              }
+              
+              if (_route === "to") {
+                MyOrder.toCoords = latlng;
+              }
+              
+              if (_route === "to_plus1") {
+                MyOrder.toCoords1 = latlng;
+              }
+              
+              if (_route === "to_plus2") {
+                MyOrder.toCoords2 = latlng;
+              }
+              
+              if (_route === "to_plus3") {
+                MyOrder.toCoords3 = latlng;
+              }
+              
               var latlng = new google.maps.LatLng(latl[0], latl[1]);
 
               geocoder.geocode ({
                 'latLng': latlng
               }, function (results, status) {
-                   if (status === google.maps.GeocoderStatus.OK) {
-                     localStorage.setItem('_address_' + name, Maps.getStreetFromGoogle(results));
-                     Dom.sel('input[name="' + name + '"]').value = localStorage.getItem('_address_' + name);
+                  if (status === google.maps.GeocoderStatus.OK) {
+                    var _address = Maps.getStreetFromGoogle(results);
+                     
+                    if (_route === "from") {
+                      MyOrder.fromAddress = _address;
+                      Dom.sel('input[name="from"]').value = _address;
+                    }
+                    
+                    if (_route === "to") {
+                      MyOrder.toAddress = _address;
+                      Dom.sel('input[name="to"]').value = _address;
+                    }
+                    
+                    if (_route === "to_plus1") {
+                      MyOrder.toAddress1 = _address;
+                      Dom.sel('input[name="to_plus1"]').value = _address;
+                    }
+                    
+                    if (_route === "to_plus2") {
+                      MyOrder.toAddress2 = _address;
+                      Dom.sel('input[name="to_plus1"]').value = _address;
+                    }
+                    
+                    if (_route === "to_plus3") {
+                      MyOrder.toAddress3 = _address;
+                      Dom.sel('input[name="to_plus1"]').value = _address;
+                    }
                   }
                 });
               document.location = '#client__city';
