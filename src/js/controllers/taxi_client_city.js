@@ -91,15 +91,21 @@
           if (MyOrder.toAddress1 !== "") {
             var _wp = MyOrder.toCoords1.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice);
           }
           if (MyOrder.toAddress2 !== "") {
             var _wp = MyOrder.toCoords2.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice);
           }
           if (MyOrder.toAddress3 !== "") {
             var _wp = MyOrder.toCoords3.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice);
           }
+          
+          addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
+          addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map_choice);
 
           var request = {
             origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]), 
@@ -114,6 +120,7 @@
               MyOrder.distance = response.routes[0].legs[0].distance.value;
               new google.maps.DirectionsRenderer({
                 map: map_choice,
+                suppressMarkers: true,
                 directions: response,
                 routeIndex: 0
               });
@@ -132,6 +139,10 @@
         
         return marker;
       }
+      
+      Dom.selAll('.find-me')[0].addEventListener('click', function() {
+        map_choice.setCenter( new google.maps.LatLng(User.lat, User.lng) );
+      });
       
       google.maps.event.addListener(map_choice, 'drag', function() {
         //var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);

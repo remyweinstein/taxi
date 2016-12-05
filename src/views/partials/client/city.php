@@ -2,6 +2,7 @@
 $json_data = array ('title' => 'Город',
             'content' => '
             <div id="map_canvas_iam"></div>
+            <i class="icon-target find-me" data-click="find-me"></i>
             <form action="/" method="POST" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
                 <div class="form-order-city__field order-city-from">
                     <i class="icon-right-circled form-order-city__label"></i>
