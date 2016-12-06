@@ -1,4 +1,5 @@
     if (MyOrder.id > 0) {
+      var driver_marker = [];
       
           initialize();
 
@@ -82,24 +83,22 @@
         var _coord_to = MyOrder.toCoords.split(",");
         var waypoints = [];
         
-        console.log('MyOrder.toAddress1 = ' + MyOrder.toAddress1);
-        
           if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
             var _to_coord_1 = MyOrder.toCoords1.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map);
+            addInfoForMarker(MyOrder.time1, addMarker(new google.maps.LatLng(_to_coord_1[0], _to_coord_1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map));
           }
 
           if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
             var _to_coord_2 = MyOrder.toCoords2.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map);
+            addInfoForMarker(MyOrder.time2, addMarker(new google.maps.LatLng(_to_coord_2[0], _to_coord_2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map));
           }
 
           if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
             var _to_coord_3 = MyOrder.toCoords3.split(",");
             waypoints.push({location: new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map);
+            addInfoForMarker(MyOrder.time3, addMarker(new google.maps.LatLng(_to_coord_3[0], _to_coord_3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map));
           }
 
           addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
@@ -141,10 +140,22 @@
 
       }
 
+      function addInfoForMarker(min, marker) {
+        if(min && min > 0) {
+          var infowindow = new google.maps.InfoWindow({
+            content: min + ' мин.'
+          });
+          infowindow.open(map_choice, marker);
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map_choice, marker);
+          });
+        }
+      }
+
       function addMarker(location, title, icon, map) {
         var marker = new google.maps.Marker({
           position: location,
-          animation: google.maps.Animation.DROP,
+          //animation: google.maps.Animation.DROP,
           icon: icon,
           title: title,
           map: map
@@ -162,13 +173,17 @@
             var bids = response.bids;
             var innText = '';
             for (var i = 0; i < bids.length; i++) {
-              console.log(JSON.stringify(bids[i]));
+              //console.log(JSON.stringify(bids[i]));
 
               var photo, vehicle;
-               photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
-               vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
-
-
+                photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
+                vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
+              var DrLatLng = new google.maps.LatLng(bids[i].agent.latitude, bids[i].agent.longitude);
+              if (driver_marker[bids[i].agent.id]) {
+                driver_marker[bids[i].agent.id].setPosition(DrLatLng);
+              } else {
+                driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
+              }
               innText += '<div class="wait-bids-approve__item">\n\
                                 <div class="wait-bids-approve__item__distance">\n\
                                   Растояние до водителя, <span>' + bids[i].agent.distance.toFixed(1) + ' км</span>\n\

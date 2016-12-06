@@ -67,9 +67,16 @@
         }
         &_delete{
             position: absolute;
-            top: 0em;
+            top: 0;
             right: 9.5%;
             font-size: 0.75em;
+            color: #eaa3a3;
+            cursor: pointer;
+        }
+        &_add_time{
+            position: absolute;
+            top: 0.01em;
+            right: 17%;
             color: #eaa3a3;
             cursor: pointer;
         }
@@ -90,6 +97,14 @@
         position: absolute;
     }
 }
+.top-index{
+    position: absolute;
+    top: -12px;
+    font-size: 0.5em;
+    width: 5em;
+    left: 2em;
+    color: $active;
+}
 .form-edit-profile{
     
 }
@@ -97,13 +112,4 @@
     input, select{
         //margin-left: 6em;
     }
-}
-.find-me {
-    position: absolute;
-    cursor: pointer;
-    bottom: 2em;
-    right: 0.5em;
-    font-size: 3em;
-    color: #02C9A2;
-    opacity: 0.5;
 }

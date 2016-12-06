@@ -8,9 +8,13 @@ var map, map_choice, marker, geocoder;
 var google, placeSearch, autocomplete, directionsService, directionsDisplay;
 
 var User = new User();
+var Settings = new Settings();
 var MyCar = new Car();
 
 var MyOrder = new ClientOrder();
+var Modal = new ModalWindow();
+
+var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 
 var Event = new Events();
 
@@ -45,11 +49,15 @@ var timerSearchDriver,
 //= classes/driver_orders.js
 //= classes/client_order.js
 //= classes/events.js
+//= classes/modal_windows.js
+//= classes/settings.js
 
 User.initToken();
 
 document.addEventListener('DOMContentLoaded', function() {
   content = Dom.sel('.content');
+  
+  Settings.getSettings();
   
   User.city = localStorage.getItem('_my_city');
   User.id = localStorage.getItem('_my_id');
@@ -103,6 +111,10 @@ function init() {
     }
   }
     
+  if (Dom.sel('[data-controller="pages_settings"]')) {
+    //= controllers/pages_settings.js
+  }
+
   if (Dom.sel('[data-controller="pages_edit_profile"]')) {
     //= controllers/pages_edit_profile.js
   }

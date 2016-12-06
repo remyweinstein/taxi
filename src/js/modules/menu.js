@@ -35,7 +35,7 @@
             while(target !== this){
                   //=  Close Menu on Click body  =
               if(Dom.sel('.menu').classList.contains('menu--opened')) {
-                console.log('try close');
+                //console.log('try close');
                 swipeMenu(-1);
               }
               

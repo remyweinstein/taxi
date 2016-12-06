@@ -56,7 +56,7 @@ var Orders = [];
               var zaezdy = '';
               if (Orders[key].stops > 0) {
                 zaezdy = '<div class="list-orders_route_to">\n\
-                            остановок по пути ' + Orders[key].stops + '\
+                            Остановок по пути ' + Orders[key].stops + '\
                           </div>';
               }
                 

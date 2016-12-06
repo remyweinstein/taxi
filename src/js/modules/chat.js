@@ -3,7 +3,7 @@
     var interlocutor = "client";
 
     function get_new_messages() {
-      console.log('try get list messages');
+      //console.log('try get list messages');
       Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
         //response;
         var textarea = Dom.sel('.go-order__down__messages__textarea');

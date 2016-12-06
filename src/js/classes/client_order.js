@@ -19,6 +19,10 @@ function ClientOrder() {
   this.toFullAddress1 = "";
   this.toFullAddress2 = "";
   this.toFullAddress3 = "";
+  this.time0 = 0;
+  this.time1 = 0;
+  this.time2 = 0;
+  this.time3 = 0;
   
   this.fromCity  = "" ;
   this.toCity = "";

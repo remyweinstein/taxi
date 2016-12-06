@@ -1,3 +1,4 @@
+    var driver_marker = [];
     var from = Dom.sel('input[name="from"]');
     var to = Dom.sel('input[name="to"]');
     var rem_old_stops = Dom.selAll('.order-city-to_z');
@@ -13,15 +14,15 @@
     var price = Dom.sel('[name="cost"]').value;
     var comment = Dom.sel('[name="description"]').value;
 
-    if (MyOrder.toAddress1 !== "") {
+    if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
       AddNewZaezd(1);
       Dom.sel('input[name="to_plus1"]').value = MyOrder.toAddress1;
     }
-    if (MyOrder.toAddress2 !== "") {
+    if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
       AddNewZaezd(2);
       Dom.sel('input[name="to_plus2"]').value = MyOrder.toAddress2;
     }
-    if (MyOrder.toAddress3 !== "") {
+    if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
       AddNewZaezd(3);
       Dom.sel('input[name="to_plus3"]').value = MyOrder.toAddress3;
     }
@@ -37,8 +38,10 @@
     to.value = MyOrder.toAddress;
 
     function addEventChooseAddress(el) {
-      Dom.sel('input[name="' + el + '"]').addEventListener('click', function() {
+      Dom.sel('input[name="' + el + '"]').addEventListener('click', function(event) {
         localStorage.setItem('_address_temp', el);
+        localStorage.setItem('_address_string_temp', event.target.value);
+
         document.location = '#client__choose_address';
       });
     }
@@ -93,20 +96,23 @@
           var _addr_to = MyOrder.toCoords.split(",");
           
           var waypoints = [];
-          if (MyOrder.toAddress1 !== "") {
+          
+          if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
             var _wp = MyOrder.toCoords1.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice);
+            addInfoForMarker(MyOrder.time1, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice));
           }
-          if (MyOrder.toAddress2 !== "") {
+          
+          if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
             var _wp = MyOrder.toCoords2.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice);
+            addInfoForMarker(MyOrder.time2, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice));
           }
-          if (MyOrder.toAddress3 !== "") {
+          
+          if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
             var _wp = MyOrder.toCoords3.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice);
+            addInfoForMarker(MyOrder.time3, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice));
           }
           
           addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
@@ -133,10 +139,22 @@
           });
       }
 
+      function addInfoForMarker(min, marker) {
+        if(min && min > 0) {
+          var infowindow = new google.maps.InfoWindow({
+            content: min + ' мин.'
+          });
+          infowindow.open(map_choice, marker);
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map_choice, marker);
+          });
+        }
+      }
+
       function addMarker(location, title, icon, map) {
         var marker = new google.maps.Marker({
           position: location,
-          animation: google.maps.Animation.DROP,
+          //animation: google.maps.Animation.DROP,
           icon: icon,
           title: title,
           map: map
@@ -156,12 +174,17 @@
     }
 
     function AddNewZaezd(just_add) {
+      eval("var time = MyOrder.time" + just_add);
+      time = time > 0 ? time + " мин" : "";
       var el = Dom.sel('.order-city-to');
       var new_field = document.createElement('div');
        new_field.className += 'form-order-city__field order-city-to_z';
        new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>\n\
                               <span class="form-order-city__wrap">\n\
                                 <input type="text" name="to_plus' + just_add + '" value="" placeholder="Заезд"/>\n\
+                              </span>\n\
+                              <span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">\n\
+                                <i class="icon-clock"></i><span class="top-index">' + time + '</span>\n\
                               </span>\n\
                               <span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">\n\
                                 <i class="icon-trash"></i>\n\
@@ -194,6 +217,23 @@
           
           return;
         }
+        
+        if (target.dataset.click === 'field_add_time') {
+          var _id = target.dataset.id;
+          
+          Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
+                  ', function (response) {
+                      eval("MyOrder.time" + _id + " = " + response);
+                      init();
+                  });
+          
+          return;
+        }
             // = Form delete point order =
         if (target.dataset.click === 'field_delete') {
           var _id = target.dataset.id;
@@ -201,20 +241,25 @@
           if (_id === "1") {
             MyOrder.toAddress1 = "";
             MyOrder.toCoords1 = "";
+            MyOrder.time1 = 0;
           }
             
           if (_id === "2") {
             MyOrder.toAddress2 = "";
             MyOrder.toCoords2 = "";
+            MyOrder.time2 = 0;
           }
             
           if (_id === "3") {
             MyOrder.toAddress3 = "";
             MyOrder.toCoords3 = "";
+            MyOrder.time3 = 0;
           }
             
           var be_dead = target.parentNode;
-           be_dead.parentNode.removeChild(be_dead);
+            be_dead.parentNode.removeChild(be_dead);
+           
+          init();
            
           return;
         }
@@ -280,6 +325,10 @@
             data.append('toCity0', User.city);
             data.append('toAddress0', MyOrder.toAddress);
             data.append('toLocation0', MyOrder.toCoords);
+            data.append('stopTime0', MyOrder.time0);
+            data.append('stopTime1', MyOrder.time1);
+            data.append('stopTime2', MyOrder.time2);
+            data.append('stopTime3', MyOrder.time3);
             data.append('isIntercity', 0);
             //data.append('bidId', '');
             data.append('price', MyOrder.price);

@@ -1,18 +1,5 @@
 <?php
 $json_data = array ('title' => 'Настройки',
             'content' => '
-                <div class="settings">
-                    <p>
-                        Изменить номер
-                    </p>
-                    <p>
-                        Язык<span>Русский</span>
-                    </p>
-                    <p>
-                        Правила
-                    </p>
-                    <p>
-                        Оферта
-                    </p>
-                </div>',
+                <div class="settings" data-controller="pages_settings"></div>',
                 'pageType' => 'back-arrow');

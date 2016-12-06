@@ -56,7 +56,7 @@
                        data.append('city', User.city);
                        
                       Ajax.request(server_uri, 'POST', 'profile', User.token, '', data, function(response) {
-                        console.log('after geofind = ' + response.ok);
+                        //console.log('after geofind = ' + response.ok);
                         if (response && response.ok) {
                           init();
                         }
@@ -95,7 +95,7 @@
           );
         }
 
-        var distance = 0.25 / 111.12, // Roughly x km / 111.12
+        var distance = Settings.safeRadius / 500 / 111.12, // Roughly x km / 111.12
         geoInput = {
           type: "LineString",
           coordinates: overviewPathGeo

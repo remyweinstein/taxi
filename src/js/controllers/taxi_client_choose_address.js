@@ -1,5 +1,6 @@
     var _timer;
     var input = Dom.sel('input[name="enter-address"]');
+      input.value = localStorage.getItem('_address_string_temp');
     var result_block = Dom.sel('.choice-location__results-search');
     input.addEventListener('input', onchange);
     
@@ -26,14 +27,15 @@
         radius: 500
       };
       
-      _timer = setTimeout(startSearch, 750);
-      
-      function startSearch() {
         if (input.value && input.value !== "") {
-          service.textSearch(requestSt, callbackSt);
+          _timer = setTimeout(startSearch, 750);
         } else {
           service.nearbySearch(request, callback);
         }
+      
+      function startSearch() {
+        service.textSearch(requestSt, callbackSt);
+      }
 
         function callbackSt(results, status) {
           result_block.innerHTML = "";
@@ -72,7 +74,6 @@
             return;
           }
         }
-      }
 
     }
 

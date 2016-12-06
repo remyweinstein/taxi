@@ -17,7 +17,7 @@
     var name_client, photo_client;
 
     Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
-      console.log(JSON.stringify(response.bid.agent));
+      //console.log(JSON.stringify(response.bid.agent));
       if (response && response.ok) {
         var ords = response.bid.order;
         fromAddress = ords.fromAddress;
@@ -33,21 +33,31 @@
         toAddress1 = ords.toAddress1;
         toAddress2 = ords.toAddress2;
         toAddress3 = ords.toAddress3;
+        time1 = ords.stopTime1;
+        time2 = ords.stopTime2;
+        time3 = ords.stopTime3;
         
         if (toAddress1 && toAddress1 !== "") {
           var _wp = ords.toLocation1.split(",");
           waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          addInfoForMarker(time1, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map));
         }
         
         if (toAddress2 && toAddress2 !== "") {
           var _wp = ords.toLocation2.split(",");
           waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          addInfoForMarker(time2, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map));
         }
+        
         if (toAddress3 && toAddress3 !== "") {
           var _wp = ords.toLocation3.split(",");
           waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          addInfoForMarker(time3, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map));
         }
-        
+
+        addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+        addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+
         setRoute();
       }
       
@@ -91,13 +101,39 @@
       };
 
       directionsService.route(request, function(response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {            
-          directionsDisplay.setDirections(response);
-          //mapCanvas.insertAdjacentHTML('beforebegin', '<div class="map_order_info"><p>Расстояние: '+response.routes[0].legs[0].distance.text+'</p></div>');
+        if (status === google.maps.DirectionsStatus.OK) {
+            new google.maps.DirectionsRenderer({
+              map: map,
+              suppressMarkers: true,
+              directions: response
+            });
         }
       });
+      
+    }
 
-      directionsDisplay.setMap(map);
+    function addInfoForMarker(min, marker) {
+      if(min && min > 0) {
+        var infowindow = new google.maps.InfoWindow({
+          content: min + ' мин.'
+        });
+        infowindow.open(map_choice, marker);
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(map_choice, marker);
+        });
+      }
+    }
+
+    function addMarker(location, title, icon, map) {
+      var marker = new google.maps.Marker({
+        position: location,
+        //animation: google.maps.Animation.DROP,
+        icon: icon,
+        title: title,
+        map: map
+      });
+
+      return marker;
     }
 
     function get_pos_driver() {
@@ -106,7 +142,7 @@
         markers[0] = new google.maps.Marker({
           position: VLatLng,
           map: map,
-          icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+          icon: driver_icon,
           title: 'Я'
         });
       } else {

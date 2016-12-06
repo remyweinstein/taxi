@@ -95,10 +95,22 @@
       show_route = true;
     }
     
+      function addInfoForMarker(min, marker) {
+        if(min && min > 0) {
+          var infowindow = new google.maps.InfoWindow({
+            content: min + ' мин.'
+          });
+          infowindow.open(map_choice, marker);
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map_choice, marker);
+          });
+        }
+      }
+
       function addMarker(location, title, icon, map) {
         var marker = new google.maps.Marker({
           position: location,
-          animation: google.maps.Animation.DROP,
+          //animation: google.maps.Animation.DROP,
           icon: icon,
           title: title,
           map: map
@@ -137,22 +149,22 @@
           
           waypoints = [];
           
-          if (ords.toAddress1) {
+          if (ords.toAddress1 && ords.toAddress1 !== "") {
             var _to1 = ords.toLocation1.split(",");
             waypoints.push({location: new google.maps.LatLng(_to1[0], _to1[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to1[0], _to1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map);
+            addInfoForMarker(MyOrder.time1, addMarker(new google.maps.LatLng(_to1[0], _to1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map));
           }
           
-          if (ords.toAddress2) {
+          if (ords.toAddress2 && ords.toAddress2 !== "") {
             var _to2 = ords.toLocation2.split(",");
             waypoints.push({location: new google.maps.LatLng(_to2[0], _to2[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to2[0], _to2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map);
+            addInfoForMarker(MyOrder.time2, addMarker(new google.maps.LatLng(_to2[0], _to2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map));
           }
           
-          if (ords.toAddress3) {
+          if (ords.toAddress3 && ords.toAddress3 !== "") {
             var _to3 = ords.toLocation3.split(",");
             waypoints.push({location: new google.maps.LatLng(_to3[0], _to3[1]), stopover: true});
-            addMarker(new google.maps.LatLng(_to3[0], _to3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map);
+            addInfoForMarker(MyOrder.time3, addMarker(new google.maps.LatLng(_to3[0], _to3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map));
           }
 
           addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
@@ -169,7 +181,7 @@
             markers[0] = new google.maps.Marker({
               position: VLatLng,
               map: map,
-              icon: 'https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+              icon: driver_icon,
               title: 'Водитель'
             });
           } else {
@@ -185,7 +197,7 @@
 
         // Click taxi_client in car
     Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
-        Ajax.request(server_uri, 'POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
-            Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
-        });
+      Ajax.request(server_uri, 'POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
+        Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
+      });
     });

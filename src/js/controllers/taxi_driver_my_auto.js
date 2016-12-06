@@ -13,7 +13,7 @@
         var photo_car = response.profile.vehicle ? response.profile.vehicle : default_vehicle;
         Dom.sel('.avatar').src = photo_car;
         
-        console.log(JSON.stringify(response.profile));
+        //console.log(JSON.stringify(response.profile));
       }
       
     });
@@ -78,7 +78,7 @@
               data2.append('type', sel_type.options[sel_type.selectedIndex].text);
               
             Ajax.request(server_uri, 'POST', 'auto', User.token, '', data2, function(response) {
-              console.log(JSON.stringify(response));
+              //console.log(JSON.stringify(response));
               
               if (response && response.ok) {
                 //document.location= '/';

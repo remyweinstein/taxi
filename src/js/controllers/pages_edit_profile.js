@@ -1,5 +1,5 @@
     Ajax.request(server_uri, 'GET', 'profile', User.token, '', '', function(response) {
-      console.log(JSON.stringify(response));
+      //console.log(JSON.stringify(response));
       if (response && response.ok) {
         Dom.sel('input[name="myname"]').value = User.name ? User.name : response.profile.name;
         Dom.sel('input[name="dob"]').value = response.profile.birthday ? Dates.dateFromBase(response.profile.birthday) : '';
@@ -8,7 +8,7 @@
         var city = response.profile.city ? Dom.sel('select[name="city"] option[value="' + response.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
          city.selected = true;
          
-        console.log('response.profile = ' + JSON.stringify(response.profile));
+        //console.log('response.profile = ' + JSON.stringify(response.profile));
         var photo = response.profile.photo ? response.profile.photo : User.avatar;
         Dom.sel('.avatar').src = photo;
       }
