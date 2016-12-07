@@ -11,6 +11,7 @@ function DriverOrders(order, Old_Orders) {
   this.created;
   this.photo;
   this.price;
+  this.travelTime;
   this.bidId;
   this.agentId;
   this.agentBidId;
@@ -25,9 +26,14 @@ function DriverOrders(order, Old_Orders) {
                 
                 self.id = order.id;
                 self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
-                
-              //if(Old_Orders) console.log('get value: ' + self.price);
-                
+                var travelTime = (order.agent.distance / average_speed).toFixed(0);
+                  if (travelTime < 5) {
+                    travelTime = 5;
+                  } else {
+                    travelTime = 5 * Math.ceil( travelTime / 5 );
+                  }
+                  
+                self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
                 self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
                 self.distance2 = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
                 self.distance = order.distance ? order.distance : 0;

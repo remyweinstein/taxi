@@ -6,12 +6,34 @@
     position: absolute;
     bottom: -1em;
     width: 100%;
+    &__driver-panel {
+        width: 100%;
+        background-color: white;
+        &__info{
+            width: 49%;
+            display: inline-block;
+            vertical-align: middle;
+            p{
+                font-size: 0.75em;
+                span{
+                    color: $active;
+                    font-size: 1em;
+                }
+                
+            }
+        }
+        &__action{
+            width: 49%;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
     &__messages {
-        height: 7em;
+        height: 5em;
         width: 100%;
         background-color: white;
         &__textarea{
-            height: 4.5em;
+            height: 2.5em;
             overflow: hidden;
             overflow-y: scroll;
             p{

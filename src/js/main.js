@@ -14,6 +14,9 @@ var MyCar = new Car();
 var MyOrder = new ClientOrder();
 var Modal = new ModalWindow();
 
+var average_speed = 40;
+var cost_of_km = 25;
+
 var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 
 var Event = new Events();

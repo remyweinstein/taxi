@@ -128,7 +128,15 @@
 
           directionsService.route(request, function(response, status) {
             if (status === google.maps.DirectionsStatus.OK) {
-              MyOrder.distance = response.routes[0].legs[0].distance.value;
+              var routes_dist = response.routes[0].legs;
+              var distance = 0;
+              for (var i = 0; i < routes_dist.length; i++) {
+                distance += routes_dist[i].distance.value;
+              }
+              MyOrder.distance = distance;
+              var cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
+              Dom.selAll('[name="cost"]')[0].value = cost < 50 ? 50 : cost;
+
               new google.maps.DirectionsRenderer({
                 map: map_choice,
                 suppressMarkers: true,

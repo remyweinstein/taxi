@@ -28,7 +28,7 @@
       };
       
         if (input.value && input.value !== "") {
-          _timer = setTimeout(startSearch, 750);
+          _timer = setTimeout(startSearch, 250);
         } else {
           service.nearbySearch(request, callback);
         }

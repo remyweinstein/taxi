@@ -68,11 +68,24 @@
 
         return dob;
       },
+      
       dateToBase: function (dob) {
         dob = dob.split('.');
         dob = dob[2] + '-' + dob[1] + '-' + dob[0];
 
         return dob;
+      },
+      
+      diffTime: function (start, timer) {
+        var now = new Date().valueOf();
+        var start = start.split(" ");
+          var date = start[0];
+            date = date.split("-");
+          var time = start[1];
+            time = time.split(":");
+        start = new Date(date[0], (date[1] - 1), date[2], time[0], time[1], time[2]).valueOf();
+
+        return timer - (now - start).toFixed(0);
       }
 
     };

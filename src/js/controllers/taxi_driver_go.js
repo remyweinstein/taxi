@@ -150,6 +150,16 @@
       }
       Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
         if (response && response.ok) {
+          var ords = response.bid.order;
+          var agnt = response.bid.agent;
+
+          dr_distanse = ords.agent.distance.toFixed(1);
+          var lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime);
+          dr_time = lost_diff > 0 ? lost_diff : 0;
+          
+          Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
+          Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
+          
           if (!marker_client) {
             marker_client = new google.maps.Marker({
               position: new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude),

@@ -145,9 +145,9 @@
           var infowindow = new google.maps.InfoWindow({
             content: min + ' мин.'
           });
-          infowindow.open(map_choice, marker);
+          infowindow.open(map, marker);
           google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map_choice, marker);
+            infowindow.open(map, marker);
           });
         }
       }
@@ -163,6 +163,10 @@
         
         return marker;
       }
+      
+      Dom.selAll('.find-me')[0].addEventListener('click', function() {
+        map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
+      });
       
       function get_bids_driver() {
         Ajax.request(server_uri, 'GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
@@ -204,6 +208,9 @@
                                 </div>\n\
                                 <div class="wait-bids-approve__item__approve">\n\
                                   <i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>\n\
+                                </div>\n\
+                                <div class="wait-bids-approve__item__bid-time">\n\
+                                  Время подъезда: <span>' + bids[i].travelTime + ' мин</span>\n\
                                 </div>\n\
                                 <div class="wait-bids-approve__item__bid-price">\n\
                                   Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>\n\

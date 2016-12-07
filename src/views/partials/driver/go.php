@@ -20,7 +20,15 @@ $json_data = array ('title' => 'Заказ',
                 <div class="wait-bids-approve"></div>
 
                 <div class="go-order__down">
-                    <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                    <div class="go-order__down__driver-panel">
+                        <div class="go-order__down__driver-panel__info">
+                            <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
+                            <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                        </div>
+                        <div class="go-order__down__driver-panel__action">
+                            <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                        </div>
+                    </div>
                     <div class="go-order__down__messages">
                         <div class="go-order__down__messages__textarea"></div>
                         <div class="go-order__down__messages__textinput">

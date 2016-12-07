@@ -5,7 +5,7 @@ var Orders = [];
     timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
 
     function update_taxi_order() {
-      Ajax.request(server_uri, 'GET', 'orders', User.token, '&isIntercity=0&sort=ASC&fromCity=' + User.city, '', function(response) {
+      Ajax.request(server_uri, 'GET', 'orders', User.token, '&isIntercity=0&fromCity=' + User.city, '', function(response) {
         if (response && response.ok) {
           var ords = response.orders;
           
@@ -62,6 +62,8 @@ var Orders = [];
                 
                 var price_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '';
                 var price_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="price_plus"></i>' : '';
+                var time_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="time_minus"></i>' : '';
+                var time_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '';
                 
                 show('LI', '\
                             <div class="list-orders_route">\n\
@@ -85,6 +87,12 @@ var Orders = [];
                                 ' + price_minus + '\n\
                                 <span>' + Orders[key].price + ' руб.</span> \n\
                                 ' + price_plus + '\n\
+                              </div>\n\
+                              <div class="list-orders_route_time">\n\
+                                Время подъезда:  \n\
+                                ' + time_minus + '\n\
+                                <span>' + Orders[key].travelTime + ' мин.</span> \n\
+                                ' + time_plus + '\n\
                               </div>\n\
                             </div>\n\
                             <div class="list-orders_personal">\n\
@@ -129,8 +137,10 @@ var Orders = [];
               var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
               var get_price = el_price.innerHTML;
                 get_price = get_price.split(" ");
-              Ajax.request(server_uri, 'POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0], '', function(response) {
-                //console.log('error: ' + response.messages);
+              var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
+              var get_time = el_time.innerHTML;
+                get_time = get_time.split(" ");
+              Ajax.request(server_uri, 'POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
                 if (response && response.ok) {
                   el.classList.add('active');
                 }  
@@ -138,14 +148,38 @@ var Orders = [];
             }
           }
           
+          if (target.dataset.click === "time_minus") {
+            var el = target;
+            
+            var time_el = el.parentNode.children[1];
+            var time = time_el.innerHTML;
+              time = time.split(" ");
+              time = parseInt(time[0]) - 5;
+              if (time < 5) time = 5;
+              Orders[el.dataset.key].travelTime = time;
+              time_el.innerHTML = time + ' мин.';
+          }
+
+          if (target.dataset.click === "time_plus") {
+            var el = target;
+            
+            var time_el = el.parentNode.children[1];
+            var time = time_el.innerHTML;
+              time = time.split(" ");
+              time = parseInt(time[0]) + 5;
+              if (time < 0) time = 0;
+              Orders[el.dataset.key].travelTime = time;
+              time_el.innerHTML = time + ' мин.';
+          }
+
           if (target.dataset.click === "price_minus") {
             var el = target;
             
             var price_el = el.parentNode.children[1];
             var price = price_el.innerHTML;
               price = price.split(" ");
-              price = parseInt(price[0]) - 50;
-              if (price < 0) price = 0;
+              price = parseInt(price[0]) - 10;
+              if (price < 50) price = 50;
               Orders[el.dataset.key].price = price;
               price_el.innerHTML = price + ' руб.';
           }
@@ -156,12 +190,11 @@ var Orders = [];
             var price_el = el.parentNode.children[1];
             var price = price_el.innerHTML;
               price = price.split(" ");
-              price = parseInt(price[0]) + 50;
+              price = parseInt(price[0]) + 10;
               Orders[el.dataset.key].price = price;
               price_el.innerHTML = price + ' руб.';
           }
 
-          
           target = target.parentNode;
         }
         

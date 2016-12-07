@@ -15,7 +15,7 @@
     var markers = new Array;              
     var show_route = false;
     var fromCoords, toCoords, fromAddress, toAddress, waypoints;
-    var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle;
+    var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time;
     
     var marker_mine = new google.maps.Marker({
       position: MyLatLng,
@@ -100,9 +100,9 @@
           var infowindow = new google.maps.InfoWindow({
             content: min + ' мин.'
           });
-          infowindow.open(map_choice, marker);
+          infowindow.open(map, marker);
           google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map_choice, marker);
+            infowindow.open(map, marker);
           });
         }
       }
@@ -119,6 +119,10 @@
         return marker;
       }
     
+      Dom.selAll('.find-me')[0].addEventListener('click', function() {
+        map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
+      });
+      
     function get_pos_mine() {
       marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
     }
@@ -134,11 +138,13 @@
           var ords = response.bid.order;
           var agnt = response.bid.agent;
 
-          //console.log('ords='+JSON.stringify(response.bid.agent));
           dr_model = agnt.brand + ' ' + agnt.model;
           dr_name = agnt.name;
           dr_color = agnt.color;
           dr_number = agnt.number;
+          dr_distanse = agnt.distance.toFixed(1);
+          var lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime);
+          dr_time = lost_diff > 0 ? lost_diff : 0;
           dr_photo = agnt.photo ? agnt.photo : User.avatar;
           dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
           fromCoords = ords.fromLocation.split(",");
@@ -147,6 +153,8 @@
           toAddress = ords.toAddress0;
           price = Math.round(response.bid.price);
           
+          Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
+          Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
           waypoints = [];
           
           if (ords.toAddress1 && ords.toAddress1 !== "") {

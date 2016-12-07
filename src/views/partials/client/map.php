@@ -2,6 +2,7 @@
 $json_data = array ('title' => 'Поиск водителя',
             'content' => '
                 <div data-controller="taxi_client_map" id="map_canvas"></div>
+                <i class="icon-target find-me" data-click="find-me"></i>
                 <div class="wait-order-approve">
                     <div class="wait-order-approve__route-info">
                         <div class="wait-order-approve__route-info__route">
