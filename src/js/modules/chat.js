@@ -1,47 +1,49 @@
-  var Chat = (function() { //Ajax Dom
-    var timerGetMessages;
-    var interlocutor = "client";
+define(['Ajax', 'Dom'], function(Ajax, Dom) {
 
-    function get_new_messages() {
-      //console.log('try get list messages');
-      Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
-        //response;
-        var textarea = Dom.sel('.go-order__down__messages__textarea');
+  var timerGetMessages;
+  var interlocutor = "client";
 
-        if (textarea) {
-          var innText = '';
-          for (var i = 0; i < response.messages.length; i++ ) {
-            var float = 'right';
-            if (interlocutor === "client") {
-              var name = 'Клиент';
-            } else {
-              var name = 'Водитель';
-            }
-            if (response.messages[i].sender.id === User.id) {
-              float = 'left';
-              name = 'Я';
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                          ';
-            } else {
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                          ';
-            }
+  function get_new_messages() {
+    //console.log('try get list messages');
+    Ajax.request(server_uri, 'GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
+      //response;
+      var textarea = Dom.sel('.go-order__down__messages__textarea');
+
+      if (textarea) {
+        var innText = '';
+        for (var i = 0; i < response.messages.length; i++ ) {
+          var float = 'right';
+          if (interlocutor === "client") {
+            var name = 'Клиент';
+          } else {
+            var name = 'Водитель';
           }
-          if (innText) {
-            var oldText = textarea.innerHTML;
-
-            if (innText !== oldText) {
-              textarea.innerHTML = innText;
-              textarea.scrollTop = textarea.scrollHeight;
-            }
+          if (response.messages[i].sender.id === User.id) {
+            float = 'left';
+            name = 'Я';
+            innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                        ';
+          } else {
+            innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                        ';
           }
         }
-      });
-    }
+        if (innText) {
+          var oldText = textarea.innerHTML;
 
+          if (innText !== oldText) {
+            textarea.innerHTML = innText;
+            textarea.scrollTop = textarea.scrollHeight;
+          }
+        }
+      }
+    });
+  };
 
-    return {
-      stop: function(){
+  
+  var Chat = {
+
+      stop: function() {
         clearInterval(timerGetMessages);
       },
       
@@ -67,7 +69,9 @@
               target = target.parentNode;
             }
           }
-      }
-      
-    };
-  })();
+        }
+      };
+  
+	return Chat;
+  
+});

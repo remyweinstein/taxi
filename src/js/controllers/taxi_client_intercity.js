@@ -15,7 +15,7 @@
                         ' + ords[i].fromCity + '\
                       </p>\n\
                       <p class="myorders__item__to">\n\
-                        ' + ords[i].toCity0 + '\
+                        ' + ords[i].toCity + '\
                       </p>\n\
                       <p class="myorders__item__summa">\n\
                         ' + ords[i].price + '\
@@ -114,8 +114,8 @@
 
       data.append('fromCity', from_city);
       data.append('fromAddress', from_address);
-      data.append('toCity0', to_city);
-      data.append('toAddress0', to_address);
+      data.append('toCity', to_city);
+      data.append('toAddress', to_address);
       data.append('isIntercity', 1);
       //data.append('bidId', '');
       data.append('price', price);

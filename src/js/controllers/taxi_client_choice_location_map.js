@@ -57,16 +57,12 @@
                 MyOrder.toCoords = latlng;
               }
               
-              if (_route === "to_plus1") {
-                MyOrder.toCoords1 = latlng;
-              }
-              
-              if (_route === "to_plus2") {
-                MyOrder.toCoords2 = latlng;
-              }
-              
-              if (_route === "to_plus3") {
-                MyOrder.toCoords3 = latlng;
+              var substr = _route.substring(0, 7);
+              if (substr === "to_plus") {
+                var _index = _route.replace("to_plus", "");
+
+                MyOrder.toAddresses[_index] = target.children[0].innerHTML;
+                MyOrder.toCoordses[_index] = target.dataset.latlng;
               }
               
               var latlng = new google.maps.LatLng(latl[0], latl[1]);
@@ -87,19 +83,12 @@
                       Dom.sel('input[name="to"]').value = _address;
                     }
                     
-                    if (_route === "to_plus1") {
-                      MyOrder.toAddress1 = _address;
-                      Dom.sel('input[name="to_plus1"]').value = _address;
-                    }
-                    
-                    if (_route === "to_plus2") {
-                      MyOrder.toAddress2 = _address;
-                      Dom.sel('input[name="to_plus1"]').value = _address;
-                    }
-                    
-                    if (_route === "to_plus3") {
-                      MyOrder.toAddress3 = _address;
-                      Dom.sel('input[name="to_plus1"]').value = _address;
+                    var substr = _route.substring(0, 7);
+                    if (substr === "to_plus") {
+                      var _index = _route.replace("to_plus", "");
+
+                      MyOrder.toAddresses[_index] = _address;
+                      eval("Dom.sel('input[name=\"to_plus" + _index + "\"]').value = " + _address);
                     }
                   }
                 });

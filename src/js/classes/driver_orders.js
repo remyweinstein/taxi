@@ -4,6 +4,8 @@ function DriverOrders(order, Old_Orders) {
   this.fromAddress;
   this.toAddress;
   this.toAddresses = [];
+  this.totimes = [];
+  this.toLocations = [];
   this.stops = 0;
   this.distance2;
   this.distance;
@@ -20,9 +22,11 @@ function DriverOrders(order, Old_Orders) {
   this.comment;
   
   this.constructor = function (callback) {
-                if (order.toAddress1) self.toAddresses.push(order.toAddress1);
-                if (order.toAddress2) self.toAddresses.push(order.toAddress2);
-                if (order.toAddress3) self.toAddresses.push(order.toAddress3);
+                for (var i = 0; i < order.points.length; i++) {
+                  self.toAddresses.push(order.points[i].address);
+                  self.toLocations.push(order.points[i].location);
+                  self.totimes.push(order.points[i].stopTime);  
+                }
                 
                 self.id = order.id;
                 self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
@@ -42,7 +46,7 @@ function DriverOrders(order, Old_Orders) {
                 self.photo = order.agent.photo ? order.agent.photo : User.default_avatar;
                 self.bidId = order.bidId;
                 self.fromAddress = order.fromAddress;
-                self.toAddress = order.toAddress0;
+                self.toAddress = order.toAddress;
                 self.comment = order.comment;
                                 
                 for (var y = 0; y < order.bids.length; y++) {

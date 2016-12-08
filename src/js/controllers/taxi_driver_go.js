@@ -13,7 +13,6 @@
     var map = new google.maps.Map(mapCanvas, mapOptions);
     var markers = new Array, marker_client;
     var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
-    var toAddress1, toAddress2, toAddress3;
     var name_client, photo_client;
 
     Ajax.request(server_uri, 'GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
@@ -21,38 +20,19 @@
       if (response && response.ok) {
         var ords = response.bid.order;
         fromAddress = ords.fromAddress;
-        toAddress = ords.toAddress0;
+        toAddress = ords.toAddress;
         fromCoords = ords.fromLocation.split(",");
-        toCoords = ords.toLocation0.split(",");
+        toCoords = ords.toLocation.split(",");
         price = Math.round(response.bid.price);
         name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
         photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
         
         waypoints = [];
         
-        toAddress1 = ords.toAddress1;
-        toAddress2 = ords.toAddress2;
-        toAddress3 = ords.toAddress3;
-        time1 = ords.stopTime1;
-        time2 = ords.stopTime2;
-        time3 = ords.stopTime3;
-        
-        if (toAddress1 && toAddress1 !== "") {
-          var _wp = ords.toLocation1.split(",");
+        for (var i = 0; i < ords.toAddresses.length; i++) {
+          var _wp = ords.toLocations[i].split(",");
           waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-          addInfoForMarker(time1, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map));
-        }
-        
-        if (toAddress2 && toAddress2 !== "") {
-          var _wp = ords.toLocation2.split(",");
-          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-          addInfoForMarker(time2, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map));
-        }
-        
-        if (toAddress3 && toAddress3 !== "") {
-          var _wp = ords.toLocation3.split(",");
-          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-          addInfoForMarker(time3, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map));
+          addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
         }
 
         addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);

@@ -1,32 +1,22 @@
     var driver_marker = [];
+    var map_choice;
+    var markers_driver_pos = [];    
     var from = Dom.sel('input[name="from"]');
     var to = Dom.sel('input[name="to"]');
     var rem_old_stops = Dom.selAll('.order-city-to_z');
-        for (var i = 0; i < rem_old_stops.length; i++) {
-            rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
-        }
     
-    var to_plus1 = Dom.sel('input[name="to_plus1"]');
-    var to_plus2 = Dom.sel('input[name="to_plus2"]');
-    var to_plus3 = Dom.sel('input[name="to_plus3"]');
+    for (var i = 0; i < rem_old_stops.length; i++) {
+      rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
+    }
     
     var marker_a, marker_b;
     var price = Dom.sel('[name="cost"]').value;
     var comment = Dom.sel('[name="description"]').value;
-
-    if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
-      AddNewZaezd(1);
-      Dom.sel('input[name="to_plus1"]').value = MyOrder.toAddress1;
-    }
-    if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
-      AddNewZaezd(2);
-      Dom.sel('input[name="to_plus2"]').value = MyOrder.toAddress2;
-    }
-    if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
-      AddNewZaezd(3);
-      Dom.sel('input[name="to_plus3"]').value = MyOrder.toAddress3;
-    }
     
+    for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+      AddNewZaezd(i);
+      Dom.sel('input[name="to_plus' + i + '"]').value = MyOrder.toAddresses[i];
+    }
     
     price.value = MyOrder.price;
     comment.value = MyOrder.comment;
@@ -64,7 +54,9 @@
         mapTypeControl: false,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-      var map_choice = new google.maps.Map(mapCanvas, mapOptions);
+
+      map_choice = new google.maps.Map(mapCanvas, mapOptions);
+      
       var marker_mine = new google.maps.Marker({
         position: MyLatLng,
         map: map_choice,
@@ -97,29 +89,19 @@
           
           var waypoints = [];
           
-          if (MyOrder.toAddress1 && MyOrder.toAddress1 !== "") {
-            var _wp = MyOrder.toCoords1.split(",");
-            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addInfoForMarker(MyOrder.time1, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map_choice));
-          }
-          
-          if (MyOrder.toAddress2 && MyOrder.toAddress2 !== "") {
-            var _wp = MyOrder.toCoords2.split(",");
-            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addInfoForMarker(MyOrder.time2, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map_choice));
-          }
-          
-          if (MyOrder.toAddress3 && MyOrder.toAddress3 !== "") {
-            var _wp = MyOrder.toCoords3.split(",");
-            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addInfoForMarker(MyOrder.time3, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map_choice));
+          for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+            if (MyOrder.toAddresses[i] && MyOrder.toAddresses[i] !== "") {
+              var _wp = MyOrder.toCoordses[i].split(",");
+              waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+              addInfoForMarker(MyOrder.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map_choice));
+            }
           }
           
           addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
           addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map_choice);
 
           var request = {
-            origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]), 
+            origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
             destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
             waypoints: waypoints,
             provideRouteAlternatives: false,
@@ -130,9 +112,11 @@
             if (status === google.maps.DirectionsStatus.OK) {
               var routes_dist = response.routes[0].legs;
               var distance = 0;
+              
               for (var i = 0; i < routes_dist.length; i++) {
                 distance += routes_dist[i].distance.value;
               }
+              
               MyOrder.distance = distance;
               var cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
               Dom.selAll('[name="cost"]')[0].value = cost < 50 ? 50 : cost;
@@ -146,30 +130,6 @@
             }
           });
       }
-
-      function addInfoForMarker(min, marker) {
-        if(min && min > 0) {
-          var infowindow = new google.maps.InfoWindow({
-            content: min + ' мин.'
-          });
-          infowindow.open(map_choice, marker);
-          google.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map_choice, marker);
-          });
-        }
-      }
-
-      function addMarker(location, title, icon, map) {
-        var marker = new google.maps.Marker({
-          position: location,
-          //animation: google.maps.Animation.DROP,
-          icon: icon,
-          title: title,
-          map: map
-        });
-        
-        return marker;
-      }
       
       Dom.selAll('.find-me')[0].addEventListener('click', function() {
         map_choice.setCenter( new google.maps.LatLng(User.lat, User.lng) );
@@ -181,8 +141,58 @@
       }); 
     }
 
+    function addInfoForMarker(min, marker) {
+      if(min && min > 0) {
+        var infowindow = new google.maps.InfoWindow({
+          content: min + ' мин.'
+        });
+        infowindow.open(map_choice, marker);
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(map_choice, marker);
+        });
+      }
+    }
+
+    function addMarker(location, title, icon, map) {
+      var marker = new google.maps.Marker({
+        position: location,
+        //animation: google.maps.Animation.DROP,
+        icon: icon,
+        title: title,
+        map: map
+      });
+
+      return marker;
+    }
+
+    timerGetPosTaxy = setInterval(get_pos_drivers, 1500);
+    
+    function get_pos_drivers() {
+      Ajax.request(server_uri, 'GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
+        if (response && response.ok) {
+          
+          //console.log('response = ' + JSON.stringify(response));
+          
+          var new_markers = [];
+          var agnts = response.agents;
+          
+          //console.log('agnts = '.agnts[0]);
+          
+          for (var i = 0; i < agnts.length; i++) {
+            if (!markers_driver_pos[agnts[i].id]) {              
+              new_markers[agnts[i].id] = addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice);
+            } else {
+              markers_driver_pos[agnts[i].id].setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
+            }
+          }
+          
+          markers_driver_pos = new_markers;
+        }
+      });
+    }
+    
     function AddNewZaezd(just_add) {
-      eval("var time = MyOrder.time" + just_add);
+      eval("var time = MyOrder.times[" + just_add + "]");
       time = time > 0 ? time + " мин" : "";
       var el = Dom.sel('.order-city-to');
       var new_field = document.createElement('div');
@@ -219,9 +229,7 @@
         if (target.dataset.click === 'field_add') {
           var just_add = Dom.selAll('.icon-record').length;
 
-          if (just_add < 3) {
-            AddNewZaezd(just_add + 1);
-          }
+          AddNewZaezd(just_add);
           
           return;
         }
@@ -236,7 +244,7 @@
                     <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
                     <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
                   ', function (response) {
-                      eval("MyOrder.time" + _id + " = " + response);
+                      eval("MyOrder.times[" + _id + "] = " + response);
                       init();
                   });
           
@@ -246,24 +254,10 @@
         if (target.dataset.click === 'field_delete') {
           var _id = target.dataset.id;
           
-          if (_id === "1") {
-            MyOrder.toAddress1 = "";
-            MyOrder.toCoords1 = "";
-            MyOrder.time1 = 0;
-          }
-            
-          if (_id === "2") {
-            MyOrder.toAddress2 = "";
-            MyOrder.toCoords2 = "";
-            MyOrder.time2 = 0;
-          }
-            
-          if (_id === "3") {
-            MyOrder.toAddress3 = "";
-            MyOrder.toCoords3 = "";
-            MyOrder.time3 = 0;
-          }
-            
+          MyOrder.toAddresses.splice(_id, 1);
+          MyOrder.toCoordses.splice(_id, 1);
+          MyOrder.times.splice(_id, 1);
+
           var be_dead = target.parentNode;
             be_dead.parentNode.removeChild(be_dead);
            
@@ -285,11 +279,7 @@
             // = Click choose location =
         if (target.dataset.submit === "taxy_client_city") {
             Dom.sel('[data-click="order-taxi"]').disabled = true;
-            
-            var to_plus1 = Dom.sel('[name="to_plus1"]');
-            var to_plus2 = Dom.sel('[name="to_plus2"]');
-            var to_plus3 = Dom.sel('[name="to_plus3"]');
-            
+
             MyOrder.price = Dom.sel('[name="cost"]').value;
             MyOrder.comment = Dom.sel('[name="description"]').value;
             
@@ -302,41 +292,12 @@
 
             event.preventDefault();
 
-            Address.saveAddress(from_address, to_address);
-
-            if (to_plus1) {
-              to1 = to_plus1.value;
-              MyOrder.toAddress1 = to1;
-              data.append('toAddress1', to1);
-              data.append('toLocation1', MyOrder.toCoords1);
-            }
-
-            if (to_plus2) {
-              to2 = to_plus2.value;
-              MyOrder.toAddress2 = to2;
-              data.append('toAddress2', to2);
-              data.append('toLocation2', MyOrder.toCoords2);
-            }
-
-            if (to_plus3) {
-              to3 = to_plus3.value;
-              MyOrder.toAddress3 = to3;
-              data.append('toAddress3', to3);
-              data.append('toLocation3', MyOrder.toCoords3);
-            }
-
-            Address.saveWaypoints(to1, to2, to3);
-
             data.append('fromCity', User.city);
             data.append('fromAddress', MyOrder.fromAddress);
             data.append('fromLocation', MyOrder.fromCoords);
-            data.append('toCity0', User.city);
-            data.append('toAddress0', MyOrder.toAddress);
-            data.append('toLocation0', MyOrder.toCoords);
-            data.append('stopTime0', MyOrder.time0);
-            data.append('stopTime1', MyOrder.time1);
-            data.append('stopTime2', MyOrder.time2);
-            data.append('stopTime3', MyOrder.time3);
+            data.append('toCity', User.city);
+            data.append('toAddress', MyOrder.toAddress);
+            data.append('toLocation', MyOrder.toCoords);
             data.append('isIntercity', 0);
             //data.append('bidId', '');
             data.append('price', MyOrder.price);
@@ -345,12 +306,28 @@
             data.append('babyChair', 0);
             data.append('distance', MyOrder.distance);
 
+            if (MyOrder.toAddresses.length > 0) {
+              //var _points = [];
+
+              for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+                var time = MyOrder.times[i] ? MyOrder.times[i] : 0;
+                //_points.push({'address': MyOrder.toAddresses[i],'location': MyOrder.toCoordses[i],'stopTime': time,'city': User.city,'fullAddress': ''});
+                data.append('points[' + i + '][address]', MyOrder.toAddresses[i]);
+                data.append('points[' + i + '][location]', MyOrder.toCoordses[i]);
+                data.append('points[' + i + '][stopTime]', time);
+                data.append('points[' + i + '][city]', User.city);
+                data.append('points[' + i + '][fullAddress]', '');
+              }
+              //data.append('points', _points);
+            }
+                
             Ajax.request(server_uri, 'POST', 'order', User.token, '', data, function(response) {
-              //console.log(response);
               if (response && response.ok) {
                 MyOrder.id = response.id;
-                document.location= '#client__map';
-              } else alert('Укажите в профиле ваш город');
+                document.location= '#client__map';                
+              } else {
+                alert('Укажите в профиле ваш город');
+              }
             });
       
           return;

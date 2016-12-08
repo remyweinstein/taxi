@@ -94,21 +94,14 @@
               MyOrder.toCoords = target.dataset.latlng;
             }
             
-            if (_route === "to_plus1") {
-              MyOrder.toAddress1 = target.children[0].innerHTML;
-              MyOrder.toCoords1 = target.dataset.latlng;
+            var substr = _route.substring(0, 7);
+            if (substr === "to_plus") {
+              var _index = _route.replace("to_plus", "");
+              
+              MyOrder.toAddresses[_index] = target.children[0].innerHTML;
+              MyOrder.toCoordses[_index] = target.dataset.latlng;
             }
-            
-            if (_route === "to_plus2") {
-              MyOrder.toAddress2 = target.children[0].innerHTML;
-              MyOrder.toCoords2 = target.dataset.latlng;
-            }
-            
-            if (_route === "to_plus3") {
-              MyOrder.toAddress3 = target.children[0].innerHTML;
-              MyOrder.toCoords3 = target.dataset.latlng;
-            }
-            
+           
             document.location = '#client__city';
           }
 

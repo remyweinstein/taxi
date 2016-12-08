@@ -7,13 +7,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="asset/css/main.css" type="text/css" rel="stylesheet" />
+        <script type="text/javascript" src="asset/js/config.js"></script>
+        <script data-main="asset/js/main" src="asset/js/vendor/require.js"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js#enableTrace"></script>-->
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4&libraries=places"></script>
-        <script type="text/javascript" src="asset/js/vendor/hammer.min.js"></script>
-        <script type="text/javascript" src="asset/js/vendor/javascript.util.js"></script>
-        <script type="text/javascript" src="asset/js/vendor/jsts.js"></script>
-        <script type="text/javascript" src="asset/js/config.js"></script>
-        <script type="text/javascript" src="asset/js/main.js"></script>
+        <!--<script type="text/javascript" src="asset/js/main.js"></script>-->
     </head>
     <body>
         <div class="menu menu--closed">

@@ -15,13 +15,13 @@
             del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
           }
           
-          var arr = [ords[i].toAddress1, ords[i].toAddress2, ords[i].toAddress3];
+          console.log(ords[i]);
           var zaezdy = "";
-          for (var y = 0; y < arr.length; y++) {
-            if(arr[y] && arr[y] !== ""){
-              zaezdy += '<p class="myorders__item__to' + (y + 1) + '">\n\
-                           ' + arr[y] + '\
-                         </p>';
+          if (ords[i].points) {
+            for (var y = 0; y < ords[i].points.length; y++) {
+                zaezdy += '<p class="myorders__item__to' + (y + 1) + '">\n\
+                             ' + ords[i].points[y].address + '\
+                           </p>';
             }
           }
           
@@ -34,7 +34,7 @@
                       </p>\n\
                       ' + zaezdy + '\n\
                       <p class="myorders__item__to">\n\
-                        ' + ords[i].toAddress0 + '\
+                        ' + ords[i].toAddress + '\
                       </p>\n\
                       <p class="myorders__item__summa">\n\
                         ' + Math.round(ords[i].price) + '\
@@ -83,7 +83,7 @@
           }
               // = Menu my Orders Item DELETE order =
           if (target.dataset.click === 'myorders_item_menu_delete') {
-              Ajax.request(server_uri, 'GET', 'delete-order', User.token, '&id='+target.dataset.id, '', function(response) {
+              Ajax.request(server_uri, 'GET', 'delete-order', User.token, '&id=' + target.dataset.id, '', function(response) {
                 if (response && response.ok) {
                   var item = target.parentNode.parentNode.parentNode;
                    item.style.display = 'none';

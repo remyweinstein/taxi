@@ -13,7 +13,6 @@ function ClientOrder() {
   this.fromFullAddress = "";
   this.toFullAddress = "";
   this.toFullAddresses = [];
-  this.time0 = 0;
   this.times = [];
   
   this.fromCity  = "" ;
@@ -33,18 +32,20 @@ function ClientOrder() {
                       self.bid_id = ord.bidId;
                     }
                     self.fromAddress = ord.fromAddress;
-                    self.toAddress = ord.toAddress0;
+                    self.toAddress = ord.toAddress;
                     self.fromCoords = ord.fromLocation;
-                    self.toCoords = ord.toLocation0;
+                    self.toCoords = ord.toLocation;
                     self.fromFullAddress = "";
                     self.toFullAddress = "";
+                    self.time0 = 0;
                     
                     self.toAddresses = [];
                     self.toCoordses = [];
                     self.toFullAddresses = [];
+                    self.times = [];
 
                     self.fromCity  = ord.fromCity;
-                    self.toCity = ord.toCity0;
+                    self.toCity = ord.toCity;
 
                     self.distance = ord.distance;
                     self.price = ord.price;

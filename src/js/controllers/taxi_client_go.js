@@ -148,33 +148,21 @@
           dr_photo = agnt.photo ? agnt.photo : User.avatar;
           dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
           fromCoords = ords.fromLocation.split(",");
-          toCoords = ords.toLocation0.split(",");
+          toCoords = ords.toLocation.split(",");
           fromAddress = ords.fromAddress;
-          toAddress = ords.toAddress0;
+          toAddress = ords.toAddress;
           price = Math.round(response.bid.price);
           
           Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
           Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
           waypoints = [];
           
-          if (ords.toAddress1 && ords.toAddress1 !== "") {
-            var _to1 = ords.toLocation1.split(",");
-            waypoints.push({location: new google.maps.LatLng(_to1[0], _to1[1]), stopover: true});
-            addInfoForMarker(MyOrder.time1, addMarker(new google.maps.LatLng(_to1[0], _to1[1]), MyOrder.toAddress1, '//maps.google.com/mapfiles/kml/paddle/1.png', map));
+          for (var i = 0; i < ords.toAddresses.length; i++) {
+            var _to = ords.toLocationes[i].split(",");
+            waypoints.push({location: new google.maps.LatLng(_to[0], _to[1]), stopover: true});
+            addInfoForMarker(ords.toTimes[i], addMarker(new google.maps.LatLng(_to[0], _to[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
           }
           
-          if (ords.toAddress2 && ords.toAddress2 !== "") {
-            var _to2 = ords.toLocation2.split(",");
-            waypoints.push({location: new google.maps.LatLng(_to2[0], _to2[1]), stopover: true});
-            addInfoForMarker(MyOrder.time2, addMarker(new google.maps.LatLng(_to2[0], _to2[1]), MyOrder.toAddress2, '//maps.google.com/mapfiles/kml/paddle/2.png', map));
-          }
-          
-          if (ords.toAddress3 && ords.toAddress3 !== "") {
-            var _to3 = ords.toLocation3.split(",");
-            waypoints.push({location: new google.maps.LatLng(_to3[0], _to3[1]), stopover: true});
-            addInfoForMarker(MyOrder.time3, addMarker(new google.maps.LatLng(_to3[0], _to3[1]), MyOrder.toAddress3, '//maps.google.com/mapfiles/kml/paddle/3.png', map));
-          }
-
           addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
           addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
