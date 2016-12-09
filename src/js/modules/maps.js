@@ -1,20 +1,21 @@
-  var Maps = (function() { // Google
+define('Maps', [], function() {  // Google
 
-    function renderDirections(map, result, polylineOpts) {
-      var directionsRenderer = new google.maps.DirectionsRenderer();
-      
-      directionsRenderer.setMap(map);
-      
-      if (polylineOpts) {
-        directionsRenderer.setOptions({
-          polylineOptions: polylineOpts
-        });
-      }
-      
-      directionsRenderer.setDirections(result);
+  function renderDirections(map, result, polylineOpts) {
+    var directionsRenderer = new google.maps.DirectionsRenderer();
+
+    directionsRenderer.setMap(map);
+
+    if (polylineOpts) {
+      directionsRenderer.setOptions({
+        polylineOptions: polylineOpts
+      });
     }
 
-    return {
+    directionsRenderer.setDirections(result);
+  }
+  
+  var Maps = {
+
       requestDirections: function (directionsService, start, end, polylineOpts) {
         directionsService.route({
           origin: start,
@@ -53,6 +54,9 @@
           }
         });
       }
-    };
 
-  })();
+    };
+    
+    return Maps;
+    
+  });

@@ -1,6 +1,7 @@
-  var Dom = (function() { // nothing
+define('Dom', [], function() {
+  
+  var Dom = {
 
-    return {
       selAll: function (sel) {
         return document.querySelectorAll(sel);
       },
@@ -9,4 +10,7 @@
         return document.querySelector(sel);
       }
     };
-  })();
+  
+  return Dom;
+  
+});

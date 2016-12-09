@@ -1,6 +1,7 @@
-  var Dates = (function() { // nothing
+define('Dates', [], function() {
+  
+  var Dates = {
 
-    return {
       datetimeForPeople: function (date, options) {
         if (!options) {
             options = "TIME_AND_TODAY";
@@ -88,6 +89,9 @@
         return timer - (now - start).toFixed(0);
       }
 
-    };
-  })();
 
+  };
+  
+  return Dates;
+
+});

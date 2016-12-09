@@ -1,6 +1,7 @@
-  var Funcs = (function() { //nothing
+define('Funcs', [], function() {
+  
+  var Funcs = {
 
-    return {
       searchCityForIntercity: function (city, parent) {
         var currentCity;
         var li = parent.children[1].children;
@@ -26,6 +27,9 @@
         return height;
       }
       
-    };
-  })();
+  };
+  
+    return Funcs;
+  
+  });
 

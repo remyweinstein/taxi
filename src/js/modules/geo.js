@@ -1,9 +1,10 @@
-  var Geo = (function() { //Ajax
+define('Geo', ['App', 'Ajax', 'Uries', 'jsts', 'Settings'], function (App, Ajax, Uries, jsts, Settings) {
+
     var old_lat, old_lng;
 
     function updateUserCoord() {
-      if(User.lat !== old_lat || User.lng !== old_lng) {
-        Ajax.request(server_uri, 'POST', 'location', User.token, '&latitude=' + User.lat + '&longitude=' + User.lng, '', function(response) {
+      if(App.user.lat !== old_lat || App.user.lng !== old_lng) {
+        Ajax.request(Uries.server_uri, 'POST', 'location', App.user.token, '&latitude=' + App.user.lat + '&longitude=' + App.user.lng, '', function(response) {
           if (response && response.ok) {
             //console.log('change your coord');
           }
@@ -27,17 +28,17 @@
       function success(position) {
         var latitude  = position.coords.latitude;
         var longitude = position.coords.longitude;
-        old_lat = User.lat;
-        old_lng = User.lng;
-        User.lat = latitude;
-        User.lng = longitude;
+        old_lat = App.user.lat;
+        old_lng = App.user.lng;
+        App.user.lat = latitude;
+        App.user.lng = longitude;
         
         localStorage.setItem('_my_pos_lat', latitude);
         localStorage.setItem('_my_pos_lon', longitude);
         
         updateUserCoord();
 
-        if (!User.city || User.city === null || User.city === "null") {
+        if (!App.user.city || App.user.city === null || App.user.city === "null") {
           geocoder = new google.maps.Geocoder();
           var latlng = new google.maps.LatLng(latitude,longitude);
           geocoder.geocode({
@@ -48,14 +49,14 @@
                   
                   for (key in obj) {
                     if(obj[key].types[0] === "locality") {
-                      User.city = obj[key].long_name;
-                      //User.city = 'Хабаровск';
-                      localStorage.setItem('_my_city', User.city);
+                      App.user.city = obj[key].long_name;
+                      //App.user.city = 'Хабаровск';
+                      localStorage.setItem('_my_city', App.user.city);
                       
                       var data = new FormData();
-                       data.append('city', User.city);
+                       data.append('city', App.user.city);
                        
-                      Ajax.request(server_uri, 'POST', 'profile', User.token, '', data, function(response) {
+                      Ajax.request(Uries.server_uri, 'POST', 'profile', App.user.token, '', data, function(response) {
                         //console.log('after geofind = ' + response.ok);
                         if (response && response.ok) {
                           init();
@@ -63,7 +64,7 @@
                       });
                     }
                     
-                    if (obj[key].types[0] === "country") User.country = obj[key].long_name;
+                    if (obj[key].types[0] === "country") App.user.country = obj[key].long_name;
                   }
                   
                 }
@@ -78,8 +79,9 @@
       navigator.geolocation.getCurrentPosition(success, error);
       //navigator.geolocation.watchPosition(success, error, options);
     }
+  
+  var Geo = {
 
-    return {
       init: function() {
         timerUpdateCoords = setInterval(geoFindMe, 5000);
         
@@ -121,5 +123,8 @@
         });
       }
       
-    };
-  })();
+  };
+  
+  return Geo;
+
+});

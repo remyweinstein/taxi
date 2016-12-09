@@ -1,4 +1,4 @@
-define([], function() {
+define('Address', [], function() {
 
   var Address = {
 
@@ -10,8 +10,8 @@ define([], function() {
 
     loadAddress: function (city) {
       city = !city ? '' : city + ',';
-      var adr_from = city+localStorage.getItem('_address_from');
-      var adr_to = city+localStorage.getItem('_address_to');
+      var adr_from = city + localStorage.getItem('_address_from');
+      var adr_to = city + localStorage.getItem('_address_to');
 
       return [adr_from, adr_to];
     },

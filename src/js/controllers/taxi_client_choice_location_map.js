@@ -61,8 +61,7 @@
               if (substr === "to_plus") {
                 var _index = _route.replace("to_plus", "");
 
-                MyOrder.toAddresses[_index] = target.children[0].innerHTML;
-                MyOrder.toCoordses[_index] = target.dataset.latlng;
+                MyOrder.toCoordses[_index] = latlng;
               }
               
               var latlng = new google.maps.LatLng(latl[0], latl[1]);

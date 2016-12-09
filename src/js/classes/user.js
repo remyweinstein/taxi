@@ -1,6 +1,6 @@
-define(['Dom', 'Ajax'], 
- function(Dom, Ajax){
-  function User() { // Dom, Ajax
+define(['Dom', 'Ajax', 'Uries'], function(Dom, Ajax, Uries) {
+  
+  var clUser = function () {
     var self = this;
     var options = {
 
@@ -30,28 +30,30 @@ define(['Dom', 'Ajax'],
 
     this.getData = function () {
       if (self.token) {
-        Ajax.request(server_uri, 'GET', 'profile', self.token, '', '', function(response) {
+        Ajax.request(Uries.server_uri, 'GET', 'profile', self.token, '', '', function(response) {
           if (response) {
             if (!response.ok && lasturl !== "#pages__sms") {
               self.is_auth = false;
-               localStorage.removeItem('_is_auth');
+              localStorage.removeItem('_is_auth');
+              
               self.token = "";
-               localStorage.removeItem('_my_token');
+              localStorage.removeItem('_my_token');
 
-               self.initToken;
+              self.initToken;
 
             } else if (response.ok) {
+              
               var prfl = response.profile;
-               self.id = prfl.id;
-               localStorage.setItem('_my_id', self.id);
+              self.id = prfl.id;
+              localStorage.setItem('_my_id', self.id);
 
-               self.city = prfl.city !== "" ? prfl.city : self.city;
-               localStorage.setItem('_my_city', self.city);
+              self.city = prfl.city !== "" ? prfl.city : self.city;
+              localStorage.setItem('_my_city', self.city);
 
-               self.phone = prfl.phone;
-               self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
-               self.avatar = prfl.photo ? prfl.photo : default_avatar;
-               //my_vehicle = prfl.vehicle;
+              self.phone = prfl.phone;
+              self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
+              self.avatar = prfl.photo ? prfl.photo : default_avatar;
+              //my_vehicle = prfl.vehicle;
 
               if (Dom.selAll('.jq_my_name').length) {
                 Dom.sel('.jq_my_name').innerHTML = self.name;
@@ -72,7 +74,7 @@ define(['Dom', 'Ajax'],
 
     this.initToken = function () {
       if (!this.token) {
-        Ajax.request(server_uri, 'GET', 'token', '', '', '', function(response) {
+        Ajax.request(Uries.server_uri, 'GET', 'token', '', '', '', function(response) {
           if (response && response.ok) {
             setToken(response.token);
             setId(response.id);
@@ -104,7 +106,7 @@ define(['Dom', 'Ajax'],
       return localStorage.getItem('_my_id');
     }
 
-  }
+  };
 
-	return new User();
+	return clUser;
 });

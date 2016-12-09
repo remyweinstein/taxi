@@ -1,5 +1,5 @@
-  var InpFlt = (function() { // nothing
-
+define('InputFilters', ['Dom'], function(Dom) {
+  
     function only_digits(e) {
       if(e.ctrlKey || e.altKey || e.metaKey) return;
       
@@ -54,20 +54,23 @@
       return null;
     };
 
+  
+  var InputFilters = {
+    init: function() {
+            Dom.sel('.content').addEventListener('keypress', function(e) {
+              var target = e.target;
+              while (target !== this) {
+                    // = Input Filtering ONLY DIGITS =
+                if (target.dataset.keypress === 'input_only_digits') only_digits(e);
+                    // = Input Filtering ONLY DATE =
+                if (target.dataset.keypress === 'input_only_date') only_date(e, target);
 
-    return{
-      init: function() {
-              content.addEventListener('keypress', function(e) {
-                var target = e.target;
-                while (target !== this) {
-                      // = Input Filtering ONLY DIGITS =
-                  if (target.dataset.keypress === 'input_only_digits') only_digits(e);
-                      // = Input Filtering ONLY DATE =
-                  if (target.dataset.keypress === 'input_only_date') only_date(e, target);
-                  
-                  target = target.parentNode;
-                }
-              });
-        }
-    };
-  })();
+                target = target.parentNode;
+              }
+            });
+          }
+  };
+  
+  return InputFilters;
+  
+});
