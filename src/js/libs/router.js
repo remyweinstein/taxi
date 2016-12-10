@@ -23,7 +23,7 @@ define(['Dom'], function (Dom) {
 
   function startRouting(app) {
     App = app;
-    window.location.hash = window.location.hash || defaultRoute.hash;
+    window.location.hash = window.location.hash || defaultRoute;
     setInterval(hashCheck, 250);
   }
 
