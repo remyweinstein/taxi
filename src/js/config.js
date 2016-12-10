@@ -48,11 +48,9 @@ requirejs.config({
 	},
   shim: {
     "hammer" : {
-      deps: [],
       exports: "hammer"
     },
     "jsutil" : {
-      deps: [],
       exports: "jsutil"
     },
     "jsts" : {
@@ -62,14 +60,37 @@ requirejs.config({
   }
 });
 
+var menus_arr = [];
+    menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
+                           {name: 'Мои заказы', url: '#client_my_orders', icon: 'archive'},
+                           {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
+                           {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
+                           {name: 'Настройки', url: '#pages_settings', icon: 'cog'},
+                           {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
+                           {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
+                           {name: 'Помощь', url: '#help_client', icon: 'lifebuoy'}];
+    menus_arr['driver'] = [{name: 'Город', url: '#driver_city', icon: 'commerical-building'},
+                           {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
+                           {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
+                           {name: 'Мой авто', url: '#driver_my_auto', icon: 'cog-alt'},
+                           {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
+                           {name: 'Мой рейтинг', url: '#driver_rating', icon: 'user'},
+                           {name: 'Настройки', url: '#pages_settings', icon: 'cog'},
+                           {name: 'Обратная связь', url: '#driver_feedback', icon: 'attention'},
+                           {name: 'Режим клиента', url: '#client_city', icon: 'steering-wheel',  add_icon: '<i class="icon-toggle-on toggle_block"></i>'},
+                           {name: 'Помощь', url: '#help_driver', icon: 'lifebuoy'}];
+
   var content;
   var map, map_choice, marker, geocoder;
   var google, placeSearch, autocomplete, directionsService, directionsDisplay;
+  
+  var lasturl = '';
+
 
   var average_speed = 40;
   var cost_of_km = 25;
 
-  var User;
+  var User, Modal, Event, Settings, MyOrder;
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 

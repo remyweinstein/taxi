@@ -1,4 +1,4 @@
-define('InputFilters', ['Dom'], function(Dom) {
+define(['Dom'], function(Dom) {
   
     function only_digits(e) {
       if(e.ctrlKey || e.altKey || e.metaKey) return;

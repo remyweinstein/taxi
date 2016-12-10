@@ -1,6 +1,6 @@
-define(['App', 'Uries'], function(App, Uries) {
+define(function() {
   
-  var DriverOrders = function (order, Old_Orders) {
+  var clDriverOrders = function (order, Old_Orders) {
     var self = this;
 
     this.fromAddress;
@@ -43,9 +43,9 @@ define(['App', 'Uries'], function(App, Uries) {
                   self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
                   self.distance2 = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
                   self.distance = order.distance ? order.distance : 0;
-                  self.name = order.agent.name ? order.agent.name : App.user.default_name;
+                  self.name = order.agent.name ? order.agent.name : User.default_name;
                   self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
-                  self.photo = order.agent.photo ? order.agent.photo : App.user.default_avatar;
+                  self.photo = order.agent.photo ? order.agent.photo : User.default_avatar;
                   self.bidId = order.bidId;
                   self.fromAddress = order.fromAddress;
                   self.toAddress = order.toAddress;
@@ -55,7 +55,7 @@ define(['App', 'Uries'], function(App, Uries) {
                     var agid = order.bids[y].agentId;                  
                     var a = order.bids[y].id;
 
-                    if (agid === App.user.id) {
+                    if (agid === User.id) {
                       self.agentId = agid;
                       self.agentBidId = a;
                       //self.price = Math.round(order.bids[y].price);
@@ -69,6 +69,6 @@ define(['App', 'Uries'], function(App, Uries) {
 
   };
   
-  return DriverOrders;
+  return clDriverOrders;
   
 });

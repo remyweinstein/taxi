@@ -1,4 +1,5 @@
-    // = Form auth login =
+define(['Ajax', 'Dom'], function (Ajax, Dom) {
+  
     Event.submit = function (event) {
           var target = event.target;
 
@@ -10,12 +11,12 @@
               var phone = Dom.sel('input[name="phone"]').value;
               var token = User.token ? User.token : "";
 
-              Ajax.request(server_uri, 'POST', 'register', token, '&phone=7'+phone, '', function(response) {
+              Ajax.request('POST', 'register', token, '&phone=7'+phone, '', function(response) {
 
                 if (response && response.ok) {
                   localStorage.setItem('_my_token', response.token);
                   User.token = response.token;
-                  document.location= '#pages__sms';
+                  window.location.hash = '#sms';
                 }
                 button.disabled = false;
 
@@ -28,6 +29,8 @@
 
             target = target.parentNode;
           }
-        }
+        };
 
     content.addEventListener('submit', Event.submit);
+    
+});

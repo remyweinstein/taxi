@@ -1,4 +1,4 @@
-define(['Dom', 'Ajax', 'Uries'], function(Dom, Ajax, Uries) {
+define(['Dom', 'Ajax'], function(Dom, Ajax) {
   
   var clUser = function () {
     var self = this;
@@ -30,9 +30,9 @@ define(['Dom', 'Ajax', 'Uries'], function(Dom, Ajax, Uries) {
 
     this.getData = function () {
       if (self.token) {
-        Ajax.request(Uries.server_uri, 'GET', 'profile', self.token, '', '', function(response) {
+        Ajax.request('GET', 'profile', self.token, '', '', function(response) {
           if (response) {
-            if (!response.ok && lasturl !== "#pages__sms") {
+            if (!response.ok && lasturl !== "#sms") {
               self.is_auth = false;
               localStorage.removeItem('_is_auth');
               
@@ -74,7 +74,7 @@ define(['Dom', 'Ajax', 'Uries'], function(Dom, Ajax, Uries) {
 
     this.initToken = function () {
       if (!this.token) {
-        Ajax.request(Uries.server_uri, 'GET', 'token', '', '', '', function(response) {
+        Ajax.request('GET', 'token', '', '', '', function(response) {
           if (response && response.ok) {
             setToken(response.token);
             setId(response.id);

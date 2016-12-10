@@ -1,6 +1,6 @@
-define([], function() {
+define(function() {
 
-  var Car = function () {
+  var clCar = function () {
     var default_vehicle = 'asset/images/no_vehicle.png';
 
     this.brand;
@@ -14,6 +14,6 @@ define([], function() {
 
   };
 
-  return Car;
+  return clCar;
   
 });

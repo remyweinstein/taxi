@@ -65,7 +65,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
                 //= Click edit profile =
             if (target.dataset.click === 'edit_profile') {
               swipeMenu(-1);
-              document.location = '#pages__edit_profile';
+              window.location.hash = '#edit_profile';
               
               return;
             }

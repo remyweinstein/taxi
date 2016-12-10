@@ -1,11 +1,11 @@
-define([], function() {
+define(function() {
   
-  var Events = function () {
+  var clEvents = function () {
     this.click = function (event) {};
     this.submit = function (event) {};
 
   };
   
-  return Events;
+  return clEvents;
   
 });

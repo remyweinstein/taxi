@@ -1,6 +1,6 @@
 define(['Dom'], function(Dom) {
   
-  var ModalWindow = function () {
+  var clModalWindow = function () {
     var self = this;
     var block = 'content';
     var layer, cur_win;
@@ -84,6 +84,6 @@ define(['Dom'], function(Dom) {
 
   };
   
-  return ModalWindow;
+  return clModalWindow;
   
 });

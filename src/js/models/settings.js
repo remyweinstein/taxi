@@ -1,6 +1,6 @@
 define([], function() {
   
-  var Settings = function () {
+  var clSettings = function () {
     var self = this;
 
     this.safeRadius;
@@ -14,6 +14,6 @@ define([], function() {
     };
   };
   
-  return Settings;
+  return clSettings;
   
 });

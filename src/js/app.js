@@ -1,17 +1,17 @@
-define(['User', 'Events', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, Event, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'ClientOrder', 'ModalWindows', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
   var App =  {
     
-    user: User,
-    
-    ex: 'ex',
-
     start: function () {
       
-      domReady(function () {
+      domReady(function () { 
 
-        User = new clUser();
+        User =     new clUser();
+        Modal =    new clModalWindow();
+        Event =    new clEvents();
+        Settings = new clSettings();
+        MyOrder =  new clClientOrder();
 
         User.initToken();
         content = Dom.sel('.content');
@@ -26,11 +26,13 @@ function(clUser, Event, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, d
         }
 
         User.token = localStorage.getItem('_my_token');
-
+        
+        //console.log('this = ' + App.ex);
+        
         Geo.init();
         MainMenu.init();
         InputFilters.init();
-        Router.start();
+        Router.start(App);
 
         window.addEventListener('resize', function() {
           init();
@@ -71,70 +73,6 @@ function(clUser, Event, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, d
             item_login.style.display = 'block';
             item_logout.style.display = 'none';
           }
-        }
-
-        if (Dom.sel('[data-controller="pages_settings"]')) {
-          //= controllers/pages_settings.js
-        }
-
-        if (Dom.sel('[data-controller="pages_edit_profile"]')) {
-          //= controllers/pages_edit_profile.js
-        }
-
-        if (Dom.sel('[data-controller="pages_login"]')) {
-          //= controllers/pages_login.js
-        }
-
-        if (Dom.selAll('[data-controller="pages_logout"]').length) {
-          //= controllers/pages_logout.js
-        }
-
-        if (Dom.sel('[data-controller="pages_sms"]')) {
-          //= controllers/pages_sms.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_intercity"]').length) {
-          //= controllers/taxi_client_intercity.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_go"]').length) {
-          //= controllers/taxi_client_go.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_my_orders"]').length) {
-          //= controllers/taxi_client_my_orders.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_choose_address"]').length) {
-          //= controllers/taxi_client_choose_address.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_city"]').length) {
-          //= controllers/taxi_client_city.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_choice_location_map"]').length) {
-          //= controllers/taxi_client_choice_location_map.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_client_map"]').length) {
-          //= controllers/taxi_client_map.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_driver_my_auto"]').length) {
-          //= controllers/taxi_driver_my_auto.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_driver_go"]').length) {
-          //= controllers/taxi_driver_go.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_driver_city"]').length) {
-          //= controllers/taxi_driver_city.js
-        }
-
-        if (Dom.selAll('[data-controller="taxi_driver_intercity"]').length) {
-          //= controllers/taxi_driver_intercity.js
         }
       });
     }

@@ -1,11 +1,11 @@
-define(['App', 'Ajax', 'Dom', 'Uries'], function(App, Ajax, Dom, Uries) {
+define(['Ajax', 'Dom'], function(Ajax, Dom) {
 
   var timerGetMessages;
   var interlocutor = "client";
 
   function get_new_messages() {
     //console.log('try get list messages');
-    Ajax.request(Uries.server_uri, 'GET', 'messages', App.user.token, '&id=' + bid_id, '', function(response) {
+    Ajax.request('GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
       //response;
       var textarea = Dom.sel('.go-order__down__messages__textarea');
 
@@ -18,7 +18,7 @@ define(['App', 'Ajax', 'Dom', 'Uries'], function(App, Ajax, Dom, Uries) {
           } else {
             var name = 'Водитель';
           }
-          if (response.messages[i].sender.id === App.user.id) {
+          if (response.messages[i].sender.id === User.id) {
             float = 'left';
             name = 'Я';
             innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
@@ -62,7 +62,7 @@ define(['App', 'Ajax', 'Dom', 'Uries'], function(App, Ajax, Dom, Uries) {
                 Dom.sel('[data-text="new_message"]').value = '';
 
                 if (messaga !== "") {
-                  Ajax.request(Uries.server_uri, 'POST', 'message', App.user.token, '&id=' + bid_id + '&text=' + messaga, '', function () {});
+                  Ajax.request('POST', 'message', User.token, '&id=' + bid_id + '&text=' + messaga, '', function () {});
                 }
               }
 

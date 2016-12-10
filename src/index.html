@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>InDriverCopy</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <link href="asset/css/main.css" type="text/css" rel="stylesheet" />
+        <script data-main="asset/js/config" src="asset/js/vendor/require.js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4&libraries=places"></script>
+    </head>
+    <body>
+        <div class="menu menu--closed">
+            <div data-click="edit_profile" class="menu__desc">
+                <img src="asset/images/no_avatar.png" alt="guest" class="menu__desc_avatar" />
+                <div class="menu__desc_info">
+                    <span class="jq_my_name"></span><br />
+                    <span class="jq_my_phone"></span>
+                </div>
+            </div>
+            <div class="menu__response">
+                <ul class="menu__list">
+                    <li class="menu__list__item_login">
+                        <a href="#login">
+                            <i class="icon-login"></i>
+                            Войти
+                        </a>
+                    </li>
+                    <li class="menu__list__item_logout">
+                        <a href="#logout">
+                            <i class="icon-login"></i>
+                            Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <header class="header">
+            <div class="header__wrapper">
+                <div class="header__burger">
+                    <i class="icon-menu" data-click="menu-burger"></i>
+                    <i class="icon-left" data-click="back-burger"></i>
+                </div>
+                <div class="header__title"></div>
+                <div class="header__toggle"></div>
+                <div class="header__link"></div>
+            </div>
+        </header>
+        <main class="content"></main>
+        <div class="loading"></div>
+        <template id="ctrlPageEditProfile">
+            <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
+                <p>
+                    <img class="avatar" src="" alt="" />
+                    <input type="file" name="ava_file" /><br/>
+                    <a href="#" data-click="clear_photo">удалить</a>
+                    </p>
+                <p><input type="text" name="myname" value="" /></p>
+                <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>
+                <p>
+                    <select name="sex">
+                        <option value="1">Мужской</option>
+                        <option value="0">Женский</option>
+                    </select>
+                </p>
+                <p>
+                    <select name="city">
+                        <option value="Хабаровск">Хабаровск</option>
+                        <option value="Владивосток">Владивосток</option>
+                        <option value="Комсомольск-на-Амуре">Комсомольск-на-Амуре</option>
+                        <option value="Москва">Москва</option>
+                    </select>
+                </p>
+                <p><button class="button_rounded--green">Сохранить</button></p>
+            </form>
+        </template>
+        <template id="ctrlPageLogin">
+            <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
+                <p>Введите ваш номер телефона для входа</p>
+                <p>+7<input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
+                <p><button class="button_rounded--green" data-click="form-submit">Далее</button></p>
+            </form>
+        </template>
+        <template id="ctrlPageLogout">
+            <div data-controller="pages_logout"></div>
+        </template>
+        <template id="ctrlPageSettings">
+            <div class="settings" data-controller="pages_settings"></div>',
+        </template>
+        <template id="ctrlPageSms">
+            <form data-controller="pages_sms" data-submit="form-auth-sms" onsubmit="return false;" class="form-login">
+                <p>Введите код из смс</p>
+                <p><input type="text" name="sms" placeholder="Код из смс" /></p>
+                <p><button class="button_rounded--green">Далее</button></p>
+            </form>
+        </template>
+        <template id="ctrlTaxiClientChoiceLocationMap">
+            <div data-controller="taxi_client_choice_location_map" id="map_canvas_choice"></div>
+            <div class="gBlock--bottom">
+                <button data-click="i_choice_location" class="button_wide--green">Выбери адрес на карте</button>
+            </div>
+        </template>
+        <template id="ctrlTaxiClientChooseAddress">
+            <div class="choice-location">
+                <p data-controller="taxi_client_choose_address">
+                    <input type="text" name="enter-address" value="" placeholder="Введите адрес" />
+                </p>
+                <div class="choice-location__results-search"></div>
+            </div>
+            <div id="hide_map"></div>
+        </template>
+        <template id="ctrlTaxiClientCity">
+            <div id="map_canvas_iam"></div>
+            <i class="icon-target find-me" data-click="find-me"></i>
+            <form action="/" method="POST" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
+                <div class="form-order-city__field order-city-from">
+                    <i class="icon-right-circled form-order-city__label"></i>
+                    <span class="form-order-city__wrap"><input id="autocomplete" class="adress_from" type="text" name="from" value="" placeholder="Откуда" autocomplete="off" /></span>
+                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                </div>
+                <div class="form-order-city__field order-city-to">
+                    <i class="icon-left-circled form-order-city__label"></i>
+                    <span class="form-order-city__wrap"><input class="adress_to" type="text" name="to" value="" placeholder="Куда"/></span>
+                    <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                </div>
+                <div class="form-order-city__field">
+                    <i class="icon-commerical-building form-order-city__label"></i>
+                    <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
+                </div>
+                <div class="form-order-city__bottom">
+                    <div class="form-order-city__field">
+                        <i class="icon-rouble form-order-city__label"></i>
+                        <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                    </div>
+                    <button class="button_rounded--green" data-click="order-taxi">Заказать</button>
+                </div>
+            </form>
+        </template>
+        <template id="ctrlTaxiClientGo">
+            <div id="map_canvas_go"></div>
+            <i class="icon-target find-me" data-click="find-me"></i>
+            <div class="wait-order-approve" data-controller="taxi_client_go">
+                <div class="wait-order-approve__route-info">
+                    <div class="wait-order-approve__route-info__route">
+                        <div></div>
+                        <div>-</div>
+                        <div></div>
+                    </div>
+                    <div class="wait-order-approve__route-info__price">
+
+                    </div>
+                    <div class="wait-order-approve__route-info__cancel">
+
+                    </div>                        
+                </div>
+            </div>
+            <div class="wait-bids-approve"></div>
+
+            <div class="go-order__down">
+                <div class="go-order__down__driver-panel">
+                    <div class="go-order__down__driver-panel__info">
+                        <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
+                        <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                    </div>
+                    <div class="go-order__down__driver-panel__action">
+                        <button disabled data-click="client-incar" class="button_wide--green">В машине</button>
+                    </div>
+                </div>
+                <div class="go-order__down__messages">
+                    <div class="go-order__down__messages__textarea"></div>
+                    <div class="go-order__down__messages__textinput">
+                        <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                        <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiClientIntercity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказать</li>
+                    <li data-tab="2">Попутки</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper" data-controller="taxi_client_intercity">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content">
+                    <form action="" method="POST" data-submit="client_order_intercity" class="form-order-city">
+                        <div class="form-order-city__label_field">
+                        ОТКУДА
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="city_from" value="Хабаровск" placeholder=""/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-left-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="adress_from" value="" placeholder="Адрес"/></span>
+                        </div>
+                        <div class="form-order-city__label_field">
+                        КУДА
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="city_to" value="" placeholder="Город, куда направляетесь"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-left-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="adress_to" value="" placeholder="Адрес"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-rouble form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Стоимость"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Примечания"/></span>
+                        </div>
+                        <div class="gBlock gBlock--float">
+                            <button class="button_rounded--green">Заказать</button>
+                        </div>
+                    </form>     
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../asset/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Борис</div>
+                                <div class="list-extended__route_time">12:45</div>
+                                <div class="list-extended__route_from">Хабаровск</div>
+                                <div class="list-extended__route_to">Владивосток</div>
+                                <div class="list-extended__route_sum">100 руб.</div>
+                                <div class="list-extended__route_info">Два места</div>
+                            </div>
+                            <div class="list-extended__phone">
+                                <a href="#"><i class="icon-phone-circled"></i></a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../asset/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Гульнара</div>
+                                <div class="list-extended__route_time">16:37</div>
+                                <div class="list-extended__route_from">Хабаровск</div>
+                                <div class="list-extended__route_to">Благовещенск</div>
+                                <div class="list-extended__route_info">Два места</div>
+                            </div>
+                            <div class="list-extended__phone">
+                                <a href="#"><i class="icon-phone-circled"></i></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="myorders"></ul>
+                </div>
+              </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiClientMap">
+            <div data-controller="taxi_client_map" id="map_canvas"></div>
+            <i class="icon-target find-me" data-click="find-me"></i>
+            <div class="wait-order-approve">
+                <div class="wait-order-approve__route-info">
+                    <div class="wait-order-approve__route-info__route">
+                        <div></div>
+                        <div>-</div>
+                        <div></div>
+                    </div>
+                    <div class="wait-order-approve__route-info__price">
+
+                    </div>
+                    <div class="wait-order-approve__route-info__cancel">
+
+                    </div>                        
+                </div>
+            </div>
+            <div class="wait-bids-approve"></div>
+        </template>
+        <template id="ctrlTaxiClientMyOrders">
+            <ul data-controller="taxi_client_my_orders" class="myorders"></ul>
+        </template>
+        <template id="ctrlTaxiDriverCity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
+                    <ul class="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <div class="list-orders_norecords">Нет заказов</div>
+                </div>
+              </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiDriverGo">
+            <div id="map_canvas_go_driver"></div>
+            <div class="wait-order-approve" data-controller="taxi_driver_go">
+                <div class="wait-order-approve__route-info">
+                    <div class="wait-order-approve__route-info__route">
+                        <div></div>
+                        <div>-</div>
+                        <div></div>
+                    </div>
+                    <div class="wait-order-approve__route-info__price">
+
+                    </div>
+                    <div class="wait-order-approve__route-info__cancel">
+
+                    </div>                        
+                </div>
+            </div>
+            <div class="wait-bids-approve"></div>
+
+            <div class="go-order__down">
+                <div class="go-order__down__driver-panel">
+                    <div class="go-order__down__driver-panel__info">
+                        <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
+                        <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                    </div>
+                    <div class="go-order__down__driver-panel__action">
+                        <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                    </div>
+                </div>
+                <div class="go-order__down__messages">
+                    <div class="go-order__down__messages__textarea"></div>
+                    <div class="go-order__down__messages__textinput">
+                        <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                        <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiDriverIntercity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Свободное авто</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper" data-controller="taxi_driver_intercity">
+              <div class="tabs__viewport">
+                <div data-tabcontent="1" data-tab-content="1" class="tabs_content" id="1">
+                    <div class="filter-intercity">
+                        <p>
+                            <i class="icon-building"></i>
+                            <input type="text" data-keyup="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
+                        </p>
+                        <p>
+                            <i class="icon-building"></i>
+                            <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
+                        </p>
+                    </div>
+                    <ul class="list-extended" data-controller="taxi_driver_intercity_list_orders"></ul>
+                </div>
+                <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
+                    <div class="filter-intercity">
+                        <p>
+                            <i class="icon-building"></i>
+                            <input type="text" class="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
+                        </p>
+                        <p>
+                            <i class="icon-building"></i>
+                            <input type="text" class="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
+                        </p>
+                    </div>
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../asset/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Петр</div>
+                                <div class="list-extended__route_time">2 октября,16:17</div>
+                                <div class="list-extended__route_from">Хабаровск</div>
+                                <div class="list-extended__route_to">Магадан</div>
+                                <div class="list-extended__route_sum">7000</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div data-tabcontent="3" data-tab-content="3" class="tabs_content">
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../asset/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Василий</div>
+                                <div class="list-extended__route_time">2 ноября,19:35</div>
+                                <div class="list-extended__route_from">Хабаровск</div>
+                                <div class="list-extended__route_to">Лесозадск</div>
+                                <div class="list-extended__route_sum">1000</div>
+                                <div class="list-extended__route_info">Один русский)</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>    
+              </div>    
+            </div>    
+        </template>
+        <template id="ctrlTaxiDriverMyAuto">
+            <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
+                <p>
+                    <label>Марка:
+                        <select name="brand">
+                            <option value="0">Марка автомобиля</option>
+                            <option value="Acura">Acura</option>
+                            <option value="Alfa Romeo">Alfa Romeo</option>
+                            <option value="Alpina">Alpina</option>
+                            <option value="Aro">Aro</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Aston Martin">Aston Martin</option>
+                            <option value="Audi">Audi</option>
+                            <option value="Austin">Austin</option>
+                            <option value="Bentley">Bentley</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Brilliance">Brilliance</option>
+                            <option value="Bugatti">Bugatti</option>
+                            <option value="Buick">Buick</option>
+                            <option value="BYD">BYD</option>
+                            <option value="Cadillac">Cadillac</option>
+                            <option value="Caterham">Caterham</option>
+                            <option value="ChangFeng">ChangFeng</option>
+                            <option value="Chery">Chery</option>
+                            <option value="Chevrolet">Chevrolet</option>
+                            <option value="Chrysler">Chrysler</option>
+                            <option value="Citroen">Citroen</option>
+                            <option value="Coggiola">Coggiola</option>
+                            <option value="Dacia">Dacia</option>
+                            <option value="Dadi">Dadi</option>
+                            <option value="Daewoo">Daewoo</option>
+                            <option value="Daihatsu">Daihatsu</option>
+                            <option value="Daimler">Daimler</option>
+                            <option value="Derways">Derways</option>
+                            <option value="Dodge">Dodge</option>
+                            <option value="Dong Feng">Dong Feng</option>
+                            <option value="Doninvest">Doninvest</option>
+                            <option value="Donkervoort">Donkervoort</option>
+                            <option value="Eagle">Eagle</option>
+                            <option value="FAW">FAW</option>
+                            <option value="Ferrari">Ferrari</option>
+                            <option value="Fiat">Fiat</option>
+                            <option value="Ford">Ford</option>
+                            <option value="Geely">Geely</option>
+                            <option value="Geo">Geo</option>
+                            <option value="GMC">GMC</option>
+                            <option value="Great Wall">Great Wall</option>
+                            <option value="Hafei">Hafei</option>
+                            <option value="Honda">Honda</option>
+                            <option value="HuangHai">HuangHai</option>
+                            <option value="Hummer">Hummer</option>
+                            <option value="Hyundai">Hyundai</option>
+                            <option value="Infiniti">Infiniti</option>
+                            <option value="Iran Khodro">Iran Khodro</option>
+                            <option value="Isuzu">Isuzu</option>
+                            <option value="JAC">JAC</option>
+                            <option value="Jaguar">Jaguar</option>
+                            <option value="Jeep">Jeep</option>
+                            <option value="Kia">Kia</option>
+                            <option value="Koenigsegg">Koenigsegg</option>
+                            <option value="Lamborghini">Lamborghini</option>
+                            <option value="Lancia">Lancia</option>
+                            <option value="Land Rover">Land Rover</option>
+                            <option value="Landwind">Landwind</option>
+                            <option value="Lexus">Lexus</option>
+                            <option value="Lifan">Lifan</option>
+                            <option value="Lincoln">Lincoln</option>
+                            <option value="Lotus">Lotus</option>
+                            <option value="Mahindra">Mahindra</option>
+                            <option value="Maruti">Maruti</option>
+                            <option value="Maserati">Maserati</option>
+                            <option value="Maybach">Maybach</option>
+                            <option value="Mazda">Mazda</option>
+                            <option value="Mercedes-Benz">Mercedes-Benz</option>
+                            <option value="Mercury">Mercury</option>
+                            <option value="Metrocab">Metrocab</option>
+                            <option value="MG">MG</option>
+                            <option value="Microcar">Microcar</option>
+                            <option value="Mini">Mini</option>
+                            <option value="Mitsubishi">Mitsubishi</option>
+                            <option value="Mitsuoka">Mitsuoka</option>
+                            <option value="Morgan">Morgan</option>
+                            <option value="Nissan">Nissan</option>
+                            <option value="Oldsmobile">Oldsmobile</option>
+                            <option value="Opel">Opel</option>
+                            <option value="Pagani">Pagani</option>
+                            <option value="Peugeot">Peugeot</option>
+                            <option value="Plymouth">Plymouth</option>
+                            <option value="Pontiac">Pontiac</option>
+                            <option value="Porsche">Porsche</option>
+                            <option value="Proton">Proton</option>
+                            <option value="PUCH">PUCH</option>
+                            <option value="Renault">Renault</option>
+                            <option value="Rolls-Royce">Rolls-Royce</option>
+                            <option value="Rover">Rover</option>
+                            <option value="Saab">Saab</option>
+                            <option value="Saleen">Saleen</option>
+                            <option value="Saturn">Saturn</option>
+                            <option value="Scion">Scion</option>
+                            <option value="SEAT">SEAT</option>
+                            <option value="ShuangHuan">ShuangHuan</option>
+                            <option value="Skoda">Skoda</option>
+                            <option value="Smart">Smart</option>
+                            <option value="Spyker">Spyker</option>
+                            <option value="SsangYong">SsangYong</option>
+                            <option value="Subaru">Subaru</option>
+                            <option value="Suzuki">Suzuki</option>
+                            <option value="Tatra">Tatra</option>
+                            <option value="Tianma">Tianma</option>
+                            <option value="Tianye">Tianye</option>
+                            <option value="Toyota">Toyota</option>
+                            <option value="Trabant">Trabant</option>
+                            <option value="TVR">TVR</option>
+                            <option value="Vector">Vector</option>
+                            <option value="Volkswagen">Volkswagen</option>
+                            <option value="Volvo">Volvo</option>
+                            <option value="Wartburg">Wartburg</option>
+                            <option value="Wiesmann">Wiesmann</option>
+                            <option value="Xin Kai">Xin Kai</option>
+                            <option value="ZX">ZX</option>
+                            <option value="ВАЗ">ВАЗ</option>
+                            <option value="Велта">Велта</option>
+                            <option value="ГАЗ">ГАЗ</option>
+                            <option value="ЗАЗ">ЗАЗ</option>
+                            <option value="ЗИЛ">ЗИЛ</option>
+                            <option value="ИЖ">ИЖ</option>
+                            <option value="КАМАЗ">КАМАЗ</option>
+                            <option value="ЛУАЗ">ЛУАЗ</option>
+                            <option value="Москвич">Москвич</option>
+                            <option value="СеАЗ">СеАЗ</option>
+                            <option value="СМЗ">СМЗ</option>
+                            <option value="ТагАЗ">ТагАЗ</option>
+                            <option value="УАЗ">УАЗ</option>
+                        </select>
+                    </label>
+                </p>
+                <p>
+                    <label>Модель:
+                        <select name="model">
+                            <option value="">Загрузка...</option>
+                        </select>
+                        <!--<input type="text" name="model" value="" placeholder="Модель автомобиля" />-->
+                    </label>
+                </p>
+                <p>
+                    <label>Цвет авто:
+                        <input type="text" name="color" value="" placeholder="Цвет авто" />
+                    </label>
+                </p>
+                <p>
+                    <label>Гос номер:
+                        <input type="text" name="number" value="" placeholder="Гос. Номер" />
+                    </label>
+                </p>
+                <p>
+                    <img class="avatar" src="" alt="" />
+                    <input type="file" name="ava_file" /><br/>
+                </p>
+                <p>
+                    <label>Доп. инфо:
+                        <input type="text" name="tonnage" value="" placeholder="Доп. инфо грузового авто"/>
+                    </label>
+                </p>
+                <p>
+                    Есть кондиционер: <input type="radio" name="conditioner" value="0" checked /> Нет <input type="radio" name="conditioner" value="1" />Да
+                </p>
+                <p>
+                    <label>Тип авто: 
+                        <select name="type">
+                            <option value="Легковой">Легковой</option>
+                            <option value="Микроавтобус">Микроавтобус</option>
+                            <option value="Грузовик">Грузовик</option>
+                        </select>
+                    </label>
+                </p>
+                <p>
+                    <button class="button_wide--yellow">Сохранить</button>
+                </p>
+            </form>
+        </template>
+    </body>
+</html>

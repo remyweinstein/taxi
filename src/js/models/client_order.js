@@ -1,6 +1,6 @@
-define(['App', 'Ajax', 'Uries'], function(App, Ajax, Uries) {
+define(['Ajax'], function(Ajax) {
   
-  var ClientOrder = function () {
+  var clClientOrder = function () {
     var self = this;
 
     this.id = null;
@@ -25,7 +25,7 @@ define(['App', 'Ajax', 'Uries'], function(App, Ajax, Uries) {
     this.comment = "";
 
     this.getByID = function (callback) {
-                  Ajax.request(Uries.server_uri, 'GET', 'order', App.user.token, '&id=' + self.id, '', function(response) {
+                  Ajax.request('GET', 'order', User.token, '&id=' + self.id, '', function(response) {
                     //console.log(response);
                     if (response && response.ok) {
                       var ord = response.order;
@@ -60,6 +60,6 @@ define(['App', 'Ajax', 'Uries'], function(App, Ajax, Uries) {
 
   };
   
-  return ClientOrder;
+  return clClientOrder;
   
 });

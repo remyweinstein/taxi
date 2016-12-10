@@ -1,23 +1,26 @@
-        // = Form auth SMS =
-    Event.submit = function (event) {
-          var target = event.target;
+define(['Ajax', 'Dom'], function (Ajax, Dom) {
+  
+  Event.submit = function (event) {
+        var target = event.target;
 
-          while (target !== this) {
-            if (target.dataset.submit === 'form-auth-sms') {
-              var sms = Dom.sel('input[name="sms"]').value;
+        while (target !== this) {
+          if (target.dataset.submit === 'form-auth-sms') {
+            var sms = Dom.sel('input[name="sms"]').value;
 
-              Ajax.request(server_uri, 'POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
-                if (response && response.ok) {
-                  localStorage.setItem('_is_auth', 'true');              
-                  document.location= '/';
-                }
-              });
+            Ajax.request('POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
+              if (response && response.ok) {
+                localStorage.setItem('_is_auth', 'true');              
+                window.location.hash = '#client_city';
+              }
+            });
 
-              return;
-            }
-
-            target = target.parentNode;
+            return;
           }
-        }
 
-    content.addEventListener('submit', Event.submit);
+          target = target.parentNode;
+        }
+      };
+
+  content.addEventListener('submit', Event.submit);
+  
+});
