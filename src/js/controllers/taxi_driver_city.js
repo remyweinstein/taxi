@@ -2,10 +2,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
   var Orders = [];
 
-  update_taxi_order();
-
-  timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
-
   function update_taxi_order() {
     Ajax.request('GET', 'orders', User.token, '&isIntercity=0&fromCity=' + User.city, '', function(response) {
       if (response && response.ok) {
@@ -121,87 +117,99 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     }
   }
 
-  Event.click = function (event) {
-    var target = event.target;
+  function addEvents() {
+    Event.click = function (event) {
+      var target = event.target;
 
-    while (target !== this) {
-          // Click taxi_bid
-      if (target.dataset.click === "taxi_bid") {
-        var el = target;
+      while (target !== this) {
+            // Click taxi_bid
+        if (target.dataset.click === "taxi_bid") {
+          var el = target;
 
-        if (el.classList.contains('active')) {
-          Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
-            if (response && response.ok) {
-              el.classList.remove('active');
-            }
-          });
-        } else {
-          var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
-          var get_price = el_price.innerHTML;
-            get_price = get_price.split(" ");
-          var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
-          var get_time = el_time.innerHTML;
-            get_time = get_time.split(" ");
-          Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
-            if (response && response.ok) {
-              el.classList.add('active');
-            }  
-          });
+          if (el.classList.contains('active')) {
+            Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
+              if (response && response.ok) {
+                el.classList.remove('active');
+              }
+            });
+          } else {
+            var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
+            var get_price = el_price.innerHTML;
+              get_price = get_price.split(" ");
+            var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
+            var get_time = el_time.innerHTML;
+              get_time = get_time.split(" ");
+            Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
+              if (response && response.ok) {
+                el.classList.add('active');
+              }  
+            });
+          }
         }
+
+        if (target.dataset.click === "time_minus") {
+          var el = target;
+
+          var time_el = el.parentNode.children[1];
+          var time = time_el.innerHTML;
+            time = time.split(" ");
+            time = parseInt(time[0]) - 5;
+            if (time < 5) time = 5;
+            Orders[el.dataset.key].travelTime = time;
+            time_el.innerHTML = time + ' мин.';
+        }
+
+        if (target.dataset.click === "time_plus") {
+          var el = target;
+
+          var time_el = el.parentNode.children[1];
+          var time = time_el.innerHTML;
+            time = time.split(" ");
+            time = parseInt(time[0]) + 5;
+            if (time < 0) time = 0;
+            Orders[el.dataset.key].travelTime = time;
+            time_el.innerHTML = time + ' мин.';
+        }
+
+        if (target.dataset.click === "price_minus") {
+          var el = target;
+
+          var price_el = el.parentNode.children[1];
+          var price = price_el.innerHTML;
+            price = price.split(" ");
+            price = parseInt(price[0]) - 10;
+            if (price < 50) price = 50;
+            Orders[el.dataset.key].price = price;
+            price_el.innerHTML = price + ' руб.';
+        }
+
+        if (target.dataset.click === "price_plus") {
+          var el = target;
+
+          var price_el = el.parentNode.children[1];
+          var price = price_el.innerHTML;
+            price = price.split(" ");
+            price = parseInt(price[0]) + 10;
+            Orders[el.dataset.key].price = price;
+            price_el.innerHTML = price + ' руб.';
+        }
+
+        target = target.parentNode;
       }
 
-      if (target.dataset.click === "time_minus") {
-        var el = target;
+    };
 
-        var time_el = el.parentNode.children[1];
-        var time = time_el.innerHTML;
-          time = time.split(" ");
-          time = parseInt(time[0]) - 5;
-          if (time < 5) time = 5;
-          Orders[el.dataset.key].travelTime = time;
-          time_el.innerHTML = time + ' мин.';
-      }
-
-      if (target.dataset.click === "time_plus") {
-        var el = target;
-
-        var time_el = el.parentNode.children[1];
-        var time = time_el.innerHTML;
-          time = time.split(" ");
-          time = parseInt(time[0]) + 5;
-          if (time < 0) time = 0;
-          Orders[el.dataset.key].travelTime = time;
-          time_el.innerHTML = time + ' мин.';
-      }
-
-      if (target.dataset.click === "price_minus") {
-        var el = target;
-
-        var price_el = el.parentNode.children[1];
-        var price = price_el.innerHTML;
-          price = price.split(" ");
-          price = parseInt(price[0]) - 10;
-          if (price < 50) price = 50;
-          Orders[el.dataset.key].price = price;
-          price_el.innerHTML = price + ' руб.';
-      }
-
-      if (target.dataset.click === "price_plus") {
-        var el = target;
-
-        var price_el = el.parentNode.children[1];
-        var price = price_el.innerHTML;
-          price = price.split(" ");
-          price = parseInt(price[0]) + 10;
-          Orders[el.dataset.key].price = price;
-          price_el.innerHTML = price + ' руб.';
-      }
-
-      target = target.parentNode;
-    }
-
+    content.addEventListener('click', Event.click);
+  }
+  
+  function start() {
+    update_taxi_order();
+    timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
+    AddEvents();
+  }
+  
+  return {
+    start: start
   };
-
-  content.addEventListener('click', Event.click);
     
 });    

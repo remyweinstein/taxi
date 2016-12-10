@@ -2,12 +2,8 @@ define(['Dom'], function (Dom) {
   
   var _timer;
   var input = Dom.sel('input[name="enter-address"]');
-    input.value = localStorage.getItem('_address_string_temp');
   var result_block = Dom.sel('.choice-location__results-search');
-  input.addEventListener('input', onchange);
-
-  onchange();
-
+  
   function onchange() {
 
     clearTimeout(_timer);
@@ -78,37 +74,52 @@ define(['Dom'], function (Dom) {
       }
 
   }
+  
+  function addEvents() {
+    result_block.addEventListener('click', function(e) {
+      var target = e.target;
 
-  result_block.addEventListener('click', function(e) {
-    var target = e.target;
+      while (target !== this) {
+        if (target.tagName === 'P') {
+          var _route = localStorage.getItem('_address_temp');
 
-    while (target !== this) {
-      if (target.tagName === 'P') {
-        var _route = localStorage.getItem('_address_temp');
+          if (_route === "from") {
+            MyOrder.fromAddress = target.children[0].innerHTML;
+            MyOrder.fromCoords = target.dataset.latlng;
+          }
 
-        if (_route === "from") {
-          MyOrder.fromAddress = target.children[0].innerHTML;
-          MyOrder.fromCoords = target.dataset.latlng;
+          if (_route === "to") {
+            MyOrder.toAddress = target.children[0].innerHTML;
+            MyOrder.toCoords = target.dataset.latlng;
+          }
+
+          var substr = _route.substring(0, 7);
+          if (substr === "to_plus") {
+            var _index = _route.replace("to_plus", "");
+
+            MyOrder.toAddresses[_index] = target.children[0].innerHTML;
+            MyOrder.toCoordses[_index] = target.dataset.latlng;
+          }
+
+          window.location.hash = '#client_city';
         }
 
-        if (_route === "to") {
-          MyOrder.toAddress = target.children[0].innerHTML;
-          MyOrder.toCoords = target.dataset.latlng;
-        }
-
-        var substr = _route.substring(0, 7);
-        if (substr === "to_plus") {
-          var _index = _route.replace("to_plus", "");
-
-          MyOrder.toAddresses[_index] = target.children[0].innerHTML;
-          MyOrder.toCoordses[_index] = target.dataset.latlng;
-        }
-
-        window.location.hash = '#client_city';
+        target = target.parentNode;
       }
+    });
+  }
+  
+  function start() {
+    input.value = localStorage.getItem('_address_string_temp');
+    input.addEventListener('input', onchange);
 
-      target = target.parentNode;
-    }
-  });
-
+    onchange();
+    
+    addEvents();
+  }
+  
+  return {
+    start: start
+  };
+  
 });

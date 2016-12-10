@@ -1,14 +1,14 @@
 define(['Dom'], function (Dom) {
   
   var App;
-  var routes = [{hash:'#client_city', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
-                {hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
+  var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
                 {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', controller:'ctrlPageSms', title:'Подтверждение', menu:'', pageType: 'back-arrow'},
-                {hash:'#client_choice_location_map', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: ''},
-                {hash:'#client_choose_address', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: ''},
+                {hash:'#client_choice_location_map', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
+                {hash:'#client_choose_address', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
+                {hash:'#client_city', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
                 {hash:'#client_go', controller:'ctrlTaxiClientGo', title:'Поехали', menu:'client', pageType: ''},
                 {hash:'#client_intercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
                 {hash:'#client_map', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
@@ -86,8 +86,7 @@ define(['Dom'], function (Dom) {
     
     require([route.controller], function(controller) {
       App.init();
-      //controller.start();
-      
+      controller.start(App);
       Dom.sel(".loading").style.visibility = "hidden";
     });
   }

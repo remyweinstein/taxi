@@ -16,6 +16,7 @@ define(['Ajax'], function(Ajax) {
     this.toFullAddress = "";
     this.toFullAddresses = [];
     this.times = [];
+    this.toCities = [];
 
     this.fromCity  = "" ;
     this.toCity = "";
@@ -24,15 +25,16 @@ define(['Ajax'], function(Ajax) {
     this.price = 0;
     this.comment = "";
 
-    this.getByID = function (callback) {
-                  Ajax.request('GET', 'order', User.token, '&id=' + self.id, '', function(response) {
+    this.getByID = function (_id, callback) {
+                  Ajax.request('GET', 'order', User.token, '&id=' + _id, '', function(response) {
                     //console.log(response);
                     if (response && response.ok) {
                       var ord = response.order;
-
+                      
                       if(ord.bidId && ord.bidId > 0) {
                         self.bid_id = ord.bidId;
                       }
+                      self.id = ord.id;
                       self.fromAddress = ord.fromAddress;
                       self.toAddress = ord.toAddress;
                       self.fromCoords = ord.fromLocation;
@@ -40,12 +42,21 @@ define(['Ajax'], function(Ajax) {
                       self.fromFullAddress = "";
                       self.toFullAddress = "";
                       self.time0 = 0;
-
                       self.toAddresses = [];
+                      self.toCities = [];
                       self.toCoordses = [];
                       self.toFullAddresses = [];
                       self.times = [];
-
+                      self.cities = [];
+                      if (ord.points.length > 0) {
+                        for (var i = 0; i < ord.points.length; i++) {
+                          self.toAddresses[i] = ord.points[i].address ? ord.points[i].address : "";
+                          self.toCoordses[i] = ord.points[i].location ? ord.points[i].location : "";
+                          self.toFullAddresses[i] = ord.points[i].fullAddress ? ord.points[i].fullAddress : "";
+                          self.times[i] = ord.points[i].stopTime ? ord.points[i].stopTime : "";
+                          self.cities[i] = ord.points[i].city ? ord.points[i].city : "";
+                        }
+                      }
                       self.fromCity  = ord.fromCity;
                       self.toCity = ord.toCity;
 

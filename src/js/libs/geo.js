@@ -1,4 +1,4 @@
-define(['Ajax', 'jsts', 'Settings'], function (Ajax, jsts, Settings) {
+define(['Ajax', 'jsts'], function (Ajax, jsts) {
 
     var old_lat, old_lng;
     

@@ -5,12 +5,13 @@ function(clUser, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMe
     
     start: function () {
       
-      domReady(function () { 
+      domReady(function () {
 
         User =     new clUser();
         Modal =    new clModalWindow();
         Event =    new clEvents();
         Settings = new clSettings();
+          Settings.getSettings();
         MyOrder =  new clClientOrder();
 
         User.initToken();

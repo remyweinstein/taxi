@@ -79,8 +79,6 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
             setToken(response.token);
             setId(response.id);
             self.name = default_name;
-
-            init();
           }
         });
       }

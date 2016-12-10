@@ -1,7 +1,5 @@
 define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
   
-  bid_id = localStorage.getItem('_current_id_bid');
-
   var LatLng = new google.maps.LatLng(48.49, 135.07);
   var mapCanvas = document.getElementById('map_canvas_go_driver');
   var mapOptions = {
@@ -16,35 +14,6 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
   var markers = new Array, marker_client;
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
   var name_client, photo_client;
-
-  Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
-    //console.log(JSON.stringify(response.bid.agent));
-    if (response && response.ok) {
-      var ords = response.bid.order;
-      fromAddress = ords.fromAddress;
-      toAddress = ords.toAddress;
-      fromCoords = ords.fromLocation.split(",");
-      toCoords = ords.toLocation.split(",");
-      price = Math.round(response.bid.price);
-      name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
-      photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
-
-      waypoints = [];
-
-      for (var i = 0; i < ords.toAddresses.length; i++) {
-        var _wp = ords.toLocations[i].split(",");
-        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-        addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
-      }
-
-      addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-      addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
-
-      setRoute();
-    }
-
-  });
-
 
   function setRoute() {
     var el_route = Dom.sel('.wait-order-approve__route-info__route');
@@ -158,24 +127,65 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
 
   }
 
-  timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
+  function addEvents() {
+    Event.click = function (event) {
+      var target = event.target;
 
-  Chat.start('client');
+      while (target !== this) {
+            // Click taxi_driver arrived
+        if (target.dataset.click === "driver-arrived") {
+          Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
+            Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function () {});
+          });
+        }
 
-  Event.click = function (event) {
-    var target = event.target;
+        target = target.parentNode;
+      }
+    };
 
-    while (target !== this) {
-          // Click taxi_driver arrived
-      if (target.dataset.click === "driver-arrived") {
-        Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
-          Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function () {});
-        });
+    content.addEventListener('click', Event.click);
+  }
+  
+  function start() {
+    bid_id = localStorage.getItem('_current_id_bid');
+
+    Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
+      //console.log(JSON.stringify(response.bid.agent));
+      if (response && response.ok) {
+        var ords = response.bid.order;
+        fromAddress = ords.fromAddress;
+        toAddress = ords.toAddress;
+        fromCoords = ords.fromLocation.split(",");
+        toCoords = ords.toLocation.split(",");
+        price = Math.round(response.bid.price);
+        name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
+        photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
+
+        waypoints = [];
+
+        for (var i = 0; i < ords.toAddresses.length; i++) {
+          var _wp = ords.toLocations[i].split(",");
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+        }
+
+        addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+        addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+
+        setRoute();
       }
 
-      target = target.parentNode;
-    }
-  };
+    });
 
-  content.addEventListener('click', Event.click);
+    timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
+
+    Chat.start('client');
+
+    addEvents();
+  }
+  
+  return {
+    start: start
+  };
+  
 });

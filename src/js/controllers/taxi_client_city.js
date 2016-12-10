@@ -1,33 +1,18 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
+  var test = 'test';
+  
   var driver_marker = [];
   var map_choice;
   var markers_driver_pos = [];    
-  var from = Dom.sel('input[name="from"]');
-  var to = Dom.sel('input[name="to"]');
-  var rem_old_stops = Dom.selAll('.order-city-to_z');
-
-  for (var i = 0; i < rem_old_stops.length; i++) {
-    rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
-  }
+  var from = Dom.selAll('input[name="from"]')[0];
+  var to = Dom.selAll('input[name="to"]')[0];
 
   var marker_a, marker_b;
   var price = Dom.sel('[name="cost"]').value;
   var comment = Dom.sel('[name="description"]').value;
-
-  for (var i = 0; i < MyOrder.toAddresses.length; i++) {
-    AddNewZaezd(i);
-    Dom.sel('input[name="to_plus' + i + '"]').value = MyOrder.toAddresses[i];
-  }
-
-  price.value = MyOrder.price;
-  comment.value = MyOrder.comment;
-
-
-  //from.value = localStorage.getItem('_address_from');
-  //to.value = localStorage.getItem('_address_to');
-  from.value = MyOrder.fromAddress;
-  to.value = MyOrder.toAddress;
+  
+  var content = Dom.sel('.content');
 
   function addEventChooseAddress(el) {
     Dom.sel('input[name="' + el + '"]').addEventListener('click', function(event) {
@@ -38,12 +23,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     });
   }
 
-    addEventChooseAddress('from');    
-    addEventChooseAddress('to');
-
-  initialize_iam();        
-
-  // Google maps TAXY CLIENT CITY ORDER 
   function initialize_iam() {
     var zoom = 15;
     //var LatLng = new google.maps.LatLng(48.49, 135.07);
@@ -66,8 +45,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       title: 'Я здесь!'
     });
 
-    var from_value = from.value;
-    var to_value = to.value;
+    var from_value = Dom.selAll('input[name="from"]')[0].value;
+    var to_value = Dom.selAll('input[name="to"]')[0].value;
 
     if (from_value !== '' && to_value === '') {
       var _addr_from = MyOrder.fromCoords.split(",");
@@ -167,8 +146,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     return marker;
   }
 
-  timerGetPosTaxy = setInterval(get_pos_drivers, 1500);
-
   function get_pos_drivers() {
     Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
       if (response && response.ok) {
@@ -194,14 +171,16 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
 
   function AddNewZaezd(just_add) {
-    eval("var time = MyOrder.times[" + just_add + "]");
-    time = time > 0 ? time + " мин" : "";
+    var time = MyOrder.times[just_add];
+    var addr = MyOrder.toAddresses[just_add];
+      time = time > 0 ? time + " мин" : "";
+      addr = addr ? addr : "";
     var el = Dom.sel('.order-city-to');
     var new_field = document.createElement('div');
      new_field.className += 'form-order-city__field order-city-to_z';
      new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>\n\
                             <span class="form-order-city__wrap">\n\
-                              <input type="text" name="to_plus' + just_add + '" value="" placeholder="Заезд"/>\n\
+                              <input type="text" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>\n\
                             </span>\n\
                             <span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">\n\
                               <i class="icon-clock"></i><span class="top-index">' + time + '</span>\n\
@@ -216,129 +195,169 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     addEventChooseAddress('to_plus' + just_add);
   }
 
-  Event.click = function (event) {
-    var target = event.target;
+  function addEvents() {
+    
+    Event.click = function (event) {
+      var target = event.target;
+      
+      while (target !== this) {
+            // = Click choose location =
+        if (target.dataset.click === 'choice_location') {
+          localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+          window.location.hash = '#client_choice_location_map';
 
-    while (target !== this) {
-          // = Click choose location =
-      if (target.dataset.click === 'choice_location') {
-        localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-        window.location.hash = '#client_choice_location_map';
+          return;
+        }
+            // = Form add new point order =
+        if (target.dataset.click === 'field_add') {
+          var just_add = Dom.selAll('.icon-record').length;
 
-        return;
+          AddNewZaezd(just_add);
+
+          return;
+        }
+
+        if (target.dataset.click === 'field_add_time') {
+          var _id = target.dataset.id;
+
+          Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
+                    <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
+                  ', function (response) {
+                      eval("MyOrder.times[" + _id + "] = " + response);
+                      reloadPoints();
+                  });
+
+          return;
+        }
+            // = Form delete point order =
+        if (target.dataset.click === 'field_delete') {
+          var _id = target.dataset.id;
+
+          MyOrder.toAddresses.splice(_id, 1);
+          MyOrder.toCoordses.splice(_id, 1);
+          MyOrder.times.splice(_id, 1);
+
+          var be_dead = target.parentNode;
+            be_dead.parentNode.removeChild(be_dead);
+
+          reloadPoints();
+
+          return;
+        }
+
+        target = target.parentNode;
       }
-          // = Form add new point order =
-      if (target.dataset.click === 'field_add') {
-        var just_add = Dom.selAll('.icon-record').length;
+    };
+    
+    content.addEventListener('click', Event.click);
+    
+    Event.submit = function (event) {
+      var target = event.target;
 
-        AddNewZaezd(just_add);
+      while (target !== this) {
+            // = Click choose location =
+        if (target.dataset.submit === "taxy_client_city") {
+            Dom.sel('[data-click="order-taxi"]').disabled = true;
 
-        return;
-      }
+            MyOrder.price = Dom.sel('[name="cost"]').value;
+            MyOrder.comment = Dom.sel('[name="description"]').value;
 
-      if (target.dataset.click === 'field_add_time') {
-        var _id = target.dataset.id;
+            var data = new FormData();
 
-        Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
-                  <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
-                  <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
-                  <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
-                  <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
-                  <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
-                ', function (response) {
-                    eval("MyOrder.times[" + _id + "] = " + response);
-                    init();
-                });
+            event.preventDefault();
 
-        return;
-      }
-          // = Form delete point order =
-      if (target.dataset.click === 'field_delete') {
-        var _id = target.dataset.id;
+            data.append('fromCity', User.city);
+            data.append('fromAddress', MyOrder.fromAddress);
+            data.append('fromLocation', MyOrder.fromCoords);
+            data.append('toCity', User.city);
+            data.append('toAddress', MyOrder.toAddress);
+            data.append('toLocation', MyOrder.toCoords);
+            data.append('isIntercity', 0);
+            //data.append('bidId', '');
+            data.append('price', MyOrder.price);
+            data.append('comment', MyOrder.comment);
+            data.append('minibus', 0);
+            data.append('babyChair', 0);
+            data.append('distance', MyOrder.distance);
 
-        MyOrder.toAddresses.splice(_id, 1);
-        MyOrder.toCoordses.splice(_id, 1);
-        MyOrder.times.splice(_id, 1);
+            if (MyOrder.toAddresses.length > 0) {
+              //var _points = [];
 
-        var be_dead = target.parentNode;
-          be_dead.parentNode.removeChild(be_dead);
-
-        init();
-
-        return;
-      }
-
-      target = target.parentNode;
-    }
-  };
-
-  content.addEventListener('click', Event.click);
-
-  Event.submit = function (event) {
-    var target = event.target;
-
-    while (target !== this) {
-          // = Click choose location =
-      if (target.dataset.submit === "taxy_client_city") {
-          Dom.sel('[data-click="order-taxi"]').disabled = true;
-
-          MyOrder.price = Dom.sel('[name="cost"]').value;
-          MyOrder.comment = Dom.sel('[name="description"]').value;
-
-          var from_address = MyOrder.fromAddress;
-          var to_address = MyOrder.toAddress;
-          var price = MyOrder.price;
-          var comment = MyOrder.comment;
-          var to1 = "", to2 = "", to3 = "";
-          var data = new FormData();
-
-          event.preventDefault();
-
-          data.append('fromCity', User.city);
-          data.append('fromAddress', MyOrder.fromAddress);
-          data.append('fromLocation', MyOrder.fromCoords);
-          data.append('toCity', User.city);
-          data.append('toAddress', MyOrder.toAddress);
-          data.append('toLocation', MyOrder.toCoords);
-          data.append('isIntercity', 0);
-          //data.append('bidId', '');
-          data.append('price', MyOrder.price);
-          data.append('comment', MyOrder.comment);
-          data.append('minibus', 0);
-          data.append('babyChair', 0);
-          data.append('distance', MyOrder.distance);
-
-          if (MyOrder.toAddresses.length > 0) {
-            //var _points = [];
-
-            for (var i = 0; i < MyOrder.toAddresses.length; i++) {
-              var time = MyOrder.times[i] ? MyOrder.times[i] : 0;
-              //_points.push({'address': MyOrder.toAddresses[i],'location': MyOrder.toCoordses[i],'stopTime': time,'city': User.city,'fullAddress': ''});
-              data.append('points[' + i + '][address]', MyOrder.toAddresses[i]);
-              data.append('points[' + i + '][location]', MyOrder.toCoordses[i]);
-              data.append('points[' + i + '][stopTime]', time);
-              data.append('points[' + i + '][city]', User.city);
-              data.append('points[' + i + '][fullAddress]', '');
+              for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+                var time = MyOrder.times[i] ? MyOrder.times[i] : 0;
+                //_points.push({'address': MyOrder.toAddresses[i],'location': MyOrder.toCoordses[i],'stopTime': time,'city': User.city,'fullAddress': ''});
+                data.append('points[' + i + '][address]', MyOrder.toAddresses[i]);
+                data.append('points[' + i + '][location]', MyOrder.toCoordses[i]);
+                data.append('points[' + i + '][stopTime]', time);
+                data.append('points[' + i + '][city]', User.city);
+                data.append('points[' + i + '][fullAddress]', '');
+              }
+              //data.append('points', _points);
             }
-            //data.append('points', _points);
-          }
 
-          Ajax.request('POST', 'order', User.token, '', data, function(response) {
-            if (response && response.ok) {
-              MyOrder.id = response.id;
-              window.location.hash = '#client_map';                
-            } else {
-              alert('Укажите в профиле ваш город');
-            }
-          });
+            Ajax.request('POST', 'order', User.token, '', data, function(response) {
+              if (response && response.ok) {
+                MyOrder.id = response.id;
+                window.location.hash = '#client_map';                
+              } else {
+                alert('Укажите в профиле ваш город');
+              }
+            });
 
-        return;
+          return;
+        }
+
+        target = target.parentNode;
       }
+    };
 
-      target = target.parentNode;
+    content.addEventListener('submit', Event.submit);
+    
+  }
+  
+  function reloadPoints() {
+    var rem_old_stops = Dom.selAll('.order-city-to_z');
+
+    for (var i = 0; i < rem_old_stops.length; i++) {
+      rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
     }
-  };
 
-  content.addEventListener('submit', Event.submit);
+    for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+      AddNewZaezd(i);
+    }
+  }
+  
+  function start() {
+    
+    get_pos_drivers();
+    
+    price.value = MyOrder.price;
+    comment.value = MyOrder.comment;
+
+    //from.value = localStorage.getItem('_address_from');
+    //to.value = localStorage.getItem('_address_to');
+    
+    Dom.selAll('input[name="from"]')[0].value = MyOrder.fromAddress;
+    Dom.selAll('input[name="to"]')[0].value = MyOrder.toAddress;
+    
+    reloadPoints();
+    
+    addEventChooseAddress('from');    
+    addEventChooseAddress('to');
+
+    timerGetPosTaxy = setInterval(get_pos_drivers, 1500);
+    
+    initialize_iam();
+    addEvents();
+    
+  }
+  
+  return {
+    start: start
+  };
   
 });

@@ -1,7 +1,13 @@
 define(function () {
   
-  localStorage.removeItem('_my_token');
-  User.is_auth = false;
-  window.history.back();
+  function start() {
+    localStorage.removeItem('_my_token');
+    User.is_auth = false;
+    window.history.back();
+  }
+  
+  return {
+    start: start
+  };
 
 });

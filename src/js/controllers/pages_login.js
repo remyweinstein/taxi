@@ -1,5 +1,6 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
+  function addEvents() {
     Event.submit = function (event) {
           var target = event.target;
 
@@ -32,5 +33,14 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         };
 
     content.addEventListener('submit', Event.submit);
-    
+  }
+  
+  function start() {
+    addEvents();
+  }
+  
+  return {
+    start: start
+  };
+  
 });

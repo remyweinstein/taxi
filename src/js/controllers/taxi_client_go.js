@@ -1,8 +1,5 @@
 define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
   
-  bid_id = localStorage.getItem('_current_id_bid');
-  MyOrder.bid_id = bid_id;
-
   //var LatLng = new google.maps.LatLng(48.49, 135.07);
   var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
   var mapCanvas = document.getElementById('map_canvas_go');
@@ -97,41 +94,33 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
     show_route = true;
   }
 
-    function addInfoForMarker(min, marker) {
-      if(min && min > 0) {
-        var infowindow = new google.maps.InfoWindow({
-          content: min + ' мин.'
-        });
-        infowindow.open(map, marker);
-        google.maps.event.addListener(marker, 'click', function() {
-          infowindow.open(map, marker);
-        });
-      }
-    }
-
-    function addMarker(location, title, icon, map) {
-      var marker = new google.maps.Marker({
-        position: location,
-        //animation: google.maps.Animation.DROP,
-        icon: icon,
-        title: title,
-        map: map
+  function addInfoForMarker(min, marker) {
+    if(min && min > 0) {
+      var infowindow = new google.maps.InfoWindow({
+        content: min + ' мин.'
       });
-
-      return marker;
+      infowindow.open(map, marker);
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map, marker);
+      });
     }
+  }
 
-    Dom.selAll('.find-me')[0].addEventListener('click', function() {
-      map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
+  function addMarker(location, title, icon, map) {
+    var marker = new google.maps.Marker({
+      position: location,
+      //animation: google.maps.Animation.DROP,
+      icon: icon,
+      title: title,
+      map: map
     });
+
+    return marker;
+  }
 
   function get_pos_mine() {
     marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
   }
-
-  timerGetMyPos = setInterval(get_pos_mine, 1000);
-
-  get_pos_driver();
 
   function get_pos_driver() {
     Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function(response) {
@@ -189,15 +178,32 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
 
     });
   }
-  timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
+  
+  function start() {
+    bid_id = localStorage.getItem('_current_id_bid');
+    MyOrder.bid_id = bid_id;
 
-  Chat.start('driver');
-
-      // Click taxi_client in car
-  Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
-    Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
-      Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
+    Dom.selAll('.find-me')[0].addEventListener('click', function() {
+      map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
     });
-  });
+
+    timerGetMyPos = setInterval(get_pos_mine, 1000);
+
+    get_pos_driver();
+
+    timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
+
+    Chat.start('driver');
+
+    Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
+      Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
+        Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
+      });
+    });
+  }
+  
+  return {
+    start: start
+  };
   
 });

@@ -1,26 +1,35 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
-  
-  Event.submit = function (event) {
-        var target = event.target;
 
-        while (target !== this) {
-          if (target.dataset.submit === 'form-auth-sms') {
-            var sms = Dom.sel('input[name="sms"]').value;
+  function addEvents() {
+    Event.submit = function (event) {
+          var target = event.target;
 
-            Ajax.request('POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
-              if (response && response.ok) {
-                localStorage.setItem('_is_auth', 'true');              
-                window.location.hash = '#client_city';
-              }
-            });
+          while (target !== this) {
+            if (target.dataset.submit === 'form-auth-sms') {
+              var sms = Dom.sel('input[name="sms"]').value;
 
-            return;
+              Ajax.request('POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
+                if (response && response.ok) {
+                  localStorage.setItem('_is_auth', 'true');              
+                  window.location.hash = '#client_city';
+                }
+              });
+
+              return;
+            }
+
+            target = target.parentNode;
           }
+        };
 
-          target = target.parentNode;
-        }
-      };
-
-  content.addEventListener('submit', Event.submit);
+    content.addEventListener('submit', Event.submit);
+  }
   
+  function start() {
+    addEvents();
+  }
+  
+  return {
+    start: start
+  };
 });
