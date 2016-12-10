@@ -1,4 +1,4 @@
-define('Address', [], function() {
+define(function() {
 
   var Address = {
 

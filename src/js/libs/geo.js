@@ -1,6 +1,8 @@
-define('Geo', ['App', 'Ajax', 'Uries', 'jsts', 'Settings'], function (App, Ajax, Uries, jsts, Settings) {
+define(['App', 'Ajax', 'Uries', 'jsts', 'Settings'], function (App, Ajax, Uries, jsts, Settings) {
 
     var old_lat, old_lng;
+    
+    console.log('App.ex = ' + App.ex);
 
     function updateUserCoord() {
       if(App.user.lat !== old_lat || App.user.lng !== old_lng) {

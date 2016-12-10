@@ -1,4 +1,4 @@
-define('Tabs', ['Dom', 'hammer'], function(Dom, Hammer) { // Dom, Hammer
+define(['Dom', 'hammer'], function(Dom, Hammer) { // Dom, Hammer
 
   var tab, tabs, tabs_wrapper, tabs_viewport, tabs_content;
   var active_tab_class = 'tab--active';

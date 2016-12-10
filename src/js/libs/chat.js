@@ -1,4 +1,4 @@
-define('Chat', ['App', 'Ajax', 'Dom', 'Uries'], function(App, Ajax, Dom, Uries) {
+define(['App', 'Ajax', 'Dom', 'Uries'], function(App, Ajax, Dom, Uries) {
 
   var timerGetMessages;
   var interlocutor = "client";

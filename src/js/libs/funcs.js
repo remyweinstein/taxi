@@ -1,4 +1,4 @@
-define('Funcs', [], function() {
+define(function() {
   
   var Funcs = {
 

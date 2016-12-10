@@ -1,4 +1,4 @@
-define('MainMenu', ['Dom', 'hammer'], function (Dom, Hammer) {
+define(['Dom', 'hammer'], function (Dom, Hammer) {
     
   function swipeMenu(route) {
     var menu = Dom.sel('.menu');

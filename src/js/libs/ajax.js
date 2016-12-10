@@ -1,4 +1,4 @@
-define('Ajax', [], function() {
+define(function() {
   
   var Ajax = {
 

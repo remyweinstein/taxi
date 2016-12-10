@@ -8,43 +8,43 @@ requirejs.config({
     "jsts" : "vendor/jsts",
     "domReady" : "vendor/domReady",
     
-		"User" : "classes/user",
-		"Car" : "classes/car",
-		"ClientOrder" : "classes/client_order",
-		"DriverOrders" : "classes/driver_orders",
-		"Events" : "classes/events",
-		"ModalWindows" : "classes/modal_windows",
-		"Settings" : "classes/settings",
+		"User" : "models/user",
+		"Car" : "models/car",
+		"ClientOrder" : "models/client_order",
+		"DriverOrders" : "models/driver_orders",
+		"Events" : "models/events",
+		"ModalWindows" : "models/modal_windows",
+		"Settings" : "models/settings",
     
-    "Address" : "modules/address",
-    "Ajax" : "modules/ajax",
-    "Chat" : "modules/chat",
-    "Dates" : "modules/dates",
-    "Dom" : "modules/dom",
-    "Funcs" : "modules/funcs",
-    "Geo" : "modules/geo",
-    "InputFilters" : "modules/input_filters",
-    "Maps" : "modules/maps",
-    "MainMenu" : "modules/menu",
-    "Router" : "modules/router",
-    "Tabs" : "modules/tabs",
+    "Address" : "libs/address",
+    "Ajax" : "libs/ajax",
+    "Chat" : "libs/chat",
+    "Dates" : "libs/dates",
+    "Dom" : "libs/dom",
+    "Funcs" : "libs/funcs",
+    "Geo" : "libs/geo",
+    "InputFilters" : "libs/input_filters",
+    "Maps" : "libs/maps",
+    "MainMenu" : "libs/menu",
+    "Router" : "libs/router",
+    "Tabs" : "libs/tabs",
     
-    "ctrlPageEditProfile" : "modules/pages_edit_profile",
-    "ctrlPageLogin" : "modules/pages_login",
-    "ctrlPageLogout" : "modules/pages_logout",
-    "ctrlPageSettings" : "modules/pages_settings",
-    "ctrlPageSms" : "modules/pages_sms",
-    "ctrlTaxiClientChoiceLocationMap" : "modules/taxi_client_choice_location_map",
-    "ctrlTaxiClientChooseAddress" : "modules/taxi_client_choose_address",
-    "ctrlTaxiClientCity" : "modules/taxi_client_city",
-    "ctrlTaxiClientGo" : "modules/taxi_client_go",
-    "ctrlTaxiClientIntercity" : "modules/taxi_client_intercity",
-    "ctrlTaxiClientMap" : "modules/taxi_client_map",
-    "ctrlTaxiClientMyOrders" : "modules/taxi_client_my_orders",
-    "ctrlTaxiDriverCity" : "modules/taxi_driver_city",
-    "ctrlTaxiDriverGo" : "modules/taxi_driver_go",
-    "ctrlTaxiDriverIntercity" : "modules/taxi_driver_intercity",
-    "ctrlTaxiDriverMyAuto" : "modules/taxi_driver_my_auto"
+    "ctrlPageEditProfile" : "controllers/pages_edit_profile",
+    "ctrlPageLogin" : "controllers/pages_login",
+    "ctrlPageLogout" : "controllers/pages_logout",
+    "ctrlPageSettings" : "controllers/pages_settings",
+    "ctrlPageSms" : "controllers/pages_sms",
+    "ctrlTaxiClientChoiceLocationMap" : "controllers/taxi_client_choice_location_map",
+    "ctrlTaxiClientChooseAddress" : "controllers/taxi_client_choose_address",
+    "ctrlTaxiClientCity" : "controllers/taxi_client_city",
+    "ctrlTaxiClientGo" : "controllers/taxi_client_go",
+    "ctrlTaxiClientIntercity" : "controllers/taxi_client_intercity",
+    "ctrlTaxiClientMap" : "controllers/taxi_client_map",
+    "ctrlTaxiClientMyOrders" : "controllers/taxi_client_my_orders",
+    "ctrlTaxiDriverCity" : "controllers/taxi_driver_city",
+    "ctrlTaxiDriverGo" : "controllers/taxi_driver_go",
+    "ctrlTaxiDriverIntercity" : "controllers/taxi_driver_intercity",
+    "ctrlTaxiDriverMyAuto" : "controllers/taxi_driver_my_auto"
 	},
   shim: {
     "hammer" : {
@@ -61,6 +61,32 @@ requirejs.config({
     }
   }
 });
+
+  var content;
+  var map, map_choice, marker, geocoder;
+  var google, placeSearch, autocomplete, directionsService, directionsDisplay;
+
+  var average_speed = 40;
+  var cost_of_km = 25;
+
+  var User;
+
+  var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
+
+  var my_vehicle;
+
+  var bid_id;
+
+  var default_vehicle = 'asset/images/no_vehicle.png';
+
+  var timerSearchDriver, 
+      timerGetBidsTaxy, 
+      timerGetBidGo, 
+      timerUpdateTaxiDriverOrder, 
+      timerUpdateCoords,
+      timerGetPosTaxy,
+      timerGetMyPos;
+
 
 require(['App'], function (App) {  
   App.start();

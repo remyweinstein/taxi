@@ -1,4 +1,4 @@
-define('Router', ['App', 'Dom', 'Chat', 'Ajax', 'Uries'], function (App, Dom, Chat, Ajax, Uries) {
+define(['App', 'Dom', 'Chat', 'Ajax', 'Uries'], function (App, Dom, Chat, Ajax, Uries) {
   
   var lasturl = '', sublasturl = '', lastsection = '';
   

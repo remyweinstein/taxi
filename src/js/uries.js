@@ -1,4 +1,4 @@
-define('Uries', [], function() {
+define(function() {
   
   var Uries = {
     

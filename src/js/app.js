@@ -1,41 +1,18 @@
-define('App', ['User', 'Settings', 'Car', 'ClientOrder', 'ModalWindows', 'Events', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, Settings, MyCar, MyOrder, Modal, Event, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Events', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, Event, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
-  var content;
-  var map, map_choice, marker, geocoder;
-  var google, placeSearch, autocomplete, directionsService, directionsDisplay;
-
-  var average_speed = 40;
-  var cost_of_km = 25;
-
-  var User;
-
-  var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
-
-  var my_vehicle;
-
-  var bid_id;
-
-  var default_vehicle = 'asset/images/no_vehicle.png';
-
-  var timerSearchDriver, 
-      timerGetBidsTaxy, 
-      timerGetBidGo, 
-      timerUpdateTaxiDriverOrder, 
-      timerUpdateCoords,
-      timerGetPosTaxy,
-      timerGetMyPos;
-    
-  var App = {
+  var App =  {
     
     user: User,
     
+    ex: 'ex',
+
     start: function () {
       
       domReady(function () {
-        
+
         User = new clUser();
-        
+
         User.initToken();
         content = Dom.sel('.content');
 
@@ -49,7 +26,7 @@ function(clUser, Settings, MyCar, MyOrder, Modal, Event, Geo, MainMenu, InputFil
         }
 
         User.token = localStorage.getItem('_my_token');
-        
+
         Geo.init();
         MainMenu.init();
         InputFilters.init();
@@ -58,7 +35,7 @@ function(clUser, Settings, MyCar, MyOrder, Modal, Event, Geo, MainMenu, InputFil
         window.addEventListener('resize', function() {
           init();
         });
-        
+
       });
 
       return User;
@@ -161,7 +138,6 @@ function(clUser, Settings, MyCar, MyOrder, Modal, Event, Geo, MainMenu, InputFil
         }
       });
     }
-    
   };
   
   return App;

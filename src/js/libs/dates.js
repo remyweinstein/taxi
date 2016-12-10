@@ -1,4 +1,4 @@
-define('Dates', [], function() {
+define(function() {
   
   var Dates = {
 

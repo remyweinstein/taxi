@@ -1,4 +1,4 @@
-define('Maps', [], function() {  // Google
+define(function() {  // Google
 
   function renderDirections(map, result, polylineOpts) {
     var directionsRenderer = new google.maps.DirectionsRenderer();

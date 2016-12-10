@@ -1,4 +1,4 @@
-define('Dom', [], function() {
+define(function() {
   
   var Dom = {
 
