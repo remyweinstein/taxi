@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Funcs'], function (Ajax, Dom, Funcs) {
+define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
   
   function addEvents() {
     content.addEventListener('keyup', function(e) {
@@ -15,7 +15,11 @@ define(['Ajax', 'Dom', 'Funcs'], function (Ajax, Dom, Funcs) {
           return;
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     });
   }

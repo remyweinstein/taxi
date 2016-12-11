@@ -94,7 +94,11 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
           return;
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
 
     };

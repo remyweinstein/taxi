@@ -39,11 +39,19 @@ requirejs.config({
     "ctrlTaxiClientCity" : "controllers/taxi_client_city",
     "ctrlTaxiClientGo" : "controllers/taxi_client_go",
     "ctrlTaxiClientIntercity" : "controllers/taxi_client_intercity",
+    "ctrlTaxiClientCargo" : "controllers/taxi_client_cargo",
+    "ctrlTaxiClientFeedback" : "controllers/taxi_client_feedback",
+    "ctrlTaxiClientHelp" : "controllers/taxi_client_help",
     "ctrlTaxiClientMap" : "controllers/taxi_client_map",
     "ctrlTaxiClientMyOrders" : "controllers/taxi_client_my_orders",
     "ctrlTaxiDriverCity" : "controllers/taxi_driver_city",
+    "ctrlTaxiDriverFeedback" : "controllers/taxi_driver_feedback",
+    "ctrlTaxiDriverCargo" : "controllers/taxi_driver_cargo",
+    "ctrlTaxiDriverMyAccount" : "controllers/taxi_driver_my_account",
+    "ctrlTaxiDriverRating" : "controllers/taxi_driver_rating",
     "ctrlTaxiDriverGo" : "controllers/taxi_driver_go",
     "ctrlTaxiDriverIntercity" : "controllers/taxi_driver_intercity",
+    "ctrlTaxiDriverHelp" : "controllers/taxi_driver_help",
     "ctrlTaxiDriverMyAuto" : "controllers/taxi_driver_my_auto"
 	},
   shim: {
@@ -65,20 +73,20 @@ var menus_arr = [];
                            {name: 'Мои заказы', url: '#client_my_orders', icon: 'archive'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
-                           {name: 'Настройки', url: '#pages_settings', icon: 'cog'},
+                           {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
                            {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
-                           {name: 'Помощь', url: '#help_client', icon: 'lifebuoy'}];
+                           {name: 'Помощь', url: '#client_help', icon: 'lifebuoy'}];
     menus_arr['driver'] = [{name: 'Город', url: '#driver_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
                            {name: 'Мой авто', url: '#driver_my_auto', icon: 'cog-alt'},
                            {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
                            {name: 'Мой рейтинг', url: '#driver_rating', icon: 'user'},
-                           {name: 'Настройки', url: '#pages_settings', icon: 'cog'},
+                           {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#driver_feedback', icon: 'attention'},
                            {name: 'Режим клиента', url: '#client_city', icon: 'steering-wheel',  add_icon: '<i class="icon-toggle-on toggle_block"></i>'},
-                           {name: 'Помощь', url: '#help_driver', icon: 'lifebuoy'}];
+                           {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
   var content;
   var map, map_choice, marker, geocoder;
@@ -98,7 +106,7 @@ var menus_arr = [];
 
   var bid_id;
 
-  var default_vehicle = 'asset/images/no_vehicle.png';
+  var default_vehicle = 'assets/images/no_vehicle.png';
 
   var timerSearchDriver, 
       timerGetBidsTaxy, 

@@ -37,7 +37,11 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
           return;
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
 
     };

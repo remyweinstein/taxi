@@ -4,14 +4,14 @@
         <title>InDriverCopy</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <link href="asset/css/main.css" type="text/css" rel="stylesheet" />
-        <script data-main="asset/js/config" src="asset/js/vendor/require.js"></script>
+        <link href="assets/css/main.css" type="text/css" rel="stylesheet" />
+        <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-BLqmxD2e02-BpXmG5McwKx6P1sH4nC4&libraries=places"></script>
     </head>
     <body>
         <div class="menu menu--closed">
             <div data-click="edit_profile" class="menu__desc">
-                <img src="asset/images/no_avatar.png" alt="guest" class="menu__desc_avatar" />
+                <img src="assets/images/no_avatar.png" alt="guest" class="menu__desc_avatar" />
                 <div class="menu__desc_info">
                     <span class="jq_my_name"></span><br />
                     <span class="jq_my_phone"></span>
@@ -84,7 +84,7 @@
             <div data-controller="pages_logout"></div>
         </template>
         <template id="ctrlPageSettings">
-            <div class="settings" data-controller="pages_settings"></div>',
+            <div class="settings" data-controller="pages_settings"></div>
         </template>
         <template id="ctrlPageSms">
             <form data-controller="pages_sms" data-submit="form-auth-sms" onsubmit="return false;" class="form-login">
@@ -175,6 +175,71 @@
                 </div>
             </div>
         </template>
+        <template id="ctrlTaxiClientCargo">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказать</li>
+                    <li data-tab="2">Свободное авто</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content">
+                    <form action="" method="POST" class="form-order-city">
+                        <div class="form-order-city__field order-city-from">
+                            <i class="icon-right-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input class="adress_from" type="text" name="from" value="" placeholder="Откуда"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-left-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="from" value="" placeholder="Куда"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-rouble form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="from" value="" placeholder="Стоимость"/></span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="from" value="" placeholder="Примечание"/></span>
+                        </div>
+                        <div class="gBlock gBlock--float">
+                            <button class="button_rounded--green">Заказать грузовое авто</button>
+                        </div>
+                    </form>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                <ul class="list-extended">
+                    <li>
+                        <div class="list-extended__personal">
+                            <img src="../../assets/images/no_avatar.png" alt="" />
+                        </div>
+                        <div class="list-extended__route">
+                            <div class="list-extended__route_name">Борис</div>
+                            <div class="list-extended__route_time">12:45</div>
+                            <div class="list-extended__route_info">Грузоперевозки по городу</div>
+                            <div class="list-extended__route_sum">500</div>
+                        </div>
+                        <div class="list-extended__phone">
+                            <a href="#"><i class="icon-phone-circled"></i></a>
+                        </div>
+                    </li>
+                </ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                <ul class="myorders">
+                    <li>
+                        <p class="myorders__item__time">Вчера, 23:19</p>
+                        <p class="myorders__item__from">Ленина, 57</p>
+                        <p class="myorders__item__to">Карла Маркса 108</p>
+                        <p class="myorders__item__summa">150</p>
+                        <p class="myorders__item__info">Рано утром</p>
+                    </li>
+                </ul>
+                </div>
+              </div>
+            </div>
+        </template>
         <template id="ctrlTaxiClientIntercity">
             <nav class="tabs">
                 <ul>
@@ -226,7 +291,7 @@
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../asset/images/no_avatar.png" alt="" />
+                                <img src="../../assets/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Борис</div>
@@ -242,7 +307,7 @@
                         </li>
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../asset/images/no_avatar.png" alt="" />
+                                <img src="../../assets/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Гульнара</div>
@@ -283,6 +348,65 @@
             </div>
             <div class="wait-bids-approve"></div>
         </template>
+        <template id="ctrlTaxiClientFeedback">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Пожаловаться</li>
+                    <li data-tab="2">Мои жалобы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content">
+                    <h1>Обратная связь</h1>
+                    <p>Здесь вы можете пожаловаться на действия других участников сервиса.</p>
+                    <p>Пожалуйста, опишите максимально подробно вашу ситуацию.</p>
+                    <form action="" method="POST" class="form-feedback" >
+                        <p><input type="text" name="second-phone" value="" placeholder="Телефон второго лица" /></p>
+                        <p>
+                            <select name="reason">
+                                <option value="1">Укажите причину</option>
+                                <option value="2">Пассажир не вышел на заказ (Укажите заказ)</option>
+                                <option value="3">Пассажир не оплатил за проезд (Укажите заказ)</option>
+                                <option value="4">Конфликт с пассажиром (Напишите подробно)</option>
+                                <option value="5">Пассажир забыл вещи в машине</option>
+                                <option value="6">Проблемы с приложением</option>
+                                <option value="7">Неполное описание заказа</option>
+                                <option value="8">Другое</option>
+                            </select>
+                        </p>
+                        <p>
+                            <textarea name="message" placeholder="Сообщение"></textarea>
+                        </p>
+                        <p><input type="text" value="WIFI" name="wifi" /></p>
+                        <p>Если у вас есть предложения по улучшению приложения просим написать на почту.</p>
+                        <div class="gBlock">
+                            <p><button class="button_wide--yellow">Отправить</button></p>
+                        </div>
+                    </form>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <h1>Мои заявки</h1>
+                    <p>Нет результатов</p>
+                </div>
+              </div>
+            </div>        
+        </template>
+        <template id="ctrlTaxiClientHelp">
+            <h1>Помощь клиенту</h1>
+            <p class="strong">1. Как взять заказ:</p>
+            <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
+            <p class="strong">2. Как обновить приложение?</p>
+            <p>Перейдите по <a href="#">ссылке</a></p>
+            <p class="strong">3. Можно ли сбросить свой рейтинг?</p>
+            <p>Нельзя. Рейтинг формируется по результатам выполненных Вами заказов. Обнулить или искусственно увеличить рейтинг невозможно.</p>
+            <p class="strong">4. Нет моей марки машины в каталоге</p>
+            <p>Напишите разработчикам</p>
+            <p class="strong">5. Пассажир не вышел на заказ или возникла конфликтная ситуация</p>
+            <p>Просим написать жалобу на почту или через форму обратной связи в боковом меню</p>
+            <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
+            <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
+        </template>
         <template id="ctrlTaxiClientMyOrders">
             <ul data-controller="taxi_client_my_orders" class="myorders"></ul>
         </template>
@@ -303,6 +427,65 @@
                 </div>
               </div>
             </div>
+        </template>
+        <template id="ctrlTaxiDriverFeedback">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Пожаловаться</li>
+                    <li data-tab="2">Мои жалобы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content">
+                    <h1>Обратная связь</h1>
+                    <p>Здесь вы можете пожаловаться на действия других участников сервиса.</p>
+                    <p>Пожалуйста, опишите максимально подробно вашу ситуацию.</p>
+                    <form action="" method="POST" class="form-feedback" >
+                        <p><input type="text" name="second-phone" value="" placeholder="Телефон второго лица" /></p>
+                        <p>
+                            <select name="reason">
+                                <option value="1">Укажите причину</option>
+                                <option value="2">Пассажир не вышел на заказ (Укажите заказ)</option>
+                                <option value="3">Пассажир не оплатил за проезд (Укажите заказ)</option>
+                                <option value="4">Конфликт с пассажиром (Напишите подробно)</option>
+                                <option value="5">Пассажир забыл вещи в машине</option>
+                                <option value="6">Проблемы с приложением</option>
+                                <option value="7">Неполное описание заказа</option>
+                                <option value="8">Другое</option>
+                            </select>
+                        </p>
+                        <p>
+                            <textarea name="message" placeholder="Сообщение"></textarea>
+                        </p>
+                        <p><input type="text" value="WIFI" name="wifi" /></p>
+                        <p>Если у вас есть предложения по улучшению приложения просим написать на почту.</p>
+                        <div class="gBlock">
+                            <p><button class="button_wide--yellow">Отправить</button></p>
+                        </div>
+                    </form>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <h1>Мои заявки</h1>
+                    <p>Нет результатов</p>
+                </div>
+              </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiDriverHelp">
+            <h1>Помощь водителю</h1>
+            <p class="strong">1. Как взять заказ:</p>
+            <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
+            <p class="strong">2. Как обновить приложение?</p>
+            <p>Перейдите по <a href="#">ссылке</a></p>
+            <p class="strong">3. Можно ли сбросить свой рейтинг?</p>
+            <p>Нельзя. Рейтинг формируется по результатам выполненных Вами заказов. Обнулить или искусственно увеличить рейтинг невозможно.</p>
+            <p class="strong">4. Нет моей марки машины в каталоге</p>
+            <p>Напишите разработчикам</p>
+            <p class="strong">5. Пассажир не вышел на заказ или возникла конфликтная ситуация</p>
+            <p>Просим написать жалобу на почту или через форму обратной связи в боковом меню</p>
+            <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
+            <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
         <template id="ctrlTaxiDriverGo">
             <div id="map_canvas_go_driver"></div>
@@ -379,7 +562,7 @@
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../asset/images/no_avatar.png" alt="" />
+                                <img src="../../assets/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Петр</div>
@@ -395,7 +578,7 @@
                     <ul class="list-extended">
                         <li>
                             <div class="list-extended__personal">
-                                <img src="../../asset/images/no_avatar.png" alt="" />
+                                <img src="../../assets/images/no_avatar.png" alt="" />
                             </div>
                             <div class="list-extended__route">
                                 <div class="list-extended__route_name">Василий</div>
@@ -410,6 +593,105 @@
                 </div>    
               </div>    
             </div>    
+        </template>
+        <template id="ctrlTaxiDriverCargo">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Свободное авто</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content">
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../assets/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Борис</div>
+                                <div class="list-extended__route_time">12:45</div>
+                                <div class="list-extended__route_from">Ленина, 57</div>
+                                <div class="list-extended__route_to">Карла Марска, 190</div>
+                                <div class="list-extended__route_sum">100</div>
+                                <div class="list-extended__route_info">Телевизор</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../assets/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Владимир</div>
+                                <div class="list-extended__route_time">17:13</div>
+                                <div class="list-extended__route_from">Гамарника, 13</div>
+                                <div class="list-extended__route_to">Павленко 22</div>
+                                <div class="list-extended__route_sum">300</div>
+                                <div class="list-extended__route_info">Перевезти диван</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Петр</div>
+                                <div class="list-extended__route_time">2 октября,16:17</div>
+                                <div class="list-extended__route_info">Грузоперевозки по городу и району</div>
+                                <div class="list-extended__route_sum">500</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="list-extended">
+                        <li>
+                            <div class="list-extended__personal">
+                                <img src="../../assets/images/no_avatar.png" alt="" />
+                            </div>
+                            <div class="list-extended__route">
+                                <div class="list-extended__route_name">Александр</div>
+                                <div class="list-extended__route_time">2 ноября,19:35</div>
+                                <div class="list-extended__route_from">Индустриальная 1Б</div>
+                                <div class="list-extended__route_to">Краснодарская, 70</div>
+                                <div class="list-extended__route_sum">500</div>
+                                <div class="list-extended__route_info">Перевозка металлической трубы 6 метров</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+              </div>
+            </div>
+        </template>
+        <template id="ctrlTaxiDriverMyAccount">
+            <div class="alert">
+                <div class="alert__text--blue">Смена не активирована</div>
+            </div>
+            <p class="strong">Лицевой счет: 543688</p>
+            <p>Баланс: 100 монет</p>
+            <p>Приоритет: 70 <a href="#">Что это?</a></p>
+            <p>Статус: Обычный</p>
+            <p><button class="button_wide--green">Онлайн проверка</button></p>
+            <p><button class="button_wide--yellow">Пополнить счет</button></p>
+            <p><button class="button_wide--gray">Рекомендуемые правила</button></p>
+        </template>
+        <template id="ctrlTaxiDriverRating">
+                <div class="gBlock">
+                <p>Рейтинг (0): 
+                    <span class="star-rating">
+                        <i class="icon-star star-rating__star--active"></i>
+                        <i class="icon-star star-rating__star"></i>
+                        <i class="icon-star star-rating__star"></i>
+                        <i class="icon-star star-rating__star"></i>
+                        <i class="icon-star star-rating__star"></i>
+                    </span>
+                </p>
+                <p>Выполненные заказы: 0</p>
+            </div>
+            <p>Отзывы(0):</p>
         </template>
         <template id="ctrlTaxiDriverMyAuto">
             <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">

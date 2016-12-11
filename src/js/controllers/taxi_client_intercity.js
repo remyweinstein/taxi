@@ -30,55 +30,76 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         return;
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
 
     content.addEventListener('click', Event.click);
     
-    Dom.sel('[data-submit="client_order_intercity"]').addEventListner('submit', function() {
-      var from_city = Dom.sel('[name="city_from"]').value;
-      var to_city = Dom.sel('[name="city_to"]').value;
-      var from_address = Dom.sel('[name="adress_from"]').value;
-      var to_address = Dom.sel('[name="adress_to"]').value;
-      var price = Dom.sel('[name="cost"]').value;
-      var comment = Dom.sel('[name="description"]').value;
-      var to1 = "", to2 = "", to3 = "";
-      var data = new FormData();
+    Event.submit = function (event) {
+      var target = event.target;
 
-      if (Dom.sel('[name="to_plus1"]')) {
-        to1 = Dom.sel('[name="to_plus1"]').value;
-        data.append('toAddress1', to1);
-      }
+      while (target !== this) {
 
-      if (Dom.sel('[name="to_plus2"]')) {
-        to2 = Dom.sel('[name="to_plus2"]').value;
-        data.append('toAddress2', to2);
-      }
+        if (target.dataset.submit === 'client_order_intercity') {
+          var from_city = Dom.sel('[name="city_from"]').value;
+          var to_city = Dom.sel('[name="city_to"]').value;
+          var from_address = Dom.sel('[name="adress_from"]').value;
+          var to_address = Dom.sel('[name="adress_to"]').value;
+          var price = Dom.sel('[name="cost"]').value;
+          var comment = Dom.sel('[name="description"]').value;
+          var to1 = "", to2 = "", to3 = "";
+          var data = new FormData();
 
-      if (Dom.sel('[name="to_plus3"]')) {
-        to3 = Dom.sel('[name="to_plus3"]').value;
-        data.append('toAddress3', to3);
-      }
+          if (Dom.sel('[name="to_plus1"]')) {
+            to1 = Dom.sel('[name="to_plus1"]').value;
+            data.append('toAddress1', to1);
+          }
 
-      data.append('fromCity', from_city);
-      data.append('fromAddress', from_address);
-      data.append('toCity', to_city);
-      data.append('toAddress', to_address);
-      data.append('isIntercity', 1);
-      //data.append('bidId', '');
-      data.append('price', price);
-      data.append('comment', comment);
-      data.append('minibus', 0);
-      data.append('babyChair', 0);
+          if (Dom.sel('[name="to_plus2"]')) {
+            to2 = Dom.sel('[name="to_plus2"]').value;
+            data.append('toAddress2', to2);
+          }
 
-      Ajax.request('POST', 'order', User.token, '', data, function(response) {
-        if (response && response.ok) {
-          //console.log('id='+response.id);
-          changeTab(3);
+          if (Dom.sel('[name="to_plus3"]')) {
+            to3 = Dom.sel('[name="to_plus3"]').value;
+            data.append('toAddress3', to3);
+          }
+
+          data.append('fromCity', from_city);
+          data.append('fromAddress', from_address);
+          data.append('toCity', to_city);
+          data.append('toAddress', to_address);
+          data.append('isIntercity', 1);
+          //data.append('bidId', '');
+          data.append('price', price);
+          data.append('comment', comment);
+          data.append('minibus', 0);
+          data.append('babyChair', 0);
+
+          Ajax.request('POST', 'order', User.token, '', data, function(response) {
+            if (response && response.ok) {
+              //console.log('id='+response.id);
+              changeTab(3);
+            }
+          });
+          return;
         }
-      });
-    });
+
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
+      }
+    };
+    
+    content.addEventListener('submit', Event.submit);
+    
   }
 
   function start() {

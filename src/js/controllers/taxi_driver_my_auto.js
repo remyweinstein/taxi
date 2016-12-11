@@ -53,7 +53,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
           });
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
 

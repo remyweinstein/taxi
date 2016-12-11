@@ -139,7 +139,11 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
           });
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
 

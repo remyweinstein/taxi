@@ -1,4 +1,4 @@
-define(function() {
+define(['Dates'], function(Dates) {
   
   var clDriverOrders = function (order, Old_Orders) {
     var self = this;

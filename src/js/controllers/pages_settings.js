@@ -22,7 +22,11 @@ define(['Dom'], function (Dom) {
 
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
     content.addEventListener('click', Event.click);

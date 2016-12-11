@@ -14,7 +14,11 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
           });
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
 
@@ -43,7 +47,11 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
           });
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
 

@@ -11,8 +11,16 @@ define(['Dom'], function (Dom) {
                 {hash:'#client_city', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
                 {hash:'#client_go', controller:'ctrlTaxiClientGo', title:'Поехали', menu:'client', pageType: ''},
                 {hash:'#client_intercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
+                {hash:'#client_cargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
+                {hash:'#client_feedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
+                {hash:'#client_help', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
                 {hash:'#client_my_orders', controller:'ctrlTaxiClientMyOrders', title:'Мои заказы', menu:'client', pageType: ''},
+                {hash:'#driver_help', controller:'ctrlTaxiDriverHelp', title:'Помощь водителю', menu:'driver', pageType: ''},
+                {hash:'#driver_my_account', controller:'ctrlTaxiDriverMyAccount', title:'Личный кабинет', menu:'driver', pageType: ''},
+                {hash:'#driver_feedback', controller:'ctrlTaxiDriverFeedback', title:'Обратная связь', menu:'driver', pageType: ''},
+                {hash:'#driver_rating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: ''},
+                {hash:'#driver_cargo', controller:'ctrlTaxiDriverCagro', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
                 {hash:'#driver_go', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
@@ -66,17 +74,17 @@ define(['Dom'], function (Dom) {
       }
     }
     
-    for (var i = (menus_arr[route.menu].length - 1); i > -1; i--) {
-      var add_icon = menus_arr[route.menu][i].add_icon ? menus_arr[route.menu][i].add_icon : '';
-      var newLi = document.createElement('li');
-        newLi.innerHTML = '<li>' + 
-                    '<a href="' + menus_arr[route.menu][i].url + '">' + 
-                        '<i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>' + 
-                        menus_arr[route.menu][i].name + 
-                        add_icon + 
-                    '</a>' + 
-                '</li>';
-      list.insertBefore(newLi, list.firstChild);
+    if (menus_arr[route.menu]) {
+      for (var i = (menus_arr[route.menu].length - 1); i > -1; i--) {
+        var add_icon = menus_arr[route.menu][i].add_icon ? menus_arr[route.menu][i].add_icon : '';
+        var newLi = document.createElement('li');
+          newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">' + 
+                          '<i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>' + 
+                          menus_arr[route.menu][i].name + 
+                          add_icon + 
+                      '</a>';
+        list.insertBefore(newLi, list.firstChild);
+      }
     }
   }
   

@@ -5,7 +5,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     var options = {
 
     };
-    var default_avatar = 'asset/images/no_avatar.png';
+    var default_avatar = 'assets/images/no_avatar.png';
     var default_name = 'Гость';
 
     this.default_avatar = default_avatar;

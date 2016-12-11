@@ -156,7 +156,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
       var target = event.target;
 
       while (target !== this) {
-        if (target.dataset.click === "taxi_client_bid") {
+        if (target && target.dataset.click === "taxi_client_bid") {
           var el = target;
 
           Ajax.request('POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
@@ -168,8 +168,11 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
             }
           });
         }
-
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     };
     content.addEventListener('click', Event.click);

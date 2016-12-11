@@ -40,8 +40,11 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
               //console.log('try close');
               swipeMenu(-1);
             }
-
-            target = target.parentNode;
+            if (target) {
+              target = target.parentNode;
+            } else {
+              break;
+            }
           }
         });
 

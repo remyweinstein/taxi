@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom'], function (Ajax, Dom) {
+define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOrders, Dates) {
   
   var Orders = [];
 
@@ -15,7 +15,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             return ord.id === ordId;
           });
 
-          var tempOrders = new DriverOrders(ords[i], same_el[0]);
+          var tempOrders = new clDriverOrders(ords[i], same_el[0]);
           tempOrders.constructor(function(temp_order){
             Orders.push(temp_order);
 
@@ -194,7 +194,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             price_el.innerHTML = price + ' руб.';
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
 
     };
@@ -205,7 +209,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   function start() {
     update_taxi_order();
     timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
-    AddEvents();
+    addEvents();
   }
   
   return {

@@ -19,10 +19,10 @@ var path = {
   build: {
     html: 'build/',
     php: 'build/',
-    js: 'build/asset/js/',
-    css: 'build/asset/css/',
-    img: 'build/asset/images/',
-    fonts: 'build/font/'
+    js: 'build/assets/js/',
+    css: 'build/assets/css/',
+    img: 'build/assets/images/',
+    fonts: 'build/assets/font/'
   },
 
   src: {

@@ -104,7 +104,11 @@ define(['Dom'], function (Dom) {
           window.location.hash = '#client_city';
         }
 
-        target = target.parentNode;
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
       }
     });
   }
