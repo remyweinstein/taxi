@@ -9,7 +9,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
           if (response && response.ok) {
             //console.log('change your coord');
           }
-        });
+        }, function() {});
       }
     }
 
@@ -62,7 +62,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
                         if (response && response.ok) {
                           init();
                         }
-                      });
+                      }, function() {});
                     }
                     
                     if (obj[key].types[0] === "country") User.country = obj[key].long_name;
@@ -94,14 +94,15 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var overviewPathGeo = [];
 
         for (var i = 0; i < overviewPath.length; i++) {
-          overviewPathGeo.push(
-            [overviewPath[i].lng(), overviewPath[i].lat()]
-          );
+          overviewPathGeo[i] = [];
+          for (var z = 0; z < overviewPath[i].length; z++) {
+            overviewPathGeo[i].push([overviewPath[i][z].lng(), overviewPath[i][z].lat()]);
+          }
         }
 
         var distance = Settings.safeRadius / 500 / 111.12, // Roughly x km / 111.12
         geoInput = {
-          type: "LineString",
+          type: "MultiLineString",
           coordinates: overviewPathGeo
         };
         var geoReader = new jsts.io.GeoJSONReader(),
@@ -112,7 +113,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var oLanLng = [];
         var oCoordinates;
         oCoordinates = polygon.coordinates[0];
-
+        
         for (i = 0; i < oCoordinates.length; i++) {
           var oItem;
           oItem = oCoordinates[i];
@@ -121,6 +122,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
 
         var polygone = new google.maps.Polygon({
           paths: oLanLng,
+          //strokeWeight: 0,
           map:map
         });
       }

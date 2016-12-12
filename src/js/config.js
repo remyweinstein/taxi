@@ -60,11 +60,7 @@ requirejs.config({
     "hammer" : {
       exports: "hammer"
     },
-    "jsutil" : {
-      exports: "jsutil"
-    },
     "jsts" : {
-      deps: ['jsutil'],
       exports: "jsts"
     }
   }
@@ -100,7 +96,7 @@ var menus_arr = [];
   var average_speed = 40;
   var cost_of_km = 25;
 
-  var User, Modal, Event, Settings, MyOrder;
+  var User, Car, Modal, Event, Settings, MyOrder;
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 

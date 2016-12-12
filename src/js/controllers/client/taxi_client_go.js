@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
+define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat, Geo) {
   
   //var LatLng = new google.maps.LatLng(48.49, 135.07);
   var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -31,7 +31,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
     var el_price = Dom.sel('.wait-order-approve__route-info__price');
      el_price.innerHTML = price + ' руб.';
     var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
-     el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
+     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
     var el = Dom.sel('.wait-bids-approve');
      el.innerHTML = '<div class="wait-bids-approve__item">\n\
                         <div class="wait-bids-approve__item__distance">\n\
@@ -84,16 +84,34 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
 
         for(var i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
-          overviewPath = overviewPath.concat( temp );
+          //overviewPath = overviewPath.concat( temp );
+          overviewPath.push(temp);
         }
 
         Geo.showPoly(overviewPath, map);
       }
+      addEvents();
     });
 
     show_route = true;
   }
 
+  function addEvents() {
+    Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
+      Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
+        Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
+      }, function() {});
+    });
+    
+    Dom.sel('[data-click="cancel-order"]').addEventListener('click', function() {
+      Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
+        if (response && response.ok) {
+          window.location.hash = '#client_city';
+        }
+      }, function() {});
+    });
+  }
+  
   function addInfoForMarker(min, marker) {
     if(min && min > 0) {
       var infowindow = new google.maps.InfoWindow({
@@ -128,14 +146,19 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
 
         var ords = response.bid.order;
         var agnt = response.bid.agent;
-
+        
+        MyOrder.id = ords.id;
         dr_model = agnt.brand + ' ' + agnt.model;
         dr_name = agnt.name;
         dr_color = agnt.color;
         dr_number = agnt.number;
         dr_distanse = agnt.distance.toFixed(1);
         var lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime);
-        dr_time = lost_diff > 0 ? lost_diff : 0;
+        if (lost_diff >= 0) {
+          dr_time = lost_diff;
+        } else {
+          dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
+        }
         dr_photo = agnt.photo ? agnt.photo : User.avatar;
         dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
         fromCoords = ords.fromLocation.split(",");
@@ -147,11 +170,13 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
         Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
         Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
         waypoints = [];
-
-        for (var i = 0; i < ords.toAddresses.length; i++) {
-          var _to = ords.toLocationes[i].split(",");
-          waypoints.push({location: new google.maps.LatLng(_to[0], _to[1]), stopover: true});
-          addInfoForMarker(ords.toTimes[i], addMarker(new google.maps.LatLng(_to[0], _to[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+        
+        if (ords.toAddresses) {
+          for (var i = 0; i < ords.toAddresses.length; i++) {
+            var _to = ords.toLocationes[i].split(",");
+            waypoints.push({location: new google.maps.LatLng(_to[0], _to[1]), stopover: true});
+            addInfoForMarker(ords.toTimes[i], addMarker(new google.maps.LatLng(_to[0], _to[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+          }
         }
 
         addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
@@ -176,7 +201,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
         }
       }
 
-    });
+    }, function() {});
   }
   
   function start() {
@@ -194,12 +219,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat'], function (Ajax, Dom, Dates, Chat) {
     timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
 
     Chat.start('driver');
-
-    Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
-      Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
-        Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '');
-      });
-    });
+    
   }
   
   return {

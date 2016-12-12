@@ -15,7 +15,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
          current.selected = true;
       }
 
-    });
+    }, function() {});
   }
   
   function addEvents() {
@@ -37,7 +37,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);
             data.append('model', sel_model.options[sel_model.selectedIndex].text);
 
-          Ajax.request('POST', 'profile', User.token, '', data, function(){});
+          Ajax.request('POST', 'profile', User.token, '', data, function(){}, function() {});
 
           var data2 = new FormData();
             data2.append('conditioner', Dom.sel('input[name="conditioner"]:checked').value);
@@ -50,7 +50,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               //window.location.hash = '/';
               window.history.back();
             }
-          });
+          }, function() {});
         }
 
         if (target) {
@@ -83,7 +83,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         //console.log(JSON.stringify(response.profile));
       }
 
-    });
+    }, function() {});
 
     Ajax.request('GET', 'auto', User.token, '', '', function(response) {
       if (response && response.ok) {
@@ -95,7 +95,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
            type.selected = true;
         }
       }
-    });
+    }, function() {});
 
     var brand_el = Dom.sel('select[name="brand"]');
       brand_el.addEventListener('change', function() {

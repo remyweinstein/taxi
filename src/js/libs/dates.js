@@ -80,13 +80,13 @@ define(function() {
       diffTime: function (start, timer) {
         var now = new Date().valueOf();
         var start = start.split(" ");
-          var date = start[0];
-            date = date.split("-");
-          var time = start[1];
-            time = time.split(":");
-        start = new Date(date[0], (date[1] - 1), date[2], time[0], time[1], time[2]).valueOf();
+          var start_date = start[0];
+            start_date = start_date.split("-");
+          var start_time = start[1];
+            start_time = start_time.split(":");
+        start = new Date(start_date[0], (start_date[1] - 1), start_date[2], start_time[0], start_time[1], start_time[2]).valueOf();
 
-        return timer - (now - start).toFixed(0);
+        return timer - (now / 60000 - start / 60000).toFixed(0);
       }
 
 

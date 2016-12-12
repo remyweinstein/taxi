@@ -60,20 +60,21 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
 
         var overviewPath = [];
 
-        for(var i = 0; i < response.routes.length; i++){
+        for (var i = 0; i < response.routes.length; i++) {
           var temp = response.routes[i].overview_path;
-          overviewPath = overviewPath.concat( temp );
+          //overviewPath = overviewPath.concat( temp );
+          overviewPath.push(temp);
         }
-
+               
         Geo.showPoly(overviewPath, map);
 
       }
     });
 
   }
-
+  
   function addInfoForMarker(min, marker) {
-    if(min && min > 0) {
+    if (min && min > 0) {
       var infowindow = new google.maps.InfoWindow({
         content: min + ' мин.'
       });
@@ -148,7 +149,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
         el.innerHTML = innText;
       }
 
-    });
+    }, function() {});
   }
   
   function addEvents() {
@@ -166,8 +167,19 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
               localStorage.setItem('_current_id_bid', MyOrder.bid_id);
               window.location.hash = "#client_go";
             }
-          });
+          }, function() {});
         }
+        
+        if (target && target.dataset.click === "cancel-order") {
+          var el = target;
+          
+          Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
+            if (response && response.ok) {
+              window.location.hash = '#client_city';
+            }
+          }, function() {});
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -201,7 +213,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
        el_price.innerHTML = MyOrder.price + ' руб';
 
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
-       el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
+       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
 
       Dom.selAll('.find-me')[0].addEventListener('click', function() {
         map.setCenter( new google.maps.LatLng(User.lat, User.lng) );

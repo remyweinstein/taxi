@@ -24,7 +24,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
                 var item = target.parentNode.parentNode.parentNode;
                  item.style.display = 'none';
               }
-            });
+            }, function() {});
           return;
         }
             // = Menu my Orders Item GO order =
@@ -114,7 +114,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
 
       }
 
-    });
+    }, function() {});
     
     addEvents();
   }

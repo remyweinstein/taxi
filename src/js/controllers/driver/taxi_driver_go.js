@@ -1,6 +1,7 @@
-define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
+define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
   
   var LatLng = new google.maps.LatLng(48.49, 135.07);
+  var order_id;
   var mapCanvas = document.getElementById('map_canvas_go_driver');
   var mapOptions = {
     center: LatLng,
@@ -24,7 +25,7 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
      el_price.innerHTML = price + ' руб.';
 
     var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
-     el_cancel.innerHTML = '<button class="button_rounded--red">Отмена</button>';
+     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
 
     var el = Dom.sel('.wait-bids-approve');
      el.innerHTML = '<div class="wait-bids-approve__item">\n\
@@ -123,7 +124,7 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
           marker_client.setPosition(new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude));
         }
       }
-    });
+    }, function() {});
 
   }
 
@@ -135,8 +136,16 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
             // Click taxi_driver arrived
         if (target.dataset.click === "driver-arrived") {
           Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
-            Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function () {});
-          });
+            Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function () {}, function() {});
+          }, function() {});
+        }
+        
+        if (target.dataset.click === "cancel-order") {
+          Ajax.request('POST', 'cancel-order', User.token, '&id=' + order_id, '', function(response) {
+            if (response && response.ok) {
+              window.location.hash = '#client_city';
+            }
+          }, function() {});
         }
 
         if (target) {
@@ -157,6 +166,7 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
       //console.log(JSON.stringify(response.bid.agent));
       if (response && response.ok) {
         var ords = response.bid.order;
+        order_id = ords.id;
         fromAddress = ords.fromAddress;
         toAddress = ords.toAddress;
         fromCoords = ords.fromLocation.split(",");
@@ -166,26 +176,28 @@ define(['Ajax', 'Dom', 'Chat'], function (Ajax, Dom, Chat) {
         photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
 
         waypoints = [];
-
-        for (var i = 0; i < ords.toAddresses.length; i++) {
-          var _wp = ords.toLocations[i].split(",");
-          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-          addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+        
+        if (ords.toAddresses) {
+          for (var i = 0; i < ords.toAddresses.length; i++) {
+            var _wp = ords.toLocations[i].split(",");
+            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+            addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+          }
         }
 
         addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
         addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
         setRoute();
+        addEvents();
       }
 
-    });
+    }, function() {});
 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
 
     Chat.start('client');
 
-    addEvents();
   }
   
   return {

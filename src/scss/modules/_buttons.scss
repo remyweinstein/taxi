@@ -28,6 +28,10 @@ button:disabled{
             @extend .button_rounded;
             background-color: #C53929;
         }
+        &--yellow{
+            @extend .button_rounded;
+            background-color: yellow;
+        }
     }
     &_wide{
         @extend .button;

@@ -37,40 +37,52 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
           }
         }
       }
-    });
+    }, function() {});
   };
 
-  
-  var Chat = {
+  function clickEvent(event) {
+    var target = event.target;
+    console.log();
+    while (target !== this) {
+      if (target) {
+        if (!target.dataset || target.dataset === "undefined") {
+          var sinature = 'fdlsk90568n9v0efk3';
+        } else {
+          if (target.dataset.click === "send_message") {
+            var messaga = Dom.sel('[data-text="new_message"]').value;
+            Dom.sel('[data-text="new_message"]').value = '';
 
-      stop: function() {
-        clearInterval(timerGetMessages);
-      },
-      
-      start: function(loc) {
-        interlocutor = loc;
-        get_new_messages();
-        timerGetMessages = setInterval(get_new_messages, 1000);
-        
-          content.addEventListener('click', clickEvent(event));
-          function clickEvent(event) {
-            var target = event.target;
-
-            while (target !== this) {
-              if (target.dataset.click === "send_message") {
-                var messaga = Dom.sel('[data-text="new_message"]').value;
-                Dom.sel('[data-text="new_message"]').value = '';
-
-                if (messaga !== "") {
-                  Ajax.request('POST', 'message', User.token, '&id=' + bid_id + '&text=' + messaga, '', function () {});
-                }
-              }
-
-              target = target.parentNode;
+            if (messaga !== "") {
+              Ajax.request('POST', 'message', User.token, '&id=' + bid_id + '&text=' + messaga, '', function () {});
             }
           }
         }
-      };
+      }
+
+      if (target) {
+        target = target.parentNode;
+      } else {
+        break;
+      }
+    }
+  };
+  
+  var Chat = {
+
+    stop: function() {
+      clearInterval(timerGetMessages);
+      content.removeEventListener('click', clickEvent);
+    },
+
+    start: function(loc) {
+      interlocutor = loc;
+      get_new_messages();
+      timerGetMessages = setInterval(get_new_messages, 1000);
+
+      content.addEventListener('click', clickEvent);
+    }
+      
+    };
   
 	return Chat;
   

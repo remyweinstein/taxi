@@ -1,4 +1,4 @@
-define(['Dom'], function (Dom) {
+define(['Dom', 'Chat'], function (Dom, Chat) {
   
   var App;
   var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
@@ -20,7 +20,7 @@ define(['Dom'], function (Dom) {
                 {hash:'#driver_my_account', controller:'ctrlTaxiDriverMyAccount', title:'Личный кабинет', menu:'driver', pageType: ''},
                 {hash:'#driver_feedback', controller:'ctrlTaxiDriverFeedback', title:'Обратная связь', menu:'driver', pageType: ''},
                 {hash:'#driver_rating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: ''},
-                {hash:'#driver_cargo', controller:'ctrlTaxiDriverCagro', title:'Грузоперевозки', menu:'driver', pageType: ''},
+                {hash:'#driver_cargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
                 {hash:'#driver_go', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
@@ -88,10 +88,14 @@ define(['Dom'], function (Dom) {
     }
   }
   
+  function clearVars() {
+    Chat.stop();
+  }
+  
   function loadController(route) {
     Dom.sel('.content').innerHTML = document.querySelector('#' + route.controller).innerHTML;
     renderMenu(route);
-    
+    clearVars();
     require([route.controller], function(controller) {
       App.init();
       controller.start(App);

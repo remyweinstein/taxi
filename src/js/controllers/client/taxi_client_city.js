@@ -167,7 +167,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
         markers_driver_pos = new_markers;
       }
-    });
+    }, function() {});
   }
 
   function AddNewZaezd(just_add) {
@@ -202,17 +202,41 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       
       while (target !== this) {
             // = Click choose location =
-        if (target.dataset.click === 'choice_location') {
-          localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-          window.location.hash = '#client_choice_location_map';
+        if (target) {
+          if (target.dataset.click === 'choice_location') {
+            localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+            window.location.hash = '#client_choice_location_map';
 
-          return;
+            return;
+          }
         }
             // = Form add new point order =
         if (target.dataset.click === 'field_add') {
           var just_add = Dom.selAll('.icon-record').length;
 
           AddNewZaezd(just_add);
+
+          return;
+        }
+        
+        if (target.dataset.click === 'clean-field') {
+          var _field = target.dataset.field;
+
+          if (_field === "from") {
+            MyOrder.fromAddress = "";
+            MyOrder.fromCity = "";
+            MyOrder.fromCoords = "";
+            MyOrder.fromFullAddress = "";
+          }
+          
+          if (_field === "to") {
+            MyOrder.toAddress = "";
+            MyOrder.toCity = "";
+            MyOrder.toCoords = "";
+            MyOrder.toFullAddress = "";
+          }
+          
+          Dom.selAll('.adress_' + _field)[0].value = "";
 
           return;
         }
@@ -310,7 +334,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               } else {
                 alert('Укажите в профиле ваш город');
               }
-            });
+            }, function() {});
 
           return;
         }

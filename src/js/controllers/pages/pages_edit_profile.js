@@ -11,7 +11,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
               User.avatar = User.default_avatar;
               Dom.sel('.avatar').src = User.avatar;
             }
-          });
+          }, function() {});
         }
 
         if (target) {
@@ -44,7 +44,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
               //window.location.hash = '/';
               window.history.back();
             }
-          });
+          }, function() {});
         }
 
         if (target) {
@@ -73,7 +73,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         var photo = response.profile.photo ? response.profile.photo : User.avatar;
         Dom.sel('.avatar').src = photo;
       }
-    });
+    }, function() {});
     addEvents();
   }
   

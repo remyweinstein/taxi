@@ -1,9 +1,5 @@
 define(['Dom'], function (Dom) {
   
-  var _el_settings = Dom.sel('.settings');
-  var _obj = Settings;
-  var _innerText = '';
-
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -33,11 +29,14 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
+    var _el_settings = Dom.sel('.settings');
+    var _obj = Settings;
+    var _innerText = '';
+    
     for (var key in _obj) {
       var _ins;
       var _click;
       if (typeof _obj[key] !== "function" && key !== "label" && key !== "type") {
-        console.log('key = ' + key + ', value = ' + _obj[key]);
         if (Settings.type[key]) {
           _ins = ' <span>' + _obj[key] + '</span>';
           _click = ' data-click="number"';

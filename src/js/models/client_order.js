@@ -66,7 +66,7 @@ define(['Ajax'], function(Ajax) {
 
                       callback();
                     }
-                  });
+                  }, function() {});
     };
 
   };

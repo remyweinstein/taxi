@@ -1,21 +1,22 @@
-define(['User', 'ClientOrder', 'ModalWindows', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Car', 'ClientOrder', 'ModalWindows', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, clCar, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
   var App =  {
     
     start: function () {
       
       domReady(function () {
+        content = Dom.sel('.content');
 
         User =     new clUser();
+        Car =      new clCar();
         Modal =    new clModalWindow();
         Event =    new clEvents();
+        MyOrder =  new clClientOrder();
         Settings = new clSettings();
           Settings.getSettings();
-        MyOrder =  new clClientOrder();
 
         User.initToken();
-        content = Dom.sel('.content');
 
         User.city = localStorage.getItem('_my_city');
         User.id   = localStorage.getItem('_my_id');
@@ -36,7 +37,7 @@ function(clUser, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMe
         Router.start(App);
 
         window.addEventListener('resize', function() {
-          init();
+          App.init();
         });
 
       });

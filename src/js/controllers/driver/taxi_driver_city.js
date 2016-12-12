@@ -30,7 +30,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
         fillOrders(Orders);
       }
 
-    });
+    }, function() {});
   }
 
   function fillOrders(Orders) {
@@ -131,19 +131,39 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
               if (response && response.ok) {
                 el.classList.remove('active');
               }
-            });
+            }, function() {});
           } else {
-            var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
-            var get_price = el_price.innerHTML;
-              get_price = get_price.split(" ");
-            var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
-            var get_time = el_time.innerHTML;
-              get_time = get_time.split(" ");
-            Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
-              if (response && response.ok) {
-                el.classList.add('active');
-              }  
-            });
+            if (!User.is_auth) {
+              Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>\n\
+                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
+                        <button class="button_rounded--green" data-response="yes">Войти</button></p>\n\
+                      ', function (response) {
+                          if (response === "yes") {
+                            window.location.hash = '#login';
+                          }
+                      });
+            } else if (!Car.brand || !Car.model || !Car.number) {
+              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>\n\
+                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
+                        <button class="button_rounded--green" data-response="yes">Перейти</button></p>\n\
+                      ', function (response) {
+                          if (response === "yes") {
+                            window.location.hash = '#driver_my_auto';
+                          }
+                      });
+            } else {
+              var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
+              var get_price = el_price.innerHTML;
+                get_price = get_price.split(" ");
+              var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
+              var get_time = el_time.innerHTML;
+                get_time = get_time.split(" ");
+              Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
+                if (response && response.ok) {
+                  el.classList.add('active');
+                }  
+              }, function() {});
+            }
           }
         }
 

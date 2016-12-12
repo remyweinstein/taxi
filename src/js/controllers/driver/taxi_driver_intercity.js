@@ -70,7 +70,7 @@ define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
           toAppend.appendChild(n);
         }
       }
-    });
+    }, function() {});
     
     addEvents();
   }

@@ -46,7 +46,13 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
               var prfl = response.profile;
               self.id = prfl.id;
               localStorage.setItem('_my_id', self.id);
-
+              
+              Car.brand = prfl.brand;
+              Car.model = prfl.model;
+              Car.number = prfl.number;
+              Car.photo = prfl.vehicle;
+              Car.color = prfl.color;
+              
               self.city = prfl.city !== "" ? prfl.city : self.city;
               localStorage.setItem('_my_city', self.city);
 
@@ -68,7 +74,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
 
             }
           }
-        });
+        }, function() {});
       }
     };
 
@@ -80,7 +86,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
             setId(response.id);
             self.name = default_name;
           }
-        });
+        }, function() {});
       }
 
       return;

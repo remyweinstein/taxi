@@ -56,10 +56,16 @@
         i{
             color: $inactive;
         }
+        &_clean{
+            cursor: pointer;
+            position: absolute;
+            right: 7%;
+            top: 5px;
+        }
         &_add{
             position: absolute;
             top: 1em;
-            right: 8%;
+            right: 15%;
             color: $active;
             padding: 0 0.1em;
             background-color: white;

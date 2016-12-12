@@ -10,10 +10,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
               Ajax.request('POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
                 if (response && response.ok) {
+                  User.is_auth = true;
                   localStorage.setItem('_is_auth', 'true');              
                   window.location.hash = '#client_city';
                 }
-              });
+              }, function() {});
 
               return;
             }

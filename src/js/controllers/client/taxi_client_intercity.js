@@ -25,7 +25,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
               var item = target.parentNode.parentNode.parentNode;
                item.style.display = 'none';
             }
-          });
+          }, function() {});
 
         return;
         }
@@ -86,7 +86,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
               //console.log('id='+response.id);
               changeTab(3);
             }
-          });
+          }, function() {});
           return;
         }
 
@@ -149,7 +149,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         }
 
       }
-    });
+    }, function() {});
 
     addEvents();
   }

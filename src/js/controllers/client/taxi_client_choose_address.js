@@ -1,14 +1,11 @@
 define(['Dom'], function (Dom) {
   
-  var _timer;
-  var input = Dom.sel('input[name="enter-address"]');
-  var result_block = Dom.sel('.choice-location__results-search');
-  
   function onchange() {
-
+    var _timer;
+    
     clearTimeout(_timer);
 
-    var query = input.value;
+    var query = Dom.sel('input[name="enter-address"]').value;
     var MyLatLng = {lat: User.lat, lng: User.lng};
     var map = new google.maps.Map(document.getElementById('hide_map'), {
       center: MyLatLng,
@@ -25,7 +22,7 @@ define(['Dom'], function (Dom) {
       radius: 500
     };
 
-      if (input.value && input.value !== "") {
+      if (Dom.sel('input[name="enter-address"]').value && Dom.sel('input[name="enter-address"]').value !== "") {
         _timer = setTimeout(startSearch, 250);
       } else {
         service.nearbySearch(request, callback);
@@ -36,7 +33,7 @@ define(['Dom'], function (Dom) {
     }
 
       function callbackSt(results, status) {
-        result_block.innerHTML = "";
+        Dom.sel('.choice-location__results-search').innerHTML = "";
         if (results.length) {
           var innText = '';
           for (var i = 0; i < results.length; i++) {
@@ -46,7 +43,7 @@ define(['Dom'], function (Dom) {
             innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
           }
 
-          result_block.innerHTML = innText;
+          Dom.sel('.choice-location__results-search').innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
           return;
@@ -54,7 +51,7 @@ define(['Dom'], function (Dom) {
       }
 
       function callback(results, status) {
-        result_block.innerHTML = "";
+        Dom.sel('.choice-location__results-search').innerHTML = "";
 
         if (results.length) {
           var innText = '';
@@ -66,7 +63,7 @@ define(['Dom'], function (Dom) {
               innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
             }
           }
-          result_block.innerHTML = innText;
+          Dom.sel('.choice-location__results-search').innerHTML = innText;
         }
         if (status !== google.maps.places.PlacesServiceStatus.OK) {
           return;
@@ -76,7 +73,7 @@ define(['Dom'], function (Dom) {
   }
   
   function addEvents() {
-    result_block.addEventListener('click', function(e) {
+    Dom.sel('.choice-location__results-search').addEventListener('click', function(e) {
       var target = e.target;
 
       while (target !== this) {
@@ -114,8 +111,11 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
+    var input = Dom.sel('input[name="enter-address"]');
+  
     input.value = localStorage.getItem('_address_string_temp');
     input.addEventListener('input', onchange);
+    input.focus();
 
     onchange();
     
