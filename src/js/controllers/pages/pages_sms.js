@@ -6,15 +6,19 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
           while (target !== this) {
             if (target.dataset.submit === 'form-auth-sms') {
-              var sms = Dom.sel('input[name="sms"]').value;
+              var sms = Dom.selAll('input[name="sms"]')[0].value;
 
               Ajax.request('POST', 'confirm', User.token, '&smsCode=' + sms, '', function(response) {
                 if (response && response.ok) {
                   User.is_auth = true;
                   localStorage.setItem('_is_auth', 'true');              
                   window.location.hash = '#client_city';
+                } else {
+                  alert('Неверный код');
                 }
-              }, function() {});
+              }, function() {
+                alert('Ошибка связи с сервером');
+              });
 
               return;
             }

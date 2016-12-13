@@ -33,6 +33,8 @@ define(['Ajax'], function(Ajax) {
                       
                       if(ord.bidId && ord.bidId > 0) {
                         self.bid_id = ord.bidId;
+                      } else {
+                        self.bid_id = null;
                       }
                       self.id = ord.id;
                       self.fromAddress = ord.fromAddress;

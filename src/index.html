@@ -133,7 +133,8 @@
                     <i class="icon-commerical-building form-order-city__label"></i>
                     <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
                 </div>
-                <div class="form-order-city__bottom">
+                <div data-controller="taxi_client_city_bottom" class="form-order-city__bottom">
+                    <div data-click="drop-down" class="drop-down"></div>
                     <div class="form-order-city__field">
                         <i class="icon-rouble form-order-city__label"></i>
                         <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
@@ -145,38 +146,42 @@
         <template id="ctrlTaxiClientGo">
             <div id="map_canvas_go"></div>
             <i class="icon-target find-me" data-click="find-me"></i>
-            <div class="wait-order-approve" data-controller="taxi_client_go">
-                <div class="wait-order-approve__route-info">
-                    <div class="wait-order-approve__route-info__route">
-                        <div></div>
-                        <div>-</div>
-                        <div></div>
-                    </div>
-                    <div class="wait-order-approve__route-info__price">
+            <div class="go-order">
+                <div class="go-order__top">
+                    <div class="wait-order-approve" data-controller="taxi_client_go">
+                        <div class="wait-order-approve__route-info">
+                            <div class="wait-order-approve__route-info__route">
+                                <div></div>
+                                <div>-</div>
+                                <div></div>
+                            </div>
+                            <div class="wait-order-approve__route-info__price">
 
-                    </div>
-                    <div class="wait-order-approve__route-info__cancel">
+                            </div>
+                            <div class="wait-order-approve__route-info__cancel">
 
-                    </div>                        
+                            </div>                        
+                        </div>
+                    </div>
+                    <div class="wait-bids-approve"></div>
                 </div>
-            </div>
-            <div class="wait-bids-approve"></div>
-
-            <div class="go-order__down">
-                <div class="go-order__down__driver-panel">
-                    <div class="go-order__down__driver-panel__info">
-                        <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
-                        <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                <div class="go-order__down">
+                    <div data-click="drop-down" class="drop-down"></div>
+                    <div class="go-order__down__driver-panel">
+                        <div class="go-order__down__driver-panel__info">
+                            <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
+                            <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                        </div>
+                        <div class="go-order__down__driver-panel__action">
+                            <button disabled data-click="client-incar" class="button_wide--green">В машине</button>
+                        </div>
                     </div>
-                    <div class="go-order__down__driver-panel__action">
-                        <button disabled data-click="client-incar" class="button_wide--green">В машине</button>
-                    </div>
-                </div>
-                <div class="go-order__down__messages">
-                    <div class="go-order__down__messages__textarea"></div>
-                    <div class="go-order__down__messages__textinput">
-                        <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
-                        <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                    <div class="go-order__down__messages">
+                        <div class="go-order__down__messages__textarea"></div>
+                        <div class="go-order__down__messages__textinput">
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                            <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -495,38 +500,42 @@
         </template>
         <template id="ctrlTaxiDriverGo">
             <div id="map_canvas_go_driver"></div>
-            <div class="wait-order-approve" data-controller="taxi_driver_go">
-                <div class="wait-order-approve__route-info">
-                    <div class="wait-order-approve__route-info__route">
-                        <div></div>
-                        <div>-</div>
-                        <div></div>
-                    </div>
-                    <div class="wait-order-approve__route-info__price">
+            <div class="go-order">
+                <div class="go-order__top">
+                    <div class="wait-order-approve" data-controller="taxi_driver_go">
+                        <div class="wait-order-approve__route-info">
+                            <div class="wait-order-approve__route-info__route">
+                                <div></div>
+                                <div>-</div>
+                                <div></div>
+                            </div>
+                            <div class="wait-order-approve__route-info__price">
 
-                    </div>
-                    <div class="wait-order-approve__route-info__cancel">
+                            </div>
+                            <div class="wait-order-approve__route-info__cancel">
 
-                    </div>                        
+                            </div>                        
+                        </div>
+                    </div>
+                    <div class="wait-bids-approve"></div>
                 </div>
-            </div>
-            <div class="wait-bids-approve"></div>
-
-            <div class="go-order__down">
-                <div class="go-order__down__driver-panel">
-                    <div class="go-order__down__driver-panel__info">
-                        <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
-                        <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                <div class="go-order__down">
+                    <div data-click="drop-down" class="drop-down"></div>
+                    <div class="go-order__down__driver-panel">
+                        <div class="go-order__down__driver-panel__info">
+                            <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
+                            <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                        </div>
+                        <div class="go-order__down__driver-panel__action">
+                            <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                        </div>
                     </div>
-                    <div class="go-order__down__driver-panel__action">
-                        <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
-                    </div>
-                </div>
-                <div class="go-order__down__messages">
-                    <div class="go-order__down__messages__textarea"></div>
-                    <div class="go-order__down__messages__textinput">
-                        <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
-                        <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                    <div class="go-order__down__messages">
+                        <div class="go-order__down__messages__textarea"></div>
+                        <div class="go-order__down__messages__textinput">
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                            <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                        </div>
                     </div>
                 </div>
             </div>

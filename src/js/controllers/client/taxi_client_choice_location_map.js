@@ -2,6 +2,16 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   
   function initialize_choice() {
     var x, y, zoom = 18;
+    var _route = localStorage.getItem('_address_temp');
+    var _temp_coords = "";
+    
+    if (_route === "from") {
+      _temp_coords = MyOrder.fromCoords;
+    }
+
+    if (_route === "to") {
+      _temp_coords = MyOrder.toCoords;
+    }
     
     if (!User.lat || !User.lng) {
       x = 48.4;
@@ -12,7 +22,13 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
       y = User.lng;
     }
     
-    var LatLng = new google.maps.LatLng(x,y);
+    if (_temp_coords) {
+      x = _temp_coords.split(',');
+      y = x[1];
+      x = x[0];
+    }
+    
+    var LatLng = new google.maps.LatLng(x, y);
     var mapCanvas = document.getElementById('map_canvas_choice');
     var mapOptions = {
         center: LatLng,

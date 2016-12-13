@@ -99,14 +99,12 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
   
   function get_bids_driver() {
     Ajax.request('GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
-          //console.log('try get bids... order '+localStorage.getItem('_id_current_taxy_order'));
       if (response && response.ok) {
         var el = Dom.sel('.wait-bids-approve');
          el.innerHTML = "";
         var bids = response.bids;
         var innText = '';
         for (var i = 0; i < bids.length; i++) {
-          //console.log(JSON.stringify(bids[i]));
 
           var photo, vehicle;
             photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
@@ -192,7 +190,6 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
   
   function start() {
     if (MyOrder.id > 0) {
-
       initialize();
 
       timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
@@ -206,14 +203,14 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
       if (_count_waypoint > 0) {
         Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML += _count_waypoint;
       } else {
-        Dom.selAll('.wait-order-approve__route-info__route')[0].innerHTML += 'нет';
+        Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML += 'нет';
       }
 
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
-       el_price.innerHTML = MyOrder.price + ' руб';
+        el_price.innerHTML = MyOrder.price + ' руб';
 
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
-       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
+        el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
 
       Dom.selAll('.find-me')[0].addEventListener('click', function() {
         map.setCenter( new google.maps.LatLng(User.lat, User.lng) );

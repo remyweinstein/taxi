@@ -31,7 +31,12 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         if (target.dataset.click === 'myorders_item_menu_go') {
           var elem = target;
           MyOrder.getByID(elem.dataset.id, function () {
-            window.location.hash = '#client_map';
+            if (MyOrder.bid_id) {
+              localStorage.setItem('_current_id_bid', MyOrder.bid_id);
+              window.location.hash = "#client_go";
+            } else {
+              window.location.hash = '#client_map';
+            }
           });
 
           return;

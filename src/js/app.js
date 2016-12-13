@@ -47,17 +47,6 @@ function(clUser, clCar, clClientOrder, clModalWindow, clEvents, clSettings, Geo,
 
     init: function () {
       domReady(function () {
-        clearInterval(timerSearchDriver);
-        clearInterval(timerGetBidsTaxy);
-        clearInterval(timerGetBidGo);
-        clearInterval(timerUpdateTaxiDriverOrder);
-        clearInterval(timerGetMyPos);
-        clearInterval(timerGetPosTaxy);
-
-        content.removeEventListener('click', Event.click);
-        content.removeEventListener('submit', Event.submit);
-        //content.removeEventListener('keyup');
-        //content.removeEventListener('keypress');
 
         User.getData();
 

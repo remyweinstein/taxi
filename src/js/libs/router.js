@@ -90,6 +90,17 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
   
   function clearVars() {
     Chat.stop();
+    clearInterval(timerSearchDriver);
+    clearInterval(timerGetBidsTaxy);
+    clearInterval(timerGetBidGo);
+    clearInterval(timerUpdateTaxiDriverOrder);
+    clearInterval(timerGetMyPos);
+    clearInterval(timerGetPosTaxy);
+
+    content.removeEventListener('click', Event.click);
+    content.removeEventListener('submit', Event.submit);
+    //content.removeEventListener('keyup');
+    //content.removeEventListener('keypress');
   }
   
   function loadController(route) {

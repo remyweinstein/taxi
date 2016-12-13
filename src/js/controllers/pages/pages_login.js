@@ -1,42 +1,40 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
   function addEvents() {
-    Event.submit = function (event) {
+    Event.click = function (event) {
           var target = event.target;
 
           while (target !== this) {
-            if (target.dataset.submit === 'form-auth') {
-              var button = Dom.sel('[data-click="form-submit"]');
-              button.disabled = true;
+            if (target.dataset.click === 'form-submit') {
+              var _el = target;
+              
+              _el.disabled = true;
 
-              var phone = Dom.sel('input[name="phone"]').value;
+              var phone = Dom.selAll('input[name="phone"]')[0].value;
               var token = User.token ? User.token : "";
 
-              Ajax.request('POST', 'register', token, '&phone=7'+phone, '', function(response) {
+              Ajax.request('POST', 'register', token, '&phone=7' + phone, '', function(response) {
 
                 if (response && response.ok) {
                   localStorage.setItem('_my_token', response.token);
                   User.token = response.token;
                   window.location.hash = '#sms';
                 }
-                button.disabled = false;
+                _el.disabled = false;
 
-              }, function(){
-                button.disabled = false;
+              }, function() {
+                _el.disabled = false;
+                alert('Ошибка связи с сервером');
               });
 
             return;
             }
 
-            if (target) {
-              target = target.parentNode;
-            } else {
-              break;
-            }
+            target = target.parentNode;
           }
         };
 
-    content.addEventListener('submit', Event.submit);
+    Dom.sel('.content').addEventListener('click', Event.click);
   }
   
   function start() {

@@ -97,19 +97,70 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
   }
 
   function addEvents() {
-    Dom.sel('[data-click="client-incar"]').addEventListener('click', function() {
-      Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
-        Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
-      }, function() {});
-    });
     
-    Dom.sel('[data-click="cancel-order"]').addEventListener('click', function() {
-      Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
-        if (response && response.ok) {
-          window.location.hash = '#client_city';
+    
+    Event.click = function (event) {
+      var target = event.target;
+      
+      while (target !== this) {
+        
+        if (target.dataset.click === 'drop-down') {
+          var _el = target;
+          var _top = Dom.selAll('.go-order__top')[0];
+          var _bottom = Dom.selAll('.go-order__down')[0];
+
+          if (_top.style.top === '0em' || _top.style.top === '') {
+            _el.classList.remove('drop-down');
+            _el.classList.add('drop-up');
+            _top.style.top = '-15em';
+            _bottom.style.bottom = '-13em';
+            _el.style.opacity = 1;
+            _el.style.top = '-2.5em';
+          } else {
+            _el.classList.remove('drop-up');
+            _el.classList.add('drop-down');
+            _top.style.top = '0em';
+            _bottom.style.bottom = '1em';
+            _el.style.top = '0';
+          }
+          
         }
-      }, function() {});
-    });
+
+        if (target.dataset.click === 'drop-up') {
+          var _top1 = Dom.selAll('.wait-order-approve')[0];
+          var _top2 = Dom.selAll('.wait-bids-approve')[0];
+          var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
+          
+          _top1.style.top = '4.5em';
+          _top2.style.top = '10em';
+          _bottom.style.bottom = '-10em';
+          
+          Dom.selAll('.drop-up')[0].style.display = 'none';
+        }
+        
+        if (target.dataset.click === 'client-incar') {
+          Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
+            Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
+          }, function() {});
+        }
+
+        if (target.dataset.click === 'cancel-order') {
+          Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
+            if (response && response.ok) {
+              window.location.hash = '#client_city';
+            }
+          }, function() {});
+        }
+        
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
+      }
+    };
+    content.addEventListener('click', Event.click);
+        
   }
   
   function addInfoForMarker(min, marker) {

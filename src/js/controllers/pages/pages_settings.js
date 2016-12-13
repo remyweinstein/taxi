@@ -9,7 +9,7 @@ define(['Dom'], function (Dom) {
           var el = target;
           var _key = el.dataset.key;
 
-          Modal.show('<input type="text" name="val" value="" />\n\
+          Modal.show('<input type="text" name="val" value="' + Settings.safeRadius + '" />\n\
                       <button class="button_rounded--green" data-getvalue="val">Сохранить</button>', 
             function (response) {
               eval('Settings.' + _key + ' = ' + response);

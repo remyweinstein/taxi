@@ -22,53 +22,53 @@ define(['Dom'], function (Dom) {
       radius: 500
     };
 
-      if (Dom.sel('input[name="enter-address"]').value && Dom.sel('input[name="enter-address"]').value !== "") {
-        _timer = setTimeout(startSearch, 250);
-      } else {
-        service.nearbySearch(request, callback);
-      }
+    if (Dom.sel('input[name="enter-address"]').value && Dom.sel('input[name="enter-address"]').value !== "") {
+      _timer = setTimeout(startSearch, 500);
+    } else {
+      service.nearbySearch(request, callback);
+    }
 
     function startSearch() {
       service.textSearch(requestSt, callbackSt);
     }
 
-      function callbackSt(results, status) {
-        Dom.sel('.choice-location__results-search').innerHTML = "";
-        if (results.length) {
-          var innText = '';
-          for (var i = 0; i < results.length; i++) {
-            var addr = results[i].formatted_address;
+    function callbackSt(results, status) {
+      Dom.sel('.choice-location__results-search').innerHTML = "";
+      if (results.length) {
+        var innText = '';
+        for (var i = 0; i < results.length; i++) {
+          var addr = results[i].formatted_address;
+          var lat = results[i].geometry.location.lat();
+          var lng = results[i].geometry.location.lng();
+          innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
+        }
+
+        Dom.sel('.choice-location__results-search').innerHTML = innText;
+      }
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        return;
+      }
+    }
+
+    function callback(results, status) {
+      Dom.sel('.choice-location__results-search').innerHTML = "";
+
+      if (results.length) {
+        var innText = '';
+        for (var i = 0; i < results.length; i++) {
+          var addr = results[i].vicinity;
+          if (addr !== "") {
             var lat = results[i].geometry.location.lat();
             var lng = results[i].geometry.location.lng();
             innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
           }
-
-          Dom.sel('.choice-location__results-search').innerHTML = innText;
         }
-        if (status !== google.maps.places.PlacesServiceStatus.OK) {
-          return;
-        }
+        Dom.sel('.choice-location__results-search').innerHTML = innText;
       }
-
-      function callback(results, status) {
-        Dom.sel('.choice-location__results-search').innerHTML = "";
-
-        if (results.length) {
-          var innText = '';
-          for (var i = 0; i < results.length; i++) {
-            var addr = results[i].vicinity;
-            if (addr !== "") {
-              var lat = results[i].geometry.location.lat();
-              var lng = results[i].geometry.location.lng();
-              innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
-            }
-          }
-          Dom.sel('.choice-location__results-search').innerHTML = innText;
-        }
-        if (status !== google.maps.places.PlacesServiceStatus.OK) {
-          return;
-        }
+      if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        return;
       }
+    }
 
   }
   

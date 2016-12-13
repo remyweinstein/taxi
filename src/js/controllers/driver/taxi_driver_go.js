@@ -133,6 +133,29 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
       var target = event.target;
 
       while (target !== this) {
+        
+        if (target.dataset.click === 'drop-down') {
+          var _el = target;
+          var _top = Dom.selAll('.go-order__top')[0];
+          var _bottom = Dom.selAll('.go-order__down')[0];
+
+          if (_top.style.top === '0em' || _top.style.top === '') {
+            _el.classList.remove('drop-down');
+            _el.classList.add('drop-up');
+            _top.style.top = '-15em';
+            _bottom.style.bottom = '-13em';
+            _el.style.opacity = 1;
+            _el.style.top = '-2.5em';
+          } else {
+            _el.classList.remove('drop-up');
+            _el.classList.add('drop-down');
+            _top.style.top = '0em';
+            _bottom.style.bottom = '1em';
+            _el.style.top = '0';
+          }
+          
+        }
+        
             // Click taxi_driver arrived
         if (target.dataset.click === "driver-arrived") {
           Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {

@@ -149,9 +149,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   function get_pos_drivers() {
     Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
       if (response && response.ok) {
-
-        //console.log('response = ' + JSON.stringify(response));
-
         var new_markers = [];
         var agnts = response.agents;
 
@@ -210,12 +207,40 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             return;
           }
         }
+        
+        if (target.dataset.click === 'drop-down') {
+          var _el = target;
+          var _top = Dom.selAll('[data-controller="taxi_client_city"]')[0];
+          var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
+
+          if (_top.style.top === '4em' || _top.style.top === '') {
+            _el.classList.remove('drop-down');
+            _el.classList.add('drop-up');
+            _top.style.top = '-10em';
+            _bottom.style.bottom = '-10em';
+            _el.style.opacity = 1;
+            _el.style.top = '-3.5em';
+          } else {
+            _el.classList.remove('drop-up');
+            _el.classList.add('drop-down');
+            _top.style.top = '4em';
+            _bottom.style.bottom = '1em';
+            _el.style.top = '-0.5em';
+          }
+          
+        }
+        
             // = Form add new point order =
         if (target.dataset.click === 'field_add') {
           var just_add = Dom.selAll('.icon-record').length;
-
-          AddNewZaezd(just_add);
-
+          if (just_add > 0) {
+            if (Dom.selAll('.icon-record')[just_add - 1].parentNode.querySelectorAll('input')[0].value !== "") {
+              AddNewZaezd(just_add);
+            }
+          } else {
+            AddNewZaezd(just_add);
+          }
+          
           return;
         }
         
@@ -377,7 +402,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     addEventChooseAddress('from');    
     addEventChooseAddress('to');
 
-    timerGetPosTaxy = setInterval(get_pos_drivers, 1500);
+    timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
     
     initialize_iam();
     addEvents();
