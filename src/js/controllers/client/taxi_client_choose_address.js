@@ -1,8 +1,8 @@
 define(['Dom'], function (Dom) {
   
-  function onchange() {
-    var _timer;
+  var _timer;
     
+  function onchange() {
     clearTimeout(_timer);
 
     var query = Dom.sel('input[name="enter-address"]').value;
@@ -23,7 +23,7 @@ define(['Dom'], function (Dom) {
     };
 
     if (Dom.sel('input[name="enter-address"]').value && Dom.sel('input[name="enter-address"]').value !== "") {
-      _timer = setTimeout(startSearch, 500);
+      _timer = setTimeout(startSearch, 1000);
     } else {
       service.nearbySearch(request, callback);
     }

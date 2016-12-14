@@ -105,6 +105,7 @@ var menus_arr = [];
   var bid_id;
 
   var default_vehicle = 'assets/images/no_vehicle.png';
+  var default_city = 'Хабаровск';
 
   var timerSearchDriver, 
       timerGetBidsTaxy, 

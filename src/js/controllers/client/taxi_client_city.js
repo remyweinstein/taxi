@@ -155,7 +155,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         //console.log('agnts = '.agnts[0]);
 
         for (var i = 0; i < agnts.length; i++) {
-          if (!markers_driver_pos[agnts[i].id]) {              
+          if (!markers_driver_pos[agnts[i].id]) {
             new_markers[agnts[i].id] = addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice);
           } else {
             markers_driver_pos[agnts[i].id].setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));

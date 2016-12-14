@@ -28,6 +28,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
           var sel_brand = Dom.sel('select[name="brand"]');
           var sel_type = Dom.sel('select[name="type"]');
           var sel_model = Dom.sel('select[name="model"]');
+          var name = User.name ? User.name : 'Гость';
+          var city = User.city ? User.city : default_city;
           var data = new FormData();
             data.append('vehicle', file);
             data.append('color', Dom.sel('input[name="color"]').value);
@@ -36,15 +38,16 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             data.append('tonnage', Dom.sel('input[name="tonnage"]').value);
             data.append('brand', sel_brand.options[sel_brand.selectedIndex].text);
             data.append('model', sel_model.options[sel_model.selectedIndex].text);
+            data.append('name', name);
+            data.append('city', city);
 
-          Ajax.request('POST', 'profile', User.token, '', data, function(){}, function() {});
+          Ajax.request('POST', 'profile', User.token, '', data, function() {}, function() {});
 
           var data2 = new FormData();
             data2.append('conditioner', Dom.sel('input[name="conditioner"]:checked').value);
             data2.append('type', sel_type.options[sel_type.selectedIndex].text);
 
           Ajax.request('POST', 'auto', User.token, '', data2, function(response) {
-            //console.log(JSON.stringify(response));
 
             if (response && response.ok) {
               //window.location.hash = '/';
@@ -80,7 +83,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         var photo_car = response.profile.vehicle ? response.profile.vehicle : default_vehicle;
         Dom.sel('.avatar').src = photo_car;
 
-        //console.log(JSON.stringify(response.profile));
       }
 
     }, function() {});
@@ -101,6 +103,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       brand_el.addEventListener('change', function() {
         changeModel(brand_el.options[brand_el.selectedIndex].text);
       });
+      
+    addEvents();
   }
   
   return {

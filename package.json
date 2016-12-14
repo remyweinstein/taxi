@@ -1,8 +1,8 @@
 {
-  "name": "indriver.ru",
+  "name": "TechAgent",
   "version": "1.0.0",
-  "description": "tipa taxi",
-  "main": "index.js",
+  "description": "TechAgent",
+  "main": "index.html",
   "dependencies": {
     "gulp": "^3.8.11"
   },
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://remyweinstein@github.com/remyweinstein/taxi.git"
+    "url": "git+https://dennis_se@bitbucket.org/dennis_se/taxi.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/remyweinstein/taxi/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/remyweinstein/taxi#readme",
+  "homepage": "https://bitbucket.org/dennis_se/taxi",
   "devDependencies": {
     "gulp-plumber": "^1.1.0",
     "gulp-util": "^3.0.7"
