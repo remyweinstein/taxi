@@ -5,7 +5,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
                 {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
-                {hash:'#sms', controller:'ctrlPageSms', title:'Подтверждение', menu:'', pageType: 'back-arrow'},
+                {hash:'#favorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
                 {hash:'#client_choice_location_map', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_choose_address', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_city', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
@@ -23,6 +23,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
                 {hash:'#driver_cargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
                 {hash:'#driver_go', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
+                {hash:'#driver_order', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
                 {hash:'#driver_my_auto', controller:'ctrlTaxiDriverMyAuto', title:'Мой авто', menu:'driver', pageType: ''}];
 

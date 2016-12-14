@@ -47,13 +47,27 @@
         </header>
         <main class="content"></main>
         <div class="loading"></div>
+        <template id="ctrlPageFavorites">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Избранные</li>
+                    <li data-tab="2">Черный список</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content"></div>
+                <div data-tab-content="2" class="tabs_content"></div>
+              </div>
+            </div>
+        </template>
         <template id="ctrlPageEditProfile">
             <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
                 <p>
                     <img class="avatar" src="" alt="" />
                     <input type="file" name="ava_file" /><br/>
                     <a href="#" data-click="clear_photo">удалить</a>
-                    </p>
+                </p>
                 <p><input type="text" name="myname" value="" /></p>
                 <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>
                 <p>
@@ -155,12 +169,8 @@
                                 <div>-</div>
                                 <div></div>
                             </div>
-                            <div class="wait-order-approve__route-info__price">
-
-                            </div>
-                            <div class="wait-order-approve__route-info__cancel">
-
-                            </div>                        
+                            <div class="wait-order-approve__route-info__price"></div>
+                            <div class="wait-order-approve__route-info__cancel"></div>
                         </div>
                     </div>
                     <div class="wait-bids-approve"></div>
@@ -498,6 +508,25 @@
             <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
             <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
+        <template id="ctrlTaxiDriverOrder">
+            <div id="map_canvas_go_driver"></div>
+            <div class="go-order">
+                <div class="go-order__top">
+                    <div class="wait-order-approve" data-controller="taxi_driver_go">
+                        <div class="wait-order-approve__route-info">
+                            <div class="wait-order-approve__route-info__route">
+                                <div></div>
+                                <div>-</div>
+                                <div></div>
+                            </div>
+                            <div class="wait-order-approve__route-info__price"></div>
+                            <div class="wait-order-approve__route-info__cancel"></div>                        
+                        </div>
+                    </div>
+                    <div class="wait-bids-approve"></div>
+                </div>
+            </div>
+        </template>
         <template id="ctrlTaxiDriverGo">
             <div id="map_canvas_go_driver"></div>
             <div class="go-order">
@@ -509,12 +538,8 @@
                                 <div>-</div>
                                 <div></div>
                             </div>
-                            <div class="wait-order-approve__route-info__price">
-
-                            </div>
-                            <div class="wait-order-approve__route-info__cancel">
-
-                            </div>                        
+                            <div class="wait-order-approve__route-info__price"></div>
+                            <div class="wait-order-approve__route-info__cancel"></div>
                         </div>
                     </div>
                     <div class="wait-bids-approve"></div>

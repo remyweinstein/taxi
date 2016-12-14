@@ -33,7 +33,7 @@ define(['Dates'], function(Dates) {
                   self.id = order.id;
                   self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
                   self.distance2 = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
-                  var travelTime = (self.distance2 / average_speed).toFixed(0);
+                  var travelTime = ((self.distance2 / average_speed) * 60).toFixed(0);
                     if (travelTime < 5) {
                       travelTime = 5;
                     } else {

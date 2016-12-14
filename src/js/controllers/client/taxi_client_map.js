@@ -1,6 +1,7 @@
 define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
   
   var driver_marker = [];
+  var marker_mine;
   var el_route = Dom.sel('.wait-order-approve__route-info__route');
   
   function initialize() {
@@ -16,7 +17,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
 
-    var marker_mine = new google.maps.Marker({
+    marker_mine = new google.maps.Marker({
       position: MyLatLng,
       map: map,
       icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
@@ -62,7 +63,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
 
         for (var i = 0; i < response.routes.length; i++) {
           var temp = response.routes[i].overview_path;
-          //overviewPath = overviewPath.concat( temp );
+
           overviewPath.push(temp);
         }
                
@@ -98,6 +99,8 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
   }
   
   function get_bids_driver() {
+    marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
+    
     Ajax.request('GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
       if (response && response.ok) {
         var el = Dom.sel('.wait-bids-approve');

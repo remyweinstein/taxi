@@ -6,7 +6,7 @@ define(['Dom'], function (Dom) {
     clearTimeout(_timer);
 
     var query = Dom.sel('input[name="enter-address"]').value;
-    var MyLatLng = {lat: User.lat, lng: User.lng};
+    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     var map = new google.maps.Map(document.getElementById('hide_map'), {
       center: MyLatLng,
       zoom: 12
@@ -14,7 +14,7 @@ define(['Dom'], function (Dom) {
     var service = new google.maps.places.PlacesService(map);
     var requestSt = {
       location: MyLatLng,
-      radius: 500000,
+      radius: 50000,
       query: query
     };
     var request = {

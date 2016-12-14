@@ -4,7 +4,7 @@ function(clUser, clCar, clClientOrder, clModalWindow, clEvents, clSettings, Geo,
   var App =  {
     
     start: function () {
-      
+                  
       domReady(function () {
         content = Dom.sel('.content');
 

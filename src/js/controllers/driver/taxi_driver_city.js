@@ -65,6 +65,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
 
           show('LI', '\
                       <div class="list-orders_route">\n\
+                       <div data-click="open-order" data-id="' + Orders[key].id + '">\n\
                         <div class="list-orders_route_from">\n\
                           ' + Orders[key].fromAddress + '\
                         </div>\n\
@@ -81,6 +82,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
                         <div class="list-orders_route_info">\n\
                           Длина маршрута: ' + Math.round(Orders[key].distance / 1000, 2) + ' км\n\
                         </div>\n\
+                       </div>\n\
                         <div class="list-orders_route_price">\n\
                           ' + price_minus + '\n\
                           <span>' + Orders[key].price + ' руб.</span> \n\
@@ -122,6 +124,13 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
       var target = event.target;
 
       while (target !== this) {
+        
+        if (target.dataset.click === "open-order") {
+          var el = target;
+          
+          localStorage.setItem('_open_order_id', el.dataset.id);
+          window.location.hash = "#driver_order";
+        }
             // Click taxi_bid
         if (target.dataset.click === "taxi_bid") {
           var el = target;

@@ -53,12 +53,13 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
                       User.city = obj[key].long_name;
                       //User.city = 'Хабаровск';
                       localStorage.setItem('_my_city', User.city);
-                      
+                      var name = User.name ? User.name : 'Гость';
                       var data = new FormData();
-                       data.append('city', User.city);
+                        data.append('city', User.city);
+                        data.append('name', name);
                        
                       Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-                        //console.log('after geofind = ' + response.ok);
+                        console.log(response);
                         if (response && response.ok) {
                           init();
                         }
@@ -74,19 +75,16 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       };
       
       function error() {
-        alert("На вашем устройстве не разрешен доступ к местоположению.");
+
       };
       
-      navigator.geolocation.getCurrentPosition(success, error);
-      //navigator.geolocation.watchPosition(success, error, options);
+      //navigator.geolocation.getCurrentPosition(success, error);
+      var watchID = navigator.geolocation.watchPosition(success, error, options);
     }
   
   var Geo = {
 
       init: function() {
-
-        timerUpdateCoords = setInterval(geoFindMe, 5000);
-        
         geoFindMe();
       },
       

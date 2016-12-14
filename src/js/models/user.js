@@ -79,7 +79,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     };
 
     this.initToken = function () {
-      if (!this.token) {
+      if (!self.token) {
         Ajax.request('GET', 'token', '', '', '', function(response) {
           if (response && response.ok) {
             setToken(response.token);

@@ -34,6 +34,7 @@ requirejs.config({
     "ctrlPageLogout" : "controllers/pages/pages_logout",
     "ctrlPageSettings" : "controllers/pages/pages_settings",
     "ctrlPageSms" : "controllers/pages/pages_sms",
+    "ctrlPageFavorites" : "controllers/pages/pages_favorites",
     
     "ctrlTaxiClientChoiceLocationMap" : "controllers/client/taxi_client_choice_location_map",
     "ctrlTaxiClientChooseAddress" : "controllers/client/taxi_client_choose_address",
@@ -52,6 +53,7 @@ requirejs.config({
     "ctrlTaxiDriverMyAccount" : "controllers/driver/taxi_driver_my_account",
     "ctrlTaxiDriverRating" : "controllers/driver/taxi_driver_rating",
     "ctrlTaxiDriverGo" : "controllers/driver/taxi_driver_go",
+    "ctrlTaxiDriverOrder" : "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" : "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverHelp" : "controllers/driver/taxi_driver_help",
     "ctrlTaxiDriverMyAuto" : "controllers/driver/taxi_driver_my_auto"
@@ -71,6 +73,7 @@ var menus_arr = [];
                            {name: 'Мои заказы', url: '#client_my_orders', icon: 'archive'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
+                           {name: 'Избранные', url: '#favorites', icon: 'star'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
                            {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
@@ -78,6 +81,7 @@ var menus_arr = [];
     menus_arr['driver'] = [{name: 'Город', url: '#driver_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
+                           {name: 'Избранные', url: '#favorites', icon: 'star'},
                            {name: 'Мой авто', url: '#driver_my_auto', icon: 'cog-alt'},
                            {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
                            {name: 'Мой рейтинг', url: '#driver_rating', icon: 'user'},

@@ -3,6 +3,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   var test = 'test';
   
   var driver_marker = [];
+  var marker_mine;
   var map_choice;
   var markers_driver_pos = [];    
   var from = Dom.selAll('input[name="from"]')[0];
@@ -38,7 +39,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
     map_choice = new google.maps.Map(mapCanvas, mapOptions);
 
-    var marker_mine = new google.maps.Marker({
+    marker_mine = new google.maps.Marker({
       position: MyLatLng,
       map: map_choice,
       icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
@@ -100,7 +101,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
             MyOrder.distance = distance;
             var cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
-            Dom.selAll('[name="cost"]')[0].value = cost < 50 ? 50 : cost;
+              cost = cost < 50 ? 50 : cost;
+            Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + cost + ' руб.';
 
             new google.maps.DirectionsRenderer({
               map: map_choice,
@@ -147,6 +149,10 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
 
   function get_pos_drivers() {
+    if (marker_mine) {
+      marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
+    }
+
     Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
       if (response && response.ok) {
         var new_markers = [];
@@ -316,7 +322,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         if (target.dataset.submit === "taxy_client_city") {
             Dom.sel('[data-click="order-taxi"]').disabled = true;
 
-            MyOrder.price = Dom.sel('[name="cost"]').value;
+            //MyOrder.price = Dom.sel('[name="cost"]').value;
             MyOrder.comment = Dom.sel('[name="description"]').value;
 
             var data = new FormData();

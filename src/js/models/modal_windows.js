@@ -3,10 +3,12 @@ define(['Dom'], function(Dom) {
   var clModalWindow = function () {
     var self = this;
     var block = 'content';
-    var layer, cur_win;
+    
+    this.layer;
+    this.cur_win;
 
     this.show = function (content, callback) {
-                  layer = showLayer();
+                  self.layer = showLayer();
                   var el = Dom.sel('.' + block);
                   var new_field = document.createElement('div');
                     new_field.className += 'modal-window';
@@ -37,14 +39,14 @@ define(['Dom'], function(Dom) {
 
                   moveCenter(new_field);
 
-                  cur_win = new_field;
+                  self.cur_win = new_field;
 
     };
 
     this.close = function () {
-      clearLayer(layer);
-      cur_win.parentNode.removeChild(cur_win);
-      cur_win = null;
+      clearLayer(self.layer);
+      self.cur_win.parentNode.removeChild(self.cur_win);
+      self.cur_win = null;
     };
 
     function moveCenter(el) {
