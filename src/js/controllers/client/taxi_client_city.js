@@ -165,7 +165,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
       if (response && response.ok) {
         var old_markers = markers_driver_pos;
-        markers_driver_pos = [];
+        //markers_driver_pos = [];
         var agnts = response.agents;
 
         for (var i = 0; i < agnts.length; i++) {
@@ -190,9 +190,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
                         </div>\n\
                         ';
             var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
-            markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
+            old_markers.push({'id': agnts[i].id, 'marker': marker});
+            //console.log('new id ' + agnts[i].id);
           } else {
             old_markers[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
+            //console.log('move id ' + agnts[i].id);
           }
         }
         
@@ -201,8 +203,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         };
         var result = old_markers.diff(markers_driver_pos);
         for (var i = 0; i < result.length; i++) {
+          //console.log('delete id ' + result[i].id);
           result[i].marker.setMap = null;
         }
+        
+        markers_driver_pos = old_markers;
         
       }
     }, function() {});
