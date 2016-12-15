@@ -48,3 +48,11 @@ button:focus {
 .font4 {
     font-size: 4em;
 }
+.active {
+    color: $active;
+}
+.avatar {
+    width: 4em;
+    height: 4em;
+    border-radius: 4em;
+}

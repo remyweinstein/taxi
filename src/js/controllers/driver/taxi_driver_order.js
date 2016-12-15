@@ -11,7 +11,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
 
   var map = new google.maps.Map(mapCanvas, mapOptions);
   var markers = [], marker_client, active_bid = false;
-  var fromAddress, toAddress, fromCoords, toCoords, waypoints, points = [], price, order_id, distanse, ag_distanse;
+  var fromAddress, toAddress, fromCoords, toCoords, waypoints, points = [], price, order_id, distanse, ag_distanse, duration;
   var name_client, photo_client, travelTime;
 
   function setRoute() {
@@ -49,6 +49,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
                           <p>До клиента: <span data-view="distance_to_car">' + ag_distanse + '</span> км.</p>\n\
                           <p>Буду через: ' + time_minus + '<span data-view="while_car">' + travelTime + '</span> мин.' + time_plus + '</p>\n\
                           <p>По маршруту: <span>' + distanse + '</span> км.</p>\n\
+                          <p>Время по маршруту: <span>' + Dates.minToHours(duration) + '</span></p>\n\
                         </div>\n\
                         <div class="wait-bids-approve__item__driver">\n\
                           <div>\n\
@@ -61,29 +62,30 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
                         <div class="wait-bids-approve__item__approve">\n\
                         </div>\n\
                       </div>';
-
-    directionsService = new google.maps.DirectionsService();
-    directionsDisplay = new google.maps.DirectionsRenderer();
-
-    var request = {
-      origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
-      destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
-      waypoints: waypoints,
-      travelMode: google.maps.DirectionsTravelMode.DRIVING
-    };
-
-    directionsService.route(request, function(response, status) {
-      if (status === google.maps.DirectionsStatus.OK) {
-        new google.maps.DirectionsRenderer({
-          map: map,
-          suppressMarkers: true,
-          directions: response
-        });
-      }
-    });
-
   }
 
+  function drawMap() {
+      directionsService = new google.maps.DirectionsService();
+      directionsDisplay = new google.maps.DirectionsRenderer();
+
+      var request = {
+        origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+        destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
+        waypoints: waypoints,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
+
+      directionsService.route(request, function(response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+          new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true,
+            directions: response
+          });
+        }
+      });
+    }
+  
   function addInfoForMarker(min, marker) {
     if(min && min > 0) {
       var infowindow = new google.maps.InfoWindow({
@@ -121,15 +123,16 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
           if (el.classList.contains('active')) {
             Ajax.request('POST', 'delete-bid', User.token, '&id=' + order_id, '', function(response) {
               if (response && response.ok) {
-                el.classList.remove('active');
+                active_bid = false;
+                setRoute();
               }
             }, function() {});
           } else {
             if (!User.is_auth) {
               Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>\n\
                         <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Войти</button></p>\n\
-                      ', function (response) {
+                        <button class="button_rounded--green" data-response="yes">Войти</button></p>', 
+                        function (response) {
                           if (response === "yes") {
                             window.location.hash = '#login';
                           }
@@ -137,8 +140,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
             } else if (!Car.brand || !Car.model || !Car.number) {
               Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>\n\
                         <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Перейти</button></p>\n\
-                      ', function (response) {
+                        <button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+                        function (response) {
                           if (response === "yes") {
                             window.location.hash = '#driver_my_auto';
                           }
@@ -146,7 +149,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
             } else {
               Ajax.request('POST', 'bid', User.token, '&id=' + order_id + '&price=' + price + '&travelTime=' + travelTime, '', function(response) {
                 if (response && response.ok) {
-                  el.classList.add('active');
+                  active_bid = true;
+                  setRoute();
                 }  
               }, function() {});
             }
@@ -184,7 +188,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
           var _price = price_el.innerHTML;
             _price = _price.split(" ");
             _price = parseInt(_price[0]) - 10;
-            if (_price < 50) _price = 50;
+            if (_price < 0) _price = 0;
             price = _price;
             price_el.innerHTML = _price;
         }
@@ -227,6 +231,14 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
         name_client = ords.agent.name ? ords.agent.name : User.default_name;
         photo_client = ords.agent.photo ? ords.agent.photo : User.default_avatar;
         distanse = (ords.distance / 1000).toFixed(1);
+        duration = ords.duration;
+        for (var y = 0; y < ords.bids.length; y++) {
+          var agid = ords.bids[y].agentId;                  
+          if (agid === User.id) {
+            active_bid = true;
+            break;
+          }
+        }
         ag_distanse = ords.agent.distance.toFixed(1);
         travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
         if (travelTime < 5) {
@@ -249,6 +261,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
         addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
         setRoute();
+        drawMap();
+
       } else {
         window.location.hash = '#driver_city';
       }

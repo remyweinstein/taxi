@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
+define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
   
   var driver_marker = [];
   var marker_mine;
@@ -50,7 +50,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
 
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {            
-        for (var i = 0, len = response.routes.length; i < len; i++) {
+        for (var i = 0; i < response.routes.length; i++) {
           new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
@@ -104,7 +104,7 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
     Ajax.request('GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
       if (response && response.ok) {
         var el = Dom.sel('.wait-bids-approve');
-         el.innerHTML = "";
+          el.innerHTML = "";
         var bids = response.bids;
         var innText = '';
         for (var i = 0; i < bids.length; i++) {
@@ -118,9 +118,10 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
           } else {
             driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
           }
+          var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
           innText += '<div class="wait-bids-approve__item">\n\
                             <div class="wait-bids-approve__item__distance">\n\
-                              Растояние до водителя, <span>' + bids[i].agent.distance.toFixed(1) + ' км</span>\n\
+                              Растояние до водителя, <span>' + dist + ' км</span>\n\
                             </div>\n\
                             <div class="wait-bids-approve__item__driver">\n\
                               <div>\n\
@@ -199,18 +200,18 @@ define(['Ajax', 'Dom', 'Geo'], function (Ajax, Dom, Geo) {
 
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[0].innerHTML = MyOrder.fromAddress;
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[2].innerHTML = MyOrder.toAddress;
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML = 'Заездов ';
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'Время в пути: ' + (MyOrder.distance / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
 
       var _count_waypoint = MyOrder.toAddresses.length;
 
       if (_count_waypoint > 0) {
-        Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML += _count_waypoint;
+        Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML = 'Заездов ' + _count_waypoint;
       } else {
-        Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML += 'нет';
+        Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].style.display = 'none';
       }
 
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
-        el_price.innerHTML = MyOrder.price + ' руб';
+        el_price.innerHTML = Math.round(MyOrder.price) + ' руб';
 
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
         el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';

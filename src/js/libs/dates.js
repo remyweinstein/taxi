@@ -1,5 +1,16 @@
 define(function() {
   
+  function rightHour(num) {
+    if (num === 1) {
+      return 'час';
+    }
+    if (num > 1 && num < 5 ) {
+      return 'часа';
+    }
+
+    return 'часов';
+  };
+
   var Dates = {
 
       datetimeForPeople: function (date, options) {
@@ -75,6 +86,29 @@ define(function() {
         dob = dob[2] + '-' + dob[1] + '-' + dob[0];
 
         return dob;
+      },
+      
+      minToHours: function (min) {
+        var s_min = ' мин.';
+        var s_hour = ' ч.';
+        var s_day = ' д.';
+        var s_month = ' м.';
+        var s_year = ' г.';
+        if (min < 60) {
+          return min + s_min;
+        }
+        if (min >= 60 && min < 1440) {
+          var hour = Math.floor(min / 60);
+          min = min - (hour * 60);
+          return hour + s_hour + ' ' + min + s_min;
+        }
+        if (min >= 1440) {
+          var day = Math.floor(min / (60 * 24));
+          min = min - (day * 60 * 24);
+          var hour = Math.floor(min / 60);
+          min = min - (hour * 60);
+          return day + s_day + ' ' + hour + s_hour + ' ' + min + s_min;
+        }
       },
       
       diffTime: function (start, timer) {

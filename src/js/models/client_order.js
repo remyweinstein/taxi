@@ -11,6 +11,7 @@ define(['Ajax'], function(Ajax) {
     this.toAddresses = [];
     this.fromCoords = "";
     this.toCoords = "";
+    this.duration = 0;
     this.toCoordses = [];
     this.fromFullAddress = "";
     this.toFullAddress = "";
@@ -41,6 +42,7 @@ define(['Ajax'], function(Ajax) {
                       self.toAddress = ord.toAddress;
                       self.fromCoords = ord.fromLocation;
                       self.toCoords = ord.toLocation;
+                      self.duration = ord.duration;
                       self.fromFullAddress = "";
                       self.toFullAddress = "";
                       self.time0 = 0;

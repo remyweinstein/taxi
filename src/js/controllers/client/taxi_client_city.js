@@ -1,13 +1,12 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
-  var test = 'test';
-  
   var driver_marker = [];
   var marker_mine;
   var map_choice;
   var markers_driver_pos = [];    
   var from = Dom.selAll('input[name="from"]')[0];
   var to = Dom.selAll('input[name="to"]')[0];
+  var recommended_cost = 0;
 
   var marker_a, marker_b;
   var price = Dom.sel('[name="cost"]').value;
@@ -75,7 +74,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
           if (MyOrder.toAddresses[i] && MyOrder.toAddresses[i] !== "") {
             var _wp = MyOrder.toCoordses[i].split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addInfoForMarker(MyOrder.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map_choice));
+            addInfoForMarker(MyOrder.times[i] + ' мин.', true, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map_choice));
           }
         }
 
@@ -93,16 +92,12 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         directionsService.route(request, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
             var routes_dist = response.routes[0].legs;
-            var distance = 0;
 
-            for (var i = 0; i < routes_dist.length; i++) {
-              distance += routes_dist[i].distance.value;
-            }
-
-            MyOrder.distance = distance;
-            var cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
-              cost = cost < 50 ? 50 : cost;
-            Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + cost + ' руб.';
+            MyOrder.duration = Math.round((routes_dist[i].duration.value) / 60);
+            MyOrder.distance = routes_dist[i].distance.value;
+            recommended_cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
+            recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+            Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
 
             new google.maps.DirectionsRenderer({
               map: map_choice,
@@ -123,17 +118,21 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       //localStorage.setItem('_choice_coords', coords);
     }); 
   }
-
-  function addInfoForMarker(min, marker) {
-    if(min && min > 0) {
+    
+  function addInfoForMarker(text, open, marker) {
+    if(text && text !== "") {
       var infowindow = new google.maps.InfoWindow({
-        content: min + ' мин.'
+        content: text
       });
-      infowindow.open(map_choice, marker);
+      if (open) {
+        infowindow.open(map_choice, marker);
+      }
       google.maps.event.addListener(marker, 'click', function() {
         infowindow.open(map_choice, marker);
       });
     }
+    
+    return marker;
   }
 
   function addMarker(location, title, icon, map) {
@@ -162,7 +161,26 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
         for (var i = 0; i < agnts.length; i++) {
           if (!markers_driver_pos[agnts[i].id]) {
-            new_markers[agnts[i].id] = addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice);
+            var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar;
+            var photo_car = agnts[i].photo ? agnts[i].photo : Car.default_vehicle;
+            var name = agnts[i].name ? agnts[i].name : '&nbsp;';
+            var brand = agnts[i].brand ? agnts[i].brand : '&nbsp;';
+            var model = agnts[i].model ? agnts[i].model : '&nbsp;';
+            var info = '<div style="text-align:center;">\n\
+                          <div style="width:50%;display:inline-block;float: left;">\n\
+                            <p>id' + agnts[i].id + '<br>' + name + '</p>\n\
+                            <p><img class="avatar" src="' + photo + '" alt=""/></p>\n\
+                            <p><button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button></p>\n\
+                          </div>\n\
+                          <div style="width:50%;display:inline-block">\n\
+                            <p>' + brand + '<br>\n\
+                            ' + model + '</p>\n\
+                            <p><img class="avatar" src="' + photo_car + '" alt=""/></p>\n\
+                            <p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>\n\
+                          </div>\n\
+                        </div>\n\
+                        ';
+            new_markers[agnts[i].id] = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
           } else {
             markers_driver_pos[agnts[i].id].setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
           }
@@ -204,105 +222,126 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       var target = event.target;
       
       while (target !== this) {
-            // = Click choose location =
+          
         if (target) {
+          if (target.dataset.click === "addtofav") {
+            var el = target;
+            Ajax.request('POST', 'favorites', User.token, '&id=' + target.dataset.id, '', function(response) {
+              console.log(response);
+              if (response && response.ok) {
+                el.disabled = true;
+              }
+            }, function() {});
+          }  
+          
+          if (target.dataset.click === "addtoblack") {
+            var el = target;
+            Ajax.request('POST', 'black-list', User.token, '&id=' + target.dataset.id, '', function(response) {
+              console.log(response);
+              if (response && response.ok) {
+                el.disabled = true;
+              }
+            }, function() {}); 
+          }  
+          
           if (target.dataset.click === 'choice_location') {
             localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             window.location.hash = '#client_choice_location_map';
 
             return;
           }
-        }
-        
-        if (target.dataset.click === 'drop-down') {
-          var _el = target;
-          var _top = Dom.selAll('[data-controller="taxi_client_city"]')[0];
-          var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
 
-          if (_top.style.top === '4em' || _top.style.top === '') {
-            _el.classList.remove('drop-down');
-            _el.classList.add('drop-up');
-            _top.style.top = '-10em';
-            _bottom.style.bottom = '-10em';
-            _el.style.opacity = 1;
-            _el.style.top = '-3.5em';
-          } else {
-            _el.classList.remove('drop-up');
-            _el.classList.add('drop-down');
-            _top.style.top = '4em';
-            _bottom.style.bottom = '1em';
-            _el.style.top = '-0.5em';
+          if (target.dataset.click === 'drop-down') {
+            var _el = target;
+            var _top = Dom.selAll('[data-controller="taxi_client_city"]')[0];
+            var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
+
+            if (_top.style.top === '4em' || _top.style.top === '') {
+              _el.classList.remove('drop-down');
+              _el.classList.add('drop-up');
+              _top.style.top = '-10em';
+              _bottom.style.bottom = '-10em';
+              _el.style.opacity = 1;
+              _el.style.top = '-3.5em';
+            } else {
+              _el.classList.remove('drop-up');
+              _el.classList.add('drop-down');
+              _top.style.top = '4em';
+              _bottom.style.bottom = '1em';
+              _el.style.top = '-0.5em';
+            }
+
           }
-          
-        }
-        
-            // = Form add new point order =
-        if (target.dataset.click === 'field_add') {
-          var just_add = Dom.selAll('.icon-record').length;
-          if (just_add > 0) {
-            if (Dom.selAll('.icon-record')[just_add - 1].parentNode.querySelectorAll('input')[0].value !== "") {
+
+              // = Form add new point order =
+          if (target.dataset.click === 'field_add') {
+            var just_add = Dom.selAll('.icon-record').length;
+            if (just_add > 0) {
+              if (Dom.selAll('.icon-record')[just_add - 1].parentNode.querySelectorAll('input')[0].value !== "") {
+                AddNewZaezd(just_add);
+              }
+            } else {
               AddNewZaezd(just_add);
             }
-          } else {
-            AddNewZaezd(just_add);
+
+            return;
           }
-          
-          return;
+
+          if (target.dataset.click === 'clean-field') {
+            var _field = target.dataset.field;
+
+            if (_field === "from") {
+              MyOrder.fromAddress = "";
+              MyOrder.fromCity = "";
+              MyOrder.fromCoords = "";
+              MyOrder.fromFullAddress = "";
+            }
+
+            if (_field === "to") {
+              MyOrder.toAddress = "";
+              MyOrder.toCity = "";
+              MyOrder.toCoords = "";
+              MyOrder.toFullAddress = "";
+            }
+
+            Dom.selAll('.adress_' + _field)[0].value = "";
+
+            return;
+          }
+
+          if (target.dataset.click === 'field_add_time') {
+            var _id = target.dataset.id;
+
+            Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
+                      <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
+                      <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
+                      <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
+                      <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
+                      <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
+                    ', function (response) {
+                        eval("MyOrder.times[" + _id + "] = " + response);
+                        reloadPoints();
+                    });
+
+            return;
+          }
+              // = Form delete point order =
+          if (target.dataset.click === 'field_delete') {
+            var _id = target.dataset.id;
+
+            MyOrder.toAddresses.splice(_id, 1);
+            MyOrder.toCoordses.splice(_id, 1);
+            MyOrder.times.splice(_id, 1);
+
+            var be_dead = target.parentNode;
+              be_dead.parentNode.removeChild(be_dead);
+
+            reloadPoints();
+
+            return;
+          }
         }
         
-        if (target.dataset.click === 'clean-field') {
-          var _field = target.dataset.field;
-
-          if (_field === "from") {
-            MyOrder.fromAddress = "";
-            MyOrder.fromCity = "";
-            MyOrder.fromCoords = "";
-            MyOrder.fromFullAddress = "";
-          }
-          
-          if (_field === "to") {
-            MyOrder.toAddress = "";
-            MyOrder.toCity = "";
-            MyOrder.toCoords = "";
-            MyOrder.toFullAddress = "";
-          }
-          
-          Dom.selAll('.adress_' + _field)[0].value = "";
-
-          return;
-        }
-
-        if (target.dataset.click === 'field_add_time') {
-          var _id = target.dataset.id;
-
-          Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
-                    <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
-                    <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
-                    <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
-                    <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
-                    <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
-                  ', function (response) {
-                      eval("MyOrder.times[" + _id + "] = " + response);
-                      reloadPoints();
-                  });
-
-          return;
-        }
-            // = Form delete point order =
-        if (target.dataset.click === 'field_delete') {
-          var _id = target.dataset.id;
-
-          MyOrder.toAddresses.splice(_id, 1);
-          MyOrder.toCoordses.splice(_id, 1);
-          MyOrder.times.splice(_id, 1);
-
-          var be_dead = target.parentNode;
-            be_dead.parentNode.removeChild(be_dead);
-
-          reloadPoints();
-
-          return;
-        }
 
         if (target) {
           target = target.parentNode;
@@ -322,7 +361,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         if (target.dataset.submit === "taxy_client_city") {
             Dom.sel('[data-click="order-taxi"]').disabled = true;
 
-            //MyOrder.price = Dom.sel('[name="cost"]').value;
+            var _price = Dom.sel('[name="cost"]').value;
+            MyOrder.price = _price === "" ? recommended_cost : _price;
             MyOrder.comment = Dom.sel('[name="description"]').value;
 
             var data = new FormData();
@@ -335,6 +375,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             data.append('toCity', User.city);
             data.append('toAddress', MyOrder.toAddress);
             data.append('toLocation', MyOrder.toCoords);
+            data.append('duration', MyOrder.duration);
             data.append('isIntercity', 0);
             //data.append('bidId', '');
             data.append('price', MyOrder.price);

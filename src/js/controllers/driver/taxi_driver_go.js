@@ -1,6 +1,6 @@
 define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
   
-  var LatLng = new google.maps.LatLng(48.49, 135.07);
+  var LatLng = new google.maps.LatLng(User.lat, User.lng);
   var order_id;
   var mapCanvas = document.getElementById('map_canvas_go_driver');
   var mapOptions = {
@@ -106,12 +106,11 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
         var ords = response.bid.order;
         var agnt = response.bid.agent;
 
-        dr_distanse = ords.agent.distance.toFixed(1);
         var lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime);
-        dr_time = lost_diff > 0 ? lost_diff : 0;
 
-        Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
-        Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
+        Dom.sel('[data-view="distance_to_car"]').innerHTML = ords.agent.distance.toFixed(1);
+        Dom.sel('[data-view="while_car"]').innerHTML = lost_diff > 0 ? lost_diff : 0;
+        Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
 
         if (!marker_client) {
           marker_client = new google.maps.Marker({

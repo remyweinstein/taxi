@@ -82,6 +82,9 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
                         <div class="list-orders_route_info">\n\
                           Длина маршрута: ' + Math.round(Orders[key].distance / 1000, 2) + ' км\n\
                         </div>\n\
+                        <div class="list-orders_route_info">\n\
+                          Время по маршруту: ' + Dates.minToHours(Orders[key].duration) + '\n\
+                        </div>\n\
                        </div>\n\
                         <div class="list-orders_route_price">\n\
                           ' + price_minus + '\n\
@@ -131,7 +134,29 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
           localStorage.setItem('_open_order_id', el.dataset.id);
           window.location.hash = "#driver_order";
         }
-            // Click taxi_bid
+        
+        if (target.dataset.click === "fav-orders") {
+          var el = target;
+          if (el.classList.contains('active')) {
+            el.classList.remove('active');
+          } else {
+            el.classList.add('active');
+          }
+        }
+
+        if (target.dataset.click === "filter-orders") {
+          Popup.show(target, 'Фильтры', function() {
+            
+          });
+        }
+
+        if (target.dataset.click === "sort-orders") {
+          Popup.show(target, 'Сортировка', function() {
+            
+          });
+        }
+        
+          // Click taxi_bid
         if (target.dataset.click === "taxi_bid") {
           var el = target;
 
@@ -207,7 +232,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
           var price = price_el.innerHTML;
             price = price.split(" ");
             price = parseInt(price[0]) - 10;
-            if (price < 50) price = 50;
+            if (price < 0) price = 0;
             Orders[el.dataset.key].price = price;
             price_el.innerHTML = price + ' руб.';
         }

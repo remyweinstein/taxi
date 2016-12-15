@@ -14,7 +14,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
   var markers = new Array;              
   var show_route = false;
   var fromCoords, toCoords, fromAddress, toAddress, waypoints;
-  var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time;
+  var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time;
 
   var marker_mine = new google.maps.Marker({
     position: MyLatLng,
@@ -217,9 +217,12 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
         fromAddress = ords.fromAddress;
         toAddress = ords.toAddress;
         price = Math.round(response.bid.price);
+        duration_time = Dates.minToHours(ords.duration);
 
         Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
         Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
+        Dom.sel('[data-view="duration"]').innerHTML = duration_time;
+        
         waypoints = [];
         
         if (ords.toAddresses) {

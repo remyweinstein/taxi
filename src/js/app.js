@@ -1,5 +1,5 @@
-define(['User', 'Car', 'ClientOrder', 'ModalWindows', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, clCar, clClientOrder, clModalWindow, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Car', 'ClientOrder', 'ModalWindows', 'PopupWindows', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, clCar, clClientOrder, clModalWindow, clPopupWindows, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
   var App =  {
     
@@ -11,6 +11,7 @@ function(clUser, clCar, clClientOrder, clModalWindow, clEvents, clSettings, Geo,
         User =     new clUser();
         Car =      new clCar();
         Modal =    new clModalWindow();
+        Popup =    new clPopupWindows();
         Event =    new clEvents();
         MyOrder =  new clClientOrder();
         Settings = new clSettings();

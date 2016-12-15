@@ -1,7 +1,20 @@
 /* ==|====================
    Modules/List-orders
    ======================= */
-
+.filters-orders{
+    position: relative;
+    text-align: center;
+    padding: 1em 0 1em 0;
+    span{
+        border-radius: 5px;
+        padding: 0.5em;
+        cursor: pointer;
+        &.active{
+            background-color: $active;
+            color: white;
+        }
+    }
+}
 .list-orders{
     width: 100%;
     margin: 0;

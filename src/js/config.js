@@ -14,6 +14,7 @@ requirejs.config({
 		"DriverOrders" : "models/driver_orders",
 		"Events" : "models/events",
 		"ModalWindows" : "models/modal_windows",
+		"PopupWindows" : "models/popup_windows",
 		"Settings" : "models/settings",
     
     "Address" : "libs/address",
