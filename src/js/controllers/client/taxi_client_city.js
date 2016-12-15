@@ -151,16 +151,25 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     if (marker_mine) {
       marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
     }
-
+    
+    function searchArray(index, arr) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === index) {
+          return true;
+          break;
+        }
+      }
+      return false;
+    }
+    
     Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
       if (response && response.ok) {
-        var new_markers = [];
+        var old_markers = markers_driver_pos;
+        markers_driver_pos = [];
         var agnts = response.agents;
 
-        //console.log('agnts = '.agnts[0]);
-
         for (var i = 0; i < agnts.length; i++) {
-          if (!markers_driver_pos[agnts[i].id]) {
+          if (!searchArray(agnts[i].id, old_markers)) {
             var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar;
             var photo_car = agnts[i].photo ? agnts[i].photo : Car.default_vehicle;
             var name = agnts[i].name ? agnts[i].name : '&nbsp;';
@@ -180,13 +189,21 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
                           </div>\n\
                         </div>\n\
                         ';
-            new_markers[agnts[i].id] = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
+            var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
+            markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
           } else {
-            markers_driver_pos[agnts[i].id].setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
+            old_markers[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
           }
         }
-
-        markers_driver_pos = new_markers;
+        
+        Array.prototype.diff = function(a) {
+          return this.filter(function(i){return a.indexOf(i) < 0;});
+        };
+        var result = old_markers.diff(markers_driver_pos);
+        for (var i = 0; i < result.length; i++) {
+          result[i].marker.setMap = null;
+        }
+        
       }
     }, function() {});
   }
