@@ -121,8 +121,10 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var polygone = new google.maps.Polygon({
           paths: oLanLng,
           //strokeWeight: 0,
-          map:map
+          map: null
         });
+        
+        return polygone;
       }
       
   };

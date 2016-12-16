@@ -2,6 +2,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
   
   var LatLng = new google.maps.LatLng(User.lat, User.lng);
   var order_id;
+  var overviewPath = [];
+  var safety_route;
   var mapCanvas = document.getElementById('map_canvas_go_driver');
   var mapOptions = {
     center: LatLng,
@@ -51,14 +53,37 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
       waypoints: waypoints,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
+    var requestBack = {
+      destination: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+      origin: new google.maps.LatLng(toCoords[0], toCoords[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
 
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {
+        for (var i = 0, len = response.routes.length; i < len; i++) {
           new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
-            directions: response
+            directions: response,
+            routeIndex: i
           });
+        }
+        for(var i = 0; i < response.routes.length; i++){
+          var temp = response.routes[i].overview_path;
+          overviewPath.push(temp);
+        }
+        directionsService.route(requestBack, function(response, status) {
+          if (status === google.maps.DirectionsStatus.OK) {
+            for(var i = 0; i < response.routes.length; i++){
+              var temp = response.routes[i].overview_path;
+              overviewPath.push(temp);
+            }
+            safety_route = Geo.showPoly(overviewPath, map);
+          }
+        });
       }
     });
 
@@ -145,14 +170,45 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
             _bottom.style.bottom = '-13em';
             _el.style.opacity = 1;
             _el.style.top = '-2.5em';
+            if (Dom.sel('.safety-window')) {
+              Dom.sel('.safety-window').style.left = '0';
+            }
           } else {
             _el.classList.remove('drop-up');
             _el.classList.add('drop-down');
             _top.style.top = '0em';
             _bottom.style.bottom = '1em';
             _el.style.top = '0';
+            if (Dom.sel('.safety-window')) {
+              Dom.sel('.safety-window').style.left = '-6em';
+            }
           }
           
+        }
+        
+        if (target.dataset.click === "runSos") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            
+          }
+          
+        }
+        
+        if (target.dataset.click === "runZone") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            
+          }
+          
+        }
+        
+        if (target.dataset.click === "runRoute") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            safety_route.setMap(null);
+          } else {
+            safety_route.setMap(map);
+          }
         }
         
             // Click taxi_driver arrived

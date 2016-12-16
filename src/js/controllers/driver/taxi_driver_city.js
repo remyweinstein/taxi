@@ -1,9 +1,10 @@
 define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOrders, Dates) {
   
   var Orders = [];
+  var add_filter = '';
 
   function update_taxi_order() {
-    Ajax.request('GET', 'orders', User.token, '&isIntercity=0&fromCity=' + User.city, '', function(response) {
+    Ajax.request('GET', 'orders', User.token, '&isIntercity=0&fromCity=' + User.city + add_filter, '', function(response) {
       if (response && response.ok) {
         var ords = response.orders;
 
@@ -77,10 +78,10 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
                           ' + Orders[key].comment + '\
                         </div>\n\
                         <div class="list-orders_route_info">\n\
-                          До клиента: ' + Orders[key].distance2 + ' км\n\
+                          До клиента: ' + Orders[key].distance + ' км\n\
                         </div>\n\
                         <div class="list-orders_route_info">\n\
-                          Длина маршрута: ' + Math.round(Orders[key].distance / 1000, 2) + ' км\n\
+                          Длина маршрута: ' + Math.round(Orders[key].length / 1000, 2) + ' км\n\
                         </div>\n\
                         <div class="list-orders_route_info">\n\
                           Время по маршруту: ' + Dates.minToHours(Orders[key].duration) + '\n\
@@ -128,124 +129,155 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
 
       while (target !== this) {
         
-        if (target.dataset.click === "open-order") {
-          var el = target;
+        if (target) {
           
-          localStorage.setItem('_open_order_id', el.dataset.id);
-          window.location.hash = "#driver_order";
-        }
-        
-        if (target.dataset.click === "fav-orders") {
-          var el = target;
-          if (el.classList.contains('active')) {
-            el.classList.remove('active');
-          } else {
-            el.classList.add('active');
+          if (target.dataset.click === "open-order") {
+            var el = target;
+
+            localStorage.setItem('_open_order_id', el.dataset.id);
+            window.location.hash = "#driver_order";
           }
-        }
 
-        if (target.dataset.click === "filter-orders") {
-          Popup.show(target, 'Фильтры', function() {
-            
-          });
-        }
-
-        if (target.dataset.click === "sort-orders") {
-          Popup.show(target, 'Сортировка', function() {
-            
-          });
-        }
-        
-          // Click taxi_bid
-        if (target.dataset.click === "taxi_bid") {
-          var el = target;
-
-          if (el.classList.contains('active')) {
-            Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
-              if (response && response.ok) {
-                el.classList.remove('active');
-              }
-            }, function() {});
-          } else {
-            if (!User.is_auth) {
-              Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>\n\
-                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Войти</button></p>\n\
-                      ', function (response) {
-                          if (response === "yes") {
-                            window.location.hash = '#login';
-                          }
-                      });
-            } else if (!Car.brand || !Car.model || !Car.number) {
-              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>\n\
-                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Перейти</button></p>\n\
-                      ', function (response) {
-                          if (response === "yes") {
-                            window.location.hash = '#driver_my_auto';
-                          }
-                      });
+          if (target.dataset.click === "fav-orders") {
+            var el = target;
+            if (Dom.toggle(el, 'active')) {
+              add_filter = add_filter.replace('&filter[favorite]=1', '');
             } else {
-              var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
-              var get_price = el_price.innerHTML;
-                get_price = get_price.split(" ");
-              var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
-              var get_time = el_time.innerHTML;
-                get_time = get_time.split(" ");
-              Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
-                if (response && response.ok) {
-                  el.classList.add('active');
-                }  
-              }, function() {});
+              add_filter += '&filter[favorite]=1';
             }
           }
-        }
 
-        if (target.dataset.click === "time_minus") {
-          var el = target;
+          if (target.dataset.click === "filter-orders") {
+            Popup.show(target, 'Фильтры<br/><br/>\n\
+                                Цена (от - до) \n\
+                                Дата (от - до) \n\
+                                Расстояние до клиента (от - до) \n\
+                                Длительность маршрута (от - до) \n\
+                                Длина маршрута (от - до) \n\
+                                Класс авто (выбор из списка) \n\
+                                Рейтинг (от - до) \n\
+                                Количество остановок \n\
+                                Телефон проверен \n\
+                                Email проверен \n\
+                                Точность (от - до) \n\
+                                Отказы (от - до) \n\
+                                Выполнения (от - до) \n\
+                                Качество трека (от - до)', 
+            function() {
+              
+            });
+          }
 
-          var time_el = el.parentNode.children[1];
-          var time = time_el.innerHTML;
-            time = time.split(" ");
-            time = parseInt(time[0]) - 5;
-            if (time < 5) time = 5;
-            Orders[el.dataset.key].travelTime = time;
-            time_el.innerHTML = time + ' мин.';
-        }
+          if (target.dataset.click === "sort-orders") {
+            Popup.show(target, 'Сортировать по <br/><br/> \n\
+                                <span data-num="0" data-sort="created">Дате</span> \n\
+                                <span data-num="1" data-sort="price">Цене</span> \n\
+                                <span data-num="2" data-sort="distance">Расстоянию</span>\n\
+                                <span data-num="3" data-sort="stops">Остановкам</span>', 
+            function(response) {
+              //for (var i = 0; i < response.length; i++) {
+                console.log(response);
+              //}
+            });
+            /*
+                'price'    => NULL,
+                'distance' => NULL,
+                'stops'    => NULL,
+                'created'  => NULL
+             */
+          }
 
-        if (target.dataset.click === "time_plus") {
-          var el = target;
+            // Click taxi_bid
+          if (target.dataset.click === "taxi_bid") {
+            var el = target;
 
-          var time_el = el.parentNode.children[1];
-          var time = time_el.innerHTML;
-            time = time.split(" ");
-            time = parseInt(time[0]) + 5;
-            if (time < 0) time = 0;
-            Orders[el.dataset.key].travelTime = time;
-            time_el.innerHTML = time + ' мин.';
-        }
+            if (el.classList.contains('active')) {
+              Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
+                if (response && response.ok) {
+                  el.classList.remove('active');
+                }
+              }, function() {});
+            } else {
+              if (!User.is_auth) {
+                Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>\n\
+                          <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
+                          <button class="button_rounded--green" data-response="yes">Войти</button></p>\n\
+                        ', function (response) {
+                            if (response === "yes") {
+                              window.location.hash = '#login';
+                            }
+                        });
+              } else if (!Car.brand || !Car.model || !Car.number) {
+                Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>\n\
+                          <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
+                          <button class="button_rounded--green" data-response="yes">Перейти</button></p>\n\
+                        ', function (response) {
+                            if (response === "yes") {
+                              window.location.hash = '#driver_my_auto';
+                            }
+                        });
+              } else {
+                var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0];
+                var get_price = el_price.innerHTML;
+                  get_price = get_price.split(" ");
+                var el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0];
+                var get_time = el_time.innerHTML;
+                  get_time = get_time.split(" ");
+                Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
+                  if (response && response.ok) {
+                    el.classList.add('active');
+                  }  
+                }, function() {});
+              }
+            }
+          }
 
-        if (target.dataset.click === "price_minus") {
-          var el = target;
+          if (target.dataset.click === "time_minus") {
+            var el = target;
 
-          var price_el = el.parentNode.children[1];
-          var price = price_el.innerHTML;
-            price = price.split(" ");
-            price = parseInt(price[0]) - 10;
-            if (price < 0) price = 0;
-            Orders[el.dataset.key].price = price;
-            price_el.innerHTML = price + ' руб.';
-        }
+            var time_el = el.parentNode.children[1];
+            var time = time_el.innerHTML;
+              time = time.split(" ");
+              time = parseInt(time[0]) - 5;
+              if (time < 5) time = 5;
+              Orders[el.dataset.key].travelTime = time;
+              time_el.innerHTML = time + ' мин.';
+          }
 
-        if (target.dataset.click === "price_plus") {
-          var el = target;
+          if (target.dataset.click === "time_plus") {
+            var el = target;
 
-          var price_el = el.parentNode.children[1];
-          var price = price_el.innerHTML;
-            price = price.split(" ");
-            price = parseInt(price[0]) + 10;
-            Orders[el.dataset.key].price = price;
-            price_el.innerHTML = price + ' руб.';
+            var time_el = el.parentNode.children[1];
+            var time = time_el.innerHTML;
+              time = time.split(" ");
+              time = parseInt(time[0]) + 5;
+              if (time < 0) time = 0;
+              Orders[el.dataset.key].travelTime = time;
+              time_el.innerHTML = time + ' мин.';
+          }
+
+          if (target.dataset.click === "price_minus") {
+            var el = target;
+
+            var price_el = el.parentNode.children[1];
+            var price = price_el.innerHTML;
+              price = price.split(" ");
+              price = parseInt(price[0]) - 10;
+              if (price < 0) price = 0;
+              Orders[el.dataset.key].price = price;
+              price_el.innerHTML = price + ' руб.';
+          }
+
+          if (target.dataset.click === "price_plus") {
+            var el = target;
+
+            var price_el = el.parentNode.children[1];
+            var price = price_el.innerHTML;
+              price = price.split(" ");
+              price = parseInt(price[0]) + 10;
+              Orders[el.dataset.key].price = price;
+              price_el.innerHTML = price + ' руб.';
+          }
         }
 
         if (target) {

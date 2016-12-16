@@ -1,6 +1,8 @@
 define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
   
   var driver_marker = [];
+  var overviewPath = [];
+  var safety_route;
   var marker_mine;
   var el_route = Dom.sel('.wait-order-approve__route-info__route');
   
@@ -47,6 +49,13 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
+    var requestBackTrip = {
+      destination: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
+      origin: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
 
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {            
@@ -58,16 +67,27 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
             routeIndex: i
           });
         }
-
-        var overviewPath = [];
-
         for (var i = 0; i < response.routes.length; i++) {
           var temp = response.routes[i].overview_path;
-
           overviewPath.push(temp);
         }
-               
-        Geo.showPoly(overviewPath, map);
+        directionsService.route(requestBackTrip, function(response, status) {
+          if (status === google.maps.DirectionsStatus.OK) {            
+            for (var i = 0; i < response.routes.length; i++) {
+              new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                directions: response,
+                routeIndex: i
+              });
+            }
+            for (var i = 0; i < response.routes.length; i++) {
+              var temp = response.routes[i].overview_path;
+              overviewPath.push(temp);
+            }
+            safety_route = Geo.showPoly(overviewPath, map);
+          }
+        });
 
       }
     });
@@ -172,6 +192,23 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
           }, function() {});
         }
         
+        if (target.dataset.click === "runZone") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            
+          }
+          
+        }
+        
+        if (target.dataset.click === "runRoute") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            safety_route.setMap(null);
+          } else {
+            safety_route.setMap(map);
+          }
+        }
+        
         if (target && target.dataset.click === "cancel-order") {
           var el = target;
           
@@ -200,7 +237,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
 
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[0].innerHTML = MyOrder.fromAddress;
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[2].innerHTML = MyOrder.toAddress;
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'Время в пути: ' + (MyOrder.distance / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'Время в пути: ' + (MyOrder.length / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
 
       var _count_waypoint = MyOrder.toAddresses.length;
 

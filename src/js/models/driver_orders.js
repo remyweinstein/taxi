@@ -9,8 +9,8 @@ define(['Dates'], function(Dates) {
     this.totimes = [];
     this.toLocations = [];
     this.stops = 0;
-    this.distance2;
     this.distance;
+    this.length;
     this.duration;
     this.name;
     this.created;
@@ -33,8 +33,8 @@ define(['Dates'], function(Dates) {
 
                   self.id = order.id;
                   self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
-                  self.distance2 = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
-                  var travelTime = ((self.distance2 / average_speed) * 60).toFixed(0);
+                  self.distance = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
+                  var travelTime = ((self.distance / average_speed) * 60).toFixed(0);
                     if (travelTime < 5) {
                       travelTime = 5;
                     } else {
@@ -43,7 +43,7 @@ define(['Dates'], function(Dates) {
 
                   self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
                   self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
-                  self.distance = order.distance ? order.distance : 0;
+                  self.length = order.length ? order.length : 0;
                   self.duration = order.duration ? order.duration : 0;
                   self.name = order.agent.name ? order.agent.name : User.default_name;
                   self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');

@@ -4,7 +4,7 @@
         <title>InDriverCopy</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <link href="assets/css/main.css" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?id=20161216" type="text/css" rel="stylesheet" />
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
     </head>
@@ -181,7 +181,7 @@
                         <div class="go-order__down__driver-panel__info">
                             <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
                             <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
-                            <p>Время по маршруту: <span data-view="duration">-</span> мин.</p>
+                            <p>Время по маршруту: <span data-view="duration">-</span></p>
                         </div>
                         <div class="go-order__down__driver-panel__action">
                             <button disabled data-click="client-incar" class="button_wide--green">В машине</button>
@@ -195,6 +195,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="safety-window">
+                <div data-click="runSos" class="safety-window__round">SOS</div>
+                <div data-click="runZone" class="safety-window__round">Зона</div>
+                <div data-click="runRoute" class="safety-window__round">Маршрут</div>
             </div>
         </template>
         <template id="ctrlTaxiClientCargo">
@@ -366,6 +371,10 @@
                 </div>
             </div>
             <div class="wait-bids-approve"></div>
+            <div class="safety-window" style="left:0;top:initial;bottom:0">
+                <div data-click="runZone" class="safety-window__round">Зона</div>
+                <div data-click="runRoute" class="safety-window__round">Маршрут</div>
+            </div>
         </template>
         <template id="ctrlTaxiClientFeedback">
             <nav class="tabs">
@@ -549,7 +558,7 @@
                         <div class="go-order__down__driver-panel__info">
                             <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
                             <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
-                            <p>Время по маршруту: <span data-view="duration">-</span> мин.</p>
+                            <p>Время по маршруту: <span data-view="duration">-</span></p>
                         </div>
                         <div class="go-order__down__driver-panel__action">
                             <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
@@ -563,6 +572,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="safety-window">
+                <div data-click="runSos" class="safety-window__round">SOS</div>
+                <div data-click="runZone" class="safety-window__round">Зона</div>
+                <div data-click="runRoute" class="safety-window__round">Маршрут</div>
             </div>
         </template>
         <template id="ctrlTaxiDriverIntercity">

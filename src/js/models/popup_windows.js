@@ -4,6 +4,7 @@ define(['Dom'], function(Dom) {
     var self = this;
     var block = 'content';
     
+    this.actives_sort = [];
     this.layer;
     this.cur_win;
 
@@ -20,21 +21,38 @@ define(['Dom'], function(Dom) {
                   //new_field.style.top = -height + 'px';
                   //new_field.style.display = 'block';
                   new_field.style.top = '0';
+                  
+                  var buts = new_field.querySelectorAll('[data-sort]');
+                  for (var i = 0; i < self.actives_sort.length; i++) {
+                    buts[self.actives_sort[i]].classList.add('active');
+                  }
 
                   new_field.addEventListener('click', function(event) {
                     var target = event.target;
 
                     while (target !== this) {
-                      if(target.dataset.response) {
-                        var _el = target;
-                        callback(target.dataset.response);
-                        self.close();
-                      }
+                      if (target) {
+                        if(target.dataset.sort) {
+                          var _el = target;
+                          var response = [];
 
-                      if(target.dataset.getvalue === "val") {
-                        var _el = target;
-                        callback(_el.parentNode.querySelectorAll('[name="val"]')[0].value);
-                        self.close();
+                          if (Dom.toggle(_el, 'active')) {
+                            for (var i = 0; i < self.actives_sort.length; i++) {
+                              if (self.actives_sort[i] === _el.dataset.num) {
+                                self.actives_sort.splice(i, 1);
+                              }
+                            }
+                          } else {
+                            self.actives_sort.push(_el.dataset.num);
+                          }
+                          
+                          for (var i = 0; i < self.actives_sort.length; i++) {
+                            response.push(buts[self.actives_sort[i]].dataset.sort);
+                          }
+                          
+                          callback(response);
+                          self.close();
+                        }
                       }
 
                       target = target.parentNode;

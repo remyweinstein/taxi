@@ -1,12 +1,11 @@
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
-  var driver_marker = [];
   var marker_mine;
   var map_choice;
   var markers_driver_pos = [];    
-  var from = Dom.selAll('input[name="from"]')[0];
-  var to = Dom.selAll('input[name="to"]')[0];
   var recommended_cost = 0;
+  var radiusSearch = 0.5;
+  var zoom;
 
   var marker_a, marker_b;
   var price = Dom.sel('[name="cost"]').value;
@@ -24,7 +23,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
 
   function initialize_iam() {
-    var zoom = 15;
+    zoom = 15;
     //var LatLng = new google.maps.LatLng(48.49, 135.07);
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     var mapCanvas = document.getElementById('map_canvas_iam');
@@ -58,7 +57,9 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       marker_b = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), to_value, '//www.google.com/mapfiles/markerB.png', map_choice);
     }
 
-    if (from_value !== '' && to_value !== '') drawLine();
+    if (from_value !== '' && to_value !== '') {
+      drawLine();
+    }
 
     function drawLine() {
       var directionsService = new google.maps.DirectionsService();
@@ -94,8 +95,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             var routes_dist = response.routes[0].legs;
 
             MyOrder.duration = Math.round((routes_dist[i].duration.value) / 60);
-            MyOrder.distance = routes_dist[i].distance.value;
-            recommended_cost = 10 * Math.ceil( ((MyOrder.distance / 1000) * cost_of_km) / 10 );
+            MyOrder.length = routes_dist[i].length.value;
+            recommended_cost = 10 * Math.ceil( ((MyOrder.length / 1000) * cost_of_km) / 10 );
             recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
             Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
 
@@ -117,6 +118,22 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       //var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
       //localStorage.setItem('_choice_coords', coords);
     }); 
+    map_choice.addListener('zoom_changed', function() {
+      var zoom = map_choice.getZoom();      
+      if (zoom <= 12) {
+        radiusSearch = 10;
+      } else if (zoom === 13) {
+        radiusSearch = 3;
+      } else if (zoom === 14) {
+        radiusSearch = 2;
+      } else if (zoom === 15) {
+        radiusSearch = 1;
+      } else if (zoom === 16) {
+        radiusSearch = 0.5;
+      } else if (zoom > 16) {
+        radiusSearch = 0.1;
+      }
+    });
   }
     
   function addInfoForMarker(text, open, marker) {
@@ -162,24 +179,24 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
       return false;
     }
     
-    Ajax.request('GET', 'agents', User.token, '&radius=' + 1, '', function(response) {
+    Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function(response) {
       if (response && response.ok) {
-        var old_markers = markers_driver_pos;
-        //markers_driver_pos = [];
+        var new_markers = [];
         var agnts = response.agents;
 
         for (var i = 0; i < agnts.length; i++) {
-          if (!searchArray(agnts[i].id, old_markers)) {
+          if (!searchArray(agnts[i].id, markers_driver_pos)) {
             var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar;
-            var photo_car = agnts[i].photo ? agnts[i].photo : Car.default_vehicle;
+            var photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle;
             var name = agnts[i].name ? agnts[i].name : '&nbsp;';
             var brand = agnts[i].brand ? agnts[i].brand : '&nbsp;';
             var model = agnts[i].model ? agnts[i].model : '&nbsp;';
+            var favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id  + '" data-click="deltofav">Удалить из Избранного</button>';
             var info = '<div style="text-align:center;">\n\
                           <div style="width:50%;display:inline-block;float: left;">\n\
                             <p>id' + agnts[i].id + '<br>' + name + '</p>\n\
                             <p><img class="avatar" src="' + photo + '" alt=""/></p>\n\
-                            <p><button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button></p>\n\
+                            <p>' + favorite + '</p>\n\
                           </div>\n\
                           <div style="width:50%;display:inline-block">\n\
                             <p>' + brand + '<br>\n\
@@ -190,24 +207,38 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
                         </div>\n\
                         ';
             var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
-            old_markers.push({'id': agnts[i].id, 'marker': marker});
+            //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
+            new_markers.push({'id': agnts[i].id, 'marker': marker});
             //console.log('new id ' + agnts[i].id);
           } else {
-            old_markers[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
-            //console.log('move id ' + agnts[i].id);
+            if (markers_driver_pos[i]) {
+              markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
+              new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
+              //console.log('move id ' + agnts[i].id);
+            }
           }
         }
-        
-        Array.prototype.diff = function(a) {
-          return this.filter(function(i){return a.indexOf(i) < 0;});
-        };
-        var result = old_markers.diff(markers_driver_pos);
+
+        var result = [];
+        for (var i = 0; i < markers_driver_pos.length; i++) {
+          var s = false;
+          for (var y = 0; y < new_markers.length; y++) {
+            if (markers_driver_pos[i].id === new_markers[y].id) {
+              s = true;
+            }
+          }
+          if (!s) {
+            result.push(markers_driver_pos[i]);
+          }
+        }
+
         for (var i = 0; i < result.length; i++) {
           //console.log('delete id ' + result[i].id);
-          result[i].marker.setMap = null;
+          result[i].marker.setMap(null);
         }
         
-        markers_driver_pos = old_markers;
+        markers_driver_pos = [];
+        markers_driver_pos = new_markers;
         
       }
     }, function() {});
@@ -248,20 +279,36 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         if (target) {
           if (target.dataset.click === "addtofav") {
             var el = target;
-            Ajax.request('POST', 'favorites', User.token, '&id=' + target.dataset.id, '', function(response) {
-              console.log(response);
+            Ajax.request('POST', 'favorites', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
-                el.disabled = true;
+                el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
               }
             }, function() {});
-          }  
+          }
+          
+          if (target.dataset.click === "deltofav") {
+            var el = target;
+            Ajax.request('POST', 'delete-favorites', User.token, '&id=' + el.dataset.id, '', function(response) {
+              if (response && response.ok) {
+                el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="addtofav">Избранное</button>';
+              }
+            }, function() {});
+          }
           
           if (target.dataset.click === "addtoblack") {
             var el = target;
-            Ajax.request('POST', 'black-list', User.token, '&id=' + target.dataset.id, '', function(response) {
-              console.log(response);
+            Ajax.request('POST', 'black-list', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
-                el.disabled = true;
+                el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="deltoblack">Удалить из Черного списка</button>';
+              }
+            }, function() {}); 
+          }  
+          
+          if (target.dataset.click === "deltoblack") {
+            var el = target;
+            Ajax.request('POST', 'delete-black-list', User.token, '&id=' + el.dataset.id, '', function(response) {
+              if (response && response.ok) {
+                el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
               }
             }, function() {}); 
           }  
@@ -404,7 +451,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             data.append('comment', MyOrder.comment);
             data.append('minibus', 0);
             data.append('babyChair', 0);
-            data.append('distance', MyOrder.distance);
+            data.append('length', MyOrder.length);
 
             if (MyOrder.toAddresses.length > 0) {
               //var _points = [];

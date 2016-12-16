@@ -3,6 +3,8 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
   //var LatLng = new google.maps.LatLng(48.49, 135.07);
   var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
   var mapCanvas = document.getElementById('map_canvas_go');
+  var overviewPath = [];
+  var safety_route;
   var mapOptions = {
     center: MyLatLng,
     zoom: 12,
@@ -67,6 +69,13 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
+    var requestBack = {
+      destination: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+      origin: new google.maps.LatLng(toCoords[0], toCoords[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
 
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {
@@ -79,18 +88,29 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
             routeIndex: i
           });
         }
-
-        var overviewPath = [];
-
         for(var i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
-          //overviewPath = overviewPath.concat( temp );
           overviewPath.push(temp);
         }
-
-        Geo.showPoly(overviewPath, map);
+        directionsService.route(requestBack, function(response, status) {
+          if (status === google.maps.DirectionsStatus.OK) {
+            for (var i = 0, len = response.routes.length; i < len; i++) {
+              new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                directions: response,
+                routeIndex: i
+              });
+            }
+            for(var i = 0; i < response.routes.length; i++){
+              var temp = response.routes[i].overview_path;
+              overviewPath.push(temp);
+            }
+            safety_route = Geo.showPoly(overviewPath, map);
+          }
+          addEvents();
+        });
       }
-      addEvents();
     });
 
     show_route = true;
@@ -116,26 +136,45 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
             _bottom.style.bottom = '-13em';
             _el.style.opacity = 1;
             _el.style.top = '-2.5em';
+            if (Dom.sel('.safety-window')) {
+              Dom.sel('.safety-window').style.left = '0';
+            }
           } else {
             _el.classList.remove('drop-up');
             _el.classList.add('drop-down');
             _top.style.top = '0em';
             _bottom.style.bottom = '1em';
             _el.style.top = '0';
+            if (Dom.sel('.safety-window')) {
+              Dom.sel('.safety-window').style.left = '-6em';
+            }
           }
           
         }
-
-        if (target.dataset.click === 'drop-up') {
-          var _top1 = Dom.selAll('.wait-order-approve')[0];
-          var _top2 = Dom.selAll('.wait-bids-approve')[0];
-          var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
+        
+        if (target.dataset.click === "runSos") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            
+          }
           
-          _top1.style.top = '4.5em';
-          _top2.style.top = '10em';
-          _bottom.style.bottom = '-10em';
+        }
+        
+        if (target.dataset.click === "runZone") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            
+          }
           
-          Dom.selAll('.drop-up')[0].style.display = 'none';
+        }
+        
+        if (target.dataset.click === "runRoute") {
+          var el = target;
+          if (Dom.toggle(el, 'active')) {
+            safety_route.setMap(null);
+          } else {
+            safety_route.setMap(map);
+          }
         }
         
         if (target.dataset.click === 'client-incar') {

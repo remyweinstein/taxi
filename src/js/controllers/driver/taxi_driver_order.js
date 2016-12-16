@@ -230,7 +230,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
         price = Math.round(ords.price);
         name_client = ords.agent.name ? ords.agent.name : User.default_name;
         photo_client = ords.agent.photo ? ords.agent.photo : User.default_avatar;
-        distanse = (ords.distance / 1000).toFixed(1);
+        distanse = (ords.length / 1000).toFixed(1);
         duration = ords.duration;
         for (var y = 0; y < ords.bids.length; y++) {
           var agid = ords.bids[y].agentId;                  

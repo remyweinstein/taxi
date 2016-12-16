@@ -1,0 +1,25 @@
+.safety-window {
+    position: absolute;
+    top: 10em;
+    width: 6em;
+    left: -6em;
+    -webkit-transition: left 0.5s ease-out 0.25s;
+    -moz-transition: left 0.5s ease-out 0.25s;
+    -o-transition: left 0.5s ease-out 0.25s;
+    transition: left 0.5s ease-out 0.25s;
+    &__round {
+        margin: 1em 0 1em 1em;
+        background-color: $inactive;
+        cursor: pointer;
+        width: 6em;
+        height: 6em;
+        border-radius: 6em;
+        font-size: 0.75em;
+        line-height: 6em;
+        text-align: center;
+        color: #fff;
+        &.active {
+            background-color: $active;
+        }
+    }
+}
