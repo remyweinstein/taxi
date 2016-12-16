@@ -92,10 +92,13 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
         directionsService.route(request, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
+            
+            console.log(response);
+            
             var routes_dist = response.routes[0].legs;
 
-            MyOrder.duration = Math.round((routes_dist[i].duration.value) / 60);
-            MyOrder.length = routes_dist[i].length.value;
+            MyOrder.duration = Math.round((routes_dist[0].duration.value) / 60);
+            MyOrder.length = routes_dist[0].distance.value;
             recommended_cost = 10 * Math.ceil( ((MyOrder.length / 1000) * cost_of_km) / 10 );
             recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
             Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
