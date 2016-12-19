@@ -13,7 +13,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       }
     }
 
-    function geoFindMe() {
+    function geoFindMe(App) {
       if (!navigator.geolocation) {
         alert("К сожалению, геолокация не поддерживается в вашем браузере");
         
@@ -59,9 +59,8 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
                         data.append('name', name);
                        
                       Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-                        console.log(response);
                         if (response && response.ok) {
-                          init();
+                          App.init();
                         }
                       }, function() {});
                     }
@@ -84,8 +83,8 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
   
   var Geo = {
 
-      init: function() {
-        geoFindMe();
+      init: function(app) {
+        geoFindMe(app);
       },
       
       showPoly: function(overviewPath, map) {

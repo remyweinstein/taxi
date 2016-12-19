@@ -175,16 +175,12 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
                                 <span data-num="2" data-sort="distance">Расстоянию</span>\n\
                                 <span data-num="3" data-sort="stops">Остановкам</span>', 
             function(response) {
-              //for (var i = 0; i < response.length; i++) {
-                console.log(response);
-              //}
-            });
-            /*
-                'price'    => NULL,
-                'distance' => NULL,
-                'stops'    => NULL,
-                'created'  => NULL
-             */
+              add_filter = add_filter.replace('&sort[created]=1', '');
+              add_filter = add_filter.replace('&sort[price]=1', '');
+              add_filter = add_filter.replace('&sort[distance]=1', '');
+              add_filter = add_filter.replace('&sort[stops]=1', '');
+              add_filter += '&sort[' + response + ']=1';
+            }); 
           }
 
             // Click taxi_bid

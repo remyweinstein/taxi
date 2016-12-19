@@ -4,7 +4,7 @@ define(['Dom'], function(Dom) {
     var self = this;
     var block = 'content';
     
-    this.actives_sort = [];
+    this.actives_sort = '';
     this.layer;
     this.cur_win;
 
@@ -23,8 +23,10 @@ define(['Dom'], function(Dom) {
                   new_field.style.top = '0';
                   
                   var buts = new_field.querySelectorAll('[data-sort]');
-                  for (var i = 0; i < self.actives_sort.length; i++) {
-                    buts[self.actives_sort[i]].classList.add('active');
+                  for (var i = 0; i < buts.length; i++) {
+                    if (buts[i].dataset.sort === self.actives_sort) {
+                      buts[i].classList.add('active');
+                    }
                   }
 
                   new_field.addEventListener('click', function(event) {
@@ -34,23 +36,17 @@ define(['Dom'], function(Dom) {
                       if (target) {
                         if(target.dataset.sort) {
                           var _el = target;
-                          var response = [];
-
+                          for (var i = 0; i < buts.length; i++) {
+                            buts[i].classList.remove('active');
+                          }
                           if (Dom.toggle(_el, 'active')) {
-                            for (var i = 0; i < self.actives_sort.length; i++) {
-                              if (self.actives_sort[i] === _el.dataset.num) {
-                                self.actives_sort.splice(i, 1);
-                              }
-                            }
+                            self.actives_sort = '';
                           } else {
-                            self.actives_sort.push(_el.dataset.num);
+                            self.actives_sort = _el.dataset.sort;
+                            _el.classList.add('active');
                           }
                           
-                          for (var i = 0; i < self.actives_sort.length; i++) {
-                            response.push(buts[self.actives_sort[i]].dataset.sort);
-                          }
-                          
-                          callback(response);
+                          callback(self.actives_sort);
                           self.close();
                         }
                       }

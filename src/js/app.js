@@ -32,7 +32,7 @@ function(clUser, clCar, clClientOrder, clModalWindow, clPopupWindows, clEvents, 
         
         //console.log('this = ' + App.ex);
         
-        Geo.init();
+        Geo.init(App);
         MainMenu.init();
         InputFilters.init();
         Router.start(App);
