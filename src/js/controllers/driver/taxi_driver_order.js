@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Chat, Dates, Modal) {
 
   var mapCanvas = document.getElementById('map_canvas_go_driver');
   var mapOptions = {

@@ -11,6 +11,58 @@
     -moz-transition: top 0.5s ease-out 0.25s;
     -o-transition: top 0.5s ease-out 0.25s;
     transition: top 0.5s ease-out 0.25s;
+    &__range-result {
+        border-radius: initial;
+        margin-left: 5em;
+    }
+    &__range {
+        height: 3em;
+        position: relative;
+        text-align: left;
+    }
+    &__double-range {
+        height: 3em;
+        position: relative;
+        input {
+            pointer-events: none;
+            position: absolute;
+            overflow: hidden;
+            left: 0;
+            top: 0;
+            width: 8em;
+            outline: 0;
+            height: 2em;
+            margin: 0;
+            padding: 0;
+            &::-webkit-slider-thumb {
+                pointer-events: all;
+                position: relative;
+                z-index: 1;
+                outline: 0;
+            }
+            &::-moz-range-thumb {
+                pointer-events: all;
+                position: relative;
+                z-index: 10;
+                -moz-appearance: none;
+                width: 9px;
+            }
+            &::-moz-range-track {
+                position: relative;
+                z-index: -1;
+                background-color: rgba(0, 0, 0, 1);
+                border: 0;
+            }
+            &:last-of-type::-moz-range-track {
+                -moz-appearance: none;
+                background: none transparent;
+                border: 0;
+            }
+            &::-moz-focus-outer {
+                border: 0;
+            }
+        }
+    }
 }
 .grey-layer{
     width: 100%;

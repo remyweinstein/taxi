@@ -79,6 +79,8 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       
       //navigator.geolocation.getCurrentPosition(success, error);
       var watchID = navigator.geolocation.watchPosition(success, error, options);
+      
+      return watchID;
     }
   
   var Geo = {

@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOrders, Dates) {
+define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'], function (Ajax, Dom, clDriverOrders, Dates, Popup, Modal) {
   
   var Orders = [];
   var add_filter = '';
@@ -17,7 +17,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
           });
 
           var tempOrders = new clDriverOrders(ords[i], same_el[0]);
-          tempOrders.constructor(function(temp_order){
+          tempOrders.constructor(function(temp_order) {
             Orders.push(temp_order);
 
             if (temp_order.agentBidId === temp_order.bidId) {
@@ -37,8 +37,8 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
   function fillOrders(Orders) {
     var toAppend = Dom.sel('.list-orders');
 
-      if (toAppend) {
-        toAppend.innerHTML = '';
+    if (toAppend) {
+      toAppend.innerHTML = '';
 
       for (var key in Orders) {
         if (Orders.hasOwnProperty(key) &&
@@ -149,22 +149,94 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
 
           if (target.dataset.click === "filter-orders") {
             Popup.show(target, 'Фильтры<br/><br/>\n\
-                                Цена (от - до) \n\
-                                Дата (от - до) \n\
-                                Расстояние до клиента (от - до) \n\
-                                Длительность маршрута (от - до) \n\
-                                Длина маршрута (от - до) \n\
-                                Класс авто (выбор из списка) \n\
-                                Рейтинг (от - до) \n\
-                                Количество остановок \n\
-                                Телефон проверен \n\
-                                Email проверен \n\
-                                Точность (от - до) \n\
-                                Отказы (от - до) \n\
-                                Выполнения (от - до) \n\
-                                Качество трека (от - до)', 
-            function() {
+                                Цена\n\
+                                <div class="popup-window__double-range">\n\
+                                  <input name="price_min" type="range" value="0" step="50" min="0" max="1000">\n\
+                                  <input name="price_max" type="range" value="0" step="50" min="0" max="1000">\n\
+                                  <span class="popup-window__range-result"></span>\n\
+                                </div>\n\
+                                До клиента\n\
+                                <div class="popup-window__double-range">\n\
+                                  <input name="distance_min" type="range" value="0" step="1" min="0" max="20">\n\
+                                  <input name="distance_max" type="range" value="0" step="1" min="0" max="20">\n\
+                                  <span class="popup-window__range-result"></span>\n\
+                                </div>\n\
+                                По маршруту\n\
+                                <div class="popup-window__double-range">\n\
+                                  <input name="length_min" type="range" value="0" step="1" min="0" max="100">\n\
+                                  <input name="length_max" type="range" value="0" step="1" min="0" max="100">\n\
+                                  <span class="popup-window__range-result"></span>\n\
+                                </div>\n\
+                                Остановок\n\
+                                <div class="popup-window__range">\n\
+                                  <input name="stops" type="range" value="0" step="1" min="0" max="30">\n\
+                                  <span class="popup-window__range-result"></span>\n\
+                                </div>\n\
+                                <button class="button_rounded--green" data-click="getfilters">Применить</button>',
+            function(response) {
+              if (response.price_min !== "0"){
+                add_filter = add_filter.replace('&filter[price][min]=1', '');
+              } else {
+                add_filter = add_filter.replace('&filter[favorite]=1', '');
+              }
+              if (response.price_max !== "0"){
+                
+              } else {
+                
+              }
+              if (response.distance_min !== "0"){
+                
+              } else {
+                
+              }
+              if (response.distance_max !== "0"){
+                
+              } else {
+                
+              }
+              if (response.length_min !== "0"){
+                
+              } else {
+                
+              }
+              if (response.length_max !== "0"){
+                
+              } else {
+                
+              }
+              if (response.stops !== "0"){
+                
+              } else {
+                
+              }
+
               
+              /*
+                                Дата\n\
+                                <div class="popup-window__double-range">\n\
+                                  <input type="range" value="0" step="1" min="0" max="10">\n\
+                                  <input type="range" value="0" step="1" min="0" max="10">\n\
+                                </div>\n\
+                                Авто (выбор из списка) \n\
+                                Телефон проверен \n\
+                                Email проверен\n\
+                filter[price][min]
+                filter[price][max]
+                filter[created][min]
+                filter[created][max]
+                filter[distance][min]
+                filter[distance][max]
+                filter[length][min]
+                filter[length][max]
+                filter[type]=Эконом
+                filter[fromCity]=Хабаровск
+                filter[agentId]=254
+                filter[stops]=2
+                filter[isIntercity]=1
+                filter[phone]=1
+                filter[email]=1
+                filter[favorite]=1
+              */
             });
           }
 
@@ -173,13 +245,15 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates'], function (Ajax, Dom, clDriverOr
                                 <span data-num="0" data-sort="created">Дате</span> \n\
                                 <span data-num="1" data-sort="price">Цене</span> \n\
                                 <span data-num="2" data-sort="distance">Расстоянию</span>\n\
-                                <span data-num="3" data-sort="stops">Остановкам</span>', 
+                                <span data-num="3" data-sort="length">Маршруту</span>\n\
+                                <span data-num="4" data-sort="stops">Остановкам</span>', 
             function(response) {
-              add_filter = add_filter.replace('&sort[created]=1', '');
-              add_filter = add_filter.replace('&sort[price]=1', '');
-              add_filter = add_filter.replace('&sort[distance]=1', '');
-              add_filter = add_filter.replace('&sort[stops]=1', '');
-              add_filter += '&sort[' + response + ']=1';
+              add_filter = add_filter.replace('&orderBy[created]=1', '');
+              add_filter = add_filter.replace('&orderBy[price]=1', '');
+              add_filter = add_filter.replace('&orderBy[distance]=1', '');
+              add_filter = add_filter.replace('&orderBy[length]=1', '');
+              add_filter = add_filter.replace('&orderBy[stops]=1', '');
+              add_filter += '&orderBy[' + response + ']=1';
             }); 
           }
 

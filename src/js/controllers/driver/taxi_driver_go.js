@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, Chat, Dates, Geo, SafeWin) {
   
   var LatLng = new google.maps.LatLng(User.lat, User.lng);
   var order_id;
@@ -170,18 +170,12 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
             _bottom.style.bottom = '-13em';
             _el.style.opacity = 1;
             _el.style.top = '-2.5em';
-            if (Dom.sel('.safety-window')) {
-              Dom.sel('.safety-window').style.left = '0';
-            }
           } else {
             _el.classList.remove('drop-up');
             _el.classList.add('drop-down');
             _top.style.top = '0em';
             _bottom.style.bottom = '1em';
             _el.style.top = '0';
-            if (Dom.sel('.safety-window')) {
-              Dom.sel('.safety-window').style.left = '-6em';
-            }
           }
           
         }
@@ -239,9 +233,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates'], function (Ajax, Dom, Chat, Dates) {
   
   function start() {
     bid_id = localStorage.getItem('_current_id_bid');
+    SafeWin.init();
 
     Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
-      //console.log(JSON.stringify(response.bid.agent));
       if (response && response.ok) {
         var ords = response.bid.order;
         order_id = ords.id;

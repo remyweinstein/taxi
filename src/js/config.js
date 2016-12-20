@@ -13,8 +13,6 @@ requirejs.config({
 		"ClientOrder" : "models/client_order",
 		"DriverOrders" : "models/driver_orders",
 		"Events" : "models/events",
-		"ModalWindows" : "models/modal_windows",
-		"PopupWindows" : "models/popup_windows",
 		"Settings" : "models/settings",
     
     "Address" : "libs/address",
@@ -29,6 +27,9 @@ requirejs.config({
     "MainMenu" : "libs/menu",
     "Router" : "libs/router",
     "Tabs" : "libs/tabs",
+    "SafeWin" : "libs/safe_win",
+		"ModalWindows" : "libs/modal_windows",
+		"PopupWindows" : "libs/popup_windows",
     
     "ctrlPageEditProfile" : "controllers/pages/pages_edit_profile",
     "ctrlPageLogin" : "controllers/pages/pages_login",
@@ -57,9 +58,7 @@ requirejs.config({
     "ctrlTaxiDriverOrder" : "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" : "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverHelp" : "controllers/driver/taxi_driver_help",
-    "ctrlTaxiDriverMyAuto" : "controllers/driver/taxi_driver_my_auto",
-    
-    "modelTaxiClientCity" : "models/client/taxi_client_city"
+    "ctrlTaxiDriverMyAuto" : "controllers/driver/taxi_driver_my_auto"
 	},
   shim: {
     "hammer" : {
@@ -103,7 +102,7 @@ var menus_arr = [];
   var average_speed = 40;
   var cost_of_km = 25;
 
-  var User, Car, Modal, Event, Settings, MyOrder;
+  var User, Car, Event, Settings, MyOrder;
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 

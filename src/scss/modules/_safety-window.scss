@@ -1,14 +1,35 @@
 .safety-window {
     position: absolute;
     top: 10em;
-    width: 6em;
-    left: -6em;
+    border-radius: 0.5em;
+    width: 19em;
+    left: -17em;
+    background-color: white;
     -webkit-transition: left 0.5s ease-out 0.25s;
     -moz-transition: left 0.5s ease-out 0.25s;
     -o-transition: left 0.5s ease-out 0.25s;
     transition: left 0.5s ease-out 0.25s;
+    &--closed {
+        left: -17em;
+    }
+    &--opened {
+        left: -0.5em;
+    }
+    &__grid-all {
+        width: 100%;
+        text-align: center;
+        display: inline-block;
+    }
+    &__grid {
+        width: 48%;
+        text-align: center;
+        display: inline-block;
+        input{
+            width: 60%;
+        }
+    }
     &__round {
-        margin: 1em 0 1em 1em;
+        margin: 1em auto;
         background-color: $inactive;
         cursor: pointer;
         width: 6em;
@@ -21,5 +42,17 @@
         &.active {
             background-color: $active;
         }
+    }
+    &:before {
+        content: "ОХРАНА";
+        top: 8em;
+        left: 16em;
+        display: inline-block;
+        position: relative;
+        -webkit-transform: rotate(90deg);
+        -moz-transform: rotate(90deg);
+        -o-transform: rotate(90deg);
+        -ms-transform: rotate(90deg);
+        transform: rotate(90deg);
     }
 }

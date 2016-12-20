@@ -4,36 +4,35 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
   var interlocutor = "client";
 
   function get_new_messages() {
-    //console.log('try get list messages');
     Ajax.request('GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
-      //response;
-      var textarea = Dom.sel('.go-order__down__messages__textarea');
-
-      if (textarea) {
-        var innText = '';
-        for (var i = 0; i < response.messages.length; i++ ) {
-          var float = 'right';
-          if (interlocutor === "client") {
-            var name = 'Клиент';
-          } else {
-            var name = 'Водитель';
+      if (response && response.ok) {
+        var textarea = Dom.sel('.go-order__down__messages__textarea');
+        if (textarea) {
+          var innText = '';
+          for (var i = 0; i < response.messages.length; i++ ) {
+            var float = 'right';
+            if (interlocutor === "client") {
+              var name = 'Клиент';
+            } else {
+              var name = 'Водитель';
+            }
+            if (response.messages[i].sender.id === User.id) {
+              float = 'left';
+              name = 'Я';
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                          ';
+            } else {
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
+                          ';
+            }
           }
-          if (response.messages[i].sender.id === User.id) {
-            float = 'left';
-            name = 'Я';
-            innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                        ';
-          } else {
-            innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                        ';
-          }
-        }
-        if (innText) {
-          var oldText = textarea.innerHTML;
+          if (innText) {
+            var oldText = textarea.innerHTML;
 
-          if (innText !== oldText) {
-            textarea.innerHTML = innText;
-            textarea.scrollTop = textarea.scrollHeight;
+            if (innText !== oldText) {
+              textarea.innerHTML = innText;
+              textarea.scrollTop = textarea.scrollHeight;
+            }
           }
         }
       }
@@ -42,11 +41,11 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
 
   function clickEvent(event) {
     var target = event.target;
-    console.log();
+
     while (target !== this) {
       if (target) {
         if (!target.dataset || target.dataset === "undefined") {
-          var sinature = 'fdlsk90568n9v0efk3';
+          var signature = 'fdlsk90568n9v0efk3';
         } else {
           if (target.dataset.click === "send_message") {
             var messaga = Dom.sel('[data-text="new_message"]').value;

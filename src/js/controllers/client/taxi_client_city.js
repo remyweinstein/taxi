@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom'], function (Ajax, Dom) {
+define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
   
   var marker_mine;
   var map_choice;
@@ -92,8 +92,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
         directionsService.route(request, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
-            
-            console.log(response);
             
             var routes_dist = response.routes[0].legs;
 

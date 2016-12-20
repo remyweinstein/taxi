@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
+define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dates, SafeWin) {
   
   var driver_marker = [];
   var overviewPath = [];
@@ -56,7 +56,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
-
+    overviewPath = [];
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {            
         for (var i = 0; i < response.routes.length; i++) {
@@ -231,6 +231,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
   
   function start() {
     if (MyOrder.id > 0) {
+      SafeWin.init();
       initialize();
 
       timerGetBidsTaxy = setInterval(get_bids_driver, 3000);

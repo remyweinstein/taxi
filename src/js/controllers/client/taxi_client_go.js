@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat, Geo) {
+define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, Dates, Chat, Geo, SafeWin) {
   
   //var LatLng = new google.maps.LatLng(48.49, 135.07);
   var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -136,18 +136,12 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
             _bottom.style.bottom = '-13em';
             _el.style.opacity = 1;
             _el.style.top = '-2.5em';
-            if (Dom.sel('.safety-window')) {
-              Dom.sel('.safety-window').style.left = '0';
-            }
           } else {
             _el.classList.remove('drop-up');
             _el.classList.add('drop-down');
             _top.style.top = '0em';
             _bottom.style.bottom = '1em';
             _el.style.top = '0';
-            if (Dom.sel('.safety-window')) {
-              Dom.sel('.safety-window').style.left = '-6em';
-            }
           }
           
         }
@@ -298,6 +292,8 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
   }
   
   function start() {
+    SafeWin.init();
+    
     bid_id = localStorage.getItem('_current_id_bid');
     MyOrder.bid_id = bid_id;
 

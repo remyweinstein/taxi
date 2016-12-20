@@ -1,4 +1,4 @@
-define(['Dom'], function (Dom) {
+define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   
   function addEvents() {
     Event.click = function (event) {
