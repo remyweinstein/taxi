@@ -210,12 +210,10 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
             var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
             //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
             new_markers.push({'id': agnts[i].id, 'marker': marker});
-            //console.log('new id ' + agnts[i].id);
           } else {
             if (markers_driver_pos[i]) {
               markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
               new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
-              //console.log('move id ' + agnts[i].id);
             }
           }
         }
@@ -234,7 +232,6 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
         }
 
         for (var i = 0; i < result.length; i++) {
-          //console.log('delete id ' + result[i].id);
           result[i].marker.setMap(null);
         }
         

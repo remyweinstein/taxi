@@ -61,6 +61,10 @@
               </div>
             </div>
         </template>
+        <template id="ctrlPageZones">
+            <div id="map_canvas"></div>
+            <button style="position:relative;bottom:4em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
+        </template>
         <template id="ctrlPageEditProfile">
             <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
                 <p>
@@ -367,7 +371,7 @@
                 </div>
             </div>
             <div class="wait-bids-approve"></div>
-            <div class="safety-window" style="top:initial;bottom:0"></div>
+            <div class="safety-window"></div>
         </template>
         <template id="ctrlTaxiClientFeedback">
             <nav class="tabs">

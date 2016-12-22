@@ -37,7 +37,6 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
           while(target !== this){
                 //=  Close Menu on Click body  =
             if(menu.classList.contains('menu--opened')) {
-              //console.log('try close');
               swipeMenu(-1);
             }
             if (target) {

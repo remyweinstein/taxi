@@ -3,7 +3,8 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
   var App;
   var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
                 {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
-                {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
+                {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
+                {hash:'#zones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},

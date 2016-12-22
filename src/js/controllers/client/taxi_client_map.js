@@ -85,7 +85,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
               var temp = response.routes[i].overview_path;
               overviewPath.push(temp);
             }
-            safety_route = Geo.showPoly(overviewPath, map);
+            //safety_route = Geo.showPoly(overviewPath, map);
           }
         });
 
@@ -183,7 +183,6 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
           var el = target;
 
           Ajax.request('POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
-            //console.log(response);
             if (response && response.ok) {
               MyOrder.bid_id = el.dataset.id;
               localStorage.setItem('_current_id_bid', MyOrder.bid_id);
@@ -196,6 +195,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
           var el = target;
           if (Dom.toggle(el, 'active')) {
             
+          } else {
+            console.log(target.dataset.active);
           }
           
         }
@@ -203,9 +204,10 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
         if (target.dataset.click === "runRoute") {
           var el = target;
           if (Dom.toggle(el, 'active')) {
+            //safety_route = Geo.showPoly(overviewPath, null);
             safety_route.setMap(null);
           } else {
-            safety_route.setMap(map);
+            safety_route = Geo.showPoly(overviewPath, map);
           }
         }
         

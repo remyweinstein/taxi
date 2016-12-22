@@ -42,12 +42,12 @@ define(['Dates'], function(Dates) {
                     }
 
                   self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
-                  self.stops = self.toAddresses.length ? self.toAddresses.length : 0;
-                  self.length = order.length ? order.length : 0;
-                  self.duration = order.duration ? order.duration : 0;
-                  self.name = order.agent.name ? order.agent.name : User.default_name;
+                  self.stops = self.toAddresses.length || 0;
+                  self.length = order.length || 0;
+                  self.duration = order.duration || 0;
+                  self.name = order.agent.name || User.default_name;
                   self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
-                  self.photo = order.agent.photo ? order.agent.photo : User.default_avatar;
+                  self.photo = order.agent.photo || User.default_avatar;
                   self.bidId = order.bidId;
                   self.fromAddress = order.fromAddress;
                   self.toAddress = order.toAddress;

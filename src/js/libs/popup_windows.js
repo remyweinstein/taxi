@@ -1,7 +1,7 @@
 define(['Dom'], function(Dom) {
   
   var actives_sort = '';
-  var actives_filter = {price_min:0,price_max:0,distance_min:0,distance_max:0,length_min:0,length_max:0,stops:0};
+  var actives_filter = {filter:{price:{min:0,max:0},distance:{min:0,max:0},length:{min:0,max:0},stops:{min:0,max:0}}};
   var layer;
   var cur_win;
   var block = 'content';
@@ -32,7 +32,6 @@ define(['Dom'], function(Dom) {
   };
   
   function onInputDoubleRange() {
-    
     var first = this.parentNode.querySelectorAll('input')[0];
     var second = this.parentNode.querySelectorAll('input')[1];
     var max, min;
@@ -93,26 +92,29 @@ define(['Dom'], function(Dom) {
                     actives_filter = JSON.parse(localStorage.getItem('_filters_active'));
                   }
                   for (var i = 0; i < inputs.length; i++) {
-                    if (actives_filter.distance_max !== "0" && inputs[i].name === "distance_max") {
-                      inputs[i].value = actives_filter.distance_max;
+                    if (actives_filter.filter.distance.max !== "0" && inputs[i].name === "distance_max") {
+                      inputs[i].value = actives_filter.filter.distance.max;
                     }
-                    if (actives_filter.distance_min !== "0" && inputs[i].name === "distance_min") {
-                      inputs[i].value = actives_filter.distance_min;
+                    if (actives_filter.filter.distance.min !== "0" && inputs[i].name === "distance_min") {
+                      inputs[i].value = actives_filter.filter.distance.min;
                     }
-                    if (actives_filter.length_max !== "0" && inputs[i].name === "length_max") {
-                      inputs[i].value = actives_filter.length_max;
+                    if (actives_filter.filter.length.max !== "0" && inputs[i].name === "length_max") {
+                      inputs[i].value = actives_filter.filter.length.max;
                     }
-                    if (actives_filter.length_min !== "0" && inputs[i].name === "length_min") {
-                      inputs[i].value = actives_filter.length_min;
+                    if (actives_filter.filter.length.min !== "0" && inputs[i].name === "length_min") {
+                      inputs[i].value = actives_filter.filter.length.min;
                     }
-                    if (actives_filter.price_max !== "0" && inputs[i].name === "price_max") {
-                      inputs[i].value = actives_filter.price_max;
+                    if (actives_filter.filter.price.max !== "0" && inputs[i].name === "price_max") {
+                      inputs[i].value = actives_filter.filter.price.max;
                     }
-                    if (actives_filter.price_min !== "0" && inputs[i].name === "price_min") {
-                      inputs[i].value = actives_filter.price_min;
+                    if (actives_filter.filter.price.min !== "0" && inputs[i].name === "price_min") {
+                      inputs[i].value = actives_filter.filter.price.min;
                     }
-                    if (actives_filter.stops !== "0" && inputs[i].name === "stops") {
-                      inputs[i].value = actives_filter.stops;
+                    if (actives_filter.filter.stops.min !== "0" && inputs[i].name === "stops_min") {
+                      inputs[i].value = actives_filter.filter.stops.min;
+                    }
+                    if (actives_filter.filter.stops.max !== "0" && inputs[i].name === "stops_max") {
+                      inputs[i].value = actives_filter.filter.stops.max;
                     }
                   }
 
@@ -124,11 +126,12 @@ define(['Dom'], function(Dom) {
                         if (target.dataset.sort) {
                           var _el = target;
                           
-                          for (var i = 0; i < buts.length; i++) {
-                            buts[i].classList.remove('active');
-                          }
                           if (Dom.toggle(_el, 'active')) {
                             actives_sort = '';
+                            for (var i = 0; i < buts.length; i++) {
+                              buts[i].classList.remove('active');
+                            }
+                              _el.classList.add('active');
                           } else {
                             actives_sort = _el.dataset.sort;
                             _el.classList.add('active');
@@ -138,31 +141,50 @@ define(['Dom'], function(Dom) {
                           close();
                         }
                         
-                        actives_filter = {};
+                        actives_filter = {filter:{price:{},distance:{},length:{},stops:{}}};
                         
                         if (target.dataset.click === "getfilters") {
                           var win = Dom.sel('.popup-window');
                           
-                          var price_min = win.querySelector('[name="price_min"]').value;
-                          actives_filter.price_min = price_min;
+                          var price_min = parseInt(win.querySelector('[name="price_min"]').value);
+                          var price_max = parseInt(win.querySelector('[name="price_max"]').value);
+                          if (price_max < price_min) {
+                            var t = price_max;
+                            price_max = price_min;
+                            price_min = t;
+                          }
+                          actives_filter.filter.price.min = price_min;
+                          actives_filter.filter.price.max = price_max;
                           
-                          var price_max = win.querySelector('[name="price_max"]').value;
-                          actives_filter.price_max = price_max;
+                          var distance_min = parseInt(win.querySelector('[name="distance_min"]').value);
+                          var distance_max = parseInt(win.querySelector('[name="distance_max"]').value);
+                          if (distance_max < distance_min) {
+                            var t = distance_max;
+                            distance_max = distance_min;
+                            distance_min = t;
+                          }
+                          actives_filter.filter.distance.min = distance_min;
+                          actives_filter.filter.distance.max = distance_max;
                           
-                          var distance_min = win.querySelector('[name="distance_min"]').value;
-                          actives_filter.distance_min = distance_min;
+                          var length_min = parseInt(win.querySelector('[name="length_min"]').value);
+                          var length_max = parseInt(win.querySelector('[name="length_max"]').value);
+                          if (length_max < length_min) {
+                            var t = length_max;
+                            length_max = length_min;
+                            length_min = t;
+                          }
+                          actives_filter.filter.length.min = length_min;
+                          actives_filter.filter.length.max = length_max;
                           
-                          var distance_max = win.querySelector('[name="distance_max"]').value;
-                          actives_filter.distance_max = distance_max;
-                          
-                          var length_min = win.querySelector('[name="length_min"]').value;
-                          actives_filter.length_min = length_min;
-                          
-                          var length_max = win.querySelector('[name="length_max"]').value;
-                          actives_filter.length_max = length_max;
-                          
-                          var stops = win.querySelector('[name="stops"]').value;                          
-                          actives_filter.stops = stops;
+                          var stops_min = parseInt(win.querySelector('[name="stops_min"]').value);
+                          var stops_max = parseInt(win.querySelector('[name="stops_max"]').value);
+                          if (stops_max < stops_min) {
+                            var t = stops_max;
+                            stops_max = stops_min;
+                            stops_min = t;
+                          }
+                          actives_filter.filter.stops.min = stops_min;
+                          actives_filter.filter.stops.max = stops_max;
                           
                           localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
 

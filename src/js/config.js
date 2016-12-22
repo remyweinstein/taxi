@@ -8,12 +8,15 @@ requirejs.config({
     "jsts" : "vendor/jsts",
     "domReady" : "vendor/domReady",
     
+    "html5slider" : "polyfills/html5slider",
+    
 		"User" : "models/user",
 		"Car" : "models/car",
 		"ClientOrder" : "models/client_order",
 		"DriverOrders" : "models/driver_orders",
 		"Events" : "models/events",
 		"Settings" : "models/settings",
+    "Zones" : "models/zones",
     
     "Address" : "libs/address",
     "Ajax" : "libs/ajax",
@@ -37,6 +40,7 @@ requirejs.config({
     "ctrlPageSettings" : "controllers/pages/pages_settings",
     "ctrlPageSms" : "controllers/pages/pages_sms",
     "ctrlPageFavorites" : "controllers/pages/pages_favorites",
+    "ctrlPageZones" : "controllers/pages/pages_zones",
     
     "ctrlTaxiClientChoiceLocationMap" : "controllers/client/taxi_client_choice_location_map",
     "ctrlTaxiClientChooseAddress" : "controllers/client/taxi_client_choose_address",
@@ -66,6 +70,9 @@ requirejs.config({
     },
     "jsts" : {
       exports: "jsts"
+    },
+    "html5slider" : {
+      exports: "html5slider"
     }
   }
 });
@@ -102,7 +109,7 @@ var menus_arr = [];
   var average_speed = 40;
   var cost_of_km = 25;
 
-  var User, Car, Event, Settings, MyOrder;
+  var User, Car, Event, Settings, MyOrder, Zones = [];
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
 

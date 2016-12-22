@@ -5,11 +5,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
     function updateUserCoord() {
       
       if(User.lat !== old_lat || User.lng !== old_lng) {
-        Ajax.request('POST', 'location', User.token, '&latitude=' + User.lat + '&longitude=' + User.lng, '', function(response) {
-          if (response && response.ok) {
-            //console.log('change your coord');
-          }
-        }, function() {});
+        Ajax.request('POST', 'location', User.token, '&latitude=' + User.lat + '&longitude=' + User.lng, '', function() {}, function() {});
       }
     }
 
@@ -105,7 +101,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
           coordinates: overviewPathGeo
         };
         var geoReader = new jsts.io.GeoJSONReader(),
-         geoWriter = new jsts.io.GeoJSONWriter();
+          geoWriter = new jsts.io.GeoJSONWriter();
         var geometry = geoReader.read(geoInput).buffer(distance);
         var polygon = geoWriter.write(geometry);
 
@@ -122,7 +118,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var polygone = new google.maps.Polygon({
           paths: oLanLng,
           //strokeWeight: 0,
-          map: null
+          map: map
         });
         
         return polygone;

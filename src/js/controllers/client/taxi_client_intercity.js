@@ -83,7 +83,6 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
 
           Ajax.request('POST', 'order', User.token, '', data, function(response) {
             if (response && response.ok) {
-              //console.log('id='+response.id);
               changeTab(3);
             }
           }, function() {});
@@ -105,8 +104,6 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   function start() {
     Ajax.request('GET', 'orders', User.token, '&isIntercity=1&my=1', '', function(response) {
       if (response && response.ok) {
-        //console.log('Ok?: ' + response.ok + ', orders='+response.orders);
-        //console.log('Messages: ' + response.messages);
         var t = Dom.sel('.myorders');
          t.innerHTML = '';
         var ords = response.orders;

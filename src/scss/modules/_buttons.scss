@@ -11,6 +11,28 @@ button:disabled{
     font-size: 12px;
     text-align: center;
     padding: 5px 0;
+    &_short{
+        width: initial;
+        color: white;
+        font-size: 10px;
+        text-align: center;
+        border-radius: 20px;
+        margin: 0.5em 0;
+        padding: 0.5em 1em;
+        border: 0;
+        &--green{
+            @extend .button_short;
+            background-color: #02C9A2;
+        }
+        &--red{
+            @extend .button_short;
+            background-color: #C53929;
+        }
+        &--yellow{
+            @extend .button_short;
+            background-color: yellow;
+        }
+    }
     &_rounded{
         color: white;
         font-size: 10px;

@@ -16,8 +16,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               Ajax.request('POST', 'register', token, '&phone=7' + phone, '', function(response) {
 
                 if (response && response.ok) {
-                  localStorage.setItem('_my_token', response.token);
-                  User.token = response.token;
+                  localStorage.setItem('_auth_token', response.authToken);
+                  User.authToken = response.authToken;
                   window.location.hash = '#sms';
                 }
                 _el.disabled = false;

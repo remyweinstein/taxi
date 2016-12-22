@@ -18,6 +18,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     this.city;
     this.country;
     this.is_auth = false;
+    this.authToken;
     this.name;
     this.phone;
     this.avatar;

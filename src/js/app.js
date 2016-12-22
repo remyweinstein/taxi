@@ -1,5 +1,5 @@
-define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Zones', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, clCar, clClientOrder, clEvents, clSettings, clZones, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
   var App =  {
     
@@ -15,6 +15,11 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
         Settings = new clSettings();
           Settings.getSettings();
 
+        var first_time_zones = localStorage.getItem('_my_zones');
+        if (first_time_zones) {
+          
+        }
+
         User.initToken();
 
         User.city = localStorage.getItem('_my_city');
@@ -27,8 +32,6 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
         }
 
         User.token = localStorage.getItem('_my_token');
-        
-        //console.log('this = ' + App.ex);
         
         Geo.init(App);
         MainMenu.init();

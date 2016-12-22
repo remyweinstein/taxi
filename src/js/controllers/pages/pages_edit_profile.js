@@ -39,9 +39,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
            data.append('sex', Dom.sel('select[name=sex]').value);
 
           Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-            //console.log(response.messages);
             if (response && response.ok) {
-              //window.location.hash = '/';
               window.history.back();
             }
           }, function() {});
@@ -60,7 +58,6 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   
   function start() {
     Ajax.request('GET', 'profile', User.token, '', '', function(response) {
-      //console.log(JSON.stringify(response));
       if (response && response.ok) {
         Dom.sel('input[name="myname"]').value = User.name ? User.name : response.profile.name;
         Dom.sel('input[name="dob"]').value = response.profile.birthday ? Dates.dateFromBase(response.profile.birthday) : '';
@@ -69,7 +66,6 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         var city = response.profile.city ? Dom.sel('select[name="city"] option[value="' + response.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
          city.selected = true;
 
-        //console.log('response.profile = ' + JSON.stringify(response.profile));
         var photo = response.profile.photo ? response.profile.photo : User.avatar;
         Dom.sel('.avatar').src = photo;
       }
