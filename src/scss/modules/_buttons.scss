@@ -24,6 +24,10 @@ button:disabled{
             @extend .button_short;
             background-color: #02C9A2;
         }
+        &--grey{
+            @extend .button_short;
+            background-color: grey;
+        }
         &--red{
             @extend .button_short;
             background-color: #C53929;
@@ -45,6 +49,10 @@ button:disabled{
         &--green{
             @extend .button_rounded;
             background-color: #02C9A2;
+        }
+        &--grey{
+            @extend .button_rounded;
+            background-color: grey;
         }
         &--red{
             @extend .button_rounded;

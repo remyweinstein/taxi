@@ -14,6 +14,7 @@ define(['Dates'], function(Dates) {
     this.duration;
     this.name;
     this.created;
+    this.bids_length;
     this.photo;
     this.price;
     this.travelTime;
@@ -40,7 +41,7 @@ define(['Dates'], function(Dates) {
                     } else {
                       travelTime = 5 * Math.ceil( travelTime / 5 );
                     }
-
+                  self.bids_length = order.bids.length;
                   self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
                   self.stops = self.toAddresses.length || 0;
                   self.length = order.length || 0;

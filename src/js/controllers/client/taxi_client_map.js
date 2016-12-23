@@ -4,6 +4,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
   var overviewPath = [];
   var safety_route;
   var marker_mine;
+  var polygon;
   var el_route = Dom.sel('.wait-order-approve__route-info__route');
   
   function initialize() {
@@ -194,9 +195,17 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
         if (target.dataset.click === "runZone") {
           var el = target;
           if (Dom.toggle(el, 'active')) {
-            
+            if (polygon) {
+              polygon.setMap(null);
+            }
           } else {
-            console.log(target.dataset.active);
+            var active = target.dataset.active;
+            
+            if (active !== "") {
+              polygon = Geo.drawPoly(Zones[active], map);
+            } else {
+              Dom.toggle(el, 'active');
+            }
           }
           
         }

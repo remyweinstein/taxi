@@ -1,0 +1,20 @@
+/* ==|====================
+   Modules/score-agent
+   ======================= */
+
+.score-agent {
+    margin-top: 2em;
+    padding: 0 1em;
+    &__stars {
+        &__star {
+            cursor: pointer;
+            color: #ccc;
+            &.active {
+                color: #FC0;
+            }
+        }
+    }
+    textarea {
+        width: 99%;
+    }
+}

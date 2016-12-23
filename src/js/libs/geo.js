@@ -85,6 +85,21 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         geoFindMe(app);
       },
       
+      drawPoly: function(Coords, map) {
+        var polygon = new google.maps.Polygon({
+          paths: Coords
+          //strokeColor: '#FF0000',
+          //strokeOpacity: 0.8,
+          //strokeWeight: 2,
+          //draggable: true,
+          //fillColor: '#FF0000',
+          //fillOpacity: 0.35
+        });
+        polygon.setMap(map);
+        
+        return polygon;
+      },
+
       showPoly: function(overviewPath, map) {
         var overviewPathGeo = [];
 

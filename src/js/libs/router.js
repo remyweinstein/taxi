@@ -3,7 +3,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
   var App;
   var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
                 {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
-                {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
+                {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
@@ -15,6 +15,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
                 {hash:'#client_intercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
                 {hash:'#client_cargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
                 {hash:'#client_feedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
+                {hash:'#client_drivers_rating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_help', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
                 {hash:'#client_my_orders', controller:'ctrlTaxiClientMyOrders', title:'Мои заказы', menu:'client', pageType: ''},
@@ -24,6 +25,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
                 {hash:'#driver_rating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: ''},
                 {hash:'#driver_cargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
+                {hash:'#driver_clients_rating', controller:'ctrlTaxiDriverClientsRating', title:'Оставьте свой отзыв', menu:'driver', pageType: ''},
                 {hash:'#driver_go', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_order', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
@@ -100,8 +102,9 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     clearInterval(timerGetMyPos);
     clearInterval(timerGetPosTaxy);
 
-    content.removeEventListener('click', Event.click);
-    content.removeEventListener('submit', Event.submit);
+    Dom.sel('.content').removeEventListener('click', Event.click);
+    Dom.sel('.content').removeEventListener('submit', Event.submit);
+    Dom.sel('.content').removeEventListener('mouseenter', Event.hover);
     //content.removeEventListener('keyup');
     //content.removeEventListener('keypress');
   }

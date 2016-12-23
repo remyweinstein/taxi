@@ -16,7 +16,6 @@ requirejs.config({
 		"DriverOrders" : "models/driver_orders",
 		"Events" : "models/events",
 		"Settings" : "models/settings",
-    "Zones" : "models/zones",
     
     "Address" : "libs/address",
     "Ajax" : "libs/ajax",
@@ -30,6 +29,7 @@ requirejs.config({
     "MainMenu" : "libs/menu",
     "Router" : "libs/router",
     "Tabs" : "libs/tabs",
+    "Stars" : "libs/stars",
     "SafeWin" : "libs/safe_win",
 		"ModalWindows" : "libs/modal_windows",
 		"PopupWindows" : "libs/popup_windows",
@@ -51,6 +51,7 @@ requirejs.config({
     "ctrlTaxiClientFeedback" : "controllers/client/taxi_client_feedback",
     "ctrlTaxiClientHelp" : "controllers/client/taxi_client_help",
     "ctrlTaxiClientMap" : "controllers/client/taxi_client_map",
+    "ctrlTaxiClientDriversRating" : "controllers/client/taxi_client_drivers_rating",
     "ctrlTaxiClientMyOrders" : "controllers/client/taxi_client_my_orders",
     
     "ctrlTaxiDriverCity" : "controllers/driver/taxi_driver_city",
@@ -62,6 +63,7 @@ requirejs.config({
     "ctrlTaxiDriverOrder" : "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" : "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverHelp" : "controllers/driver/taxi_driver_help",
+    "ctrlTaxiDriverClientsRating" : "controllers/driver/taxi_driver_clients_rating",
     "ctrlTaxiDriverMyAuto" : "controllers/driver/taxi_driver_my_auto"
 	},
   shim: {

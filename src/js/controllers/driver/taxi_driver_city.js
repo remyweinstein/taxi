@@ -29,6 +29,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
             i++;
           });            
         }
+        Dom.sel('.list-orders__result span').innerHTML = Orders.length;
         fillOrders(Orders);
       }
 
@@ -79,7 +80,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
                           ' + Orders[key].comment + '\
                         </div>\n\
                         <div class="list-orders_route_info">\n\
-                          До клиента: ' + Orders[key].distance + ' км\n\
+                          До адреса: ' + Orders[key].distance + ' км\n\
                         </div>\n\
                         <div class="list-orders_route_info">\n\
                           Длина маршрута: ' + Math.round(Orders[key].length / 1000, 2) + ' км\n\

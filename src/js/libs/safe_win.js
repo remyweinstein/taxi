@@ -1,6 +1,5 @@
 define(['Dom', 'hammer'], function (Dom, Hammer) {
   
-  var active_zone;
   function swipeLeft() {
     var safe_win = Dom.sel('.safety-window');
     safe_win.classList.remove('safety-window--closed');
@@ -19,10 +18,6 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
     }
   };
   
-  function gotoNewZone() {
-    window.location.hash = '#zones';
-  }
-  
   function longPress(event) {
     var target = event.target;
 
@@ -37,15 +32,40 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
     }
   };
   
+  function gotoNewZone() {
+    window.location.hash = '#zones';
+  };
+  
+  function selectZone(event) {
+    var target = event.target;
+
+    while (target !== this) {
+      if (target) {
+        if (target.dataset.click === "zone") {
+          var el = target;
+          var id = parseInt(el.dataset.id);
+          
+          var all_zones = Dom.selAll('[data-click="zone"]');
+          for (var i = 0; i < all_zones.length; i++) {
+            if (i !== id) {
+              all_zones[i].classList.remove('active-bg');
+            }
+          }
+          if (Dom.toggle(el, 'active-bg')) {
+            id = '';
+          }
+          Dom.sel('[data-click="runZone"]').dataset.active = id;
+        }
+      }
+
+      target = target.parentNode;
+    }
+  };
+  
   function onInputRange() {
     var val = parseInt(this.value);
     Settings.safeRadius = val;
     Dom.sel('.safety-window__view-radius').innerHTML = val + ' м.';
-  }
-  
-  function setActive(id) {
-    active_zone = id;
-    Dom.sel('[data-click="runZone"]').dataset.active = id;
   }
   
   var SafeWin = {
@@ -53,8 +73,9 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       var safe_win = Dom.sel('.safety-window');
       safe_win.classList.add('safety-window--closed');
       var zones = '<span><button class="button_short--green" data-click="new_zone">Новая</button></span>';
+      
       for (var i = 0; i < Zones.length; i++) {
-        zones += '<span><button class="button_short--gray" data-click="zone" onclick=setActive(' + i + ')>' + (i + 1) + '</button></span>';
+        zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + i + '">' + (i + 1) + '</button></span>';
       }
       safe_win.innerHTML = '<div class="safety-window__grid-all">\
                               <div data-click="runSos" class="safety-window__round">SOS</div>\n\
@@ -80,6 +101,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       safe_win.addEventListener('swiperight', swipeRight);
       safe_win.addEventListener('tap', swipeRight);
       safe_win.addEventListener('press', longPress);
+      safe_win.addEventListener('click', selectZone);
       Dom.sel('[data-click="new_zone"]').addEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').addEventListener('input', onInputRange);
       
@@ -92,6 +114,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       safe_win.removeEventListener('swiperight', swipeRight);
       safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
+      safe_win.removeEventListener('click', selectZone);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').removeEventListener('input', onInputRange);
     }

@@ -24,6 +24,9 @@
         padding: 0.25em 0;
         display: flex;
     }
+    &__result{
+        text-align: center;
+    }
     &--inactive{
         div {
             opacity: 0.4;

@@ -1,5 +1,5 @@
-define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Zones', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, clCar, clClientOrder, clEvents, clSettings, clZones, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
+function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
 
   var App =  {
     
@@ -17,7 +17,7 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, clZones, Geo, MainM
 
         var first_time_zones = localStorage.getItem('_my_zones');
         if (first_time_zones) {
-          
+          Zones = JSON.parse(first_time_zones);
         }
 
         User.initToken();

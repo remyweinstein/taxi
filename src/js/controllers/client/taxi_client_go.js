@@ -5,6 +5,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
   var mapCanvas = document.getElementById('map_canvas_go');
   var overviewPath = [];
   var safety_route;
+  var polygon;
   var mapOptions = {
     center: MyLatLng,
     zoom: 12,
@@ -106,7 +107,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
               var temp = response.routes[i].overview_path;
               overviewPath.push(temp);
             }
-            safety_route = Geo.showPoly(overviewPath, map);
+            //safety_route = Geo.showPoly(overviewPath, map);
           }
           addEvents();
         });
@@ -146,18 +147,20 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           
         }
         
-        if (target.dataset.click === "runSos") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            
-          }
-          
-        }
-        
         if (target.dataset.click === "runZone") {
           var el = target;
           if (Dom.toggle(el, 'active')) {
+            if (polygon) {
+              polygon.setMap(null);
+            }
+          } else {
+            var active = target.dataset.active;
             
+            if (active !== "") {
+              polygon = Geo.drawPoly(Zones[active], map);
+            } else {
+              Dom.toggle(el, 'active');
+            }
           }
           
         }
@@ -167,11 +170,19 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           if (Dom.toggle(el, 'active')) {
             safety_route.setMap(null);
           } else {
-            safety_route.setMap(map);
+            safety_route = Geo.showPoly(overviewPath, map);
           }
         }
         
+        if (target.dataset.click === "client-came") {
+          var el = target;
+          
+          window.location.hash = '#client_drivers_rating';
+        }
+        
         if (target.dataset.click === 'client-incar') {
+          var el = target;
+          
           Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
             Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
           }, function() {});
@@ -243,6 +254,9 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         } else {
           dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
         }
+        if (response.bid.arrived) {
+          dr_time = 'На месте';
+        }
         dr_photo = agnt.photo ? agnt.photo : User.avatar;
         dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
         fromCoords = ords.fromLocation.split(",");
@@ -272,7 +286,11 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         if (!show_route) setRoute();
 
         if (response.bid.arrived) {
-          Dom.sel('button[data-click="client-incar"]').disabled = false;
+          var incar_but = Dom.sel('button[data-click="client-incar"]');
+          if (incar_but) {
+            var kuda = incar_but.parentNode;
+            kuda.innerHTML = '<button data-click="client-came" class="button_wide--green">Приехали</button>';
+          }
         }
 
         if (!markers[0]) {

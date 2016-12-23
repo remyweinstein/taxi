@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="assets/css/main.css?id=20161216" type="text/css" rel="stylesheet" />
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
+        <script src="assets/js/libs/multirange.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
     </head>
     <body>
@@ -201,6 +202,19 @@
                 </div>
             </div>
             <div class="safety-window"></div>
+        </template>
+        <template id="ctrlTaxiClientDriversRating">
+            <div class="score-agent">
+                <div class="score-agent__stars" data-view="stars">
+                    <i class="icon-star score-agent__stars__star active" data-id="0" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="1" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="2" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="3" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="4" data-view="star"></i>
+                </div>
+                <textarea></textarea>
+                <button class="button_wide--yellow" data-click="save_rating">Сохранить</button>
+            </div>
         </template>
         <template id="ctrlTaxiClientCargo">
             <nav class="tabs">
@@ -446,6 +460,7 @@
               <div class="tabs__viewport">
                 <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
                     <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
                     <ul class="list-orders"></ul>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
@@ -532,6 +547,19 @@
                 </div>
             </div>
         </template>
+        <template id="ctrlTaxiDriverClientsRating">
+            <div class="score-agent">
+                <div class="score-agent__stars" data-view="stars">
+                    <i class="icon-star score-agent__stars__star active" data-id="0" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="1" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="2" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="3" data-view="star"></i>
+                    <i class="icon-star score-agent__stars__star active" data-id="4" data-view="star"></i>
+                </div>
+                <textarea></textarea>
+                <button class="button_wide--yellow" data-click="save_rating">Сохранить</button>
+            </div>
+        </template>
         <template id="ctrlTaxiDriverGo">
             <div id="map_canvas_go_driver"></div>
             <div class="go-order">
@@ -558,7 +586,7 @@
                             <p>Время по маршруту: <span data-view="duration">-</span></p>
                         </div>
                         <div class="go-order__down__driver-panel__action">
-                            <button data-click="driver-arrived" class="button_wide--green">Приехал</button>
+                            <button data-click="driver-arrived" class="button_wide--green">На месте</button>
                         </div>
                     </div>
                     <div class="go-order__down__messages">
