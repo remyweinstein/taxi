@@ -115,7 +115,19 @@ define(['Dom'], function (Dom) {
   
     input.value = localStorage.getItem('_address_string_temp');
     input.addEventListener('input', onchange);
-    input.focus();
+    input.addEventListener('touchstart', function() {
+      this.focus();
+    });
+    
+    try {
+      var event = new Event("touchstart");
+    }
+    catch (e) {
+      var event = document.createEvent('Event');
+      event.initEvent("touchstart", true, true);
+    }
+
+    input.dispatchEvent(event);
 
     onchange();
     

@@ -5,7 +5,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
     function updateUserCoord() {
       
       if(User.lat !== old_lat || User.lng !== old_lng) {
-        Ajax.request('POST', 'location', User.token, '&latitude=' + User.lat + '&longitude=' + User.lng, '', function() {}, function() {});
+        Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
       }
     }
 

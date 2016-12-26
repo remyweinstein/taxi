@@ -8,20 +8,22 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
           var target = event.target;
 
           while (target !== this) {
-            if (target.dataset.click === 'save-zone') {
-              
-              if (Coords.length < 3) {
-                alert('Ну это же не полигон совсем, точки три хотя бы сделайте');
-              } else {
-                Zones.push(Coords);
-                localStorage.setItem('_my_zones', JSON.stringify(Zones));
-                window.history.back();
-                //Modal.show('', function(){
-                //  window.location.hash = "#client_go";
-                //});
+            if (target) {
+              if (target.dataset.click === 'save-zone') {
+
+                if (Coords.length < 3) {
+                  alert('Ну это же не полигон совсем, точки три хотя бы сделайте');
+                } else {
+                  Zones.push(Coords);
+                  localStorage.setItem('_my_zones', JSON.stringify(Zones));
+                  window.history.back();
+                  //Modal.show('', function(){
+                  //  window.location.hash = "#client_go";
+                  //});
+                }
+
+                return;
               }
-              
-              return;
             }
 
             if (target) {
@@ -56,8 +58,10 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
 
     var markers = {};
     
-    var getMarkerUniqueId= function(lat, lng) {
-      return lat + '_' + lng;
+    var getMarkerUniqueId= function() {
+      var rand = 1000000 + Math.random() * (8999999);
+      rand = Math.round(rand);
+      return rand;
     };
     
     var getLatLng = function(lat, lng) {
@@ -67,14 +71,16 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
     google.maps.event.addListener(map, 'click', clickOnPoly);
     
     function clickOnPoly(e) {
-      console.log('click');
       var lat = e.latLng.lat();
       var lng = e.latLng.lng();
-      var markerId = getMarkerUniqueId(lat, lng);
+      var markerId = getMarkerUniqueId();
       var marker = new google.maps.Marker({
         position: getLatLng(lat, lng),
         map: map,
-        id: 'marker_' + markerId
+        draggable : true,
+        lat: lat,
+        lng: lng,
+        id: markerId
       });
       markers[markerId] = marker;
       bindMarkerEvents(marker);
@@ -82,24 +88,29 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
     };
     
     var bindMarkerEvents = function(marker) {
-      google.maps.event.addListener(marker, 'click', function (point) {
-        var markerId = getMarkerUniqueId(point.latLng.lat(), point.latLng.lng());
-        var marker = markers[markerId];
-        removeMarker(marker, markerId);
+      google.maps.event.addListener(marker, 'click', function () {
+        removeMarker(marker);
+      });
+      google.maps.event.addListener(marker, 'dragend', function (point) {
+        var latlng = new google.maps.LatLng(point.latLng.lat(), point.latLng.lng());
+        
+        marker.setPosition(latlng);
+        marker.lat = point.latLng.lat();
+        marker.lng = point.latLng.lng();
+        showPoly();
       });
     };
     
-    var removeMarker = function(marker, markerId) {
-        marker.setMap(null);
-        delete markers[markerId];
-        showPoly();
+    var removeMarker = function(marker) {
+      delete markers[marker.id];
+      marker.setMap(null);
+      showPoly();
     };
     
     var showPoly = function() {
       Coords = [];
       for (var key in markers) {
-        var coord = key.split('_');
-        Coords.push({'lat': parseFloat(coord[0]), 'lng': parseFloat(coord[1])});
+        Coords.push({'lat': parseFloat(markers[key].lat), 'lng': parseFloat(markers[key].lng)});
       }
       google.maps.event.clearListeners(polygon, 'click', clickOnPoly);    
       polygon.setMap(null);

@@ -133,7 +133,9 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
           var photo, vehicle;
             photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
             vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
-          var DrLatLng = new google.maps.LatLng(bids[i].agent.latitude, bids[i].agent.longitude);
+
+          var loc = bids[i].agent.location;
+          var DrLatLng = new google.maps.LatLng(loc[0], loc[1]);
           if (driver_marker[bids[i].agent.id]) {
             driver_marker[bids[i].agent.id].setPosition(DrLatLng);
           } else {

@@ -181,6 +181,7 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
     }
     
     Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function(response) {
+      console.log(radiusSearch);
       if (response && response.ok) {
         var new_markers = [];
         var agnts = response.agents;
@@ -207,12 +208,14 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
                           </div>\n\
                         </div>\n\
                         ';
-            var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude), agnts[i].name, driver_icon, map_choice));
+            var loc = agnts[i].location.split(',');
+            var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map_choice));
             //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
             new_markers.push({'id': agnts[i].id, 'marker': marker});
           } else {
             if (markers_driver_pos[i]) {
-              markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(agnts[i].latitude, agnts[i].longitude));
+              var loc = agnts[i].location.split(',');
+              markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
               new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
             }
           }

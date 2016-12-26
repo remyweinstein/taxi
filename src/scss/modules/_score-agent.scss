@@ -6,6 +6,7 @@
     margin-top: 2em;
     padding: 0 1em;
     &__stars {
+        margin-bottom: 1em;
         &__star {
             cursor: pointer;
             color: #ccc;
@@ -16,5 +17,14 @@
     }
     textarea {
         width: 99%;
+        margin-bottom: 1em;
+    }
+    &__but-box {
+        font-size: 2em;
+        color: $active;
+        margin-bottom: 1em;
+        i {
+            cursor: pointer;
+        }
     }
 }

@@ -41,7 +41,9 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
         window.addEventListener('resize', function() {
           App.init();
         });
-
+        
+        //worker = new Worker("assets/js/workers/put_position.js");
+        
       });
 
       return User;
@@ -67,6 +69,10 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
             item_logout.style.display = 'none';
           }
         }
+        
+        //worker.postMessage({
+        //  token: User.token
+        //});
       });
     }
   };

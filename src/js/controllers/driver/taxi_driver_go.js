@@ -154,15 +154,16 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
         Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
 
+        var loc = response.bid.order.agent.location;
         if (!marker_client) {
           marker_client = new google.maps.Marker({
-            position: new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude),
+            position: new google.maps.LatLng(loc[0], loc[1]),
             map: map,
             icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
             title: 'Клиент'
           });
         } else {
-          marker_client.setPosition(new google.maps.LatLng(response.bid.order.agent.latitude, response.bid.order.agent.longitude));
+          marker_client.setPosition(new google.maps.LatLng(loc[0], loc[1]));
         }
       }
     }, function() {});
@@ -227,7 +228,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         if (target.dataset.click === "driver-came") {
           var el = target;
           
-          window.location.hash = '#driver_clients_rating';
+          Ajax.request('POST', 'finish-order', User.token, '&id=' + order_id, '', function() {
+            window.location.hash = '#driver_clients_rating';
+          }, function() {});
         }
         
         if (target.dataset.click === "driver-arrived") {

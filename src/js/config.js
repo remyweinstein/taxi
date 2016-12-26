@@ -103,7 +103,7 @@ var menus_arr = [];
 
   var content;
   var map, map_choice, marker, geocoder;
-  var google, placeSearch, autocomplete, directionsService, directionsDisplay;
+  var google, placeSearch, autocomplete, directionsService, directionsDisplay, worker;
   
   var lasturl = '';
 

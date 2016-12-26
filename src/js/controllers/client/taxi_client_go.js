@@ -176,8 +176,9 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         
         if (target.dataset.click === "client-came") {
           var el = target;
-          
-          window.location.hash = '#client_drivers_rating';
+          Ajax.request('POST', 'finish-order', User.token, '&id=' + MyOrder.id, '', function() {
+            window.location.hash = '#client_drivers_rating';
+          }, function() {});          
         }
         
         if (target.dataset.click === 'client-incar') {
@@ -293,8 +294,9 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           }
         }
 
+        var loc = agnt.location.split(',');
         if (!markers[0]) {
-          var VLatLng = new google.maps.LatLng(agnt.latitude, agnt.longitude);
+          var VLatLng = new google.maps.LatLng(loc[0], loc[1]);
           markers[0] = new google.maps.Marker({
             position: VLatLng,
             map: map,
@@ -302,7 +304,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
             title: 'Водитель'
           });
         } else {
-          markers[0].setPosition(new google.maps.LatLng(agnt.latitude, agnt.longitude));
+          markers[0].setPosition(new google.maps.LatLng(loc[0], loc[1]));
         }
       }
 

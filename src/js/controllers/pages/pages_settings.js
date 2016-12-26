@@ -17,6 +17,12 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
             });
 
         }
+        
+        if (target.dataset.click === "link") {
+          var el = target;
+          
+          window.location.hash = el.dataset.link;
+        }
 
         if (target) {
           target = target.parentNode;
@@ -38,8 +44,13 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
       var _click;
       if (typeof _obj[key] !== "function" && key !== "label" && key !== "type") {
         if (Settings.type[key]) {
-          _ins = ' <span>' + _obj[key] + '</span>';
-          _click = ' data-click="number"';
+          if (Settings.type[key] !== "link") {
+            _ins = ' <span>' + _obj[key] + '</span>';
+            _click = ' data-click="' + Settings.type[key]  + '"';
+        } else {
+            _ins = ' <span></span>';
+            _click = ' data-click="' + Settings.type[key]  + '" data-link="' + _obj[key] + '"';
+          }
         }
         _innerText += '<p data-key="' + key + '"' + _click + '>' + Settings.label[key] + _ins + '</p>';
       }
