@@ -1,5 +1,12 @@
 define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates, Stars) {
-
+  
+  var order_id, agent_id, bid_id;
+  
+  function inActive(el) {
+    el.classList.add('inactive');
+    el.dataset.click = '';
+  }
+  
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -9,7 +16,15 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
           var el = target;
           
           if (confirm('Добавить в Избранные?')) {
-            
+            Ajax.request('POST', 'favorites', User.token, '&id=' + agent_id, '', function(response) {
+              if (response && response.ok) {
+                var stars = Dom.selAll('[data-view="star"]');
+                for (var i = 0; i < stars.length; i++) {
+                  stars[i].classList.add('active');
+                }
+                inActive(el);
+              }
+            }, function() {});
           }
           break;
         }
@@ -18,7 +33,15 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
           var el = target;
           
           if (confirm('Добавить в Черный список?')) {
-            
+            Ajax.request('POST', 'black-list', User.token, '&id=' + agent_id, '', function(response) {
+              if (response && response.ok) {
+                var stars = Dom.selAll('[data-view="star"]');
+                for (var i = 0; i < stars.length; i++) {
+                  stars[i].classList.remove('active');
+                }
+                inActive(el);
+              }
+            }, function() {});
           }
           break;
         }
@@ -59,6 +82,13 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
           break;
         }
         
+        if (target && target.dataset.click === "save_rating") {
+          var el = target;
+          
+          //localStorage.setItem('_rating_bid', '');
+          break;
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -70,18 +100,33 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
   }
 
   function start() {
-    Stars.init('driver');
-    var bl = Dom.sel('.score-agent__but-box');
-    var innertext = '';
-    innertext = '<i class="icon-star" data-click="tofavorites">\n\
-                 <i class="icon-block" data-click="toblacklist">\n\
-                 <i class="icon-address-card-o" data-click="sharecard">\n\
-                 <i class="icon-attention" data-click="tofeedback">\n\
-                 <i class="icon-eye" data-click="peoplescontrol">\n\
-                 <i class="icon-clipboard" data-click="claimcheck">';
-    bl.innerHTML = innertext;
+    bid_id = localStorage.getItem('_rating_bid');
     
-    addEvents();
+    if (bid_id && bid_id !== "") {
+      Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
+        if (response && response.ok) {
+          var ords = response.bid.order;
+          order_id = ords.id;
+          agent_id = response.bid.order.agent.id;
+
+          Stars.init('driver');
+          var bl = Dom.sel('.score-agent__but-box');
+          var innertext = '';
+          innertext = '<i class="icon-star" data-click="tofavorites"></i>\n\
+                       <i class="icon-block" data-click="toblacklist"></i>\n\
+                       <i class="icon-address-card-o" data-click="sharecard"></i>\n\
+                       <i class="icon-attention" data-click="tofeedback"></i>\n\
+                       <i class="icon-eye" data-click="peoplescontrol"></i>\n\
+                       <i class="icon-clipboard" data-click="claimcheck"></i>';
+          bl.innerHTML = innertext;
+
+          addEvents();
+        }
+
+      }, function() {});
+    } else {
+      window.location.hash = '#driver_city';
+    }
   }
   
   return {

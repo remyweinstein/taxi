@@ -3,7 +3,13 @@ define(['Uries'], function(Uries) {
   var Ajax = {
 
     request: function (crud, method, token, add_query, data, success, error) {
-      token = token === '' ? '' : '?token=' + token;
+      if ((method !== "register" && method !== "confirm" && method !== "token")) {
+        if (!token || token === "") {
+          return;
+        }
+      }
+      
+      token = token === '' ? '?' : '?token=' + token;
       var xhr = new XMLHttpRequest();
       
       xhr.open(crud, Uries.server_uri + '/' + method + token + add_query, true);

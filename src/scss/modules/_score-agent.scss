@@ -25,6 +25,9 @@
         margin-bottom: 1em;
         i {
             cursor: pointer;
+            &.inactive {
+                color: $inactive;
+            }
         }
     }
 }

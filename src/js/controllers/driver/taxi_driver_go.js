@@ -5,7 +5,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
   var overviewPath = [];
   var safety_route;
   var polygon;
-  var mapCanvas = document.getElementById('map_canvas_go_driver');
+  var mapCanvas;
   var mapOptions = {
     center: LatLng,
     zoom: 12,
@@ -14,7 +14,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
 
-  var map = new google.maps.Map(mapCanvas, mapOptions);
+  var map;
   var markers = new Array, marker_client;
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
   var name_client, photo_client;
@@ -138,11 +138,11 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         } else {
           var dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
         }
-        if (response.bid.arrived) {
+        if (ords.arrived) {
           var dr_time = 'На месте';
         }
         
-        if (response.bid.arrived) {
+        if (ords.arrived) {
           var arrived_but = Dom.sel('button[data-click="driver-arrived"]');
           if (arrived_but) {
             var kuda = arrived_but.parentNode;
@@ -229,6 +229,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           var el = target;
           
           Ajax.request('POST', 'finish-order', User.token, '&id=' + order_id, '', function() {
+            localStorage.setItem('_rating_bid', bid_id);
             window.location.hash = '#driver_clients_rating';
           }, function() {});
         }
@@ -236,9 +237,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         if (target.dataset.click === "driver-arrived") {
           var el = target;
           
-          Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {
-            Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function () {}, function() {});
-          }, function() {});
+          Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {}, function() {});
         }
         
         if (target.dataset.click === "cancel-order") {
@@ -261,9 +260,13 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
   }
   
   function start() {
-    bid_id = localStorage.getItem('_current_id_bid');
-    SafeWin.init();
+    mapCanvas = document.getElementById('map_canvas_go_driver');
+    map = new google.maps.Map(mapCanvas, mapOptions);
 
+    bid_id = localStorage.getItem('_current_id_bid');
+    
+    SafeWin.init();
+    
     Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
       if (response && response.ok) {
         var ords = response.bid.order;
@@ -291,9 +294,10 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
 
         setRoute();
         addEvents();
+      } else {
+        window.location.hash = '#driver_city';
       }
-
-    }, function() {});
+    }, function() {window.location.hash = '#driver_city';});
 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
 

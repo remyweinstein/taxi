@@ -141,6 +141,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
           } else {
             driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
           }
+
           var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
           innText += '<div class="wait-bids-approve__item">\n\
                             <div class="wait-bids-approve__item__distance">\n\

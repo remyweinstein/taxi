@@ -3,10 +3,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
     var old_lat, old_lng;
     
     function updateUserCoord() {
-      
-      if(User.lat !== old_lat || User.lng !== old_lng) {
-        Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
-      }
+      Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
     }
 
     function geoFindMe(App) {
@@ -36,20 +33,19 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         updateUserCoord();
 
         if (!User.city || User.city === null || User.city === "null") {
-          geocoder = new google.maps.Geocoder();
+          geocoder = new google.maps.Geocoder().setLanguage('ru');//Cyrl
           var latlng = new google.maps.LatLng(latitude,longitude);
           geocoder.geocode({
             'latLng': latlng
             }, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK) {
                   var obj = results[0].address_components,key;
-                  
                   for (key in obj) {
                     if(obj[key].types[0] === "locality") {
                       User.city = obj[key].long_name;
                       //User.city = 'Хабаровск';
                       localStorage.setItem('_my_city', User.city);
-                      var name = User.name ? User.name : 'Гость';
+                      var name = User.name || 'Гость';
                       var data = new FormData();
                         data.append('city', User.city);
                         data.append('name', name);
@@ -69,9 +65,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         }
       };
       
-      function error() {
-
-      };
+      function error() {};
       
       //navigator.geolocation.getCurrentPosition(success, error);
       var watchID = navigator.geolocation.watchPosition(success, error, options);
@@ -82,7 +76,12 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
   var Geo = {
 
       init: function(app) {
-        geoFindMe(app);
+        
+        //function findMe() {
+          geoFindMe(app);
+        //}
+        
+        //setGeoLocationTimer = setInterval(findMe, 500);
       },
       
       drawPoly: function(Coords, map) {

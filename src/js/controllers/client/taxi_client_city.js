@@ -181,7 +181,6 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
     }
     
     Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function(response) {
-      console.log(radiusSearch);
       if (response && response.ok) {
         var new_markers = [];
         var agnts = response.agents;

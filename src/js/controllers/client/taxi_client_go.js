@@ -177,6 +177,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         if (target.dataset.click === "client-came") {
           var el = target;
           Ajax.request('POST', 'finish-order', User.token, '&id=' + MyOrder.id, '', function() {
+            localStorage.setItem('_rating_bid', bid_id);
             window.location.hash = '#client_drivers_rating';
           }, function() {});          
         }
@@ -255,7 +256,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         } else {
           dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
         }
-        if (response.bid.arrived) {
+        if (ords.arrived) {
           dr_time = 'На месте';
         }
         dr_photo = agnt.photo ? agnt.photo : User.avatar;
@@ -286,7 +287,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
 
         if (!show_route) setRoute();
 
-        if (response.bid.arrived) {
+        if (ords.arrived) {
           var incar_but = Dom.sel('button[data-click="client-incar"]');
           if (incar_but) {
             var kuda = incar_but.parentNode;

@@ -128,6 +128,7 @@ var menus_arr = [];
       timerUpdateTaxiDriverOrder, 
       timerUpdateCoords,
       timerGetPosTaxy,
+      setGeoLocationTimer,
       timerGetMyPos;
 
 

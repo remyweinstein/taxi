@@ -13,7 +13,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               var phone = Dom.selAll('input[name="phone"]')[0].value;
               var token = User.token ? User.token : "";
 
-              Ajax.request('POST', 'register', token, '&phone=7' + phone, '', function(response) {
+              Ajax.request('POST', 'register', '', '&phone=7' + phone, '', function(response) {
 
                 if (response && response.ok) {
                   localStorage.setItem('_auth_token', response.authToken);

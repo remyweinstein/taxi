@@ -76,6 +76,8 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
             }
           }
         }, function() {});
+      } else {
+        self.initToken();
       }
     };
 
@@ -86,6 +88,11 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
             setToken(response.token);
             setId(response.id);
             self.name = default_name;
+            if (!User.lat || !User.lng) {
+              User.lat = 48.471041;
+              User.lng = 135.063500;
+            }
+            Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
           }
         }, function() {});
       }
