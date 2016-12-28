@@ -1,11 +1,8 @@
-define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, Dates, Chat, Geo, SafeWin) {
+define(['Ajax', 'Dom', 'Dates', 'Chat', 'SafeWin', 'Geo'], function (Ajax, Dom, Dates, Chat, SafeWin, Geo) {
   
   //var LatLng = new google.maps.LatLng(48.49, 135.07);
   var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
   var mapCanvas = document.getElementById('map_canvas_go');
-  var overviewPath = [];
-  var safety_route;
-  var polygon;
   var mapOptions = {
     center: MyLatLng,
     zoom: 12,
@@ -14,6 +11,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var map = new google.maps.Map(mapCanvas, mapOptions);
+  SafeWin.map = map;
   var markers = new Array;              
   var show_route = false;
   var fromCoords, toCoords, fromAddress, toAddress, waypoints;
@@ -91,7 +89,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         }
         for(var i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
-          overviewPath.push(temp);
+          SafeWin.overviewPath.push(temp);
         }
         directionsService.route(requestBack, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
@@ -105,9 +103,8 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
             }
             for(var i = 0; i < response.routes.length; i++){
               var temp = response.routes[i].overview_path;
-              overviewPath.push(temp);
+              SafeWin.overviewPath.push(temp);
             }
-            //safety_route = Geo.showPoly(overviewPath, map);
           }
           addEvents();
         });
@@ -147,55 +144,25 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           
         }
         
-        if (target.dataset.click === "runZone") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            if (polygon) {
-              polygon.setMap(null);
-            }
-          } else {
-            var active = target.dataset.active;
-            
-            if (active !== "") {
-              polygon = Geo.drawPoly(Zones[active], map);
-            } else {
-              Dom.toggle(el, 'active');
-            }
-          }
-          
-        }
-        
-        if (target.dataset.click === "runRoute") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            safety_route.setMap(null);
-          } else {
-            safety_route = Geo.showPoly(overviewPath, map);
-          }
-        }
-        
         if (target.dataset.click === "client-came") {
-          var el = target;
           Ajax.request('POST', 'finish-order', User.token, '&id=' + MyOrder.id, '', function() {
             localStorage.setItem('_rating_bid', bid_id);
             window.location.hash = '#client_drivers_rating';
           }, function() {});          
         }
         
-        if (target.dataset.click === 'client-incar') {
-          var el = target;
-          
-          Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {
-            Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
-          }, function() {});
+        if (target.dataset.click === 'client-incar') {          
+          Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
         }
 
         if (target.dataset.click === 'cancel-order') {
-          Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
-            if (response && response.ok) {
-              window.location.hash = '#client_city';
-            }
-          }, function() {});
+          if (confirm('Отменить заказ?')) {
+            Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
+              if (response && response.ok) {
+                window.location.hash = '#client_city';
+              }
+            }, function() {});
+          }
         }
         
         if (target) {
@@ -255,12 +222,26 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
           dr_time = lost_diff;
         } else {
           dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
+          if (lost_diff < -10) {
+            var but = Dom.sel('[data-click="cancel-order"]');
+            if (!ords.arrived) {
+              if (but && but.classList.contains('button_rounded--red')) {
+                but.classList.remove('button_rounded--red');
+                but.classList.add('button_rounded--green');
+              }
+            } else {
+              if (but && but.classList.contains('button_rounded--green')) {
+                but.classList.remove('button_rounded--green');
+                but.classList.add('button_rounded--red');
+              }
+            }
+          }
         }
         if (ords.arrived) {
           dr_time = 'На месте';
         }
-        dr_photo = agnt.photo ? agnt.photo : User.avatar;
-        dr_vehicle = agnt.vehicle ? agnt.vehicle : default_vehicle;
+        dr_photo = agnt.photo || User.avatar;
+        dr_vehicle = agnt.vehicle || default_vehicle;
         fromCoords = ords.fromLocation.split(",");
         toCoords = ords.toLocation.split(",");
         fromAddress = ords.fromAddress;
@@ -285,13 +266,39 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
         addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
-        if (!show_route) setRoute();
+        if (!show_route) {
+          setRoute();
+        }
 
         if (ords.arrived) {
           var incar_but = Dom.sel('button[data-click="client-incar"]');
           if (incar_but) {
+            incar_but.disabled = false;
+          }
+        }
+        
+        var toLoc = ords.toLocation;
+          toLoc = toLoc.split(',');
+        var dist = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]);
+        
+        if (dist < 1) {
+          var but = Dom.sel('[data-click="client-came"]');
+          
+          if (but) {
+            but.disabled = false;
+          }
+        }
+       
+        if (ords.canceled) {
+          alert('К сожалению, заказ отменен.');
+          window.location.hash = '#client_city';
+        }
+        
+        if (ords.inCar) {
+          var incar_but = Dom.sel('button[data-click="client-incar"]');
+          if (incar_but) {
             var kuda = incar_but.parentNode;
-            kuda.innerHTML = '<button data-click="client-came" class="button_wide--green">Приехали</button>';
+            kuda.innerHTML = '<button data-click="client-came" class="button_wide--green" disabled>Приехали</button>';
           }
         }
 
@@ -313,6 +320,8 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'SafeWin'], function (Ajax, Dom, 
   }
   
   function start() {
+    SafeWin.map = map;
+    SafeWin.overviewPath = [];
     SafeWin.init();
     
     bid_id = localStorage.getItem('_current_id_bid');

@@ -1,14 +1,9 @@
 define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dates, SafeWin) {
   
   var driver_marker = [];
-  var overviewPath = [];
-  var safety_route;
-  var marker_mine;
-  var polygon;
-  var el_route = Dom.sel('.wait-order-approve__route-info__route');
+  var marker_mine, map;
   
   function initialize() {
-    //var LatLng = new google.maps.LatLng(48.49, 135.07);
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     var mapCanvas = document.getElementById('map_canvas');
     var mapOptions = {
@@ -19,6 +14,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
+    SafeWin.map = map;
 
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
@@ -57,7 +53,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
-    overviewPath = [];
+    SafeWin.overviewPath = [];
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {            
         for (var i = 0; i < response.routes.length; i++) {
@@ -70,7 +66,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
         }
         for (var i = 0; i < response.routes.length; i++) {
           var temp = response.routes[i].overview_path;
-          overviewPath.push(temp);
+          SafeWin.overviewPath.push(temp);
         }
         directionsService.route(requestBackTrip, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {            
@@ -84,9 +80,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
             }
             for (var i = 0; i < response.routes.length; i++) {
               var temp = response.routes[i].overview_path;
-              overviewPath.push(temp);
+              SafeWin.overviewPath.push(temp);
             }
-            //safety_route = Geo.showPoly(overviewPath, map);
           }
         });
 
@@ -195,34 +190,6 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
           }, function() {});
         }
         
-        if (target.dataset.click === "runZone") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            if (polygon) {
-              polygon.setMap(null);
-            }
-          } else {
-            var active = target.dataset.active;
-            
-            if (active !== "") {
-              polygon = Geo.drawPoly(Zones[active], map);
-            } else {
-              Dom.toggle(el, 'active');
-            }
-          }
-          
-        }
-        
-        if (target.dataset.click === "runRoute") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            //safety_route = Geo.showPoly(overviewPath, null);
-            safety_route.setMap(null);
-          } else {
-            safety_route = Geo.showPoly(overviewPath, map);
-          }
-        }
-        
         if (target && target.dataset.click === "cancel-order") {
           var el = target;
           
@@ -245,6 +212,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
   
   function start() {
     if (MyOrder.id > 0) {
+      console.log(map);
+      SafeWin.overviewPath = [];
       SafeWin.init();
       initialize();
 

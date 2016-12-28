@@ -1,0 +1,29 @@
+/* ==|====================
+   Modules/List-favorites
+   ======================= */
+
+.list-favorites {
+    &__fav {
+        &>div {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        &__photo {
+            width: 15%;
+            img {
+                width: 3em;
+                height: 3em;
+            }
+        }
+        &__desc {
+            width: 75%;
+        }
+        &__action {
+            width: 5%;
+            i {
+                color: $active;
+                cursor: pointer;
+            }
+        }
+    }
+}

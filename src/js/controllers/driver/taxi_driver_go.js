@@ -1,10 +1,7 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, Chat, Dates, Geo, SafeWin) {
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, Chat, Dates, SafeWin, Geo) {
   
   var LatLng = new google.maps.LatLng(User.lat, User.lng);
   var order_id;
-  var overviewPath = [];
-  var safety_route;
-  var polygon;
   var mapCanvas;
   var mapOptions = {
     center: LatLng,
@@ -15,7 +12,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
   };
 
   var map;
-  var markers = new Array, marker_client;
+  var markers = [], marker_client;
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
   var name_client, photo_client;
 
@@ -74,15 +71,14 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         }
         for(var i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
-          overviewPath.push(temp);
+          SafeWin.overviewPath.push(temp);
         }
         directionsService.route(requestBack, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
             for(var i = 0; i < response.routes.length; i++){
               var temp = response.routes[i].overview_path;
-              overviewPath.push(temp);
+              SafeWin.overviewPath.push(temp);
             }
-            //safety_route = Geo.showPoly(overviewPath, map);
           }
         });
       }
@@ -95,9 +91,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
       var infowindow = new google.maps.InfoWindow({
         content: min + ' мин.'
       });
-      infowindow.open(map_choice, marker);
+      infowindow.open(map, marker);
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map_choice, marker);
+        infowindow.open(map, marker);
       });
     }
   }
@@ -131,6 +127,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
       if (response && response.ok) {
         var ords = response.bid.order;
         var agnt = response.bid.agent;
+        var radius = agnt.distance;
 
         var lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime);
         if (lost_diff >= 0) {
@@ -138,15 +135,50 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         } else {
           var dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
         }
-        if (ords.arrived) {
+        
+        if (ords.arrived && !ords.inCar) {
           var dr_time = 'На месте';
+          var loft_diff = Dates.diffTime(ords.updated, 20);
+
+          if (loft_diff < 0) {
+            var but = Dom.sel('[data-click="cancel-order"]');
+            
+            if (but && but.classList.contains('button_rounded--red')) {
+              but.classList.remove('button_rounded--red');
+              but.classList.add('button_rounded--green');
+            }
+          }
+        }
+        
+        var toLoc = ords.toLocation;
+          toLoc = toLoc.split(',');
+        var dist = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]);
+        
+        if (dist < 1) {
+          var but = Dom.sel('[data-click="driver-came"]');
+          
+          if (but) {
+            but.disabled = false;
+          }
+        }
+       
+        if (radius < 1) {
+          var arrived_but = Dom.sel('button[data-click="driver-arrived"]');
+          if (arrived_but) {
+            arrived_but.disabled = false;
+          }
+        }
+        
+        if (ords.canceled) {
+          alert('К сожалению, заказ отменен.');
+          window.location.hash = '#driver_city';
         }
         
         if (ords.arrived) {
           var arrived_but = Dom.sel('button[data-click="driver-arrived"]');
           if (arrived_but) {
             var kuda = arrived_but.parentNode;
-            kuda.innerHTML = '<button data-click="driver-came" class="button_wide--green">Приехали</button>';
+            kuda.innerHTML = '<button data-click="driver-came" class="button_wide--green" disabled>Приехали</button>';
           }
         }
 
@@ -195,39 +227,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
             _bottom.style.bottom = '1em';
             _el.style.top = '0';
           }
-          
-        }
-        
-        if (target.dataset.click === "runZone") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            if (polygon) {
-              polygon.setMap(null);
-            }
-          } else {
-            var active = target.dataset.active;
-            
-            if (active !== "") {
-              polygon = Geo.drawPoly(Zones[active], map);
-            } else {
-              Dom.toggle(el, 'active');
-            }
-          }
-          
-        }
-        
-        if (target.dataset.click === "runRoute") {
-          var el = target;
-          if (Dom.toggle(el, 'active')) {
-            safety_route.setMap(null);
-          } else {
-            safety_route = Geo.showPoly(overviewPath, map);
-          }
         }
         
         if (target.dataset.click === "driver-came") {
-          var el = target;
-          
           Ajax.request('POST', 'finish-order', User.token, '&id=' + order_id, '', function() {
             localStorage.setItem('_rating_bid', bid_id);
             window.location.hash = '#driver_clients_rating';
@@ -235,17 +237,17 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
         }
         
         if (target.dataset.click === "driver-arrived") {
-          var el = target;
-          
           Ajax.request('POST', 'arrived-bid', User.token, '&id=' + bid_id, '', function() {}, function() {});
         }
         
         if (target.dataset.click === "cancel-order") {
-          Ajax.request('POST', 'cancel-order', User.token, '&id=' + order_id, '', function(response) {
-            if (response && response.ok) {
-              window.location.hash = '#driver_city';
-            }
-          }, function() {});
+          if (confirm('Отменить заказ?')) {
+            Ajax.request('POST', 'cancel-order', User.token, '&id=' + order_id, '', function(response) {
+              if (response && response.ok) {
+                window.location.hash = '#driver_city';
+              }
+            }, function() {});
+          }
         }
 
         if (target) {
@@ -265,6 +267,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'SafeWin'], function (Ajax, Dom, 
 
     bid_id = localStorage.getItem('_current_id_bid');
     
+    SafeWin.map = map;
+    SafeWin.overviewPath = [];
     SafeWin.init();
     
     Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {

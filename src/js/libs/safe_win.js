@@ -1,4 +1,7 @@
-define(['Dom', 'hammer'], function (Dom, Hammer) {
+define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
+  
+  var polygon = [];
+  var safety_route;
   
   function swipeLeft() {
     var safe_win = Dom.sel('.safety-window');
@@ -41,26 +44,70 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
 
     while (target !== this) {
       if (target) {
+        
         if (target.dataset.click === "zone") {
           var el = target;
-          var id = parseInt(el.dataset.id);
+          var id = el.dataset.id;
           
-          var all_zones = Dom.selAll('[data-click="zone"]');
-          for (var i = 0; i < all_zones.length; i++) {
-            if (i !== id) {
-              all_zones[i].classList.remove('active-bg');
+          var arr = Dom.sel('[data-click="runZone"]').dataset.active;
+          arr = arr.split(',');
+          for (var i = 0; i < arr.length; i++) {
+            if (arr[i] === "") {
+              arr.splice(i, 1);
             }
           }
+          
           if (Dom.toggle(el, 'active-bg')) {
-            id = '';
+            for (var i = 0; i < arr.length; i++) {
+              if (arr[i] === id) {
+                arr.splice(i, 1);
+              }
+            }
+          } else {
+            if (id !== "") {
+              arr.push(id);
+            }
           }
-          Dom.sel('[data-click="runZone"]').dataset.active = id;
+                    
+          Dom.sel('[data-click="runZone"]').dataset.active = arr.join(',');
         }
       }
 
       target = target.parentNode;
     }
   };
+  
+  function runZone(el) {
+    el = el.target;
+    var active = el.dataset.active;
+    var arr = active.split(',');
+
+    if (Dom.toggle(el, 'active')) {
+      if (polygon) {
+        for (var i = 0; i < polygon.length; i++) {
+          polygon[i].setMap(null);
+        }
+        polygon = [];
+      }
+    } else {
+      if (active !== "") {
+        for (var i = 0; i < arr.length; i++) {
+          polygon[i] = Geo.drawPoly(Zones[arr[i]], SafeWin.map);
+        }
+      } else {
+        Dom.toggle(el, 'active');
+      }
+    }
+  }
+        
+  function runRoute(el) {
+    el = el.target;
+    if (Dom.toggle(el, 'active')) {
+      safety_route.setMap(null);
+    } else {
+      safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
+    }
+  }
   
   function onInputRange() {
     var val = parseInt(this.value);
@@ -69,6 +116,8 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
   }
   
   var SafeWin = {
+    map: null,
+    overviewPath: [],
     init: function() {
       var safe_win = Dom.sel('.safety-window');
       safe_win.classList.add('safety-window--closed');
@@ -102,6 +151,8 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       safe_win.addEventListener('tap', swipeRight);
       safe_win.addEventListener('press', longPress);
       safe_win.addEventListener('click', selectZone);
+      Dom.sel('[data-click="runZone"]').addEventListener('click', runZone);
+      Dom.sel('[data-click="runRoute"]').addEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').addEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').addEventListener('input', onInputRange);
       
@@ -115,6 +166,8 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
       safe_win.removeEventListener('click', selectZone);
+      Dom.sel('[data-click="runZone"]').removeEventListener('click', runZone);
+      Dom.sel('[data-click="runRoute"]').removeEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').removeEventListener('input', onInputRange);
     }
