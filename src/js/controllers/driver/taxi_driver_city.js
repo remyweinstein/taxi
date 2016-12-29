@@ -247,17 +247,22 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
 
           if (target.dataset.click === "sort-orders") {
             Popup.show(target, 'Сортировать по <br/><br/> \n\
-                                <span data-num="0" data-sort="created">Дате</span> \n\
-                                <span data-num="1" data-sort="price">Цене</span> \n\
-                                <span data-num="2" data-sort="distance">Расстоянию</span>\n\
-                                <span data-num="3" data-sort="length">Маршруту</span>\n\
-                                <span data-num="4" data-sort="stops">Остановкам</span>', 
+                                <span data-num="0" data-sort="created" data-r="1">Дате <i class="icon-down-circle"></i></span> \n\
+                                <span data-num="1" data-sort="created" data-r="0">Дате <i class="icon-up-circle"></i></span> \n\
+                                <span data-num="2" data-sort="price" data-r="1">Цене <i class="icon-down-circle"></i></span> \n\
+                                <span data-num="3" data-sort="price" data-r="0">Цене <i class="icon-up-circle"></i></span> \n\
+                                <span data-num="4" data-sort="distance" data-r="1">Расстоянию <i class="icon-down-circle"></i></span>\n\
+                                <span data-num="5" data-sort="distance" data-r="0">Расстоянию <i class="icon-up-circle"></i></span>\n\
+                                <span data-num="6" data-sort="length" data-r="1">Маршруту <i class="icon-down-circle"></i></span>\n\
+                                <span data-num="7" data-sort="length" data-r="0">Маршруту <i class="icon-up-circle"></i></span>\n\
+                                <span data-num="8" data-sort="stops" data-r="1">Остановкам <i class="icon-down-circle"></i></span>\n\
+                                <span data-num="9" data-sort="stops" data-r="0">Остановкам <i class="icon-up-circle"></i></span>',
             function(response) {
               delete arr_filters.orderBy;
               
               if (response !== "") {
                 arr_filters.orderBy = {};
-                eval('arr_filters.orderBy.' + response + ' = 1;');
+                eval('arr_filters.orderBy.' + response.sort + ' = ' + response.r + ';');
                 add_filter = get_add_filter_string();
               }
             }); 

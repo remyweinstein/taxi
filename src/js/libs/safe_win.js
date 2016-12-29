@@ -77,12 +77,16 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     }
   };
   
-  function runZone(el) {
-    el = el.target;
+  function runZone(event) {
+    var el = event.target;
+    if (!el) {
+      el = event;
+    }
     var active = el.dataset.active;
     var arr = active.split(',');
 
     if (Dom.toggle(el, 'active')) {
+      localStorage.removeItem('_enable_safe_zone');
       if (polygon) {
         for (var i = 0; i < polygon.length; i++) {
           polygon[i].setMap(null);
@@ -90,6 +94,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
         polygon = [];
       }
     } else {
+      localStorage.setItem('_enable_safe_zone', active);
       if (active !== "") {
         for (var i = 0; i < arr.length; i++) {
           polygon[i] = Geo.drawPoly(Zones[arr[i]], SafeWin.map);
@@ -100,11 +105,16 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     }
   }
         
-  function runRoute(el) {
-    el = el.target;
+  function runRoute(event) {
+    var el = event.target;
+    if (!el) {
+      el = event;
+    }
     if (Dom.toggle(el, 'active')) {
       safety_route.setMap(null);
+      localStorage.removeItem('_enable_safe_route');
     } else {
+      localStorage.setItem('_enable_safe_route', Settings.safeRadius);
       safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
     }
   }
@@ -146,6 +156,23 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
       var tap = new Hammer.Tap({event: 'tap'});
       hammer.add([longpress],[tap]);
       
+      var enable_safe_zone = localStorage.getItem('_enable_safe_zone');
+      
+      if (enable_safe_zone) {
+        var button_zone = Dom.sel('[data-click="runZone"]');
+        
+        button_zone.dataset.active = enable_safe_zone;
+        runZone(button_zone);
+      }
+      
+      var enable_safe_route = localStorage.getItem('_enable_safe_route');
+      
+      if (enable_safe_route) {
+        var button_route = Dom.sel('[data-click="runRoute"]');
+
+        runRoute(button_route);
+      }
+      
       safe_win.addEventListener('swipeleft', swipeLeft);
       safe_win.addEventListener('swiperight', swipeRight);
       safe_win.addEventListener('tap', swipeRight);
@@ -160,12 +187,14 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     
     clear: function() {
       var safe_win = Dom.sel('.safety-window');
+      
       safe_win.innerHTML = '';
       safe_win.removeEventListener('swipeleft', swipeLeft);
       safe_win.removeEventListener('swiperight', swipeRight);
       safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
       safe_win.removeEventListener('click', selectZone);
+      
       Dom.sel('[data-click="runZone"]').removeEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').removeEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);

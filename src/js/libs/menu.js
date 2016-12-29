@@ -1,4 +1,4 @@
-define(['Dom', 'hammer'], function (Dom, Hammer) {
+define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
     
   function swipeMenu(route) {
     var menu = Dom.sel('.menu');
@@ -23,7 +23,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
         Dom.sel('[data-click="back-burger"]').addEventListener('click', function() {
           window.history.back();
         });
-
+        
         //EVENTS ON SWIPE MENU => SwipeMenu()
         new Hammer(menu, {domEvents: true});
         menu.addEventListener('swipeleft', function() {
@@ -31,14 +31,46 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
         });
 
         //EVENTS ON CLICK CONTENT FOR CLOSE MENU
+        Dom.sel('.header').addEventListener('click', function(event) {
+          var target = event.target;
+
+          while (target !== this) {
+            
+                //EVENT ON CLICK TOGGLE DRIVER
+            if (target.dataset.click === "toggleIsDriver") {
+              var el = target;              
+              var data = new FormData();
+              
+              if (Dom.toggle(el, 'active')) {
+                data.append('isDriver', 0);
+                localStorage.removeItem('_is_driver');
+              } else {
+                data.append('isDriver', 1);
+                localStorage.setItem('_is_driver', true);
+              }
+              Ajax.request('POST', 'profile', User.token, '', data, function() {}, function() {});
+
+            }
+            
+            if (target) {
+              target = target.parentNode;
+            } else {
+              break;
+            }
+          }
+        });
+        
+        //EVENTS ON CLICK CONTENT FOR CLOSE MENU
         content.addEventListener('click', function(event) {
           var target = event.target;
 
-          while(target !== this){
+          while (target !== this) {
+            
                 //=  Close Menu on Click body  =
             if(menu.classList.contains('menu--opened')) {
               swipeMenu(-1);
             }
+            
             if (target) {
               target = target.parentNode;
             } else {

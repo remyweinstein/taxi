@@ -208,7 +208,13 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
                         </div>\n\
                         ';
             var loc = agnts[i].location.split(',');
-            var marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map_choice));
+            var marker;
+            
+            if (agnts[i].isDriver) {
+              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map_choice));
+            } else {
+              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, men_icon, map_choice));
+            }
             //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
             new_markers.push({'id': agnts[i].id, 'marker': marker});
           } else {

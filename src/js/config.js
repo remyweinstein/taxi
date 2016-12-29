@@ -114,6 +114,7 @@ var menus_arr = [];
   var User, Car, Event, Settings, MyOrder, Zones = [];
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
+  var men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png';
 
   var my_vehicle;
 

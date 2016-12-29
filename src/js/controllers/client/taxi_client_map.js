@@ -212,9 +212,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
   
   function start() {
     if (MyOrder.id > 0) {
-      console.log(map);
+
       SafeWin.overviewPath = [];
-      SafeWin.init();
       initialize();
 
       timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
@@ -246,6 +245,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
     }
     
     addEvents();
+    SafeWin.init();
   }
   
   return {

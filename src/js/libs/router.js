@@ -66,6 +66,18 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     }
 
     Dom.sel('.header__link').innerHTML = '<i class="icon-share"></i>';
+    var toggle = Dom.sel('.header__toggle');
+
+    if (route.menu === "driver") {
+      toggle.innerHTML = '<div class="header__toggle__button" data-click="toggleIsDriver"></div>';
+      var isd = localStorage.getItem('_is_driver');
+      if (isd) {
+        var but = Dom.sel('.header__toggle__button');
+        Dom.toggle(but, 'active');
+      }
+    } else {
+      toggle.innerHTML = '';
+    }
     
     var list = Dom.sel('.menu__list');
     var temp_els = [];
@@ -81,13 +93,12 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     
     if (menus_arr[route.menu]) {
       for (var i = (menus_arr[route.menu].length - 1); i > -1; i--) {
-        var add_icon = menus_arr[route.menu][i].add_icon ? menus_arr[route.menu][i].add_icon : '';
+        var add_icon = menus_arr[route.menu][i].add_icon || '';
         var newLi = document.createElement('li');
-          newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">' + 
-                          '<i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>' + 
-                          menus_arr[route.menu][i].name + 
-                          add_icon + 
-                      '</a>';
+          newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">\n\
+                             <i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>\n\
+                             ' + menus_arr[route.menu][i].name + add_icon + '\
+                             </a>';
         list.insertBefore(newLi, list.firstChild);
       }
     }

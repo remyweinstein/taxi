@@ -80,6 +80,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
               SafeWin.overviewPath.push(temp);
             }
           }
+          SafeWin.init();
         });
       }
     });
@@ -232,6 +233,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
         if (target.dataset.click === "driver-came") {
           Ajax.request('POST', 'finish-order', User.token, '&id=' + order_id, '', function() {
             localStorage.setItem('_rating_bid', bid_id);
+            localStorage.removeItem('_enable_safe_zone');
+            localStorage.removeItem('_enable_safe_route');
+            
             window.location.hash = '#driver_clients_rating';
           }, function() {});
         }
@@ -269,7 +273,6 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
     
     SafeWin.map = map;
     SafeWin.overviewPath = [];
-    SafeWin.init();
     
     Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
       if (response && response.ok) {
@@ -306,7 +309,6 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
 
     Chat.start('client');
-
   }
   
   return {

@@ -82,7 +82,7 @@ define(['Dom'], function(Dom) {
                   
                   var buts = new_field.querySelectorAll('[data-sort]');
                   for (var i = 0; i < buts.length; i++) {
-                    if (buts[i].dataset.sort === actives_sort) {
+                    if (buts[i].dataset.sort === actives_sort.sort && buts[i].dataset.r === actives_sort.r) {
                       buts[i].classList.add('active');
                     }
                   }
@@ -123,18 +123,22 @@ define(['Dom'], function(Dom) {
 
                     while (target !== this) {
                       if (target) {
+                        
                         if (target.dataset.sort) {
                           var _el = target;
                           
                           if (Dom.toggle(_el, 'active')) {
                             actives_sort = '';
+                            console.log('click, active, el = ' + _el);
                             for (var i = 0; i < buts.length; i++) {
                               buts[i].classList.remove('active');
                             }
-                              _el.classList.add('active');
+                            
+                            //_el.classList.add('active');
                           } else {
-                            actives_sort = _el.dataset.sort;
-                            _el.classList.add('active');
+                            console.log('click, inactive, el = ' + _el);
+                            actives_sort = {sort: _el.dataset.sort, r: _el.dataset.r};
+                            //_el.classList.add('active');
                           }
                           
                           callback(actives_sort);
