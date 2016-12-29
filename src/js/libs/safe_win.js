@@ -162,6 +162,17 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
         var button_zone = Dom.sel('[data-click="runZone"]');
         
         button_zone.dataset.active = enable_safe_zone;
+        var arr_active = enable_safe_zone.split(',');
+        var dom_arr = Dom.selAll('[data-click="zone"]');
+        
+        for (var i = 0; i < arr_active.length; i++) {
+          for (var y = 0; y < dom_arr.length; y++) {
+            if (dom_arr[y].dataset.id === arr_active[i]) {
+              Dom.toggle(dom_arr[y], 'active-bg');
+            }
+          }
+        }
+        
         runZone(button_zone);
       }
       
