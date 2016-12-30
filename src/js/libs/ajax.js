@@ -10,9 +10,12 @@ define(['Uries'], function(Uries) {
       }
       
       token = token === '' ? '?' : '?token=' + token;
+      var d = new Date();
+      var timestamp = '&_=' + d.getTime();
+
       var xhr = new XMLHttpRequest();
       
-      xhr.open(crud, Uries.server_uri + '/' + method + token + add_query, true);
+      xhr.open(crud, Uries.server_uri + '/' + method + token + add_query + timestamp, true);
       //xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.onload = function() {
         if (xhr.status === 200) {

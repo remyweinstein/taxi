@@ -1,7 +1,8 @@
-define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) {
+define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Modal, Geo, jsts) {
 
   var polygon = new google.maps.Polygon({});
-  var Coords = [];
+  var points = [];
+  var markers = [];
   
   function addEvents() {
     Event.click = function (event) {
@@ -10,16 +11,20 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
           while (target !== this) {
             if (target) {
               if (target.dataset.click === 'save-zone') {
-
+                var Coords = [];
+                
+                for (var i = 0; i < points.length; i++) {
+                  Coords.push({lat:points[i].lat0, lng:points[i].lng0});
+                }
                 if (Coords.length < 3) {
                   alert('Ну это же не полигон совсем, точки три хотя бы сделайте');
                 } else {
                   Zones.push(Coords);
                   localStorage.setItem('_my_zones', JSON.stringify(Zones));
+                  polygon = new google.maps.Polygon({});
+                  points = [];
+                  markers = [];
                   window.history.back();
-                  //Modal.show('', function(){
-                  //  window.location.hash = "#client_go";
-                  //});
                 }
 
                 return;
@@ -55,42 +60,106 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
       icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
       title: 'Я здесь!'
     });
-
-    var markers = {};
-    
-    var getMarkerUniqueId= function() {
-      var rand = 1000000 + Math.random() * (8999999);
-      rand = Math.round(rand);
-      return rand;
-    };
     
     var getLatLng = function(lat, lng) {
       return new google.maps.LatLng(lat, lng);
     };
     
-    google.maps.event.addListener(map, 'click', clickOnPoly);
+    google.maps.event.addListener(map, 'click', addMarker);
+
+    function bearingsort(a,b) {
+      return (a.bearing - b.bearing);
+    }
+
+    function drawPoly() {
+        google.maps.event.clearListeners(polygon, 'click', addMarker);
+        polygon.setMap(null);
+
+        polygon = Geo.drawPoly(points, map);      
+        google.maps.event.addListener(polygon, 'click', addMarker);
+    }
     
-    function clickOnPoly(e) {
+    function addMarker(e) {
       var lat = e.latLng.lat();
       var lng = e.latLng.lng();
-      var markerId = getMarkerUniqueId();
       var marker = new google.maps.Marker({
         position: getLatLng(lat, lng),
         map: map,
         draggable : true,
         lat: lat,
-        lng: lng,
-        id: markerId
+        lng: lng
       });
-      markers[markerId] = marker;
+      if (markers.length > 2) {
+        findStartPoint(lng, lat, function (v) {
+          markers.splice(v, 0, marker);
+        });
+      } else {
+        markers.push(marker);
+      }
       bindMarkerEvents(marker);
       showPoly();
     };
+    
+    function pDistance(x, y, x1, y1, x2, y2) {
+
+      var A = x - x1;
+      var B = y - y1;
+      var C = x2 - x1;
+      var D = y2 - y1;
+
+      var dot = A * C + B * D;
+      var len_sq = C * C + D * D;
+      var param = -1;
+      if (len_sq !== 0) //in case of 0 length line
+          param = dot / len_sq;
+
+      var xx, yy;
+
+      if (param < 0) {
+        xx = x1;
+        yy = y1;
+      }
+      else if (param > 1) {
+        xx = x2;
+        yy = y2;
+      }
+      else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+      }
+
+      var dx = x - xx;
+      var dy = y - yy;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    function findStartPoint(lng, lat, callback) {
+      var distA = 10000000000000000000;
+      var y = 0;
+
+      for (var i = 0; i < (markers.length); i++) {
+        
+        if (i === (markers.length - 1)) {
+          var dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
+        } else {
+          var dist = pDistance(lng, lat, markers[i + 1].lng, markers[i + 1].lat, markers[i].lng, markers[i].lat);
+        }
+        
+        if (distA > dist) {
+          distA = dist;
+          y = i + 1;
+        }
+      }
+      
+      callback(y);
+    }
+
     
     var bindMarkerEvents = function(marker) {
       google.maps.event.addListener(marker, 'click', function () {
         removeMarker(marker);
       });
+      
       google.maps.event.addListener(marker, 'dragend', function (point) {
         var latlng = new google.maps.LatLng(point.latLng.lat(), point.latLng.lng());
         
@@ -102,26 +171,47 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo'], function (Ajax, Dom, Modal, Geo) 
     };
     
     var removeMarker = function(marker) {
-      delete markers[marker.id];
-      marker.setMap(null);
+      for (var i = 0; i < markers.length; i++) {
+        if (google.maps.geometry.spherical.computeDistanceBetween(
+              marker.getPosition(), markers[i].getPosition()) < 0.1) {
+         markers[i].setMap(null);
+         markers.splice(i,1);
+        }
+      }
       showPoly();
     };
     
     var showPoly = function() {
-      Coords = [];
-      for (var key in markers) {
-        Coords.push({'lat': parseFloat(markers[key].lat), 'lng': parseFloat(markers[key].lng)});
-      }
-      google.maps.event.clearListeners(polygon, 'click', clickOnPoly);    
-      polygon.setMap(null);
       
-      polygon = Geo.drawPoly(Coords, map);      
-      google.maps.event.addListener(polygon, 'click', clickOnPoly);    
+      points = [];
+      var bounds = new google.maps.LatLngBounds();
+
+      for (var i = 0; i < markers.length; i++) {
+        points.push(markers[i].getPosition());
+        bounds.extend(markers[i].getPosition());
+      }
+
+      var center = bounds.getCenter();
+      var bearing = [];
+
+      for (var i = 0; i < points.length; i++) {
+        bearing = google.maps.geometry.spherical.computeHeading(center, points[i]);
+
+        points[i].bearing = bearing;
+        markers[i].bearing = bearing;
+        points[i].lat0 = markers[i].lat;
+        points[i].lng0 = markers[i].lng;
+      }
+
+      //points.sort(bearingsort);
+      //markers.sort(bearingsort);
+      
+      drawPoly();
 
     };
 
   }
-  
+    
   function start() {
     initMap();
     addEvents();

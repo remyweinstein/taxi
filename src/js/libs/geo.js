@@ -135,8 +135,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var polygon = geoWriter.write(geometry);
 
         var oLanLng = [];
-        var oCoordinates;
-        oCoordinates = polygon.coordinates[0];
+        var oCoordinates = polygon.coordinates[0];
         
         for (i = 0; i < oCoordinates.length; i++) {
           var oItem;
