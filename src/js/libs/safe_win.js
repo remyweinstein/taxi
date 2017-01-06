@@ -1,6 +1,7 @@
 define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
   
   var polygon = [];
+  var s_route_to_Zone = [];
   var safety_route;
   
   function swipeLeft() {
@@ -71,9 +72,19 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
                     
           Dom.sel('[data-click="runZone"]').dataset.active = arr.join(',');
         }
+        
+        if (target.dataset.click === "add_to_zones") {
+          if (s_route_to_Zone.length > 0) {
+            Zones.push(s_route_to_Zone);
+            localStorage.setItem('_my_zones', JSON.stringify(Zones));
+            SafeWin.init();
+          }
+        }
+        
+        target = target.parentNode;
+      
       }
 
-      target = target.parentNode;
     }
   };
   
@@ -104,9 +115,10 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
       }
     }
   }
-        
+  
   function runRoute(event) {
     var el = event.target;
+    
     if (!el) {
       el = event;
     }
@@ -116,6 +128,12 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     } else {
       localStorage.setItem('_enable_safe_route', Settings.safeRadius);
       safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
+      var path = safety_route.getPath();
+      if (path) {
+        for (var i = 0; i < path.b.length; i++) {
+          s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
+        }
+      }
     }
   }
   
@@ -149,6 +167,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
                                 <input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">\n\
                                 <div class="safety-window__view-radius">' + Settings.safeRadius + ' м.</div>\n\
                               </form>\n\
+                              <div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>\n\
                             </div>';
 
       var hammer = new Hammer(safe_win, {domEvents: true});

@@ -1,4 +1,4 @@
-define(['Ajax', 'jsts'], function (Ajax, jsts) {
+define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
 
     var old_lat, old_lng;
     
@@ -72,16 +72,11 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       
       return watchID;
     }
-  
+
   var Geo = {
 
       init: function(app) {
-        
-        //function findMe() {
-          geoFindMe(app);
-        //}
-        
-        //setGeoLocationTimer = setInterval(findMe, 500);
+        geoFindMe(app);
       },
 
       distance: function(lat1, lon1, lat2, lon2) {
@@ -115,6 +110,8 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       },
 
       showPoly: function(overviewPath, map) {
+        Dom.startLoading();
+        
         var overviewPathGeo = [];
 
         for (var i = 0; i < overviewPath.length; i++) {
@@ -134,21 +131,23 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         var geometry = geoReader.read(geoInput).buffer(distance);
         var polygon = geoWriter.write(geometry);
 
-        var oLanLng = [];
-        var oCoordinates = polygon.coordinates[0];
+        var oLanLng = [],
+            oCoordinates = polygon.coordinates[0];
         
         for (i = 0; i < oCoordinates.length; i++) {
           var oItem;
           oItem = oCoordinates[i];
           oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
         }
-
+        
         var polygone = new google.maps.Polygon({
           paths: oLanLng,
           //strokeWeight: 0,
           map: map
         });
         
+        Dom.finishLoading();
+
         return polygone;
       }
       

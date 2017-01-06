@@ -1,4 +1,5 @@
 define(function() {
+  var self = this;
   
   var Dom = {
 
@@ -18,6 +19,14 @@ define(function() {
           el.classList.add(cl);
           return false;
         }
+      },
+      
+      startLoading: function () {
+        document.querySelector(".loading").classList.add("active");
+      },
+
+      finishLoading: function () {
+        document.querySelector(".loading").classList.remove("active");
       }
     };
   

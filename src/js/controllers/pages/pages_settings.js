@@ -38,7 +38,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     var _el_settings = Dom.sel('.settings');
     var _obj = Settings;
     var _innerText = '';
-    
+
     for (var key in _obj) {
       var _ins;
       var _click;

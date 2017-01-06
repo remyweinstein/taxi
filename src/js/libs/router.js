@@ -44,7 +44,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     if (window.location.hash !== currentHash) {
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (window.location.hash === currentRoute.hash) {
-          Dom.sel(".loading").style.visibility = "visible";
+          Dom.startLoading();
           loadController(currentRoute);
           }
       }
@@ -127,7 +127,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     require([route.controller], function(controller) {
       App.init();
       controller.start(App);
-      Dom.sel(".loading").style.visibility = "hidden";
+      Dom.finishLoading();
     });
   }
 

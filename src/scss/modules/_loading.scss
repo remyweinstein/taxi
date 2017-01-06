@@ -3,7 +3,7 @@
    ======================= */
 
 .loading{
-    visibility: hidden;
+    display: none;
     position: absolute;
     width: 3em;
     height: 3em;
@@ -12,4 +12,7 @@
     background: url(../images/loading.gif) no-repeat;
     margin: -1.5em 0 0 -1.5em;
     background-size: cover;
+    &.active {
+        display: block;
+    }
 }
