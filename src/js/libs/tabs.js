@@ -41,7 +41,7 @@ define(['Dom', 'hammer'], function(Dom, Hammer) { // Dom, Hammer
   function changeSizes() {
     var header = Dom.sel('.header');
     var tab_count = tabs.length;
-
+    
     for (var i = 0; i < tab_count; i++) {
       tabs[i].style.width = (100 / tab_count - 1) + '%';
     }
@@ -56,7 +56,7 @@ define(['Dom', 'hammer'], function(Dom, Hammer) { // Dom, Hammer
             tab = Dom.sel('.tabs');
 
             if (tab) {
-              tabs = Dom.selAll('.tabs ul li');
+              tabs = Dom.selAll('.content .tabs ul li');
               tabs_wrapper = Dom.sel('.tabs__wrapper');
               tabs_viewport = Dom.sel('.tabs__viewport');
               tabs_content = Dom.selAll('.tabs_content');

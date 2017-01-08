@@ -7,8 +7,7 @@ requirejs.config({
     "jsutil" : "vendor/jsutil",
     "jsts" : "vendor/jsts",
     "domReady" : "vendor/domReady",
-    
-    "html5slider" : "polyfills/html5slider",
+    "mustache" : "vendor/mustache.min.js",
     
 		"User" : "models/user",
 		"Car" : "models/car",
@@ -72,9 +71,6 @@ requirejs.config({
     },
     "jsts" : {
       exports: "jsts"
-    },
-    "html5slider" : {
-      exports: "html5slider"
     }
   }
 });

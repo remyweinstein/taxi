@@ -1,5 +1,4 @@
 define(function() {
-  var self = this;
   
   var Dom = {
 
