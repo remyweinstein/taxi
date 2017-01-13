@@ -3,8 +3,10 @@
    ======================= */
 .go-order {
     position: absolute;
-    top: 3em;
+    top: 0em;
     width: 100%;   
+    -webkit-transition: top .5s ease-out .25s;
+    transition: top .5s ease-out .25s;
     &__top {
         top: 0;
         position: relative;
@@ -118,5 +120,57 @@
                 }
             }
         }
+    }
+    .drop-up {
+        top: 100%;
+        margin-top: 1em;
+    }
+    .drop-down {
+        top: 100%;
+        margin-top: 3em;
+    }
+}
+.drop-up {
+    -webkit-transition: opacity 1s linear 1s;
+    transition: opacity 1s linear 1s;
+    opacity: 1;
+    position: absolute;
+    display: block;
+    bottom: -100%;
+    margin-bottom: 1em;
+    margin-top: -1em;
+    margin-left: -.65em;
+    left: 50%;
+    cursor: pointer;
+    width: 1.35em;
+    font-size: 2em;
+    text-align: center;
+    padding-top: .25em;
+    &:before {
+        content: '\e824';
+        font-family: fontello;
+        color: #fff;
+    }
+}
+.drop-down {
+    -webkit-transition: opacity 1s linear 1s;
+    transition: opacity 1s linear 1s;
+    opacity: 1;
+    position: absolute;
+    display: block;
+    bottom: -100%;
+    margin-bottom: 1em;
+    margin-top: -1em;
+    margin-left: -.65em;
+    left: 50%;
+    cursor: pointer;
+    width: 1.35em;
+    font-size: 2em;
+    text-align: center;
+    padding-top: .25em;
+    &:before {
+        content: '\e823';
+        font-family: fontello;
+        color: #fff;
     }
 }

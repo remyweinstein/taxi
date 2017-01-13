@@ -1,7 +1,8 @@
 define(['Dom', 'Chat'], function (Dom, Chat) {
   
-  var App;
+  var App, old_controller;
   var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
+                {hash:'#start', controller:'ctrlPageStart', title:'Добро пожаловать', menu:'', pageType: ''},
                 {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
@@ -31,7 +32,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
                 {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
                 {hash:'#driver_my_auto', controller:'ctrlTaxiDriverMyAuto', title:'Мой авто', menu:'driver', pageType: ''}];
 
-  var defaultRoute = '#client_city';
+  var defaultRoute = '#start';
   var currentHash = '';
 
   function startRouting(app) {
@@ -41,12 +42,25 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
   }
 
   function hashCheck() {
+    if (User.city) {
+      MayLoading = true;
+    } else {
+      MayLoading = false;
+    }
+    if (!MayLoading) {
+      window.location.hash = '#start';
+    }
     if (window.location.hash !== currentHash) {
+      for (var i = 0, currentRoute; currentRoute = routes[i++];) {
+        if (currentHash === currentRoute.hash) {
+          old_controller = currentRoute;
+        }
+      }
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (window.location.hash === currentRoute.hash) {
           Dom.startLoading();
           loadController(currentRoute);
-          }
+        }
       }
       currentHash = window.location.hash;
     }
@@ -60,12 +74,16 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
       Dom.sel('[data-click="back-burger"]').style.display = "block";
       //Dom.sel('.header__link').innerHTML = '<a href="#" onclick="document.forms[0].submit(); return false;"><i class="icon-ok"></i></a>';
     } else {
-      Dom.sel('[data-click="menu-burger"]').style.display = "block";
-      Dom.sel('[data-click="back-burger"]').style.display = "none";
-      //Dom.sel('.header__link').innerHTML = '<i class="icon-share"></i>';
+      if (route.menu !== "") {
+        Dom.sel('[data-click="menu-burger"]').style.display = "block";
+        Dom.sel('[data-click="back-burger"]').style.display = "none";
+        //Dom.sel('.header__link').innerHTML = '<i class="icon-share"></i>';
+      } else {
+        Dom.sel('[data-click="menu-burger"]').style.display = "none";
+        Dom.sel('[data-click="back-burger"]').style.display = "none";
+      }
     }
 
-    Dom.sel('.header__link').innerHTML = '<i class="icon-share"></i>';
     var toggle = Dom.sel('.header__toggle');
 
     if (route.menu === "driver") {
@@ -102,6 +120,15 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
         list.insertBefore(newLi, list.firstChild);
       }
     }
+    
+    var win_route = Dom.selAll('.safe_by_route')[0];
+    if (win_route) {
+      if (route.hash === "#client_go" || route.hash === "#driver_go" || route.hash === "#client_map") {
+        win_route.classList.remove('hidden');
+      } else {
+        win_route.classList.add('hidden');
+      }
+    }
   }
   
   function clearVars() {
@@ -112,6 +139,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     clearInterval(timerUpdateTaxiDriverOrder);
     clearInterval(timerGetMyPos);
     clearInterval(timerGetPosTaxy);
+    clearInterval(timerCheckLoading);
 
     Dom.sel('.content').removeEventListener('click', Event.click);
     Dom.sel('.content').removeEventListener('submit', Event.submit);
@@ -121,9 +149,27 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
   }
   
   function loadController(route) {
-    Dom.sel('.content').innerHTML = document.querySelector('#' + route.controller).innerHTML;
+    var content_el = Dom.sel('.content');
+    var dynamic_el = Dom.sel('.dynamic');
+    
+    if (dynamic_el) {
+      dynamic_el.parentNode.removeChild(dynamic_el);
+    }
+
+    var content = document.querySelector('#' + route.controller).innerHTML;
+    var dynamic = document.createElement('div');
+      dynamic.classList.add('dynamic');
+      dynamic.innerHTML = content;
+    content_el.appendChild(dynamic);
+
     renderMenu(route);
+    Dom.mapOff();
     clearVars();
+    if (old_controller) {
+      require([old_controller.controller], function(controller) {
+        controller.clear();
+      });
+    }
     require([route.controller], function(controller) {
       App.init();
       controller.start(App);

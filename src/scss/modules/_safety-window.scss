@@ -1,29 +1,33 @@
 .safety-window {
     position: absolute;
-    top: 10em;
-    border-radius: 0.5em;
+    top: -2em;
+    border-radius: .5em;
     width: 19em;
-    left: -17em;
-    background-color: white;
-    -webkit-transition: left 0.5s ease-out 0.25s;
-    -moz-transition: left 0.5s ease-out 0.25s;
-    -o-transition: left 0.5s ease-out 0.25s;
-    transition: left 0.5s ease-out 0.25s;
+    right: -19em;
+    background-color: #fff;
+    -webkit-transition: right .5s ease-out .25s;
+    transition: right .5s ease-out .25s;
+    -moz-transition: right 0.5s ease-out 0.25s;
+    -o-transition: right 0.5s ease-out 0.25s;
     &--closed {
-        left: -17em;
+        right: -19em;
     }
     &--opened {
-        left: -0.5em;
+        right: -1em;
     }
     &__grid-all {
         width: 100%;
         text-align: center;
-        display: inline-block;
+        &.hidden{
+            display: none;
+        }
     }
     &__grid {
         width: 48%;
         text-align: center;
         display: inline-block;
+        vertical-align: top;
+        line-height: 0.5em;
         input{
             width: 60%;
         }
@@ -39,20 +43,26 @@
         line-height: 6em;
         text-align: center;
         color: #fff;
+        &--left{
+            @extend .safety-window__round;
+            margin: 0;
+            margin-left: 3em;
+            float: left;
+        }
         &.active {
             background-color: $active;
         }
     }
     &:before {
         content: "ОХРАНА";
-        top: 8em;
-        left: 16em;
+        top: 6em;
+        left: -1em;
         display: inline-block;
         position: relative;
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        transform: rotate(90deg);
+        -webkit-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        -ms-transform: rotate(270deg);
+        transform: rotate(270deg);
     }
 }

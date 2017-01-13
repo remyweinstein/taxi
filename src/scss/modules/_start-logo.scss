@@ -1,0 +1,39 @@
+.start_logo {
+    width: 100%;
+    text-align: center;
+    font-size: 2em;
+    margin-top: 2em;
+    animation: rollIn 1.5s infinite alternate;
+}
+
+.start_logo_state {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    &__text {
+        
+    }
+}
+
+
+@-webkit-keyframes rollIn {
+	0% { opacity: 0.5;}
+	100% { opacity: 1;}
+}
+@-moz-keyframes rollIn {
+	0% { opacity: 0.5;}
+	100% { opacity: 1;}
+}
+@-ms-keyframes rollIn {
+	0% { opacity: 0.5;}
+	100% { opacity: 1;}
+}
+@-o-keyframes rollIn {
+	0% { opacity: 0.5;}
+	100% { opacity: 1;}
+}
+@keyframes rollIn {
+	0% { color: darkgray;}
+	100% { color: lightblue; }
+}

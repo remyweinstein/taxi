@@ -1,13 +1,12 @@
 define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
   
-  var marker_mine;
-  var map_choice;
+  var marker_mine, points = [];
   var markers_driver_pos = [];    
   var recommended_cost = 0;
   var radiusSearch = 0.5;
-  var zoom;
+  var zoom, route;
 
-  var marker_a, marker_b;
+  var marker_a, marker_b, marker_from, marker_to;
   var price = Dom.sel('[name="cost"]').value;
   var comment = Dom.sel('[name="description"]').value;
   
@@ -22,24 +21,16 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
     });
   }
 
-  function initialize_iam() {
+  function initMap() {
     zoom = 15;
-    //var LatLng = new google.maps.LatLng(48.49, 135.07);
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    var mapCanvas = document.getElementById('map_canvas_iam');
-    var mapOptions = {
-      center: MyLatLng,
-      zoom: zoom,
-      streetViewControl: false,
-      mapTypeControl: false,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-
-    map_choice = new google.maps.Map(mapCanvas, mapOptions);
+    
+    map.setCenter(MyLatLng);
+    map.setZoom(zoom);
 
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
-      map: map_choice,
+      map: map,
       icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
       title: 'Я здесь!'
     });
@@ -49,12 +40,12 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
 
     if (from_value !== '' && to_value === '') {
       var _addr_from = MyOrder.fromCoords.split(",");
-      marker_a = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), from_value, '//www.google.com/mapfiles/markerA.png', map_choice);
+      marker_a = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), from_value, '//www.google.com/mapfiles/markerA.png', map);
     }
 
     if (to_value !== '' && from_value === '') {
       var _addr_to = MyOrder.toCoords.split(",");
-      marker_b = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), to_value, '//www.google.com/mapfiles/markerB.png', map_choice);
+      marker_b = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), to_value, '//www.google.com/mapfiles/markerB.png', map);
     }
 
     if (from_value !== '' && to_value !== '') {
@@ -63,64 +54,68 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
 
     function drawLine() {
       var directionsService = new google.maps.DirectionsService();
-      //if (marker_b && marker_a) {
-        marker_b = null;
-        marker_a = null;
-        var _addr_from = MyOrder.fromCoords.split(",");
-        var _addr_to = MyOrder.toCoords.split(",");
+      var _addr_from = MyOrder.fromCoords.split(",");
+      var _addr_to = MyOrder.toCoords.split(",");
+      var waypoints = [];
+      marker_b = null;
+      marker_a = null;
 
-        var waypoints = [];
-
-        for (var i = 0; i < MyOrder.toAddresses.length; i++) {
-          if (MyOrder.toAddresses[i] && MyOrder.toAddresses[i] !== "") {
-            var _wp = MyOrder.toCoordses[i].split(",");
-            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-            addInfoForMarker(MyOrder.times[i] + ' мин.', true, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map_choice));
+      for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+        if (MyOrder.toAddresses[i] && MyOrder.toAddresses[i] !== "") {
+          var _wp = MyOrder.toCoordses[i].split(",");
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+          var time = "";
+          if (MyOrder.times[i]) {
+            time = MyOrder.times[i] + ' мин.';
           }
+          points.push(addInfoForMarker(time, true, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
         }
+      }
 
-        addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map_choice);
-        addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map_choice);
+      marker_from = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+      marker_to = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
-        var request = {
-          origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
-          destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
-          waypoints: waypoints,
-          provideRouteAlternatives: false,
-          travelMode: google.maps.DirectionsTravelMode.DRIVING
-        };
+      var request = {
+        origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+        destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+        waypoints: waypoints,
+        provideRouteAlternatives: false,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
 
-        directionsService.route(request, function(response, status) {
-          if (status === google.maps.DirectionsStatus.OK) {
-            
-            var routes_dist = response.routes[0].legs;
+      directionsService.route(request, function(response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
 
-            MyOrder.duration = Math.round((routes_dist[0].duration.value) / 60);
-            MyOrder.length = routes_dist[0].distance.value;
-            recommended_cost = 10 * Math.ceil( ((MyOrder.length / 1000) * cost_of_km) / 10 );
-            recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
-            Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
-
-            new google.maps.DirectionsRenderer({
-              map: map_choice,
-              suppressMarkers: true,
-              directions: response,
-              routeIndex: 0
-            });
+          var routes_dist = response.routes[0].legs;
+          var dura = 0, dist = 0;
+          
+          for (var i = 0; i < routes_dist.length; i++) {
+            dura += routes_dist[i].duration.value;
+            dist += routes_dist[i].distance.value;
           }
-        });
+
+          MyOrder.duration = Math.round(dura / 60);
+          MyOrder.length = dist;
+          recommended_cost = 10 * Math.ceil( ((MyOrder.length / 1000) * cost_of_km) / 10 );
+          recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+          Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
+
+          route = new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true,
+            directions: response,
+            routeIndex: 0
+          });
+        }
+      });
     }
 
-    Dom.selAll('.find-me')[0].addEventListener('click', function() {
-      map_choice.setCenter( new google.maps.LatLng(User.lat, User.lng) );
-    });
-
-    google.maps.event.addListener(map_choice, 'drag', function() {
+    google.maps.event.addListener(map, 'drag', function() {
       //var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
       //localStorage.setItem('_choice_coords', coords);
     }); 
-    map_choice.addListener('zoom_changed', function() {
-      var zoom = map_choice.getZoom();      
+    map.addListener('zoom_changed', function() {
+      var zoom = map.getZoom();      
       if (zoom <= 12) {
         radiusSearch = 10;
       } else if (zoom === 13) {
@@ -143,10 +138,10 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
         content: text
       });
       if (open) {
-        infowindow.open(map_choice, marker);
+        infowindow.open(map, marker);
       }
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map_choice, marker);
+        infowindow.open(map, marker);
       });
     }
     
@@ -211,9 +206,9 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
             var marker;
             
             if (agnts[i].isDriver) {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map_choice));
+              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map));
             } else {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, men_icon, map_choice));
+              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, men_icon, map));
             }
             //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
             new_markers.push({'id': agnts[i].id, 'marker': marker});
@@ -253,7 +248,7 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
   function AddNewZaezd(just_add) {
     var time = MyOrder.times[just_add];
     var addr = MyOrder.toAddresses[just_add];
-      time = time > 0 ? time + " мин" : "";
+      time = time ? time + " мин" : "";
       addr = addr ? addr : "";
     var el = Dom.sel('.order-city-to');
     var new_field = document.createElement('div');
@@ -331,7 +326,7 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
             var _top = Dom.selAll('[data-controller="taxi_client_city"]')[0];
             var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
 
-            if (_top.style.top === '4em' || _top.style.top === '') {
+            if (_top.style.top === '1em' || _top.style.top === '') {
               _el.classList.remove('drop-down');
               _el.classList.add('drop-up');
               _top.style.top = '-10em';
@@ -341,7 +336,7 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
             } else {
               _el.classList.remove('drop-up');
               _el.classList.add('drop-down');
-              _top.style.top = '4em';
+              _top.style.top = '1em';
               _bottom.style.bottom = '1em';
               _el.style.top = '-0.5em';
             }
@@ -380,6 +375,8 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
             }
 
             Dom.selAll('.adress_' + _field)[0].value = "";
+            stop();
+            initMap();
 
             return;
           }
@@ -396,6 +393,8 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
                     ', function (response) {
                         eval("MyOrder.times[" + _id + "] = " + response);
                         reloadPoints();
+                        stop();
+                        initMap();
                     });
 
             return;
@@ -412,6 +411,8 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
               be_dead.parentNode.removeChild(be_dead);
 
             reloadPoints();
+            stop();
+            initMap();
 
             return;
           }
@@ -506,8 +507,35 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
     }
   }
   
+  function stop() {
+    if (route) {
+      route.setMap(null);
+    }
+    if (marker_mine) {
+      marker_mine.setMap(null);
+    }
+    if (marker_b) {
+        marker_b.setMap(null);
+    }
+    if (marker_a) {
+        marker_a.setMap(null);
+    }
+    if (marker_from) {
+      marker_from.setMap(null);
+    }
+    if (marker_to) {
+      marker_to.setMap(null);
+    }
+    for (var i = 0; i < markers_driver_pos.length; i++) {
+      markers_driver_pos[i].marker.setMap(null);
+    }
+    for (var i = 0; i < points.length; i++) {
+      points[i].setMap(null);
+    }
+  }
+  
   function start() {
-    
+    Dom.mapOn();
     get_pos_drivers();
     
     price.value = MyOrder.price;
@@ -524,15 +552,17 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
     addEventChooseAddress('from');    
     addEventChooseAddress('to');
 
+    initMap();
+    
     timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
     
-    initialize_iam();
     addEvents();
     
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

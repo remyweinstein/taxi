@@ -1,4 +1,4 @@
-define(function() {  // Google
+define(['Dom'], function(Dom) {  // Google
 
   function renderDirections(map, result, polylineOpts) {
     var directionsRenderer = new google.maps.DirectionsRenderer();
@@ -15,7 +15,7 @@ define(function() {  // Google
   }
   
   var Maps = {
-
+    
       requestDirections: function (directionsService, start, end, polylineOpts) {
         directionsService.route({
           origin: start,
@@ -24,6 +24,29 @@ define(function() {  // Google
         }, function(result) {
           renderDirections(result, polylineOpts);
         });
+      },
+      
+      init: function() {
+        var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
+        var mapCanvas = document.getElementById('map_canvas');
+        var mapOptions = {
+          center: MyLatLng,
+          zoom: 12,
+          streetViewControl: false,
+          mapTypeControl: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        map = new google.maps.Map(mapCanvas, mapOptions);
+        map.getDiv().insertAdjacentHTML('beforeend', '<i class="icon-target find-me" data-click="find-me"></i>');
+        var find_me = Dom.sel('.find-me');
+        find_me.addEventListener('click', function() {
+          map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
+        });
+
+
+        SafeWin.map = map;
+
       },
 
       point2LatLng: function (x, y, map) {

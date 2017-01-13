@@ -24,6 +24,10 @@ define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
     });
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     Ajax.request('GET', 'orders', User.token, '&isIntercity=1', '', function(response) {
       if (response && response.ok) {
@@ -76,7 +80,8 @@ define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

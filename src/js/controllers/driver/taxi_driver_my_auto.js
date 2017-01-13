@@ -67,6 +67,10 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     content.addEventListener('submit', Event.submit);
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     Ajax.request('GET', 'profile', User.token, '', '', function(response) {
       if (response && response.ok) {
@@ -108,7 +112,8 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
 
 });

@@ -61,7 +61,7 @@ define(function() {
             diff = hours + 'ч.' + (diff - hours * 60) + 'мин.';
           } else if (diff > 0) {
             diff = diff + 'мин.';
-          } else {
+          } else  if (diff < 1) {
             diff = 'Только что';
           }
           date = today_text === 'Сегодня' ? diff :  today_text + ', ' + time_text;

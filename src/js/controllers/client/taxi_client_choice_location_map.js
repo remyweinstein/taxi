@@ -1,6 +1,6 @@
 define(['Dom', 'Maps'], function (Dom, Maps) {
   
-  function initialize_choice() {
+  function initMap() {
     var x, y, zoom = 18;
     var _route = localStorage.getItem('_address_temp');
     var _temp_coords = "";
@@ -29,21 +29,15 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     }
     
     var LatLng = new google.maps.LatLng(x, y);
-    var mapCanvas = document.getElementById('map_canvas_choice');
-    var mapOptions = {
-        center: LatLng,
-        zoom: zoom, 
-        streetViewControl: false,
-        mapTypeControl: false,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
     
-    map_choice = new google.maps.Map(mapCanvas, mapOptions);
-    map_choice.getDiv().insertAdjacentHTML('beforeend', '<div class="centerMarker"></div>');
+    map.setCenter(LatLng);
+    map.setZoom(zoom);
+
+    map.getDiv().insertAdjacentHTML('beforeend', '<div class="centerMarker"></div>');
     var center_marker = Dom.sel('.centerMarker');
 
-    google.maps.event.addListener(map_choice, 'drag', function() {
-        var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
+    google.maps.event.addListener(map, 'drag', function() {
+        var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map);
         localStorage.setItem('_choice_coords', coords);
     });
     
@@ -122,13 +116,21 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+    var center_marker = Dom.sel('.centerMarker');
+    
+    center_marker.parentNode.removeChild(center_marker);
+  }
+  
   function start() {
-    initialize_choice();
+    Dom.mapOn();
+    initMap();
     addEvents();
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
     
 });

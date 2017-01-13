@@ -34,6 +34,10 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     var _el_settings = Dom.sel('.settings');
     var _obj = Settings;
@@ -67,7 +71,8 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
     
 });

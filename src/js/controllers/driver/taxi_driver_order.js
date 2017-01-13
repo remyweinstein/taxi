@@ -1,18 +1,14 @@
 define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Chat, Dates, Modal) {
 
-  var mapCanvas = document.getElementById('map_canvas_go_driver');
-  var mapOptions = {
-    center: new google.maps.LatLng(User.lat, User.lng),
-    zoom: 12,
-    streetViewControl: false,
-    mapTypeControl: false,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  };
-
-  var map = new google.maps.Map(mapCanvas, mapOptions);
-  var markers = [], marker_client, active_bid = false;
+  var markers = [], marker_client, active_bid = false, route, marker_to, marker_from, points = [];
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, points = [], price, order_id, distanse, ag_distanse, duration;
   var name_client, photo_client, travelTime;
+  
+  function initMap() {
+    var LatLng = new google.maps.LatLng(User.lat, User.lng);
+      map.setCenter(LatLng);
+      map.setZoom(12);
+  }
 
   function setRoute() {
     var _active_bid = "";
@@ -46,10 +42,9 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
     
       el.innerHTML = '<div class="wait-bids-approve__item">\n\
                         <div class="wait-bids-approve__item__distance">\n\
-                          <p>До клиента: <span data-view="distance_to_car">' + ag_distanse + '</span> км.</p>\n\
-                          <p>Буду через: ' + time_minus + '<span data-view="while_car">' + travelTime + '</span> мин.' + time_plus + '</p>\n\
-                          <p>По маршруту: <span>' + distanse + '</span> км.</p>\n\
-                          <p>Время по маршруту: <span>' + Dates.minToHours(duration) + '</span></p>\n\
+                          <p>До: <span data-view="distance_to_car">' + ag_distanse + '</span> км.</p>\n\
+                          <p>Буду: ' + time_minus + '<span data-view="while_car">' + travelTime + '</span> мин.' + time_plus + '</p>\n\
+                          <p>Маршрут: <span>' + distanse + ' км.</span> / <span>' + Dates.minToHours(duration) + '</span></p>\n\
                         </div>\n\
                         <div class="wait-bids-approve__item__driver">\n\
                           <div>\n\
@@ -77,7 +72,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
 
       directionsService.route(request, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
-          new google.maps.DirectionsRenderer({
+          route = new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
             directions: response
@@ -157,6 +152,25 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
           }
         }
         
+        if (target.dataset.click === 'drop-down') {
+          var _el = target;
+          var _top = Dom.selAll('.go-order')[0];
+
+          if (_top.style.top === '0em' || _top.style.top === '') {
+            _el.classList.remove('drop-up');
+            _el.classList.add('drop-down');
+            _top.style.top = '-20em';
+            _el.style.opacity = 1;
+            //_el.style.top = '-3.5em';
+          } else {
+            _el.classList.remove('drop-down');
+            _el.classList.add('drop-up');
+            _top.style.top = '0em';
+            //_el.style.top = '-0.5em';
+          }
+
+        }
+          
         if (target.dataset.click === "time_minus") {
           var el = target;
 
@@ -164,9 +178,11 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
           var time = time_el.innerHTML;
             time = time.split(" ");
             time = parseInt(time[0]) - 5;
-            if (time < 5) time = 5;
-            travelTime = time;
-            time_el.innerHTML = time;
+          if (time < 5) {
+            time = 5;
+          }
+          travelTime = time;
+          time_el.innerHTML = time;
         }
 
         if (target.dataset.click === "time_plus") {
@@ -215,8 +231,26 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+    if (marker_from) {
+      marker_from.setMap(null);
+    }
+    if (marker_to) {
+      marker_to.setMap(null);
+    }
+    if (route) {
+      route.setMap(null);
+    }
+    for (var i = 0; i < points.length; i++) {
+      points[i].setMap(null);
+    }
+  }
+  
   function start() {
     var _id = localStorage.getItem('_open_order_id');
+    Dom.mapOn();
+    
+    initMap();
     
     Ajax.request('GET', 'order', User.token, '&id=' + _id, '', function(response) {
       if (response.ok) {
@@ -253,12 +287,12 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
             var _wp = ords.points[i].location.split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
             points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-            addInfoForMarker(ords.points[i].stopTime, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+            points.push(addInfoForMarker(ords.points[i].stopTime, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
           }
         }
 
-        addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-        addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+        marker_from = addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+        marker_to = addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
         setRoute();
         drawMap();
@@ -275,7 +309,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

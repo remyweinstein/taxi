@@ -4,7 +4,7 @@
         <title>Tech Agent</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <link href="assets/css/main.css?id=20161216" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?id=20170111" type="text/css" rel="stylesheet" />
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
         <script src="assets/js/libs/multirange.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
@@ -43,11 +43,24 @@
                 </div>
                 <div class="header__title"></div>
                 <div class="header__toggle"></div>
-                <div class="header__link"></div>
+                <div class="header__link">
+                    <i class="icon-share"></i><i class="icon-shield" data-click="openSafe"></i>
+                </div>
+                <div class="safety-window safety-window--closed"></div>
             </div>
         </header>
-        <main class="content"></main>
+        <main class="content">
+            <div id="map_canvas" class="hidden"></div>
+        </main>
         <div class="loading"></div>
+        <template id="ctrlPageStart">
+            <div class="start_logo">
+                Tech Agent
+            </div>
+            <div class="start_logo_state">
+                <p class="start_logo_state__text"></p>
+            </div>
+        </template>
         <template id="ctrlPageFavorites">
             <nav class="tabs">
                 <ul>
@@ -63,8 +76,7 @@
             </div>
         </template>
         <template id="ctrlPageZones">
-            <div id="map_canvas"></div>
-            <button style="position:relative;bottom:4em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
+            <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
         <template id="ctrlPageEditProfile">
             <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
@@ -113,7 +125,6 @@
             </form>
         </template>
         <template id="ctrlTaxiClientChoiceLocationMap">
-            <div data-controller="taxi_client_choice_location_map" id="map_canvas_choice"></div>
             <div class="gBlock--bottom">
                 <button data-click="i_choice_location" class="button_wide--green">Выбери адрес на карте</button>
             </div>
@@ -125,11 +136,8 @@
                 </p>
                 <div class="choice-location__results-search"></div>
             </div>
-            <div id="hide_map"></div>
         </template>
         <template id="ctrlTaxiClientCity">
-            <div id="map_canvas_iam"></div>
-            <i class="icon-target find-me" data-click="find-me"></i>
             <form action="/" method="POST" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
                 <div class="form-order-city__field order-city-from">
                     <i class="icon-right-circled form-order-city__label"></i>
@@ -163,8 +171,6 @@
             </form>
         </template>
         <template id="ctrlTaxiClientGo">
-            <div id="map_canvas_go"></div>
-            <i class="icon-target find-me" data-click="find-me"></i>
             <div class="go-order">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_client_go">
@@ -201,7 +207,6 @@
                     </div>
                 </div>
             </div>
-            <div class="safety-window"></div>
         </template>
         <template id="ctrlTaxiClientDriversRating">
             <div class="score-agent">
@@ -371,8 +376,6 @@
             </div>
         </template>
         <template id="ctrlTaxiClientMap">
-            <div data-controller="taxi_client_map" id="map_canvas"></div>
-            <i class="icon-target find-me" data-click="find-me"></i>
             <div class="wait-order-approve">
                 <div class="wait-order-approve__route-info">
                     <div class="wait-order-approve__route-info__route">
@@ -386,7 +389,6 @@
                 </div>
             </div>
             <div class="wait-bids-approve"></div>
-            <div class="safety-window"></div>
         </template>
         <template id="ctrlTaxiClientFeedback">
             <nav class="tabs">
@@ -530,7 +532,6 @@
             <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
         <template id="ctrlTaxiDriverOrder">
-            <div id="map_canvas_go_driver"></div>
             <div class="go-order">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
@@ -546,6 +547,7 @@
                     </div>
                     <div class="wait-bids-approve"></div>
                 </div>
+                <div data-click="drop-down" class="drop-up"></div>
             </div>
         </template>
         <template id="ctrlTaxiDriverClientsRating">
@@ -563,7 +565,6 @@
             </div>
         </template>
         <template id="ctrlTaxiDriverGo">
-            <div id="map_canvas_go_driver"></div>
             <div class="go-order">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
@@ -600,7 +601,6 @@
                     </div>
                 </div>
             </div>
-            <div class="safety-window"></div>
         </template>
         <template id="ctrlTaxiDriverIntercity">
             <nav class="tabs">

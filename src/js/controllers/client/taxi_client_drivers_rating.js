@@ -100,6 +100,10 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
     content.addEventListener('click', Event.click);
   }
 
+  function stop() {
+
+  }
+  
   function start() {
     bid_id = localStorage.getItem('_rating_bid');
     
@@ -131,7 +135,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

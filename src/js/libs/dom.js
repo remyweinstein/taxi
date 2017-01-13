@@ -13,11 +13,22 @@ define(function() {
       toggle: function (el, cl) {
         if (el.classList.contains(cl)) {
           el.classList.remove(cl);
+          
           return true;
         } else {
           el.classList.add(cl);
+          
           return false;
         }
+      },
+      
+      mapOff: function () {
+        document.getElementById('map_canvas').classList.add("hidden");
+      },
+      
+      mapOn: function () {
+        document.getElementById('map_canvas').classList.remove("hidden");
+        google.maps.event.trigger(map, 'resize'); 
       },
       
       startLoading: function () {

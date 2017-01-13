@@ -1,4 +1,4 @@
-define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Modal, Geo, jsts) {
+define(['Dom', 'Geo'], function (Dom, Geo) {
 
   var polygon = new google.maps.Polygon({});
   var points = [];
@@ -19,11 +19,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
                 if (Coords.length < 3) {
                   alert('Ну это же не полигон совсем, точки три хотя бы сделайте');
                 } else {
-                  Zones.push(Coords);
-                  localStorage.setItem('_my_zones', JSON.stringify(Zones));
-                  polygon = new google.maps.Polygon({});
-                  points = [];
-                  markers = [];
+                  Zones.add(Coords);
                   window.history.back();
                 }
 
@@ -44,15 +40,8 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
   
   function initMap() {
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    var mapCanvas = document.getElementById('map_canvas');
-    var mapOptions = {
-      center: MyLatLng,
-      zoom: 12,
-      streetViewControl: false,
-      mapTypeControl: false,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(mapCanvas, mapOptions);
+      map.setCenter(MyLatLng);
+      map.setZoom(12);
 
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
@@ -67,16 +56,12 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
     
     google.maps.event.addListener(map, 'click', addMarker);
 
-    function bearingsort(a,b) {
-      return (a.bearing - b.bearing);
-    }
-
     function drawPoly() {
-        google.maps.event.clearListeners(polygon, 'click', addMarker);
-        polygon.setMap(null);
+      google.maps.event.clearListeners(polygon, 'click', addMarker);
+      polygon.setMap(null);
 
-        polygon = Geo.drawPoly(points, map);      
-        google.maps.event.addListener(polygon, 'click', addMarker);
+      polygon = Geo.drawPoly(points, map);      
+      google.maps.event.addListener(polygon, 'click', addMarker);
     }
     
     function addMarker(e) {
@@ -102,6 +87,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
     
     function pDistance(x, y, x1, y1, x2, y2) {
 
+      var xx, yy;
       var A = x - x1;
       var B = y - y1;
       var C = x2 - x1;
@@ -110,26 +96,25 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
       var dot = A * C + B * D;
       var len_sq = C * C + D * D;
       var param = -1;
-      if (len_sq !== 0) //in case of 0 length line
-          param = dot / len_sq;
-
-      var xx, yy;
-
+      
+      if (len_sq !== 0) {
+        param = dot / len_sq;
+      }
+      
       if (param < 0) {
         xx = x1;
         yy = y1;
-      }
-      else if (param > 1) {
+      } else if (param > 1) {
         xx = x2;
         yy = y2;
-      }
-      else {
+      } else {
         xx = x1 + param * C;
         yy = y1 + param * D;
       }
 
       var dx = x - xx;
       var dy = y - yy;
+      
       return Math.sqrt(dx * dx + dy * dy);
     }
     
@@ -137,7 +122,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
       var distA = 10000000000000000000;
       var y = 0;
 
-      for (var i = 0; i < (markers.length); i++) {
+      for (var i = 0; i < markers.length; i++) {
         
         if (i === (markers.length - 1)) {
           var dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
@@ -212,12 +197,24 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Geo', 'jsts'], function (Ajax, Dom, Moda
 
   }
     
+  function stop() {
+    polygon.setMap(null);
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
+    }
+    polygon = new google.maps.Polygon({});
+    markers = [];
+    points = [];
+  }
+  
   function start() {
+    Dom.mapOn();
     initMap();
     addEvents();
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
 });

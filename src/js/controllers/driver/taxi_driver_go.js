@@ -1,20 +1,15 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, Chat, Dates, SafeWin, Geo) {
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo'], function (Ajax, Dom, Chat, Dates, Geo) {
   
-  var LatLng = new google.maps.LatLng(User.lat, User.lng);
   var order_id;
-  var mapCanvas;
-  var mapOptions = {
-    center: LatLng,
-    zoom: 12,
-    streetViewControl: false,
-    mapTypeControl: false,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  };
-
-  var map;
-  var markers = [], marker_client;
+  var markers = [], marker_client, marker_from, marker_to, route = [], points = [];
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, price;
   var name_client, photo_client;
+
+  function initMap() {
+    var LatLng = new google.maps.LatLng(User.lat, User.lng);
+      map.setCenter(LatLng);
+      map.setZoom(12);
+  }
 
   function setRoute() {
     var el_route = Dom.sel('.wait-order-approve__route-info__route');
@@ -62,12 +57,12 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {
         for (var i = 0, len = response.routes.length; i < len; i++) {
-          new google.maps.DirectionsRenderer({
+          route.push(new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
             directions: response,
             routeIndex: i
-          });
+          }));
         }
         for(var i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
@@ -80,7 +75,6 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
               SafeWin.overviewPath.push(temp);
             }
           }
-          SafeWin.init();
         });
       }
     });
@@ -265,10 +259,31 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+    if (marker_client) {
+      marker_client.setMap(null);
+    }
+    if (marker_from) {
+      marker_from.setMap(null);
+    }
+    if (marker_to) {
+      marker_to.setMap(null);
+    }
+    for (var i = 0; i < route.length; i++) {
+      route[i].setMap(null);
+    }
+    if (markers[0]) {
+      markers[0].setMap(null);
+    }
+    for (var i = 0; i < points.length; i++) {
+      points[i].setMap(null);
+    }
+  }
+  
   function start() {
-    mapCanvas = document.getElementById('map_canvas_go_driver');
-    map = new google.maps.Map(mapCanvas, mapOptions);
-
+    Dom.mapOn();
+    initMap();
+    
     bid_id = localStorage.getItem('_current_id_bid');
     
     SafeWin.map = map;
@@ -292,12 +307,12 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
           for (var i = 0; i < ords.toAddresses.length; i++) {
             var _wp = ords.toLocations[i].split(",");
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-            addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+            points.push(addInfoForMarker(ords.times[i], addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
           }
         }
 
-        addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-        addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+        marker_from = addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+        marker_to = addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
         setRoute();
         addEvents();
@@ -312,7 +327,8 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'SafeWin', 'Geo'], function (Ajax, Dom, 
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

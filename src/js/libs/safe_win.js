@@ -2,19 +2,23 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
   
   var polygon = [];
   var s_route_to_Zone = [];
-  var safety_route;
-  
-  function swipeLeft() {
-    var safe_win = Dom.sel('.safety-window');
-    safe_win.classList.remove('safety-window--closed');
-    safe_win.classList.remove('safety-window--opened');
-    safe_win.classList.add('safety-window--closed');
-    safe_win.addEventListener('tap', swipeRight);
-  };
+  var safety_route, safe_win, safe_win_wrap;
   
   function swipeRight() {
     var safe_win = Dom.sel('.safety-window');
-    safe_win.removeEventListener('tap', swipeRight);
+        safe_win.classList.remove('safety-window--closed');
+        safe_win.classList.remove('safety-window--opened');
+        safe_win.classList.add('safety-window--closed');
+        //safe_win.removeEventListener('tap', swipeRight);
+        
+    Dom.sel('[data-click="openSafe"]').addEventListener('click', swipeDown);
+  };
+  
+  function swipeDown() {
+    var safe_win = Dom.sel('.safety-window');
+        //safe_win.addEventListener('tap', swipeRight);
+        
+    Dom.sel('[data-click="openSafe"]').removeEventListener('click', swipeDown);
     if (safe_win.classList.contains('safety-window--closed')) {
       safe_win.classList.remove('safety-window--closed');
       safe_win.classList.remove('safety-window--opened');
@@ -49,19 +53,20 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
         if (target.dataset.click === "zone") {
           var el = target;
           var id = el.dataset.id;
-          
           var arr = Dom.sel('[data-click="runZone"]').dataset.active;
-          arr = arr.split(',');
+              arr = arr.split(',');
+              
           for (var i = 0; i < arr.length; i++) {
             if (arr[i] === "") {
-              arr.splice(i, 1);
+              arr.splice(arr[i], 1);
             }
           }
           
           if (Dom.toggle(el, 'active-bg')) {
             for (var i = 0; i < arr.length; i++) {
               if (arr[i] === id) {
-                arr.splice(i, 1);
+                arr.splice(arr[i], 1);
+                Zones.inactive(id);
               }
             }
           } else {
@@ -70,14 +75,15 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
             }
           }
                     
-          Dom.sel('[data-click="runZone"]').dataset.active = arr.join(',');
+          var but = Dom.sel('[data-click="runZone"]');
+              but.dataset.active = arr.join(',');
+          
+          runZone(but, true);
         }
         
         if (target.dataset.click === "add_to_zones") {
           if (s_route_to_Zone.length > 0) {
-            Zones.push(s_route_to_Zone);
-            localStorage.setItem('_my_zones', JSON.stringify(Zones));
-            SafeWin.init();
+            Zones.add(s_route_to_Zone);
           }
         }
         
@@ -88,30 +94,57 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     }
   };
   
-  function runZone(event) {
+  function runZone(event, enabled) {
     var el = event.target;
     if (!el) {
       el = event;
     }
     var active = el.dataset.active;
     var arr = active.split(',');
-
-    if (Dom.toggle(el, 'active')) {
-      localStorage.removeItem('_enable_safe_zone');
-      if (polygon) {
-        for (var i = 0; i < polygon.length; i++) {
-          polygon[i].setMap(null);
-        }
-        polygon = [];
-      }
-    } else {
-      localStorage.setItem('_enable_safe_zone', active);
-      if (active !== "") {
+    
+    if (!enabled) {
+      if (Dom.toggle(el, 'active')) {
         for (var i = 0; i < arr.length; i++) {
-          polygon[i] = Geo.drawPoly(Zones[arr[i]], SafeWin.map);
+          Zones.inactive(arr[i]);
+        }
+        localStorage.removeItem('_enable_safe_zone');
+        if (polygon) {
+          for (var i = 0; i < polygon.length; i++) {
+            polygon[i].setMap(null);
+          }
+          polygon = [];
         }
       } else {
-        Dom.toggle(el, 'active');
+        if (active !== "") {
+          localStorage.setItem('_enable_safe_zone', active);
+          for (var i = 0; i < arr.length; i++) {
+            Zones.active(arr[i]);
+            polygon[i] = Geo.drawPoly(Zones.list[arr[i]].polygon, SafeWin.map);
+          }
+        } else {
+          Dom.toggle(el, 'active');
+        }
+      }
+    } else {
+      if (el.classList.contains('active')) {
+        localStorage.removeItem('_enable_safe_zone');
+        if (polygon) {
+          for (var i = 0; i < polygon.length; i++) {
+            polygon[i].setMap(null);
+          }
+          polygon = [];
+        }
+        if (active !== "") {
+          localStorage.setItem('_enable_safe_zone', active);
+          for (var i = 0; i < arr.length; i++) {
+            Zones.active(i);
+            polygon[i] = Geo.drawPoly(Zones.list[arr[i]].polygon, SafeWin.map);
+          }
+        } else {
+          runZone(el);
+        }
+      } else {
+        runZone(el);
       }
     }
   }
@@ -122,11 +155,15 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     if (!el) {
       el = event;
     }
+    
+    s_route_to_Zone = [];
+    
     if (Dom.toggle(el, 'active')) {
       safety_route.setMap(null);
       localStorage.removeItem('_enable_safe_route');
     } else {
       localStorage.setItem('_enable_safe_route', Settings.safeRadius);
+      //Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
       safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
       var path = safety_route.getPath();
       if (path) {
@@ -145,34 +182,26 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
   
   var SafeWin = {
     map: null,
+    
     overviewPath: [],
-    init: function() {
-      var safe_win = Dom.sel('.safety-window');
+    
+    init: function () {
+      var safewin = this;
+      Zones.get(function(){
+        safewin.initial();
+      });
+    },
+    
+    initial: function () {
+      safe_win = Dom.sel('.safety-window');
       safe_win.classList.add('safety-window--closed');
-      var zones = '<span><button class="button_short--green" data-click="new_zone">Новая</button></span>';
       
-      for (var i = 0; i < Zones.length; i++) {
-        zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + i + '">' + (i + 1) + '</button></span>';
-      }
-      safe_win.innerHTML = '<div class="safety-window__grid-all">\
-                              <div data-click="runSos" class="safety-window__round">SOS</div>\n\
-                            </div>\n\
-                            <div class="safety-window__grid">\n\
-                              <div data-click="runZone" data-active="" class="safety-window__round">Зона</div>\n\
-                              ' + zones + '\n\
-                            </div>\n\
-                            <div class="safety-window__grid">\n\
-                              <div data-click="runRoute" class="safety-window__round">Маршрут</div>\n\
-                              <form>\n\
-                                <input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">\n\
-                                <div class="safety-window__view-radius">' + Settings.safeRadius + ' м.</div>\n\
-                              </form>\n\
-                              <div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>\n\
-                            </div>';
-
-      var hammer = new Hammer(safe_win, {domEvents: true});
+      this.render();
+      
+      var hammer = new Hammer(safe_win, {domEvents: true, preventDefault: true});
       var longpress = new Hammer.Press({event: 'press', time: 3000});
       var tap = new Hammer.Tap({event: 'tap'});
+      
       hammer.add([longpress],[tap]);
       
       var enable_safe_zone = localStorage.getItem('_enable_safe_zone');
@@ -203,32 +232,87 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
         runRoute(button_route);
       }
       
-      safe_win.addEventListener('swipeleft', swipeLeft);
       safe_win.addEventListener('swiperight', swipeRight);
-      safe_win.addEventListener('tap', swipeRight);
+      //safe_win.addEventListener('tap', swipeRight);
       safe_win.addEventListener('press', longPress);
       safe_win.addEventListener('click', selectZone);
+      
+      Dom.sel('[data-click="openSafe"]').addEventListener('click', swipeDown);
+      
       Dom.sel('[data-click="runZone"]').addEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').addEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').addEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').addEventListener('input', onInputRange);
+    },
+    
+    render: function() {
       
+      safe_win_wrap = Dom.selAll('.safety-window')[0];
+      
+      var wrap = document.createElement('div');
+          wrap.classList.add('safety-window__wrap');
+      var zones = '<span><button class="button_short--green" data-click="new_zone">Новая</button></span>';
+      
+      for (var v = 0; v < Zones.list.length; v++) {
+        zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + v + '">' + (v + 1) + '</button></span>';
+      }
+      wrap.innerHTML = '<div class="safety-window__grid">\n\
+                          <div data-click="runSos" class="safety-window__round">SOS</div>\n\
+                        </div>\n\
+                        <div class="safety-window__grid list-zones">\n\
+                          <div data-click="runZone" data-active="" class="safety-window__round">Зона</div>\n\
+                          ' + zones + '\n\
+                        </div>\n\
+                        <div class="safety-window__grid-all safe_by_route">\n\
+                          <div data-click="runRoute" class="safety-window__round--left">Маршрут</div>\n\
+                          <form>\n\
+                            <input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">\n\
+                            <div class="safety-window__view-radius">' + Settings.safeRadius + ' м.</div>\n\
+                          </form>\n\
+                          <div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>\n\
+                        </div>';
+      safe_win_wrap.appendChild(wrap);
+      
+      return;
+    },
+    
+    reload: function() {
+      var list = Dom.selAll('.list-zones')[0];
+      var spans = list.querySelectorAll('span');
+      
+      for (var i = 1; i < spans.length; i++) {
+        spans[i].parentNode.removeChild(spans[i]);
+      }
+
+      for (var i = 0; i < Zones.list.length; i++) {
+        var active_bg = '';
+        if (Zones.list[i].isActive) {
+          active_bg = ' active-bg';
+        }
+        var span = document.createElement('span');
+            span.innerHTML = '<button class="button_short--grey' + active_bg + '" data-click="zone" data-id="' + i + '">' + (i + 1) + '</button>';
+
+        list.appendChild(span);
+      }
     },
     
     clear: function() {
-      var safe_win = Dom.sel('.safety-window');
+      safe_win = Dom.sel('.safety-window');
       
-      safe_win.innerHTML = '';
-      safe_win.removeEventListener('swipeleft', swipeLeft);
       safe_win.removeEventListener('swiperight', swipeRight);
-      safe_win.removeEventListener('tap', swipeRight);
+      //safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
       safe_win.removeEventListener('click', selectZone);
+      
+      Dom.sel('[data-click="openSafe"]').removeEventListener('click', swipeDown);
       
       Dom.sel('[data-click="runZone"]').removeEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').removeEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').removeEventListener('input', onInputRange);
+      
+      //safe_win_wrap = Dom.selAll('.safety-window__wrap')[0];
+      //safe_win_wrap.innerHTML = '';
     }
 
   };

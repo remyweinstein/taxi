@@ -4,6 +4,7 @@ requirejs.config({
     "Uries" : "uries",
     
     "hammer" : "vendor/hammer.min",
+    "parallel" : "vendor/parallel",
     "jsutil" : "vendor/jsutil",
     "jsts" : "vendor/jsts",
     "domReady" : "vendor/domReady",
@@ -15,6 +16,7 @@ requirejs.config({
 		"DriverOrders" : "models/driver_orders",
 		"Events" : "models/events",
 		"Settings" : "models/settings",
+		"Zones" : "models/zones",
     
     "Address" : "libs/address",
     "Ajax" : "libs/ajax",
@@ -34,6 +36,7 @@ requirejs.config({
 		"PopupWindows" : "libs/popup_windows",
     
     "ctrlPageEditProfile" : "controllers/pages/pages_edit_profile",
+    "ctrlPageStart" : "controllers/pages/pages_start",
     "ctrlPageLogin" : "controllers/pages/pages_login",
     "ctrlPageLogout" : "controllers/pages/pages_logout",
     "ctrlPageSettings" : "controllers/pages/pages_settings",
@@ -69,6 +72,9 @@ requirejs.config({
     "hammer" : {
       exports: "hammer"
     },
+    "parallel" : {
+      exports: "parallel"
+    },
     "jsts" : {
       exports: "jsts"
     }
@@ -98,16 +104,17 @@ var menus_arr = [];
                            {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
   var content;
-  var map, map_choice, marker, geocoder;
+  var map, marker, geocoder;
   var google, placeSearch, autocomplete, directionsService, directionsDisplay, worker;
   
   var lasturl = '';
 
-
+  var MayLoading = false;
+  
   var average_speed = 40;
   var cost_of_km = 25;
 
-  var User, Car, Event, Settings, MyOrder, Zones = [];
+  var User, Car, Event, Settings, MyOrder, SafeWin, Zones;
 
   var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
   var men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png';
@@ -126,7 +133,8 @@ var menus_arr = [];
       timerUpdateCoords,
       timerGetPosTaxy,
       setGeoLocationTimer,
-      timerGetMyPos;
+      timerGetMyPos,
+      timerCheckLoading;
 
 
 require(['App'], function (App) {  

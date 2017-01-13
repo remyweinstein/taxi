@@ -1,11 +1,16 @@
 define(function () {
   
+  function stop() {
+
+  }
+  
   function start() {
     
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

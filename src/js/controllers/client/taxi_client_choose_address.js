@@ -5,19 +5,15 @@ define(['Dom'], function (Dom) {
   function onchange() {
     clearTimeout(_timer);
 
-    var query = Dom.sel('input[name="enter-address"]').value;
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    var map = new google.maps.Map(document.getElementById('hide_map'), {
-      center: MyLatLng,
-      zoom: 12
-    });
-    var service = new google.maps.places.PlacesService(map);
+    var query     = Dom.sel('input[name="enter-address"]').value;
+    var MyLatLng  = new google.maps.LatLng(User.lat, User.lng);
+    var service   = new google.maps.places.PlacesService(map);
     var requestSt = {
       location: MyLatLng,
       radius: 50000,
       query: query
     };
-    var request = {
+    var request   = {
       location: MyLatLng,
       radius: 500
     };
@@ -110,6 +106,10 @@ define(['Dom'], function (Dom) {
     });
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     var input = Dom.sel('input[name="enter-address"]');
   
@@ -135,7 +135,8 @@ define(['Dom'], function (Dom) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

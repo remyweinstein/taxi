@@ -1,20 +1,12 @@
-define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dates, SafeWin) {
+define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
   
   var driver_marker = [];
-  var marker_mine, map;
+  var marker_mine, marker_from, marker_to, route = [], points = [];
   
-  function initialize() {
+  function initMap() {
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    var mapCanvas = document.getElementById('map_canvas');
-    var mapOptions = {
-      center: MyLatLng,
-      zoom: 12,
-      streetViewControl: false,
-      mapTypeControl: false,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(mapCanvas, mapOptions);
-    SafeWin.map = map;
+    map.setCenter(MyLatLng);
+    map.setZoom(12);
 
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
@@ -27,14 +19,14 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
     var _coord_to = MyOrder.toCoords.split(",");
     var waypoints = [];
 
-    for (i = 0; i < MyOrder.toAddresses.length; i++) {
+    for (var i = 0; i < MyOrder.toAddresses.length; i++) {
       var _to_coord = MyOrder.toCoordses[i].split(",");
       waypoints.push({location: new google.maps.LatLng(_to_coord[0], _to_coord[1]), stopover: true});
-      addInfoForMarker(MyOrder.times[i], addMarker(new google.maps.LatLng(_to_coord[0], _to_coord[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map));
+      points.push(addInfoForMarker(MyOrder.times[i], addMarker(new google.maps.LatLng(_to_coord[0], _to_coord[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
     }
 
-    addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-    addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+    marker_from = addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+    marker_to = addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
     directionsService = new google.maps.DirectionsService();
     directionsDisplay = new google.maps.DirectionsRenderer();
@@ -46,6 +38,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
+    
     var requestBackTrip = {
       destination: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
       origin: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
@@ -53,16 +46,17 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
       provideRouteAlternatives: true,
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
+    
     SafeWin.overviewPath = [];
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {            
         for (var i = 0; i < response.routes.length; i++) {
-          new google.maps.DirectionsRenderer({
+          route.push(new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
             directions: response,
             routeIndex: i
-          });
+          }));
         }
         for (var i = 0; i < response.routes.length; i++) {
           var temp = response.routes[i].overview_path;
@@ -71,12 +65,12 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
         directionsService.route(requestBackTrip, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {            
             for (var i = 0; i < response.routes.length; i++) {
-              new google.maps.DirectionsRenderer({
+              route.push(new google.maps.DirectionsRenderer({
                 map: map,
                 suppressMarkers: true,
                 directions: response,
                 routeIndex: i
-              });
+              }));
             }
             for (var i = 0; i < response.routes.length; i++) {
               var temp = response.routes[i].overview_path;
@@ -210,11 +204,29 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+    if (marker_mine) {
+      marker_mine.setMap(null);
+    }
+    if (marker_from) {
+      marker_from.setMap(null);
+    }
+    if (marker_to) {
+      marker_to.setMap(null);
+    }
+    for (var i = 0; i < route.length; i++) {
+      route[i].setMap(null);
+    }
+    for (var i = 0; i < points.length; i++) {
+      points[i].setMap(null);
+    }
+  }
+  
   function start() {
     if (MyOrder.id > 0) {
-
+      Dom.mapOn();
       SafeWin.overviewPath = [];
-      initialize();
+      initMap();
 
       timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
 
@@ -236,20 +248,16 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'SafeWin'], function (Ajax, Dom, Geo, Dat
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
         el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
 
-      Dom.selAll('.find-me')[0].addEventListener('click', function() {
-        map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
-      });
-
     } else {
       window.location.hash = "#client_my_orders";
     }
     
     addEvents();
-    SafeWin.init();
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

@@ -1,5 +1,5 @@
-define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady'], 
-function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady) {
+define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady', 'SafeWin', 'Maps', 'Zones'], 
+function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady, clSafeWin, Maps, clZones) {
 
   var App =  {
     
@@ -7,18 +7,15 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
                   
       domReady(function () {
         content = Dom.sel('.content');
-
+        
+        SafeWin =  clSafeWin;
         User =     new clUser();
         Car =      new clCar();
         Event =    new clEvents();
         MyOrder =  new clClientOrder();
+        Zones =    new clZones();
         Settings = new clSettings();
           Settings.getSettings();
-
-        var first_time_zones = localStorage.getItem('_my_zones');
-        if (first_time_zones) {
-          Zones = JSON.parse(first_time_zones);
-        }
 
         User.initToken();
 
@@ -37,13 +34,12 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
         MainMenu.init();
         InputFilters.init();
         Router.start(App);
+        SafeWin.init();
+        Maps.init();
 
         window.addEventListener('resize', function() {
           App.init();
         });
-        
-        //worker = new Worker("assets/js/workers/put_position.js");
-        
       });
 
       return User;
@@ -69,10 +65,6 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
             item_logout.style.display = 'none';
           }
         }
-        
-        //worker.postMessage({
-        //  token: User.token
-        //});
       });
     }
   };

@@ -1,4 +1,4 @@
-define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
+define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParallelLines) {
 
     var old_lat, old_lng;
     
@@ -33,7 +33,7 @@ define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
         updateUserCoord();
 
         if (!User.city || User.city === null || User.city === "null") {
-          geocoder = new google.maps.Geocoder().setLanguage('ru');//Cyrl
+          geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
           var latlng = new google.maps.LatLng(latitude,longitude);
           geocoder.geocode({
             'latLng': latlng
@@ -42,19 +42,21 @@ define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
                   var obj = results[0].address_components,key;
                   for (key in obj) {
                     if(obj[key].types[0] === "locality") {
-                      User.city = obj[key].long_name;
-                      //User.city = 'Хабаровск';
-                      localStorage.setItem('_my_city', User.city);
-                      var name = User.name || 'Гость';
-                      var data = new FormData();
-                        data.append('city', User.city);
-                        data.append('name', name);
-                       
-                      Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-                        if (response && response.ok) {
-                          App.init();
-                        }
-                      }, function() {});
+                      if (obj[key].long_name) {
+                        User.city = obj[key].long_name;
+                        localStorage.setItem('_my_city', User.city);
+                        var name = User.name || 'Гость';
+                        var data = new FormData();
+                          data.append('city', User.city);
+                          data.append('name', name);
+
+                        Ajax.request('POST', 'profile', User.token, '', data, function(response) {
+                          if (response && response.ok) {
+                            MayLoading = true;
+                            App.init();
+                          }
+                        }, function() {});
+                      }
                     }
                     
                     if (obj[key].types[0] === "country") User.country = obj[key].long_name;
@@ -95,25 +97,84 @@ define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
       },
 
       drawPoly: function(Coords, map) {
-        var polygon = new google.maps.Polygon({
-          paths: Coords
-          //strokeColor: '#FF0000',
-          //strokeOpacity: 0.8,
-          //strokeWeight: 2,
-          //draggable: true,
-          //fillColor: '#FF0000',
-          //fillOpacity: 0.35
-        });
-        polygon.setMap(map);
+        if (Coords) {
+          var polygon = new google.maps.Polygon({
+            paths: Coords
+            //strokeColor: '#FF0000',
+            //strokeOpacity: 0.8,
+            //strokeWeight: 2,
+            //draggable: true,
+            //fillColor: '#FF0000',
+            //fillOpacity: 0.35
+          });
+          polygon.setMap(map);
+        }
         
         return polygon;
       },
 
       showPoly: function(overviewPath, map) {
-        Dom.startLoading();
+        
+        
+          /*
+        var coordsPoly = [];
+        
+        
+        //console.log(overviewPath[0]);
+        if (overviewPath[0]) {
+          
+          var r = [];
+          var bla = overviewPath[0];
+          z = 0.01;
+          
+          for (var i = 0; i < bla.length; i++) {
+            
+              if (i < bla.length - 1) {
+                var a1 = google.maps.geometry.spherical.computeHeading(new google.maps.LatLng(bla[i].lat(), bla[i].lng()), new google.maps.LatLng(bla[i+1].lat(), bla[i+1].lng()));
+                console.log(a1);
+              }
+              
+              r.push(new google.maps.LatLng(bla[i].lat() + z, bla[i].lng() - z));
+          }
+          
+          bla.reverse();
+          
+          for (var x in bla) {
+              r.push(new google.maps.LatLng(bla[x].lat() - z, bla[x].lng() + z));
+          }
+          
+          fonas = new google.maps.Polygon ({
+              paths: r,
+              strokeColor: "#FF0000",
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: "#FF0000",
+              fillOpacity: 0.35
+          });
+
+          fonas.setMap(map);
+          
+          //var geofence = new BDCCParallelLines(overviewPath[0], "#00FF00", 4, 0.3, 100, 'polygon', false);
+          
+          //geofence.recalc();
+          
+          //console.log(geofence);
+          
+          //geofence.setMap(map);
+        }
+/*
+        new google.maps.Polygon({
+          path: pts,
+          //geodesic: true,
+          map: map,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 1
+        });
+*/        
         
         var overviewPathGeo = [];
-
+          
         for (var i = 0; i < overviewPath.length; i++) {
           overviewPathGeo[i] = [];
           for (var z = 0; z < overviewPath[i].length; z++) {
@@ -124,10 +185,10 @@ define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
         var distance = Settings.safeRadius / 500 / 111.12, // Roughly x km / 111.12
         geoInput = {
           type: "MultiLineString",
-          coordinates: overviewPathGeo
-        };
+              coordinates: overviewPathGeo
+            };
         var geoReader = new jsts.io.GeoJSONReader(),
-          geoWriter = new jsts.io.GeoJSONWriter();
+            geoWriter = new jsts.io.GeoJSONWriter();
         var geometry = geoReader.read(geoInput).buffer(distance);
         var polygon = geoWriter.write(geometry);
 
@@ -146,9 +207,8 @@ define(['Dom','Ajax', 'jsts'], function (Dom, Ajax, jsts) {
           map: map
         });
         
-        Dom.finishLoading();
-
         return polygone;
+        
       }
       
   };

@@ -373,6 +373,10 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
     content.addEventListener('click', Event.click);
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     update_taxi_order();
     timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
@@ -380,7 +384,8 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
     
 });    

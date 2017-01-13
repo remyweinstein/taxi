@@ -100,7 +100,11 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
     content.addEventListener('submit', Event.submit);
     
   }
+  
+  function stop() {
 
+  }
+  
   function start() {
     Ajax.request('GET', 'orders', User.token, '&isIntercity=1&my=1', '', function(response) {
       if (response && response.ok) {
@@ -152,7 +156,8 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

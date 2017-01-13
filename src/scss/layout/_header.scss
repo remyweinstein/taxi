@@ -15,7 +15,7 @@
         cursor: pointer;
         display: inline-block;
         text-align: center;
-        width: 14%;
+        width: 10%;
         i{
             color: $active;
         }
@@ -32,7 +32,7 @@
         display: inline-block;
         width: 14%;
         &__button{
-            width: 7em;
+            width: 6em;
             height: 2em;
             display: block;
             border-radius: 1em;
@@ -59,7 +59,7 @@
     &__link{
         display: inline-block;
         text-align: center;
-        width: 11%;
+        width: 16%;
         color: $active;
         a{
             color: $active;
@@ -68,6 +68,12 @@
             }
             &:visited{
                 color: $active;
+            }
+        }
+        i{
+            cursor: pointer;
+            &:first-child{
+                margin-right: 0.25em;
             }
         }
     }

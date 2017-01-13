@@ -15,7 +15,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     this.id = getId();
     this.lat;
     this.lng;
-    this.city;
+    this.city = null;
     this.country;
     this.is_auth = false;
     this.authToken;
@@ -54,8 +54,10 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
               Car.photo = prfl.vehicle;
               Car.color = prfl.color;
               
-              self.city = prfl.city !== "" ? prfl.city : self.city;
-              localStorage.setItem('_my_city', self.city);
+              self.city = prfl.city || self.city;
+              if (self.city) {
+                localStorage.setItem('_my_city', self.city);
+              }
 
               self.phone = prfl.phone;
               self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;

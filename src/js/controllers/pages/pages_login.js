@@ -37,12 +37,17 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     Dom.sel('.content').addEventListener('click', Event.click);
   }
   
+  function stop() {
+
+  }
+  
   function start() {
     addEvents();
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
   
 });

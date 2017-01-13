@@ -105,6 +105,10 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
     }, function() {alert('Ошибка связи с сервером');});
   }
   
+  function stop() {
+
+  }
+  
   function start() {
 
     getFavorites();
@@ -114,6 +118,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
   
   return {
-    start: start
+    start: start,
+    clear: stop
   };
 });
