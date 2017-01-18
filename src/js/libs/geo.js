@@ -185,19 +185,18 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
         var distance = Settings.safeRadius / 500 / 111.12, // Roughly x km / 111.12
         geoInput = {
           type: "MultiLineString",
-              coordinates: overviewPathGeo
-            };
+          coordinates: overviewPathGeo
+          };
         var geoReader = new jsts.io.GeoJSONReader(),
             geoWriter = new jsts.io.GeoJSONWriter();
-        var geometry = geoReader.read(geoInput).buffer(distance);
+        var geometry = geoReader.read(geoInput).buffer(distance, 2);
         var polygon = geoWriter.write(geometry);
 
         var oLanLng = [],
             oCoordinates = polygon.coordinates[0];
         
         for (i = 0; i < oCoordinates.length; i++) {
-          var oItem;
-          oItem = oCoordinates[i];
+          var oItem = oCoordinates[i];
           oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
         }
         

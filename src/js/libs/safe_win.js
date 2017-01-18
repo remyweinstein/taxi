@@ -41,7 +41,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
   };
   
   function gotoNewZone() {
-    window.location.hash = '#zones';
+    window.location.hash = '#edit_zone';
   };
   
   function selectZone(event) {
@@ -165,6 +165,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
       localStorage.setItem('_enable_safe_route', Settings.safeRadius);
       //Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
       safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
+      //safety_route = Geo.bufferPoly(SafeWin.overviewPath, SafeWin.map);
       var path = safety_route.getPath();
       if (path) {
         for (var i = 0; i < path.b.length; i++) {

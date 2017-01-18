@@ -6,7 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="assets/css/main.css?id=20170111" type="text/css" rel="stylesheet" />
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
-        <script src="assets/js/libs/multirange.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
     </head>
     <body>
@@ -76,6 +75,13 @@
             </div>
         </template>
         <template id="ctrlPageZones">
+            <ul class="zone-list"></ul>
+        </template>
+        <template id="ctrlPageEditZone">
+            <div style="position:fixed;top:3em;">
+                <div><input type="text" name="name_edit_zone" value="" placeholder="Имя зоны" /></div>
+                <div><input type="text" name="note_edit_zone" value="" placeholder="Описание" /></div>
+            </div>
             <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
         <template id="ctrlPageEditProfile">

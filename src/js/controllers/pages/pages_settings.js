@@ -56,7 +56,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
             _click = ' data-click="' + Settings.type[key]  + '" data-link="' + _obj[key] + '"';
             
             if (_obj[key] === "#zones") {
-              console.log('i am find');
+              //console.log('i am find');
             }            
           }
         }

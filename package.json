@@ -20,7 +20,10 @@
   },
   "homepage": "https://bitbucket.org/dennis_se/taxi",
   "devDependencies": {
+    "amd-optimize": "^0.6.1",
+    "gulp-concat": "^2.6.1",
     "gulp-plumber": "^1.1.0",
+    "gulp-requirejs": "^1.0.0-rc1",
     "gulp-util": "^3.0.7"
   }
 }

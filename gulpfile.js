@@ -8,6 +8,8 @@ var gulp = require('gulp'),
   sourcemaps = require('gulp-sourcemaps'),
   cssmin = require('gulp-minify-css'),
   imagemin = require('gulp-imagemin');
+  //amdOptimize = require('amd-optimize'),
+  //concat = require('gulp-concat');
   //rigger = require('gulp-rigger'),
   //plumber = require('gulp-plumber'),
   /* //server
@@ -57,6 +59,7 @@ var config = {
   logPrefix: "Frontend_Devil"
 };
 */
+
 
 gulp.task('html:build', function () {
   gulp.src(path.src.html)

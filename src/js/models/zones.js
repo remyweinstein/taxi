@@ -57,6 +57,34 @@ define(['Ajax'], function(Ajax) {
       }, function() {});
     };
     
+    this.edit = function(my_id, polygon, note, name) {
+      var list = JSON.stringify(polygon);
+      var data = new FormData();
+      var id = self.list[my_id].id;
+      
+      if (!note) {
+        note = '';
+      }
+      
+      if (!name) {
+        name = 'Зона ' + self.list.length;
+      }
+            
+      data.append('polygon', list);
+      data.append('name', name);
+      data.append('note', note);
+      
+      Ajax.request('POST', 'zone', User.token, '&id=' + id, data, function(response) {
+        if (response && response.ok) {
+          self.list[my_id].name = name;
+          self.list[my_id].note = note;
+          self.list[my_id].polygon = polygon;
+          win_reload();
+        }
+      }, function() {});
+      
+    };
+    
     this.remove = function(id) {
       if (id) {
         var t_id = self.list[id].id;

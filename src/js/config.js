@@ -34,6 +34,7 @@ requirejs.config({
     "SafeWin" : "libs/safe_win",
 		"ModalWindows" : "libs/modal_windows",
 		"PopupWindows" : "libs/popup_windows",
+		"Multirange" : "libs/multirange",
     
     "ctrlPageEditProfile" : "controllers/pages/pages_edit_profile",
     "ctrlPageStart" : "controllers/pages/pages_start",
@@ -43,6 +44,7 @@ requirejs.config({
     "ctrlPageSms" : "controllers/pages/pages_sms",
     "ctrlPageFavorites" : "controllers/pages/pages_favorites",
     "ctrlPageZones" : "controllers/pages/pages_zones",
+    "ctrlPageEditZone" : "controllers/pages/pages_edit_zone",
     
     "ctrlTaxiClientChoiceLocationMap" : "controllers/client/taxi_client_choice_location_map",
     "ctrlTaxiClientChooseAddress" : "controllers/client/taxi_client_choose_address",

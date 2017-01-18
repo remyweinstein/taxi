@@ -1,4 +1,4 @@
-define(['Dom'], function(Dom) {
+define(['Dom', 'Multirange'], function(Dom, Multirange) {
   
   var actives_sort = '';
   var actives_filter = {filter:{price:{min:0,max:0},distance:{min:0,max:0},length:{min:0,max:0},stops:{min:0,max:0}}};
@@ -141,6 +141,7 @@ define(['Dom'], function(Dom) {
                             //_el.classList.add('active');
                           }
                           
+                          Multirange.clear();
                           callback(actives_sort);
                           close();
                         }
@@ -150,45 +151,29 @@ define(['Dom'], function(Dom) {
                         if (target.dataset.click === "getfilters") {
                           var win = Dom.sel('.popup-window');
                           
-                          var price_min = parseInt(win.querySelector('[name="price_min"]').value);
-                          var price_max = parseInt(win.querySelector('[name="price_max"]').value);
-                          if (price_max < price_min) {
-                            var t = price_max;
-                            price_max = price_min;
-                            price_min = t;
-                          }
-                          actives_filter.filter.price.min = price_min;
-                          actives_filter.filter.price.max = price_max;
+                          var price_el = win.querySelector("input[type=range][name=price][multiple]:not(.multirange)").dataset.value;
+                          var prices = price_el.split(',');
                           
-                          var distance_min = parseInt(win.querySelector('[name="distance_min"]').value);
-                          var distance_max = parseInt(win.querySelector('[name="distance_max"]').value);
-                          if (distance_max < distance_min) {
-                            var t = distance_max;
-                            distance_max = distance_min;
-                            distance_min = t;
-                          }
-                          actives_filter.filter.distance.min = distance_min;
-                          actives_filter.filter.distance.max = distance_max;
+                          actives_filter.filter.price.min = prices[0];
+                          actives_filter.filter.price.max = prices[1];
                           
-                          var length_min = parseInt(win.querySelector('[name="length_min"]').value);
-                          var length_max = parseInt(win.querySelector('[name="length_max"]').value);
-                          if (length_max < length_min) {
-                            var t = length_max;
-                            length_max = length_min;
-                            length_min = t;
-                          }
-                          actives_filter.filter.length.min = length_min;
-                          actives_filter.filter.length.max = length_max;
+                          var distance_el = win.querySelector("input[type=range][name=distance][multiple]:not(.multirange)").dataset.value;
+                          var distances = distance_el.split(',');
                           
-                          var stops_min = parseInt(win.querySelector('[name="stops_min"]').value);
-                          var stops_max = parseInt(win.querySelector('[name="stops_max"]').value);
-                          if (stops_max < stops_min) {
-                            var t = stops_max;
-                            stops_max = stops_min;
-                            stops_min = t;
-                          }
-                          actives_filter.filter.stops.min = stops_min;
-                          actives_filter.filter.stops.max = stops_max;
+                          actives_filter.filter.distance.min = distances[0];
+                          actives_filter.filter.distance.max = distances[1];
+                          
+                          var length_el = win.querySelector("input[type=range][name=length][multiple]:not(.multirange)").dataset.value;
+                          var lengths = length_el.split(',');
+                          
+                          actives_filter.filter.length.min = lengths[0];
+                          actives_filter.filter.length.max = lengths[1];
+                          
+                          var stops_el = win.querySelector("input[type=range][name=stops][multiple]:not(.multirange)").dataset.value;
+                          var stopses = stops_el.split(',');
+
+                          actives_filter.filter.stops.min = stopses[0];
+                          actives_filter.filter.stops.max = stopses[1];
                           
                           localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
 
@@ -202,6 +187,9 @@ define(['Dom'], function(Dom) {
                   });
                   
                   var i_ranges = Dom.selAll('.popup-window__double-range input');
+                  if (i_ranges) {
+                    Multirange.init();
+                  }
                   for (var i = 0; i < i_ranges.length; i++) {
                     i_ranges[i].addEventListener('input', onInputDoubleRange);
                   }

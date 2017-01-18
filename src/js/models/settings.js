@@ -13,7 +13,7 @@ define([], function() {
       self.label['safeRadius'] = 'Радиус зоны безопасности (м)';
       self.type['safeRadius'] = 'number';
       self.newSafeZone = '#zones';
-      self.label['newSafeZone'] = 'Добавить новую зону безопасности';
+      self.label['newSafeZone'] = 'Зоны безопасности';
       self.type['newSafeZone'] = 'link';
     };
   };

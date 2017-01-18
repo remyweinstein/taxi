@@ -191,29 +191,26 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
           }
 
           if (target.dataset.click === "filter-orders") {
+            
             Popup.show(target, 'Фильтры<br/><br/>\n\
                                 Цена\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="price_min" type="range" value="0" step="50" min="0" max="1000">\n\
-                                  <input name="price_max" type="range" value="0" step="50" min="0" max="1000">\n\
+                                  <input name="price" type="range" multiple data-value="0,5000" min="0" max="5000" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 До клиента\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="distance_min" type="range" value="0" step="1" min="0" max="20">\n\
-                                  <input name="distance_max" type="range" value="0" step="1" min="0" max="20">\n\
+                                  <input name="distance" type="range" multiple data-value="0,20" min="0" max="20" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 По маршруту\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="length_min" type="range" value="0" step="1000" min="0" max="100000">\n\
-                                  <input name="length_max" type="range" value="0" step="1000" min="0" max="100000">\n\
+                                  <input name="length" type="range" multiple data-value="0,100000" min="0" max="100000" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 Остановок\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="stops_min" type="range" value="0" step="1" min="0" max="30">\n\
-                                  <input name="stops_max" type="range" value="0" step="1" min="0" max="30">\n\
+                                  <input name="stops" type="range" multiple data-value="0,30" min="0" max="30" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 <button class="button_rounded--green" data-click="getfilters">Применить</button>',
