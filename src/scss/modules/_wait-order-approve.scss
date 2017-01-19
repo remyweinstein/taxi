@@ -9,6 +9,10 @@
     padding: 1%;
     background-color: #fff;
     font-size: 0.75em;
+    -webkit-transition: top 0.5s ease-out 0.25s;
+    -moz-transition: top 0.5s ease-out 0.25s;
+    -o-transition: top 0.5s ease-out 0.25s;
+    transition: top 0.5s ease-out 0.25s;
     &__route-info{
         
         &>div{
@@ -32,12 +36,16 @@
 }
 .wait-bids-approve{
     position: absolute;
-    top: 8.5em;
+    top: 10.5em;
     font-size: 0.75em;
     background-color: white;
     width: 96%;
     margin: 0 1%;
     padding: 1%;
+    -webkit-transition: top 0.5s ease-out 0.25s;
+    -moz-transition: top 0.5s ease-out 0.25s;
+    -o-transition: top 0.5s ease-out 0.25s;
+    transition: top 0.5s ease-out 0.25s;
     &__item{
         div{
             img{

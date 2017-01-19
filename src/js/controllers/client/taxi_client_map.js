@@ -194,6 +194,25 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
           }, function() {});
         }
         
+        if (target.dataset.click === 'drop-down') {
+          var _el = target;
+          var _top = Dom.selAll('.wait-order-approve')[0];
+          var _bottom = Dom.selAll('.wait-bids-approve')[0];
+
+          if (_top.style.top === '1em' || _top.style.top === '') {
+            _el.classList.remove('drop-down');
+            _el.classList.add('drop-up');
+            _top.style.top = '-10em';
+            _bottom.style.top = '-60em';
+          } else {
+            _el.classList.remove('drop-up');
+            _el.classList.add('drop-down');
+            _top.style.top = '1em';
+            _bottom.style.top = '10.5em';
+          }
+
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -232,7 +251,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
 
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[0].innerHTML = MyOrder.fromAddress;
       Dom.selAll('.wait-order-approve__route-info__route')[0].children[2].innerHTML = MyOrder.toAddress;
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'Время в пути: ' + (MyOrder.length / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'В пути: ' + (MyOrder.length / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
 
       var _count_waypoint = MyOrder.toAddresses.length;
 

@@ -1,0 +1,17 @@
+/* ==|====================
+   Modules/drop-down
+   ======================= */
+
+.drop-down {
+    &.todown{
+        bottom: 0em;
+        position: fixed;
+    }
+}
+
+.drop-up {
+    &.todown{
+        bottom: 0em;
+        position: fixed;
+    }
+}

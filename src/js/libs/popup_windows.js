@@ -151,25 +151,25 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                         if (target.dataset.click === "getfilters") {
                           var win = Dom.sel('.popup-window');
                           
-                          var price_el = win.querySelector("input[type=range][name=price][multiple]:not(.multirange)").dataset.value;
+                          var price_el = win.querySelector("input[type=range][name=price][multiple]:not(.multirange)").value;
                           var prices = price_el.split(',');
                           
                           actives_filter.filter.price.min = prices[0];
                           actives_filter.filter.price.max = prices[1];
                           
-                          var distance_el = win.querySelector("input[type=range][name=distance][multiple]:not(.multirange)").dataset.value;
+                          var distance_el = win.querySelector("input[type=range][name=distance][multiple]:not(.multirange)").value;
                           var distances = distance_el.split(',');
                           
                           actives_filter.filter.distance.min = distances[0];
                           actives_filter.filter.distance.max = distances[1];
                           
-                          var length_el = win.querySelector("input[type=range][name=length][multiple]:not(.multirange)").dataset.value;
+                          var length_el = win.querySelector("input[type=range][name=length][multiple]:not(.multirange)").value;
                           var lengths = length_el.split(',');
                           
                           actives_filter.filter.length.min = lengths[0];
                           actives_filter.filter.length.max = lengths[1];
                           
-                          var stops_el = win.querySelector("input[type=range][name=stops][multiple]:not(.multirange)").dataset.value;
+                          var stops_el = win.querySelector("input[type=range][name=stops][multiple]:not(.multirange)").value;
                           var stopses = stops_el.split(',');
 
                           actives_filter.filter.stops.min = stopses[0];

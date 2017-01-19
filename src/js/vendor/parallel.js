@@ -100,9 +100,6 @@ var BDCCParallelLines = function (points, color, weight, opacity, gapPx, _type, 
             pts1.push(self.prj.fromContainerPixelToLatLng(p1l));
           }
 
-          var dxi = (pri.x - p1.x) * (pri.x - p1.x);
-          var dyi = (pri.y - p1.y) * (pri.y - p1.y);
-          
           if (dTheta > Math.PI) {
             //intersect point on outside bend
             pts2.push(self.prj.fromContainerPixelToLatLng(p2rm1));
@@ -146,18 +143,6 @@ var BDCCParallelLines = function (points, color, weight, opacity, gapPx, _type, 
     });
     
     self.polygon.setMap(self.map);
-
-    /* if(self.line2)
-       self.line1.setMap(null);
-     self.line2 = new google.maps.Polyline({
-       path: pts2,
-       strokeColor: self.color,
-       strokeOpacity: self.opacity,
-       strokeWeight: self.weight
-     });
-     self.line2.setMap(self.map);
-    */
-
 
   };
 

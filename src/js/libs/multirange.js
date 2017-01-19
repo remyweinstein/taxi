@@ -4,6 +4,17 @@ define(['hammer'], function(Hammer) {
     var parentDiv = el.parentNode;
     var name = el.name;
     
+    Object.defineProperty( el, "value", {
+      configurable: true,
+      enumerable: true,
+      set: function( value ) {
+        this.setAttribute( "value", value );
+      },
+      get: function() {
+        return this.getAttribute( "value" );
+      }
+    });
+    
     var new_field = document.createElement('div');
     new_field.className += 'range-input';
     new_field.innerHTML = '<div class="range-input__line">\n\
@@ -75,7 +86,7 @@ define(['hammer'], function(Hammer) {
   
   function onstartValues(name) {
     var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
-    var values = input.dataset.value;
+    var values = input.value;
         values = values.split(',');
     var max = input.max;
     var min = input.min;
@@ -112,17 +123,19 @@ define(['hammer'], function(Hammer) {
     var min = parseFloat(els[1].dataset.value);
     
     if (min > max) {
-      var temp = min;
-      min = max;
-      max = temp;
+      max = [min, min = max][0];
     }
     
-    inputa.dataset.value = min + ',' + max;
+    inputa.value = min + ',' + max;
   };
 
   var Multirange = {
     init: function() {
-      Array.from(document.querySelectorAll("input[type=range][multiple]:not(.multirange)")).forEach(enable_multirange);
+      var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+      
+      for (var i = 0; i < inputs.length; i++) {
+        enable_multirange(inputs[i]);
+      }
       
       document.addEventListener('mouseleave', handleEnd);
       var shariki = document.querySelectorAll(".range-input__line__toddler");

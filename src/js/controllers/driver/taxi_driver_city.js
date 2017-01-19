@@ -191,26 +191,26 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
           }
 
           if (target.dataset.click === "filter-orders") {
-            
+            var resp = getValueForPopupFilters();
             Popup.show(target, 'Фильтры<br/><br/>\n\
                                 Цена\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="price" type="range" multiple data-value="0,5000" min="0" max="5000" />\n\
+                                  <input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="5000" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 До клиента\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="distance" type="range" multiple data-value="0,20" min="0" max="20" />\n\
+                                  <input name="distance" type="range" multiple value="' + resp.distance.min + ',' + resp.distance.max + '" min="0" max="20" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 По маршруту\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="length" type="range" multiple data-value="0,100000" min="0" max="100000" />\n\
+                                  <input name="length" type="range" multiple value="' + resp.length.min + ',' + resp.length.max + '" min="0" max="100000" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 Остановок\n\
                                 <div class="popup-window__double-range">\n\
-                                  <input name="stops" type="range" multiple data-value="0,30" min="0" max="30" />\n\
+                                  <input name="stops" type="range" multiple value="' + resp.stops.min + ',' + resp.stops.max + '" min="0" max="30" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
                                 <button class="button_rounded--green" data-click="getfilters">Применить</button>',
@@ -226,7 +226,10 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
                 }
               }
               
-              arr_filters = Object.assign(arr_filters, response);
+              arr_filters.filter = response.filter;
+              
+              //arr_filters = Object.assign(arr_filters, response);
+              
               add_filter = get_add_filter_string();
               
               /*
@@ -369,12 +372,35 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
 
     content.addEventListener('click', Event.click);
   }
+
+  function getValueForPopupFilters() {
+    var saved_filters = localStorage.getItem('_filters_active');
+    var response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
+    
+    if (saved_filters) {
+      arr_filters = JSON.parse(saved_filters);
+      add_filter = get_add_filter_string();
+      response = arr_filters.filter;
+    }
+    
+    return response;
+  }
+  
+  function onstartAddFilters() {
+    var saved_filters = localStorage.getItem('_filters_active');
+    
+    if (saved_filters) {
+      arr_filters = JSON.parse(saved_filters);
+      add_filter = get_add_filter_string();
+    }
+  }
   
   function stop() {
 
   }
   
   function start() {
+    onstartAddFilters();
     update_taxi_order();
     timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
     addEvents();
