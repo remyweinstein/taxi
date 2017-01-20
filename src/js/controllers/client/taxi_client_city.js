@@ -171,7 +171,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       for (var i = 0; i < arr.length; i++) {
         if (arr[i].id === index) {
           return true;
-          break;
         }
       }
       return false;
@@ -181,6 +180,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       if (response && response.ok) {
         var new_markers = [];
         var agnts = response.agents;
+        var loc;
 
         for (var i = 0; i < agnts.length; i++) {
           if (!searchArray(agnts[i].id, markers_driver_pos)) {
@@ -190,21 +190,19 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
             var brand = agnts[i].brand ? agnts[i].brand : '&nbsp;';
             var model = agnts[i].model ? agnts[i].model : '&nbsp;';
             var favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id  + '" data-click="deltofav">Удалить из Избранного</button>';
-            var info = '<div style="text-align:center;">\n\
-                          <div style="width:50%;display:inline-block;float: left;">\n\
-                            <p>id' + agnts[i].id + '<br>' + name + '</p>\n\
-                            <p><img class="avatar" src="' + photo + '" alt=""/></p>\n\
-                            <p>' + favorite + '</p>\n\
-                          </div>\n\
-                          <div style="width:50%;display:inline-block">\n\
-                            <p>' + brand + '<br>\n\
-                            ' + model + '</p>\n\
-                            <p><img class="avatar" src="' + photo_car + '" alt=""/></p>\n\
-                            <p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>\n\
-                          </div>\n\
-                        </div>\n\
-                        ';
-            var loc = agnts[i].location.split(',');
+            var info = '<div style="text-align:center;">' +
+                          '<div style="width:50%;display:inline-block;float: left;">' + 
+                            '<p>id' + agnts[i].id + '<br>' + name + '</p>' + 
+                            '<p><img class="avatar" src="' + photo + '" alt=""/></p>' + 
+                            '<p>' + favorite + '</p>' + 
+                          '</div>' + 
+                          '<div style="width:50%;display:inline-block">' + 
+                            '<p>' + brand + '<br>' + model + '</p>' + 
+                            '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' + 
+                            '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' + 
+                          '</div>' + 
+                        '</div>';
+            loc = agnts[i].location.split(',');
             var marker;
             
             if (agnts[i].isDriver) {
@@ -216,7 +214,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
             new_markers.push({'id': agnts[i].id, 'marker': marker});
           } else {
             if (markers_driver_pos[i]) {
-              var loc = agnts[i].location.split(',');
+              loc = agnts[i].location.split(',');
               markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
               new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
             }
@@ -255,17 +253,17 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
     var el = Dom.sel('.order-city-to');
     var new_field = document.createElement('div');
      new_field.className += 'form-order-city__field order-city-to_z';
-     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>\n\
-                            <span class="form-order-city__wrap">\n\
-                              <input type="text" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>\n\
-                            </span>\n\
-                            <span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">\n\
-                              <i class="icon-clock"></i><span class="top-index">' + time + '</span>\n\
-                            </span>\n\
-                            <span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">\n\
-                              <i class="icon-trash"></i>\n\
-                            </span>\n\
-                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
+     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' + 
+                            '<span class="form-order-city__wrap">' + 
+                              '<input type="text" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' + 
+                            '</span>' + 
+                            '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' + 
+                              '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' + 
+                            '</span>' + 
+                            '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' + 
+                              '<i class="icon-trash"></i>' + 
+                            '</span>' + 
+                            '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
 
     var parentDiv = el.parentNode;
       parentDiv.insertBefore(new_field, el);
@@ -386,13 +384,13 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
           if (target.dataset.click === 'field_add_time') {
             var _id = target.dataset.id;
 
-            Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>\n\
-                      <p><button class="button_rounded--green" data-response="5">5 мин</button></p>\n\
-                      <p><button class="button_rounded--green" data-response="10">10 мин</button></p>\n\
-                      <p><button class="button_rounded--green" data-response="15">15 мин</button></p>\n\
-                      <p><button class="button_rounded--green" data-response="20">20 мин</button></p>\n\
-                      <p><button class="button_rounded--green" data-response="30">30 мин</button></p>\n\
-                    ', function (response) {
+            Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>' +
+                      '<p><button class="button_rounded--green" data-response="5">5 мин</button></p>' + 
+                      '<p><button class="button_rounded--green" data-response="10">10 мин</button></p>' + 
+                      '<p><button class="button_rounded--green" data-response="15">15 мин</button></p>' + 
+                      '<p><button class="button_rounded--green" data-response="20">20 мин</button></p>' + 
+                      '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>', 
+                    function (response) {
                         eval("MyOrder.times[" + _id + "] = " + response);
                         reloadPoints();
                         stop();

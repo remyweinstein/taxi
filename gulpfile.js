@@ -7,15 +7,17 @@ var gulp = require('gulp'),
   sass = require('gulp-sass'),
   sourcemaps = require('gulp-sourcemaps'),
   cssmin = require('gulp-minify-css'),
-  imagemin = require('gulp-imagemin');
+  //gutil = require('gulp-util'),
+  //rjs = require("gulp-rjs"),
   //amdOptimize = require('amd-optimize'),
-  //concat = require('gulp-concat');
+  //concat = require('gulp-concat'),
   //rigger = require('gulp-rigger'),
   //plumber = require('gulp-plumber'),
   /* //server
   browserSync = require("browser-sync"),
   reload = browserSync.reload;
   */
+  imagemin = require('gulp-imagemin');
    
 var path = {
   build: {
@@ -140,6 +142,7 @@ gulp.task('watch', function(){
   });
   watch([path.watch.js], function(event, cb) {
     gulp.start('js:build');
+    //gulp.start('requirejsBuild');
   });
   watch([path.watch.img], function(event, cb) {
     gulp.start('image:build');

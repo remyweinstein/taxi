@@ -148,6 +148,48 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                         
                         actives_filter = {filter:{price:{},distance:{},length:{},stops:{}}};
                         
+                        if (target.dataset.click === "clearfilters") {
+                          var win = Dom.sel('.popup-window');
+                          var temp_el, temp_min, temp_max;
+
+                          temp_el = win.querySelector("input[type=range][name=price][multiple]:not(.multirange)");
+                          temp_min = temp_el.min;
+                          temp_max = temp_el.max;
+                          
+                          temp_el.value = temp_min + ',' + temp_max;
+                          actives_filter.filter.price.min = temp_min;
+                          actives_filter.filter.price.max = temp_max;
+                          
+                          temp_el = win.querySelector("input[type=range][name=distance][multiple]:not(.multirange)");
+                          temp_min = temp_el.min;
+                          temp_max = temp_el.max;
+                          
+                          temp_el.value = temp_min + ',' + temp_max;
+                          actives_filter.filter.distance.min = temp_min;
+                          actives_filter.filter.distance.max = temp_max;
+                          
+                          temp_el = win.querySelector("input[type=range][name=length][multiple]:not(.multirange)");
+                          temp_min = temp_el.min;
+                          temp_max = temp_el.max;
+                          
+                          temp_el.value = temp_min + ',' + temp_max;
+                          actives_filter.filter.length.min = temp_min;
+                          actives_filter.filter.length.max = temp_max;
+                          
+                          temp_el = win.querySelector("input[type=range][name=stops][multiple]:not(.multirange)");
+                          temp_min = temp_el.min;
+                          temp_max = temp_el.max;
+
+                          temp_el.value = temp_min + ',' + temp_max;
+                          actives_filter.filter.stops.min = temp_min;
+                          actives_filter.filter.stops.max = temp_max;
+                          
+                          localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
+
+                          callback(actives_filter);
+                          close();
+                        }
+                        
                         if (target.dataset.click === "getfilters") {
                           var win = Dom.sel('.popup-window');
                           

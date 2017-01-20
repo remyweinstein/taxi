@@ -215,7 +215,8 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
                                   <input name="stops" type="range" multiple value="' + resp.stops.min + ',' + resp.stops.max + '" min="0" max="30" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
-                                <button class="button_rounded--green" data-click="getfilters">Применить</button>',
+                                <button class="button_rounded--green" data-click="getfilters">Применить</button>\n\
+                                <button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>',
             function(response) {
               if (arr_filters.filter) {
                 if (arr_filters.filter.favorite) {

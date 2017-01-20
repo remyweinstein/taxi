@@ -278,21 +278,21 @@ define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
       for (var v = 0; v < Zones.list.length; v++) {
         zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + v + '">' + (v + 1) + '</button></span>';
       }
-      wrap.innerHTML = '<div class="safety-window__grid">\n\
-                          <div data-click="runSos" class="safety-window__round">SOS</div>\n\
-                        </div>\n\
-                        <div class="safety-window__grid list-zones">\n\
-                          <div data-click="runZone" data-active="" class="safety-window__round">Зона</div>\n\
-                          ' + zones + '\n\
-                        </div>\n\
-                        <div class="safety-window__grid-all safe_by_route">\n\
-                          <div data-click="runRoute" class="safety-window__round--left">Маршрут</div>\n\
-                          <form>\n\
-                            <input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">\n\
-                            <div class="safety-window__view-radius">' + Settings.safeRadius + ' м.</div>\n\
-                          </form>\n\
-                          <div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>\n\
-                        </div>';
+      wrap.innerHTML = '<div class="safety-window__grid">' + 
+                          '<div data-click="runSos" class="safety-window__round">SOS</div>' + 
+                        '</div>' + 
+                        '<div class="safety-window__grid list-zones">' + 
+                          '<div data-click="runZone" data-active="" class="safety-window__round">Зона</div>' + 
+                            zones + 
+                        '</div>' + 
+                        '<div class="safety-window__grid-all safe_by_route">' + 
+                          '<div data-click="runRoute" class="safety-window__round--left">Маршрут</div>' + 
+                          '<form>' + 
+                            '<input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">' +
+                            '<div class="safety-window__view-radius">' + Settings.safeRadius + ' м.</div>' + 
+                          '</form>' + 
+                          '<div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>' + 
+                        '</div>';
       safe_win_wrap.appendChild(wrap);
       
       return;

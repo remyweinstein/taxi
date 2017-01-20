@@ -1,6 +1,6 @@
 /* global google, SafeWin, User, safe_zone_polygons */
 
-define(['Dom'], function(Dom) {  // Google
+define(['Dom'], function(Dom) {
 
   function renderDirections(map, result, polylineOpts) {
     var directionsRenderer = new google.maps.DirectionsRenderer();
