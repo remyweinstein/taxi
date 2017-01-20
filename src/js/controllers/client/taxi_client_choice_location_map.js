@@ -1,3 +1,5 @@
+/* global MyOrder, User, google, map, Event */
+
 define(['Dom', 'Maps'], function (Dom, Maps) {
   
   function initMap() {
@@ -123,7 +125,7 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   }
   
   function start() {
-    Dom.mapOn();
+    Maps.mapOn();
     initMap();
     addEvents();
   }

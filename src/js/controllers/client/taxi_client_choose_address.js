@@ -1,3 +1,5 @@
+/* global google, User, map, MyOrder */
+
 define(['Dom'], function (Dom) {
   
   var _timer;

@@ -1,3 +1,5 @@
+/* global Event, Settings */
+
 define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   
   function addEvents() {

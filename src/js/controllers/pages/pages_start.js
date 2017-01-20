@@ -1,3 +1,5 @@
+/* global Event, MayLoading */
+
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
   function addEvents() {

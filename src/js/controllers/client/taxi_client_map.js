@@ -1,4 +1,6 @@
-define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
+/* global map, User, google, MyOrder, SafeWin, default_vehicle, driver_icon, Event */
+
+define(['Ajax', 'Dom', 'Dates', 'Maps'], function (Ajax, Dom, Dates, Maps) {
   
   var driver_marker = [];
   var marker_mine, marker_from, marker_to, route = [], points = [];
@@ -243,7 +245,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates'], function (Ajax, Dom, Geo, Dates) {
   
   function start() {
     if (MyOrder.id > 0) {
-      Dom.mapOn();
+      Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();
 

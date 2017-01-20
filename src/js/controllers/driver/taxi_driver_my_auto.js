@@ -1,9 +1,11 @@
+/* global User, Event, default_city, default_vehicle */
+
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
   function changeModel(brand, model) {
     var model_el = Dom.sel('select[name="model"]', model);
 
-    Ajax.request('GET', 'models', User.token, '&brand='+brand, '', function(response) {
+    Ajax.request('GET', 'models', User.token, '&brand=' + brand, '', function(response) {
       model_el.options.length = 0;
 
       for (var i=0; i<response.length; i++) {

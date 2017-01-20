@@ -1,3 +1,5 @@
+/* global Event, User, MyOrder */
+
 define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   
   function addEvents() {

@@ -1,3 +1,5 @@
+/* global User, google, Settings */
+
 define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParallelLines) {
 
     var old_lat, old_lng;

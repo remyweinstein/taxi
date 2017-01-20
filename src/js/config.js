@@ -115,6 +115,8 @@ var menus_arr = [];
   
   var average_speed = 40;
   var cost_of_km = 25;
+  
+  var safe_zone_polygons = [];
 
   var User, Car, Event, Settings, MyOrder, SafeWin, Zones;
 

@@ -1,4 +1,6 @@
-define(['Dom', 'Geo'], function (Dom, Geo) {
+/* global Zones, google, map, User, Event */
+
+define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
 
   var polygon = new google.maps.Polygon({});
   var points = [];
@@ -197,7 +199,6 @@ define(['Dom', 'Geo'], function (Dom, Geo) {
 
   function initMap() {
     id_edit_zone = localStorage.getItem('_edit_zone');
-    var name, note = '';
     
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
       map.setCenter(MyLatLng);
@@ -270,7 +271,7 @@ define(['Dom', 'Geo'], function (Dom, Geo) {
   }
   
   function start() {
-    Dom.mapOn();
+    Maps.mapOn(false);
     initMap();
     fillName();
     addEvents();

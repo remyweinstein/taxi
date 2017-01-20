@@ -1,3 +1,5 @@
+/* global google, SafeWin, User, safe_zone_polygons */
+
 define(['Dom'], function(Dom) {  // Google
 
   function renderDirections(map, result, polylineOpts) {
@@ -48,7 +50,24 @@ define(['Dom'], function(Dom) {  // Google
         SafeWin.map = map;
 
       },
-
+      
+      mapOff: function () {
+        document.getElementById('map_canvas').classList.add("hidden");
+        for (var i = 0; i < safe_zone_polygons.length; i++) {
+          safe_zone_polygons[i].setMap(null);
+        }
+      },
+      
+      mapOn: function (enable_safe_zone = true) {
+        document.getElementById('map_canvas').classList.remove("hidden");
+        google.maps.event.trigger(map, 'resize'); 
+        if (enable_safe_zone) {
+          for (var i = 0; i < safe_zone_polygons.length; i++) {
+            safe_zone_polygons[i].setMap(SafeWin.map);
+          }
+        }
+      },
+      
       point2LatLng: function (x, y, map) {
         var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
         var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());

@@ -1,6 +1,8 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Chat, Dates, Modal) {
+/* global User, map, google, map_choice, Car, average_speed, Event */
 
-  var markers = [], marker_client, active_bid = false, route, marker_to, marker_from, points = [];
+define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Dates, Modal, Maps) {
+
+  var active_bid = false, route, marker_to, marker_from, points = [];
   var fromAddress, toAddress, fromCoords, toCoords, waypoints, points = [], price, order_id, distanse, ag_distanse, duration;
   var name_client, photo_client, travelTime;
   
@@ -248,7 +250,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'ModalWindows'], function (Ajax, Dom, Ch
   
   function start() {
     var _id = localStorage.getItem('_open_order_id');
-    Dom.mapOn();
+    Maps.mapOn();
     
     initMap();
     

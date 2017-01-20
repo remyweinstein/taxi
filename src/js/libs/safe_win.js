@@ -1,6 +1,7 @@
-define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
+/* global safe_zone_polygons, Zones, Settings */
+
+define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
   
-  var polygon = [];
   var s_route_to_Zone = [];
   var safety_route, safe_win, safe_win_wrap;
   
@@ -51,34 +52,57 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
       if (target) {
         
         if (target.dataset.click === "zone") {
+          var a = false;
           var el = target;
           var id = el.dataset.id;
-          var arr = Dom.sel('[data-click="runZone"]').dataset.active;
-              arr = arr.split(',');
-              
-          for (var i = 0; i < arr.length; i++) {
-            if (arr[i] === "") {
-              arr.splice(arr[i], 1);
+          var but_run_zone = Dom.sel('[data-click="runZone"]');
+          var isActiveRunZone = but_run_zone.classList.contains('active');
+          var arr = but_run_zone.dataset.active;
+          var list_active_zone = [];
+          var arr_id = false;
+          
+          if (arr !== "") {
+            if (arr.indexOf(',') > -1) {
+              list_active_zone = arr.split(',');
+            } else {
+              list_active_zone.push(arr);
             }
           }
-          
-          if (Dom.toggle(el, 'active-bg')) {
-            for (var i = 0; i < arr.length; i++) {
-              if (arr[i] === id) {
-                arr.splice(arr[i], 1);
-                Zones.inactive(id);
-              }
+
+          for (var i = 0; i < list_active_zone.length; i++) {
+            if (list_active_zone[i] === id) {
+              arr_id = i;
             }
+          }
+
+          if (Dom.toggle(el, 'active-bg')) {
+            Zones.inactive(id);
+            list_active_zone.splice(arr_id, 1);
+            
+            safe_zone_polygons[arr_id].setMap(null);
+            safe_zone_polygons.splice(arr_id, 1);
+            
+            if (list_active_zone.length < 1 && isActiveRunZone) {
+              localStorage.removeItem('_enable_safe_zone');
+              Dom.toggle(but_run_zone, 'active');
+            }
+            
           } else {
             if (id !== "") {
-              arr.push(id);
+              list_active_zone.push(id);
+              if (isActiveRunZone) {
+                safe_zone_polygons.push(Geo.drawPoly(Zones.list[(list_active_zone.length - 1)].polygon, SafeWin.map));
+                Zones.active(id);
+              } else {
+                a = true;
+              }
             }
           }
-                    
-          var but = Dom.sel('[data-click="runZone"]');
-              but.dataset.active = arr.join(',');
           
-          runZone(but, true);
+          but_run_zone.dataset.active = list_active_zone.join(',');
+          if (a) {
+            runZone(but_run_zone, true);
+          }
         }
         
         if (target.dataset.click === "add_to_zones") {
@@ -94,57 +118,54 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     }
   };
   
-  function runZone(event, enabled) {
+  function runZone(event, enable) {
     var el = event.target;
     if (!el) {
       el = event;
     }
     var active = el.dataset.active;
-    var arr = active.split(',');
+    var list_active_zone = [];
+
+    if (active !== "") {
+      list_active_zone = active.split(',');
+    }
     
-    if (!enabled) {
+    
+    
+    if (!enable) { // IF THIS CLICK
       if (Dom.toggle(el, 'active')) {
-        for (var i = 0; i < arr.length; i++) {
-          Zones.inactive(arr[i]);
-        }
-        localStorage.removeItem('_enable_safe_zone');
-        if (polygon) {
-          for (var i = 0; i < polygon.length; i++) {
-            polygon[i].setMap(null);
-          }
-          polygon = [];
-        }
+        clearPolygonZones();
       } else {
         if (active !== "") {
-          localStorage.setItem('_enable_safe_zone', active);
-          for (var i = 0; i < arr.length; i++) {
-            Zones.active(arr[i]);
-            polygon[i] = Geo.drawPoly(Zones.list[arr[i]].polygon, SafeWin.map);
-          }
+          drawPolygon();
         } else {
           Dom.toggle(el, 'active');
         }
       }
-    } else {
-      if (el.classList.contains('active')) {
-        localStorage.removeItem('_enable_safe_zone');
-        if (polygon) {
-          for (var i = 0; i < polygon.length; i++) {
-            polygon[i].setMap(null);
-          }
-          polygon = [];
-        }
-        if (active !== "") {
-          localStorage.setItem('_enable_safe_zone', active);
-          for (var i = 0; i < arr.length; i++) {
-            Zones.active(i);
-            polygon[i] = Geo.drawPoly(Zones.list[arr[i]].polygon, SafeWin.map);
-          }
-        } else {
-          runZone(el);
-        }
-      } else {
+    } else { // IF THIS FROM THE OUTSIDE
         runZone(el);
+    }
+    
+    function drawPolygon() {
+      localStorage.setItem('_enable_safe_zone', active);
+      for (var i = 0; i < list_active_zone.length; i++) {
+        var arr_id = Funcs.findIdArray(Zones.list, list_active_zone[i]);
+        
+        Zones.active(list_active_zone[i]);
+        safe_zone_polygons[i] = Geo.drawPoly(Zones.list[arr_id].polygon, SafeWin.map);
+      }  
+    }
+    
+    function clearPolygonZones() {
+      for (var i = 0; i < list_active_zone.length; i++) {
+        Zones.inactive(list_active_zone[i]);
+      }
+      localStorage.removeItem('_enable_safe_zone');
+      if (safe_zone_polygons) {
+        for (var i = 0; i < safe_zone_polygons.length; i++) {
+          safe_zone_polygons[i].setMap(null);
+        }
+        safe_zone_polygons = [];
       }
     }
   }
@@ -188,7 +209,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
     
     init: function () {
       var safewin = this;
-      Zones.get(function(){
+      Zones.get(function () {
         safewin.initial();
       });
     },
@@ -291,7 +312,7 @@ define(['Dom', 'hammer', 'Geo'], function (Dom, Hammer, Geo) {
           active_bg = ' active-bg';
         }
         var span = document.createElement('span');
-            span.innerHTML = '<button class="button_short--grey' + active_bg + '" data-click="zone" data-id="' + i + '">' + (i + 1) + '</button>';
+            span.innerHTML = '<button class="button_short--grey' + active_bg + '" data-click="zone" data-id="' + Zones.list[i].id + '">' + (i + 1) + '</button>';
 
         list.appendChild(span);
       }

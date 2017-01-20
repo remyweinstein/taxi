@@ -1,3 +1,5 @@
+/* global average_speed, User */
+
 define(['Dates'], function(Dates) {
   
   var clDriverOrders = function (order, Old_Orders) {

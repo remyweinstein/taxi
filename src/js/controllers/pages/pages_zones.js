@@ -1,3 +1,5 @@
+/* global Event, Zones */
+
 define(['Dom'], function (Dom) {
 
   function addEvents() {

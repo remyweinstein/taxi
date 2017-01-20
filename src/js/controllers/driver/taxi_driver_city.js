@@ -1,3 +1,5 @@
+/* global User, Event, Car */
+
 define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'], function (Ajax, Dom, clDriverOrders, Dates, Popup, Modal) {
   
   var Orders = [];

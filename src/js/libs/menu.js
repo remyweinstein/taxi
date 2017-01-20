@@ -1,3 +1,5 @@
+/* global User */
+
 define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
     
   function swipeMenu(route) {

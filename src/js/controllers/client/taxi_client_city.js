@@ -1,4 +1,6 @@
-define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
+/* global User, google, map, MyOrder, cost_of_km, Car, driver_icon, men_icon, Event */
+
+define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps) {
   
   var marker_mine, points = [];
   var markers_driver_pos = [];    
@@ -535,7 +537,7 @@ define(['Ajax', 'Dom', 'ModalWindows'], function (Ajax, Dom, Modal) {
   }
   
   function start() {
-    Dom.mapOn();
+    Maps.mapOn();
     get_pos_drivers();
     
     price.value = MyOrder.price;

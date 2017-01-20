@@ -1,4 +1,6 @@
-define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo'], function (Ajax, Dom, Chat, Dates, Geo) {
+/* global User, google, map, SafeWin, driver_icon, Event */
+
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps'], function (Ajax, Dom, Chat, Dates, Geo, Maps) {
   
   var order_id;
   var markers = [], marker_client, marker_from, marker_to, route = [], points = [];
@@ -281,7 +283,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo'], function (Ajax, Dom, Chat, Dates
   }
   
   function start() {
-    Dom.mapOn();
+    Maps.mapOn();
     initMap();
     
     bid_id = localStorage.getItem('_current_id_bid');

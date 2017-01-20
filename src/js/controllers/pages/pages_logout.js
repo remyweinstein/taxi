@@ -1,3 +1,5 @@
+/* global User */
+
 define(function () {
   
   function stop() {

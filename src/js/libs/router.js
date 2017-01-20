@@ -1,4 +1,6 @@
-define(['Dom', 'Chat'], function (Dom, Chat) {
+/* global User, menus_arr, timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event */
+
+define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
   
   var App, old_controller;
   var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
@@ -164,7 +166,7 @@ define(['Dom', 'Chat'], function (Dom, Chat) {
     content_el.appendChild(dynamic);
 
     renderMenu(route);
-    Dom.mapOff();
+    Maps.mapOff();
     clearVars();
     if (old_controller) {
       require([old_controller.controller], function(controller) {

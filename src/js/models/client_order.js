@@ -1,3 +1,5 @@
+/* global User */
+
 define(['Ajax'], function(Ajax) {
   
   var clClientOrder = function () {

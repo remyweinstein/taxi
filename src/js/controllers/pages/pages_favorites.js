@@ -1,3 +1,5 @@
+/* global Event, User */
+
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
   function addEvents() {

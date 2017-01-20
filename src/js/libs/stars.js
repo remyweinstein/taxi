@@ -1,9 +1,10 @@
+/* global Event */
+
 define(['Dom'], function (Dom) {
-  var current_rating = 5;
   var current_agent;
-  
+
   function addEvents() {
-    Event.click = function (event) {
+    Event.click = function () {
       var target = event.target;
 
       while (target !== this) {

@@ -1,4 +1,6 @@
-define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat, Geo) {
+/* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon */
+
+define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dates, Chat, Geo, Maps) {
     
   var markers = new Array;              
   var marker_mine, marker_from, marker_to, route = [], points = [];
@@ -340,7 +342,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo'], function (Ajax, Dom, Dates, Chat
   }
   
   function start() {
-    Dom.mapOn();
+    Maps.mapOn();
     initMap();
     SafeWin.overviewPath = [];
     

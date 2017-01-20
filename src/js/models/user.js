@@ -1,3 +1,5 @@
+/* global lasturl, Car, User */
+
 define(['Dom', 'Ajax'], function(Dom, Ajax) {
   
   var clUser = function () {

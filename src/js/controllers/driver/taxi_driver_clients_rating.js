@@ -1,3 +1,5 @@
+/* global Event, User */
+
 define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates, Stars) {
   
   var order_id, agent_id, bid_id;

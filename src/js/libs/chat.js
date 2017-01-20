@@ -1,3 +1,5 @@
+/* global User, bid_id */
+
 define(['Ajax', 'Dom'], function(Ajax, Dom) {
 
   var timerGetMessages;

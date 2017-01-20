@@ -22,15 +22,6 @@ define(function() {
         }
       },
       
-      mapOff: function () {
-        document.getElementById('map_canvas').classList.add("hidden");
-      },
-      
-      mapOn: function () {
-        document.getElementById('map_canvas').classList.remove("hidden");
-        google.maps.event.trigger(map, 'resize'); 
-      },
-      
       startLoading: function () {
         document.querySelector(".loading").classList.add("active");
       },

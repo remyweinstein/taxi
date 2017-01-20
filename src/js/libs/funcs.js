@@ -25,6 +25,16 @@ define(function() {
          height += parseInt(styles.marginTop) + parseInt(styles.marginBottom);
         
         return height;
+      },
+      
+      //SEARCH ELEMENT OF ARRAY FOR 'ID'
+      findIdArray(arr, find) {
+        for (var i = 0; i < arr.length; i++) {
+          if (arr[i].id === find) {
+            return i;
+          }
+        }
+        return false;
       }
       
   };

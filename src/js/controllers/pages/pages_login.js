@@ -1,3 +1,5 @@
+/* global Event, User */
+
 define(['Ajax', 'Dom'], function (Ajax, Dom) {
   
   function addEvents() {
@@ -11,7 +13,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               _el.disabled = true;
 
               var phone = Dom.selAll('input[name="phone"]')[0].value;
-              var token = User.token ? User.token : "";
 
               Ajax.request('POST', 'register', '', '&phone=7' + phone, '', function(response) {
 
