@@ -17,7 +17,9 @@ define(['hammer'], function(Hammer) {
     
     var new_field = document.createElement('div');
     new_field.className += 'range-input';
-    new_field.innerHTML = '<div class="range-input__line">\n\
+    new_field.innerHTML = '<input type="text" data-order="min" data-name="' + name + '" value="" class="range-input__text" />\
+                          <input type="text" data-order="max" data-name="' + name + '" value="" class="range-input__text" />\
+                          <div class="range-input__line">\n\
                             <div data-value data-name="' + name + '" class="range-input__line__toddler"></div>\n\
                             <div data-value data-name="' + name + '" class="range-input__line__toddler"></div>\n\
                           </div>';
@@ -77,15 +79,18 @@ define(['hammer'], function(Hammer) {
   };
   
   function handleEnd(el) {
-    if (el === "document") {
-      //e.target.classList.remove('active');
-    } else {
-      el.classList.remove('active');
+    if (el.classList) {
+      if (el === "document") {
+        //e.target.classList.remove('active');
+      } else {
+        el.classList.remove('active');
+      }
     }
   };
   
   function onstartValues(name) {
     var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
+    var texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
     var values = input.value;
         values = values.split(',');
     var max = input.max;
@@ -96,10 +101,42 @@ define(['hammer'], function(Hammer) {
       var width = parseFloat(toggies[i].parentNode.offsetWidth) - parseFloat(toggies[i].offsetWidth);
       var position = parseFloat((values[i] / (max - min)) * width);
       
+      texts[i].value = values[i];
       toggies[i].dataset.value = values[i];
       toggies[i].style.left = position + 'px';
     }
     
+  };
+  
+  function changeFromTexts(el) {
+    var name = el.target.dataset.name;
+    var order = el.target.dataset.order;
+    var value = el.target.value;
+    var all_shariks = document.querySelectorAll("div.range-input__line__toddler[data-name=" + name + "]");
+    var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
+    var sharik_min_values = all_shariks[0].dataset.value;
+    var sharik_max_values = all_shariks[1].dataset.value;
+    var max = 1, min =0;
+    
+    if (sharik_min_values > sharik_max_values) {
+      max = 0;
+      min = 1;
+    }
+    
+    if (order === "max") {
+      if (value > input.max) {
+        value = input.max;
+      }
+      all_shariks[max].dataset.value = value;
+    } else {
+      if (value < input.min) {
+        value = input.min;
+      }
+      all_shariks[min].dataset.value = value;
+    }
+
+    changeValueInput(name);
+    Multirange.reinit();
   };
   
   function changeValues(el) {
@@ -121,11 +158,13 @@ define(['hammer'], function(Hammer) {
     var els = document.querySelectorAll("div.range-input__line__toddler[data-name=" + name + "]");
     var max = parseFloat(els[0].dataset.value);
     var min = parseFloat(els[1].dataset.value);
+    var texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
     
     if (min > max) {
       max = [min, min = max][0];
     }
-    
+    texts[0].value = min;
+    texts[1].value = max;
     inputa.value = min + ',' + max;
   };
 
@@ -143,7 +182,11 @@ define(['hammer'], function(Hammer) {
         var ev = new Hammer(shariki[i], {domEvents: true});
         shariki[i].addEventListener('hammer.input', whatDo);
       }
-
+      
+      var texts = document.querySelectorAll("input.range-input__text");
+      for (var i = 0; i < texts.length; i++) {
+        texts[i].addEventListener('change', changeFromTexts);
+      }
     },
     
     reinit: function() {
@@ -159,6 +202,10 @@ define(['hammer'], function(Hammer) {
       var shariki = document.querySelectorAll(".range-input__line__toddler");
       for (var i = 0; i < shariki.length; i++) {
         shariki[i].removeEventListener('hammer.input', whatDo);
+      }
+      var texts = document.querySelectorAll("input.range-input__text");
+      for (var i = 0; i < texts.length; i++) {
+        texts[i].removeEventListener('change', changeFromTexts);
       }
     }
   };

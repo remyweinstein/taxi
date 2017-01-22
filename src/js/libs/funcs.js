@@ -28,7 +28,7 @@ define(function() {
       },
       
       //SEARCH ELEMENT OF ARRAY FOR 'ID'
-      findIdArray(arr, find) {
+      findIdArray: function(arr, find) {
         for (var i = 0; i < arr.length; i++) {
           if (arr[i].id === find) {
             return i;
