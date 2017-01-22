@@ -155,6 +155,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                           temp_el = win.querySelector("input[type=range][name=price][multiple]:not(.multirange)");
                           temp_min = temp_el.min;
                           temp_max = temp_el.max;
+                          //temp_el = win.querySelectorAll("div[data-name=price]");
                           
                           temp_el.value = temp_min + ',' + temp_max;
                           actives_filter.filter.price.min = temp_min;
@@ -187,7 +188,8 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                           localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
 
                           callback(actives_filter);
-                          close();
+                          Multirange.reinit();
+                          //close();
                         }
                         
                         if (target.dataset.click === "getfilters") {

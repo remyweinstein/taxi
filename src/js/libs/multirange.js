@@ -146,6 +146,14 @@ define(['hammer'], function(Hammer) {
 
     },
     
+    reinit: function() {
+      var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+      
+      for (var i = 0; i < inputs.length; i++) {
+        onstartValues(inputs[i].name);
+      }
+    },
+    
     clear: function() {
       document.removeEventListener('mouseleave', handleEnd);
       var shariki = document.querySelectorAll(".range-input__line__toddler");
