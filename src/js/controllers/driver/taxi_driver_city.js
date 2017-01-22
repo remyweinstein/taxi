@@ -195,6 +195,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
           if (target.dataset.click === "filter-orders") {
             var resp = getValueForPopupFilters();
             Popup.show(target, 'Фильтры<br/><br/>\n\
+                                <button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>\n\
                                 Цена\n\
                                 <div class="popup-window__double-range">\n\
                                   <input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="5000" />\n\
@@ -215,8 +216,7 @@ define(['Ajax', 'Dom', 'DriverOrders', 'Dates', 'PopupWindows', 'ModalWindows'],
                                   <input name="stops" type="range" multiple value="' + resp.stops.min + ',' + resp.stops.max + '" min="0" max="30" />\n\
                                   <span class="popup-window__range-result"></span>\n\
                                 </div>\n\
-                                <button class="button_rounded--green" data-click="getfilters">Применить</button>\n\
-                                <button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>',
+                                <button class="button_rounded--green" data-click="getfilters">Применить</button>',
             function(response) {
               if (arr_filters.filter) {
                 if (arr_filters.filter.favorite) {
