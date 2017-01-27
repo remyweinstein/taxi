@@ -3,8 +3,8 @@ define(function() {
   var Funcs = {
 
       searchCityForIntercity: function (city, parent) {
-        var currentCity;
-        var li = parent.children[1].children;
+        var currentCity,
+            li = parent.children[1].children;
 
         for (var i = 0; i < li.length; i++) {
           currentCity = li[i].children[1].children[3].innerHTML;
@@ -20,9 +20,10 @@ define(function() {
 
       // HEIGHT ELEMENT WITH MARGINS
       outerHeight: function (el) {
-        var height = el.offsetHeight;
-        var styles = getComputedStyle(el);
-         height += parseInt(styles.marginTop) + parseInt(styles.marginBottom);
+        var height = el.offsetHeight,
+            styles = getComputedStyle(el);
+          
+        height += parseInt(styles.marginTop) + parseInt(styles.marginBottom);
         
         return height;
       },
@@ -34,6 +35,7 @@ define(function() {
             return i;
           }
         }
+        
         return false;
       }
       

@@ -52,7 +52,7 @@
             <div id="map_canvas" class="hidden"></div>
         </main>
         <div class="loading"></div>
-        <template id="ctrlPageStart">
+        <template id="PageStart">
             <div class="start_logo">
                 Tech Agent
             </div>
@@ -60,7 +60,7 @@
                 <p class="start_logo_state__text"></p>
             </div>
         </template>
-        <template id="ctrlPageFavorites">
+        <template id="PageFavorites">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Избранные</li>
@@ -74,17 +74,20 @@
               </div>
             </div>
         </template>
-        <template id="ctrlPageZones">
+        <template id="PageZones">
             <ul class="zone-list"></ul>
         </template>
-        <template id="ctrlPageEditZone">
+        <template id="PageEditZone">
             <div style="position:fixed;top:3em;">
                 <div><input type="text" name="name_edit_zone" value="" placeholder="Имя зоны" /></div>
                 <div><input type="text" name="note_edit_zone" value="" placeholder="Описание" /></div>
             </div>
             <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
-        <template id="ctrlPageEditProfile">
+        <template id="PagesTrustedContacts">
+            <ul class="trusted-contacts"></ul>
+        </template>
+        <template id="PageEditProfile">
             <form data-controller="pages_edit_profile" data-submit="form-edit-profile" class="form-edit-profile" action="" onsubmit="return false;" method="post" enctype="multipart/form-data">
                 <p>
                     <img class="avatar" src="" alt="" />
@@ -110,32 +113,32 @@
                 <p><button class="button_rounded--green">Сохранить</button></p>
             </form>
         </template>
-        <template id="ctrlPageLogin">
+        <template id="PageLogin">
             <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
                 <p>Введите ваш номер телефона для входа</p>
                 <p>+7<input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
                 <p><button class="button_rounded--green" data-click="form-submit">Далее</button></p>
             </form>
         </template>
-        <template id="ctrlPageLogout">
+        <template id="PageLogout">
             <div data-controller="pages_logout"></div>
         </template>
-        <template id="ctrlPageSettings">
+        <template id="PageSettings">
             <div class="settings" data-controller="pages_settings"></div>
         </template>
-        <template id="ctrlPageSms">
+        <template id="PageSms">
             <form data-controller="pages_sms" data-submit="form-auth-sms" onsubmit="return false;" class="form-login">
                 <p>Введите код из смс</p>
                 <p><input type="text" name="sms" placeholder="Код из смс" /></p>
                 <p><button class="button_rounded--green">Далее</button></p>
             </form>
         </template>
-        <template id="ctrlTaxiClientChoiceLocationMap">
+        <template id="TaxiClientChoiceLocationMap">
             <div class="gBlock--bottom">
                 <button data-click="i_choice_location" class="button_wide--green">Выбери адрес на карте</button>
             </div>
         </template>
-        <template id="ctrlTaxiClientChooseAddress">
+        <template id="TaxiClientChooseAddress">
             <div class="choice-location">
                 <p data-controller="taxi_client_choose_address">
                     <input type="text" name="enter-address" value="" placeholder="Введите адрес" />
@@ -143,41 +146,61 @@
                 <div class="choice-location__results-search"></div>
             </div>
         </template>
-        <template id="ctrlTaxiClientCity">
-            <form action="/" method="POST" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
-                <div class="form-order-city__field order-city-from">
-                    <i class="icon-right-circled form-order-city__label"></i>
-                    <span class="form-order-city__wrap">
-                        <input id="autocomplete" class="adress_from" type="text" name="from" value="" placeholder="Откуда" autocomplete="off" />
-                        <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
-                    </span>
-                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
-                </div>
-                <div class="form-order-city__field order-city-to">
-                    <i class="icon-left-circled form-order-city__label"></i>
-                    <span class="form-order-city__wrap">
-                        <input class="adress_to" type="text" name="to" value="" placeholder="Куда"/>
-                        <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
-                    </span>
-                    <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
-                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
-                </div>
-                <div class="form-order-city__field">
-                    <i class="icon-commerical-building form-order-city__label"></i>
-                    <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
-                </div>
-                <div data-controller="taxi_client_city_bottom" class="form-order-city__bottom">
-                    <div data-click="drop-down" class="drop-down"></div>
-                    <div class="form-order-city__field">
-                        <i class="icon-rouble form-order-city__label"></i>
-                        <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
-                    </div>
-                    <button class="button_rounded--green" data-click="order-taxi">Заказать</button>
-                </div>
-            </form>
+        <template id="TaxiClientCity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Новый заказ</li>
+                    <li data-tab="2">Предложения</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                  <div data-tab-content="1" data-map="enable" class="tabs_content">
+                    <form action="/" method="POST" data-hide-form="enable" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
+                        <div class="form-order-city__field order-city-from">
+                            <i class="icon-right-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap">
+                                <input id="autocomplete" class="adress_from" type="text" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                                <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field order-city-to">
+                            <i class="icon-left-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap">
+                                <input class="adress_to" type="text" name="to" value="" placeholder="Куда"/>
+                                <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
+                        </div>
+                        <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
+                            <div class="form-order-city__field">
+                                <i class="icon-rouble form-order-city__label"></i>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                            </div>
+                            <button class="button_rounded--green" data-click="order-taxi">Заказать</button>
+                        </div>
+                    </form>
+                  </div>
+                  <div data-tab-content="2" class="tabs_content">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                  </div>
+                  <div data-tab-content="3" class="tabs_content">
+                    <ul data-controller="taxi_client_my_orders" class="myorders"></ul>
+                  </div>
+              </div>
+            </div>
         </template>
-        <template id="ctrlTaxiClientGo">
-            <div class="go-order">
+        <template id="TaxiClientGo">
+            <div class="go-order" data-hide-form="enable">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_client_go">
                         <div class="wait-order-approve__route-info">
@@ -192,8 +215,7 @@
                     </div>
                     <div class="wait-bids-approve"></div>
                 </div>
-                <div class="go-order__down">
-                    <div data-click="drop-down" class="drop-down"></div>
+                <div class="go-order__down" data-hide-form="bottom">
                     <div class="go-order__down__driver-panel">
                         <div class="go-order__down__driver-panel__info">
                             <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
@@ -214,7 +236,7 @@
                 </div>
             </div>
         </template>
-        <template id="ctrlTaxiClientDriversRating">
+        <template id="TaxiClientDriversRating">
             <div class="score-agent">
                 <div class="score-agent__but-box"></div>
                 <div class="score-agent__stars" data-view="stars">
@@ -228,7 +250,7 @@
                 <button class="button_wide--yellow" data-click="save_rating">Сохранить</button>
             </div>
         </template>
-        <template id="ctrlTaxiClientCargo">
+        <template id="TaxiClientCargo">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказать</li>
@@ -293,7 +315,7 @@
               </div>
             </div>
         </template>
-        <template id="ctrlTaxiClientIntercity">
+        <template id="TaxiClientIntercity">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказать</li>
@@ -381,8 +403,8 @@
               </div>
             </div>
         </template>
-        <template id="ctrlTaxiClientMap">
-            <div class="wait-order-approve">
+        <template id="TaxiClientMap">
+            <div class="wait-order-approve" data-hide-form="enable">
                 <div class="wait-order-approve__route-info">
                     <div class="wait-order-approve__route-info__route">
                         <div></div>
@@ -393,11 +415,10 @@
                     <div class="wait-order-approve__route-info__price"></div>
                     <div class="wait-order-approve__route-info__cancel"></div>                        
                 </div>
+                <div class="wait-bids-approve"></div>
             </div>
-            <div class="wait-bids-approve"></div>
-            <div data-click="drop-down" class="drop-down todown"></div>
         </template>
-        <template id="ctrlTaxiClientFeedback">
+        <template id="TaxiClientFeedback">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Пожаловаться</li>
@@ -441,7 +462,7 @@
               </div>
             </div>        
         </template>
-        <template id="ctrlTaxiClientHelp">
+        <template id="TaxiClientHelp">
             <h1>Помощь клиенту</h1>
             <p class="strong">1. Как взять заказ:</p>
             <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
@@ -456,14 +477,11 @@
             <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
             <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
-        <template id="ctrlTaxiClientMyOrders">
-            <ul data-controller="taxi_client_my_orders" class="myorders"></ul>
-        </template>
-        <template id="ctrlTaxiDriverCity">
+        <template id="TaxiDriverCity">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои заказы</li>
+                    <li data-tab="2">Мои предложения</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
@@ -471,15 +489,48 @@
                 <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
                     <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
                     <div class="list-orders__result">Найдено <span></span> заявок</div>
-                    <ul class="list-orders"></ul>
+                    <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
-                    <div class="list-orders_norecords">Нет заказов</div>
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
                 </div>
               </div>
             </div>
         </template>
-        <template id="ctrlTaxiDriverFeedback">
+        <template id="TaxiDriverNewOffer">
+            <form action="/" method="POST" data-hide-form="enable" data-submit="taxy_driver_offer" onsubmit="return false;" class="form-order-city">
+                <div class="form-order-city__field order-city-from">
+                    <i class="icon-right-circled form-order-city__label"></i>
+                    <span class="form-order-city__wrap">
+                        <input id="autocomplete" class="adress_from" type="text" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                        <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                    </span>
+                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                </div>
+                <div class="form-order-city__field order-city-to">
+                    <i class="icon-left-circled form-order-city__label"></i>
+                    <span class="form-order-city__wrap">
+                        <input class="adress_to" type="text" name="to" value="" placeholder="Куда"/>
+                        <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                    </span>
+                    <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                </div>
+                <div class="form-order-city__field">
+                    <i class="icon-commerical-building form-order-city__label"></i>
+                    <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                </div>
+                <div data-controller="taxi_client_city_bottom" class="form-order-city__bottom"  data-hide-form="bottom">
+                    <div class="form-order-city__field">
+                        <i class="icon-rouble form-order-city__label"></i>
+                        <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                    </div>
+                    <button class="button_rounded--green" data-click="order-taxi">Предложить</button>
+                </div>
+            </form>
+        </template>
+        <template id="TaxiDriverFeedback">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Пожаловаться</li>
@@ -523,7 +574,7 @@
               </div>
             </div>
         </template>
-        <template id="ctrlTaxiDriverHelp">
+        <template id="TaxiDriverHelp">
             <h1>Помощь водителю</h1>
             <p class="strong">1. Как взять заказ:</p>
             <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
@@ -538,8 +589,8 @@
             <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
             <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
-        <template id="ctrlTaxiDriverOrder">
-            <div class="go-order">
+        <template id="TaxiDriverOrder">
+            <div class="go-order" data-hide-form="enable">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
                         <div class="wait-order-approve__route-info">
@@ -554,10 +605,24 @@
                     </div>
                     <div class="wait-bids-approve"></div>
                 </div>
-                <div data-click="drop-down" class="drop-up"></div>
             </div>
         </template>
-        <template id="ctrlTaxiDriverClientsRating">
+        <template id="TaxiDriverOffer">
+            <div class="wait-order-approve" data-hide-form="enable">
+                <div class="wait-order-approve__route-info">
+                    <div class="wait-order-approve__route-info__route">
+                        <div></div>
+                        <div>-</div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="wait-order-approve__route-info__price"></div>
+                    <div class="wait-order-approve__route-info__cancel"></div>                        
+                </div>
+            </div>
+            <div class="wait-bids-approve"></div>
+        </template>
+        <template id="TaxiDriverClientsRating">
             <div class="score-agent">
                 <div class="score-agent__but-box"></div>
                 <div class="score-agent__stars" data-view="stars">
@@ -571,8 +636,8 @@
                 <button class="button_wide--yellow" data-click="save_rating">Сохранить</button>
             </div>
         </template>
-        <template id="ctrlTaxiDriverGo">
-            <div class="go-order">
+        <template id="TaxiDriverGo">
+            <div class="go-order" data-hide-form="enable">
                 <div class="go-order__top">
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
                         <div class="wait-order-approve__route-info">
@@ -587,8 +652,7 @@
                     </div>
                     <div class="wait-bids-approve"></div>
                 </div>
-                <div class="go-order__down">
-                    <div data-click="drop-down" class="drop-down"></div>
+                <div class="go-order__down" data-hide-form="bottom">
                     <div class="go-order__down__driver-panel">
                         <div class="go-order__down__driver-panel__info">
                             <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
@@ -609,7 +673,7 @@
                 </div>
             </div>
         </template>
-        <template id="ctrlTaxiDriverIntercity">
+        <template id="TaxiDriverIntercity">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
@@ -678,7 +742,7 @@
               </div>    
             </div>    
         </template>
-        <template id="ctrlTaxiDriverCargo">
+        <template id="TaxiDriverCargo">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
@@ -750,7 +814,7 @@
               </div>
             </div>
         </template>
-        <template id="ctrlTaxiDriverMyAccount">
+        <template id="TaxiDriverMyAccount">
             <div class="alert">
                 <div class="alert__text--blue">Смена не активирована</div>
             </div>
@@ -762,7 +826,7 @@
             <p><button class="button_wide--yellow">Пополнить счет</button></p>
             <p><button class="button_wide--gray">Рекомендуемые правила</button></p>
         </template>
-        <template id="ctrlTaxiDriverRating">
+        <template id="TaxiDriverRating">
                 <div class="gBlock">
                 <p>Рейтинг (0): 
                     <span class="star-rating">
@@ -777,7 +841,7 @@
             </div>
             <p>Отзывы(0):</p>
         </template>
-        <template id="ctrlTaxiDriverMyAuto">
+        <template id="TaxiDriverMyAuto">
             <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
                 <p>
                     <label>Марка:

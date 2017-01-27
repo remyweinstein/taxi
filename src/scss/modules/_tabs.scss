@@ -9,7 +9,7 @@
     line-height: 2.55em;
     background-color: #F1F1F1;
     z-index: 10;
-    margin-top: 1em;
+    margin-top: 0;
     ul{
         margin:0;
         li{
@@ -38,7 +38,7 @@
         }
     }
     &__wrapper{
-        margin-top: 3.5em;
+        margin-top: 1.5em;
         height: 100%;
         position: relative;
         overflow: hidden;

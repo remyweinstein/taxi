@@ -9,7 +9,7 @@ define(function() {
     }
 
     return 'часов';
-  };
+  }
 
   var Dates = {
 
@@ -19,14 +19,14 @@ define(function() {
         }
 
         date = date.split(" ");
-        var date_order = date[0].split("-");
-        var time_order = date[1].split(":");
-        var today_text = '';
-        var time_text = time_order[0] + ':' + time_order[1];
-        var now = new Date();
-        var order_time = new Date(date);
-        var today = new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).valueOf();
-        var other = new Date(date_order[0], date_order[1], date_order[2]).valueOf();
+        var date_order = date[0].split("-"),
+            time_order = date[1].split(":"),
+            today_text = '',
+            time_text = time_order[0] + ':' + time_order[1],
+            now = new Date(),
+            order_time = new Date(date),
+            today = new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).valueOf(),
+            other = new Date(date_order[0], date_order[1], date_order[2]).valueOf();
 
         if (other < today - 86400000) {
           today_text = date_order[2] + '.' + date_order[1] + '.' + date_order[0];
@@ -55,7 +55,8 @@ define(function() {
         if (options === "LEFT_TIME_OR_DATE") {
           //today, other, 1000 * 60 {one minute};
           var diff = now - order_time;
-           diff = Math.round(diff/60000);
+          
+          diff = Math.round(diff/60000);
           if (diff > 60) {
             var hours = Math.floor(diff/60);
             diff = hours + 'ч.' + (diff - hours * 60) + 'мин.';
@@ -89,35 +90,45 @@ define(function() {
       },
       
       minToHours: function (min) {
-        var s_min = ' мин.';
-        var s_hour = ' ч.';
-        var s_day = ' д.';
-        var s_month = ' м.';
-        var s_year = ' г.';
+        var s_min = ' мин.',
+            s_hour = ' ч.',
+            s_day = ' д.',
+            s_month = ' м.',
+            s_year = ' г.';
+          
         if (min < 60) {
           return min + s_min;
         }
         if (min >= 60 && min < 1440) {
           var hour = Math.floor(min / 60);
+          
           min = min - (hour * 60);
+          
           return hour + s_hour + ' ' + min + s_min;
         }
         if (min >= 1440) {
           var day = Math.floor(min / (60 * 24));
+          
           min = min - (day * 60 * 24);
+          
           var hour = Math.floor(min / 60);
+          
           min = min - (hour * 60);
+          
           return day + s_day + ' ' + hour + s_hour + ' ' + min + s_min;
         }
       },
       
       diffTime: function (start, timer) {
-        var now = new Date().valueOf();
-        var start = start.split(" ");
-          var start_date = start[0];
-            start_date = start_date.split("-");
-          var start_time = start[1];
-            start_time = start_time.split(":");
+        var now = new Date().valueOf(),
+            start = start.split(" "),
+            start_date = start[0];
+          
+        start_date = start_date.split("-");
+        
+        var start_time = start[1];
+        
+        start_time = start_time.split(":");
         start = new Date(start_date[0], (start_date[1] - 1), start_date[2], start_time[0], start_time[1], start_time[2]).valueOf();
 
         return timer - (now / 60000 - start / 60000).toFixed(0);

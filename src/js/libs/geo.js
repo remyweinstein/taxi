@@ -1,11 +1,11 @@
 /* global User, google, Settings */
 
-define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParallelLines) {
+define(['Ajax', 'jsts'], function (Ajax, jsts) {
 
     var old_lat, old_lng;
     
     function updateUserCoord() {
-      Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
+      Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, Ajax.error);
     }
 
     function geoFindMe(App) {
@@ -22,8 +22,9 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
       };
       
       function success(position) {
-        var latitude  = position.coords.latitude;
-        var longitude = position.coords.longitude;
+        var latitude  = position.coords.latitude,
+            longitude = position.coords.longitude;
+          
         old_lat = User.lat;
         old_lng = User.lng;
         User.lat = latitude;
@@ -35,8 +36,9 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
         updateUserCoord();
 
         if (!User.city || User.city === null || User.city === "null") {
-          geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
           var latlng = new google.maps.LatLng(latitude,longitude);
+          
+          geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
           geocoder.geocode({
             'latLng': latlng
             }, function (results, status) {
@@ -57,19 +59,21 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
                             MayLoading = true;
                             App.init();
                           }
-                        }, function() {});
+                        }, Ajax.error);
                       }
                     }
                     
-                    if (obj[key].types[0] === "country") User.country = obj[key].long_name;
+                    if (obj[key].types[0] === "country") {
+                      User.country = obj[key].long_name;
+                    }
                   }
                   
                 }
             });
         }
-      };
+      }
       
-      function error() {};
+      function error() {}
       
       //navigator.geolocation.getCurrentPosition(success, error);
       var watchID = navigator.geolocation.watchPosition(success, error, options);
@@ -84,23 +88,25 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
       },
 
       distance: function(lat1, lon1, lat2, lon2) {
-        var radlat1 = Math.PI * lat1/180;
-        var radlat2 = Math.PI * lat2/180;
-        var theta = lon1-lon2;
-        var radtheta = Math.PI * theta/180;
-        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        var radlat1 = Math.PI * lat1/180,
+            radlat2 = Math.PI * lat2/180,
+            theta = lon1-lon2,
+            radtheta = Math.PI * theta/180,
+            dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
         
-          dist = Math.acos(dist);
-          dist = dist * 180/Math.PI;
-          dist = dist * 60 * 1.1515;
-          dist = dist * 1.609344;
+        dist = Math.acos(dist);
+        dist = dist * 180/Math.PI;
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344;
           
         return dist;
       },
 
       drawPoly: function(Coords, map) {
+        var polygon = false;
+        
         if (Coords) {
-          var polygon = new google.maps.Polygon({
+          polygon = new google.maps.Polygon({
             paths: Coords
             //strokeColor: '#FF0000',
             //strokeOpacity: 0.8,
@@ -199,6 +205,7 @@ define(['Dom','Ajax', 'jsts', 'parallel'], function (Dom, Ajax, jsts, BDCCParall
         
         for (i = 0; i < oCoordinates.length; i++) {
           var oItem = oCoordinates[i];
+          
           oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
         }
         

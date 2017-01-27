@@ -1,17 +1,18 @@
 /* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon */
 
-define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dates, Chat, Geo, Maps) {
+define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps', 'HideForms'], function (Ajax, Dom, Dates, Chat, Geo, Maps, HideForms) {
     
-  var markers = new Array;              
-  var marker_mine, marker_from, marker_to, route = [], points = [];
-  var show_route = false;
-  var fromCoords, toCoords, fromAddress, toAddress, waypoints;
-  var price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time;
+  var markers = new Array,
+      marker_mine, marker_from, marker_to, route = [], points = [],
+      show_route = false,
+      fromCoords, toCoords, fromAddress, toAddress, waypoints,
+      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time;
 
   function initMap() {
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-      map.setCenter(MyLatLng);
-      map.setZoom(12);
+    
+    map.setCenter(MyLatLng);
+    map.setZoom(12);
       
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
@@ -23,38 +24,39 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
   }
 
   function setRoute() {
-
-    var el_route = Dom.sel('.wait-order-approve__route-info__route');
-     el_route.children[0].innerHTML = fromAddress;
-     el_route.children[2].innerHTML = toAddress;
-    var el_price = Dom.sel('.wait-order-approve__route-info__price');
-     el_price.innerHTML = price + ' руб.';
-    var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
-     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
-    var el = Dom.sel('.wait-bids-approve');
-     el.innerHTML = '<div class="wait-bids-approve__item">\n\
-                        <div class="wait-bids-approve__item__distance">\n\
-                          Автомобиль:<br/>\n\
-                          Цвет: ' + dr_color + '<br/>\n\
-                          Рег.номер: ' + dr_number + '\
-                        </div>\n\
-                        <div class="wait-bids-approve__item__car">\n\
-                          <div>\n\
-                            <img src="' + dr_vehicle + '" alt="" />\n\
-                          </div>\n\
-                          <div>\n\
-                            ' + dr_model + '\
-                          </div>\n\
-                        </div>\n\
-                        <div class="wait-bids-approve__item__driver">\n\
-                          <div>\n\
-                            <img src="' + dr_photo + '" alt="" />\n\
-                          </div>\n\
-                          <div>\n\
-                            ' + dr_name + '\
-                          </div>\n\
-                        </div>\n\
-                      </div>';
+    var el_route = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price = Dom.sel('.wait-order-approve__route-info__price'),
+        el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
+        el = Dom.sel('.wait-bids-approve'),
+        i;
+    
+    el_route.children[0].innerHTML = fromAddress;
+    el_route.children[2].innerHTML = toAddress;
+    el_price.innerHTML = price + ' руб.';
+    el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
+    el.innerHTML = '<div class="wait-bids-approve__item">' +
+                      '<div class="wait-bids-approve__item__distance">' +
+                        'Автомобиль:<br/>' +
+                        'Цвет: ' + dr_color + '<br/>' +
+                        'Рег.номер: ' + dr_number +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__car">' +
+                        '<div>' +
+                          '<img src="' + dr_vehicle + '" alt="" />' +
+                        '</div>' +
+                        '<div>' +
+                          dr_model +
+                        '</div>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__driver">' +
+                        '<div>' +
+                          '<img src="' + dr_photo + '" alt="" />' +
+                        '</div>' +
+                        '<div>' +
+                          dr_name +
+                        '</div>' +
+                      '</div>' +
+                    '</div>';
 
     directionsService = new google.maps.DirectionsService();
     directionsDisplay = new google.maps.DirectionsRenderer();
@@ -77,7 +79,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {
 
-        for (var i = 0, len = response.routes.length; i < len; i++) {
+        for (i = 0, len = response.routes.length; i < len; i++) {
           route.push(new google.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: true,
@@ -85,13 +87,13 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
             routeIndex: i
           }));
         }
-        for(var i = 0; i < response.routes.length; i++){
+        for(i = 0; i < response.routes.length; i++){
           var temp = response.routes[i].overview_path;
           SafeWin.overviewPath.push(temp);
         }
         directionsService.route(requestBack, function(response, status) {
           if (status === google.maps.DirectionsStatus.OK) {
-            for (var i = 0, len = response.routes.length; i < len; i++) {
+            for (i = 0, len = response.routes.length; i < len; i++) {
               route.push(new google.maps.DirectionsRenderer({
                 map: map,
                 suppressMarkers: true,
@@ -99,7 +101,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
                 routeIndex: i
               }));
             }
-            for(var i = 0; i < response.routes.length; i++){
+            for(i = 0; i < response.routes.length; i++){
               var temp = response.routes[i].overview_path;
               SafeWin.overviewPath.push(temp);
             }
@@ -120,28 +122,6 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
       
       while (target !== this) {
         
-        if (target.dataset.click === 'drop-down') {
-          var _el = target;
-          var _top = Dom.selAll('.go-order__top')[0];
-          var _bottom = Dom.selAll('.go-order__down')[0];
-
-          if (_top.style.top === '0em' || _top.style.top === '') {
-            _el.classList.remove('drop-down');
-            _el.classList.add('drop-up');
-            _top.style.top = '-15em';
-            _bottom.style.bottom = '-13em';
-            _el.style.opacity = 1;
-            _el.style.top = '-2.5em';
-          } else {
-            _el.classList.remove('drop-up');
-            _el.classList.add('drop-down');
-            _top.style.top = '0em';
-            _bottom.style.bottom = '1em';
-            _el.style.top = '0';
-          }
-          
-        }
-        
         if (target.dataset.click === "client-came") {
           Ajax.request('POST', 'finish-order', User.token, '&id=' + MyOrder.id, '', function() {
             localStorage.setItem('_rating_bid', bid_id);
@@ -149,11 +129,11 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
             localStorage.removeItem('_enable_safe_route');
             
             window.location.hash = '#client_drivers_rating';
-          }, function() {});          
+          }, Ajax.error);
         }
         
         if (target.dataset.click === 'client-incar') {          
-          Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, function() {});
+          Ajax.request('POST', 'in-car-bid', User.token, '&id=' + MyOrder.bid_id, '', function() {}, Ajax.error);
         }
 
         if (target.dataset.click === 'cancel-order') {
@@ -162,7 +142,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
               if (response && response.ok) {
                 window.location.hash = '#client_city';
               }
-            }, function() {});
+            }, Ajax.error);
           }
         }
         
@@ -182,6 +162,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
       var infowindow = new google.maps.InfoWindow({
         content: min + ' мин.'
       });
+      
       infowindow.open(map, marker);
       google.maps.event.addListener(marker, 'click', function() {
         infowindow.open(map, marker);
@@ -209,8 +190,8 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
     Ajax.request('GET', 'bid', User.token, '&id=' + MyOrder.bid_id, '', function(response) {
       if (response && response.ok) {
 
-        var ords = response.bid.order;
-        var agnt = response.bid.agent;
+        var ords = response.bid.order,
+            agnt = response.bid.agent;
         
         MyOrder.id = ords.id;
         dr_model = agnt.brand + ' ' + agnt.model;
@@ -297,15 +278,19 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
         
         if (ords.inCar) {
           var incar_but = Dom.sel('button[data-click="client-incar"]');
+          
           if (incar_but) {
             var kuda = incar_but.parentNode;
+            
             kuda.innerHTML = '<button data-click="client-came" class="button_wide--green" disabled>Приехали</button>';
           }
         }
 
         var loc = agnt.location.split(',');
+        
         if (!markers[0]) {
           var VLatLng = new google.maps.LatLng(loc[0], loc[1]);
+          
           markers[0] = new google.maps.Marker({
             position: VLatLng,
             map: map,
@@ -317,26 +302,33 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
         }
       }
 
-    }, function() {});
+    }, Ajax.error);
   }
   
   function stop() {
+    var i;
+    
     if (marker_mine) {
       marker_mine.setMap(null);
     }
+    
     if (marker_from) {
       marker_from.setMap(null);
     }
+    
     if (marker_to) {
       marker_to.setMap(null);
     }
-    for (var i = 0; i < route.length; i++) {
+    
+    for (i = 0; i < route.length; i++) {
       route[i].setMap(null);
     }
+    
     if (markers[0]) {
       markers[0].setMap(null);
     }
-    for (var i = 0; i < points.length; i++) {
+    
+    for (i = 0; i < points.length; i++) {
       points[i].setMap(null);
     }
   }
@@ -347,7 +339,9 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
     SafeWin.overviewPath = [];
     
     bid_id = localStorage.getItem('_current_id_bid');
+    global_order_id = localStorage.getItem('_current_id_order');
     MyOrder.bid_id = bid_id;
+    MyOrder.id = global_order_id;
 
     timerGetMyPos = setInterval(get_pos_mine, 1000);
 
@@ -356,6 +350,7 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps'], function (Ajax, Dom, Dat
     timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
 
     Chat.start('driver');
+    HideForms.init();
   }
   
   return {

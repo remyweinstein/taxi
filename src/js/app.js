@@ -1,5 +1,5 @@
-define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady', 'SafeWin', 'Maps', 'Zones'], 
-function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady, clSafeWin, Maps, clZones) {
+define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady', 'SafeWin', 'Maps', 'Zones', 'DriverOffer'], 
+function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady, clSafeWin, Maps, clZones, clDriverOffer) {
 
   var App =  {
     
@@ -13,6 +13,7 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
         Car =      new clCar();
         Event =    new clEvents();
         MyOrder =  new clClientOrder();
+        MyOffer =  new clDriverOffer();
         Zones =    new clZones();
         Settings = new clSettings();
           Settings.getSettings();
@@ -54,8 +55,9 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
 
         content.style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
 
-        var item_login = Dom.sel('.menu__list__item_login');
-        var item_logout = Dom.sel('.menu__list__item_logout');
+        var item_login = Dom.sel('.menu__list__item_login'),
+            item_logout = Dom.sel('.menu__list__item_logout');
+          
         if (item_login) {
           if (User.is_auth) {
             item_login.style.display = 'none';

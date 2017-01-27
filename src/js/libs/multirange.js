@@ -1,8 +1,8 @@
 define(['hammer'], function(Hammer) {
 
   function enable_multirange(el) {
-    var parentDiv = el.parentNode;
-    var name = el.name;
+    var parentDiv = el.parentNode,
+        name = el.name;
     
     Object.defineProperty( el, "value", {
       configurable: true,
@@ -16,24 +16,55 @@ define(['hammer'], function(Hammer) {
     });
     
     var new_field = document.createElement('div');
+    
     new_field.className += 'range-input';
-    new_field.innerHTML = '<input type="text" data-order="min" data-name="' + name + '" value="" class="range-input__text" />\
-                          <input type="text" data-order="max" data-name="' + name + '" value="" class="range-input__text" />\
-                          <div class="range-input__line">\n\
-                            <div data-value data-name="' + name + '" class="range-input__line__toddler"></div>\n\
-                            <div data-value data-name="' + name + '" class="range-input__line__toddler"></div>\n\
-                          </div>';
+    new_field.innerHTML = '<input type="text" data-order="min" data-name="' + name + '" value="" class="range-input__text" />' +
+                          '<input type="text" data-order="max" data-name="' + name + '" value="" class="range-input__text" />' +
+                          '<div class="range-input__wrap">' +
+                            '<div class="range-input__wrap__line">' +
+                              '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
+                              '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
+                            '</div>' +
+                          '</div>';
     
     parentDiv.insertBefore(new_field, el);
     onstartValues(name);
-  };
+  }
+  
+  function enable_range(el) {
+    var parentDiv = el.parentNode,
+        name = el.name;
+    
+    Object.defineProperty( el, "value", {
+      configurable: true,
+      enumerable: true,
+      set: function( value ) {
+        this.setAttribute( "value", value );
+      },
+      get: function() {
+        return this.getAttribute( "value" );
+      }
+    });
+    
+    var new_field = document.createElement('div');
+    
+    new_field.className += 'range-input';
+    new_field.innerHTML = '<div class="range-input__wrap">' +
+                            '<div class="range-input__wrap__line">' +
+                              '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
+                            '</div>' +
+                          '</div>';
+    
+    parentDiv.insertBefore(new_field, el);
+    onstartValuesOne(name);
+  }
   
   function whatDo(e) {
-    var type = e.gesture.srcEvent.type;
-    var isF = e.gesture.srcEvent.changedPointers;
-    var whatdo;
-    var el_left = parseFloat(e.target.parentNode.offsetLeft);
-    var el_width = parseFloat(e.target.offsetWidth);
+    var type = e.gesture.srcEvent.type,
+        isF = e.gesture.srcEvent.changedPointers,
+        el_left = parseFloat(e.target.parentNode.offsetLeft),
+        el_width = parseFloat(e.target.offsetWidth),
+        whatdo;
     
     if (type === "pointerdown" || type === "mousedown" || type === "touchstart") {
       handleStart(e.target);
@@ -53,11 +84,11 @@ define(['hammer'], function(Hammer) {
     }
     
     if (whatdo === 'move') {
-      moveSharik(e.target, (e.gesture.changedPointers[0].clientX - el_left - el_width));
+      moveShariki(e.target, (e.gesture.changedPointers[0].clientX - el_left - el_width));
     }
-  };
+  }
   
-  function moveSharik(el, delta) {
+  function moveShariki(el, delta) {
     var max_left = el.parentNode.offsetWidth - el.offsetWidth;
     
     if (el.classList.contains('active')) {
@@ -72,11 +103,11 @@ define(['hammer'], function(Hammer) {
       el.style.left = delta + 'px';
       changeValues(el);
     }
-  };
+  }
   
   function handleStart(el) {
     el.classList.add('active');
-  };
+  }
   
   function handleEnd(el) {
     if (el.classList) {
@@ -86,37 +117,73 @@ define(['hammer'], function(Hammer) {
         el.classList.remove('active');
       }
     }
-  };
+  }
   
   function onstartValues(name) {
-    var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
-    var texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
-    var values = input.value;
-        values = values.split(',');
-    var max = input.max;
-    var min = input.min;
-    var toggies = document.querySelectorAll("div.range-input__line__toddler[data-name=" + name + "]");
+    var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)"),
+        texts = document.querySelectorAll("input[type=text][data-name=" + name + "]"),
+        values = input.value,
+        max = input.max,
+        min = input.min,
+        toggies = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]");
+      
+    values = values.split(',');
     
     for (var i = 0; i < toggies.length; i++) {
-      var width = parseFloat(toggies[i].parentNode.offsetWidth) - parseFloat(toggies[i].offsetWidth);
-      var position = parseFloat((values[i] / (max - min)) * width);
+      var width = parseFloat(toggies[i].parentNode.offsetWidth) - parseFloat(toggies[i].offsetWidth),
+          position = parseFloat((values[i] / (max - min)) * width);
       
       texts[i].value = values[i];
       toggies[i].dataset.value = values[i];
       toggies[i].style.left = position + 'px';
     }
     
-  };
+  }
+  
+  function onstartValuesOne(name) {
+    var input = document.querySelector("input[type=range][name=" + name + "]:not([multiple])"),
+        value = input.value,
+        max = input.max,
+        min = input.min,
+        toggies = document.querySelector("div.range-input__wrap__line__toddler[data-name=" + name + "]");
+      
+    var width = parseFloat(toggies.parentNode.offsetWidth) - parseFloat(toggies.offsetWidth),
+        position = parseFloat((value / (max - min)) * width);
+
+    toggies.dataset.value = value;
+    toggies.style.left = position + 'px';
+
+  }
+  
+  function changeFromClick(event) {
+    var el = event.target, element, distance = event.layerX,
+        toddlers = el.childNodes;
+      
+    if (toddlers[0]) {
+      var first_distance = Math.abs(event.layerX - toddlers[0].offsetLeft);
+      var second_distance = Math.abs(event.layerX - toddlers[1].offsetLeft);
+
+      if (first_distance < second_distance) {
+        element = toddlers[0];
+      } else {
+        element = toddlers[1];
+      }
+
+      handleStart(element);
+      moveShariki(element, distance);
+      handleEnd(element);
+    }
+  }
   
   function changeFromTexts(el) {
-    var name = el.target.dataset.name;
-    var order = el.target.dataset.order;
-    var value = el.target.value;
-    var all_shariks = document.querySelectorAll("div.range-input__line__toddler[data-name=" + name + "]");
-    var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
-    var sharik_min_values = all_shariks[0].dataset.value;
-    var sharik_max_values = all_shariks[1].dataset.value;
-    var max = 1, min =0;
+    var name = el.target.dataset.name,
+        order = el.target.dataset.order,
+        value = el.target.value,
+        all_shariks = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
+        input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)"),
+        sharik_min_values = all_shariks[0].dataset.value,
+        sharik_max_values = all_shariks[1].dataset.value,
+        max = 1, min =0;
     
     if (sharik_min_values > sharik_max_values) {
       max = 0;
@@ -137,28 +204,28 @@ define(['hammer'], function(Hammer) {
 
     changeValueInput(name);
     Multirange.reinit();
-  };
+  }
   
   function changeValues(el) {
-    var input = document.querySelector("input[type=range][name=" + el.dataset.name + "][multiple]:not(.multirange)");
-    var max = input.max;
-    var min = input.min;
-    var position = parseFloat(el.offsetLeft);
-    var width = parseFloat(el.parentNode.offsetWidth) - parseFloat(el.offsetWidth);
-    var chast = position / width;
-    var value = Math.round((max - min) * chast);
+    var input = document.querySelector("input[type=range][name=" + el.dataset.name + "][multiple]:not(.multirange)"),
+        max = input.max,
+        min = input.min,
+        position = parseFloat(el.offsetLeft),
+        width = parseFloat(el.parentNode.offsetWidth) - parseFloat(el.offsetWidth),
+        chast = position / width,
+        value = Math.round((max - min) * chast);
     
     el.dataset.value = value;
     
     changeValueInput(el.dataset.name);
-  };
+  }
   
   function changeValueInput(name) {
-    var inputa = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
-    var els = document.querySelectorAll("div.range-input__line__toddler[data-name=" + name + "]");
-    var max = parseFloat(els[0].dataset.value);
-    var min = parseFloat(els[1].dataset.value);
-    var texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
+    var inputa = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)"),
+        els = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
+        max = parseFloat(els[0].dataset.value),
+        min = parseFloat(els[1].dataset.value),
+        texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
     
     if (min > max) {
       max = [min, min = max][0];
@@ -166,26 +233,37 @@ define(['hammer'], function(Hammer) {
     texts[0].value = min;
     texts[1].value = max;
     inputa.value = min + ',' + max;
-  };
+  }
 
   var Multirange = {
     init: function() {
-      var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+      var i, 
+          inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)"),
+          input_one = document.querySelectorAll("input[type=range]:not([multiple])");
       
-      for (var i = 0; i < inputs.length; i++) {
+      for (i = 0; i < inputs.length; i++) {
         enable_multirange(inputs[i]);
       }
       
+      for (i = 0; i < input_one.length; i++) {
+        enable_range(input_one[i]);
+      }
+      
       document.addEventListener('mouseleave', handleEnd);
-      var shariki = document.querySelectorAll(".range-input__line__toddler");
-      for (var i = 0; i < shariki.length; i++) {
+      var shariki = document.querySelectorAll(".range-input__wrap__line__toddler");
+      for (i = 0; i < shariki.length; i++) {
         var ev = new Hammer(shariki[i], {domEvents: true});
         shariki[i].addEventListener('hammer.input', whatDo);
       }
       
       var texts = document.querySelectorAll("input.range-input__text");
-      for (var i = 0; i < texts.length; i++) {
+      for (i = 0; i < texts.length; i++) {
         texts[i].addEventListener('change', changeFromTexts);
+      }
+      
+      var lines = document.querySelectorAll(".range-input__wrap");
+      for (i = 0; i < lines.length; i++) {
+        lines[i].addEventListener('click', changeFromClick);
       }
     },
     
@@ -198,14 +276,19 @@ define(['hammer'], function(Hammer) {
     },
     
     clear: function() {
+      var i, shariki = document.querySelectorAll(".range-input__wrap__line__toddler");
+
       document.removeEventListener('mouseleave', handleEnd);
-      var shariki = document.querySelectorAll(".range-input__line__toddler");
-      for (var i = 0; i < shariki.length; i++) {
+      for (i = 0; i < shariki.length; i++) {
         shariki[i].removeEventListener('hammer.input', whatDo);
       }
       var texts = document.querySelectorAll("input.range-input__text");
-      for (var i = 0; i < texts.length; i++) {
+      for (i = 0; i < texts.length; i++) {
         texts[i].removeEventListener('change', changeFromTexts);
+      }
+      var lines = document.querySelectorAll(".range-input__wrap");
+      for (i = 0; i < lines.length; i++) {
+        lines[i].removeEventListener('click', changeFromClick);
       }
     }
   };

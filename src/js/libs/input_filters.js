@@ -10,7 +10,7 @@ define(['Dom'], function(Dom) {
       }
       
       return;
-    };
+    }
 
     function only_date(e, target) {
       var text = target.value;
@@ -35,8 +35,7 @@ define(['Dom'], function(Dom) {
         e.preventDefault();
       }
       
-    };
-
+    }
 
     function getChar (event) {
       if (event.which === null) {
@@ -52,18 +51,23 @@ define(['Dom'], function(Dom) {
       }
       
       return null;
-    };
+    }
 
   
   var InputFilters = {
     init: function() {
             Dom.sel('.content').addEventListener('keypress', function(e) {
               var target = e.target;
+              
               while (target !== this) {
                     // = Input Filtering ONLY DIGITS =
-                if (target.dataset.keypress === 'input_only_digits') only_digits(e);
+                if (target.dataset.keypress === 'input_only_digits') {
+                  only_digits(e);
+                }
                     // = Input Filtering ONLY DATE =
-                if (target.dataset.keypress === 'input_only_date') only_date(e, target);
+                if (target.dataset.keypress === 'input_only_date') {
+                  only_date(e, target);
+                }
 
                 target = target.parentNode;
               }

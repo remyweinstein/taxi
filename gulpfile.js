@@ -10,7 +10,8 @@ var gulp = require('gulp'),
   //gutil = require('gulp-util'),
   //rjs = require("gulp-rjs"),
   //amdOptimize = require('amd-optimize'),
-  //concat = require('gulp-concat'),
+  babel = require('gulp-babel'),
+  concat = require('gulp-concat'),
   //rigger = require('gulp-rigger'),
   //plumber = require('gulp-plumber'),
   /* //server
@@ -80,7 +81,9 @@ gulp.task('js:build', function () {
   gulp.src(path.src.js)
     //.pipe(rigger())
     //.pipe(sourcemaps.init())
+    //.pipe(babel({presets: ['es2015']}))
     //.pipe(uglify())
+    //.pipe(concat('main.js'))
     //.pipe(sourcemaps.write())
     .pipe(gulp.dest(path.build.js));
     //.pipe(reload({stream: true}));

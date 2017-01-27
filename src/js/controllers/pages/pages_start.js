@@ -1,28 +1,7 @@
 /* global Event, MayLoading */
 
-define(['Ajax', 'Dom'], function (Ajax, Dom) {
+define(['Dom'], function (Dom) {
 
-  function addEvents() {
-    Event.submit = function (event) {
-          var target = event.target;
-
-          while (target !== this) {
-            if (target.dataset.submit === 'form-auth-sms') {
-
-              return;
-            }
-
-            if (target) {
-              target = target.parentNode;
-            } else {
-              break;
-            }
-          }
-        };
-
-    content.addEventListener('submit', Event.submit);
-  }
-  
   function checkLoading() {
     if (!MayLoading) {
       Dom.startLoading();
@@ -37,7 +16,6 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
   }
   
   function start() {
-    addEvents();
     timerCheckLoading = setInterval(checkLoading, 100);
   }
   

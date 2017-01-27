@@ -2,7 +2,7 @@
    Modules/Wait Order Approve Block
    ======================= */
 .wait-order-approve{
-    position: absolute;
+    position: relative;
     top: 1em;
     margin: 0 1%;
     width: 96%;
@@ -35,8 +35,7 @@
     }
 }
 .wait-bids-approve{
-    position: absolute;
-    top: 10.5em;
+    position: relative;
     font-size: 0.75em;
     background-color: white;
     width: 96%;

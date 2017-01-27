@@ -13,7 +13,9 @@ requirejs.config({
 		"User" : "models/user",
 		"Car" : "models/car",
 		"ClientOrder" : "models/client_order",
+		"DriverOffer" : "models/driver_offer",
 		"DriverOrders" : "models/driver_orders",
+		"DriverOffers" : "models/driver_offers",
 		"Events" : "models/events",
 		"Settings" : "models/settings",
 		"Zones" : "models/zones",
@@ -25,6 +27,7 @@ requirejs.config({
     "Dom" : "libs/dom",
     "Funcs" : "libs/funcs",
     "Geo" : "libs/geo",
+    "HideForms" : "libs/hide_forms",
     "InputFilters" : "libs/input_filters",
     "Maps" : "libs/maps",
     "MainMenu" : "libs/menu",
@@ -42,6 +45,7 @@ requirejs.config({
     "ctrlPageLogout" : "controllers/pages/pages_logout",
     "ctrlPageSettings" : "controllers/pages/pages_settings",
     "ctrlPageSms" : "controllers/pages/pages_sms",
+    "ctrlPagesTrustedContacts": "controllers/pages/pages_trusted_contacts",
     "ctrlPageFavorites" : "controllers/pages/pages_favorites",
     "ctrlPageZones" : "controllers/pages/pages_zones",
     "ctrlPageEditZone" : "controllers/pages/pages_edit_zone",
@@ -56,9 +60,9 @@ requirejs.config({
     "ctrlTaxiClientHelp" : "controllers/client/taxi_client_help",
     "ctrlTaxiClientMap" : "controllers/client/taxi_client_map",
     "ctrlTaxiClientDriversRating" : "controllers/client/taxi_client_drivers_rating",
-    "ctrlTaxiClientMyOrders" : "controllers/client/taxi_client_my_orders",
     
     "ctrlTaxiDriverCity" : "controllers/driver/taxi_driver_city",
+    "ctrlTaxiDriverNewOffer" : "controllers/driver/taxi_driver_new_offer",
     "ctrlTaxiDriverFeedback" : "controllers/driver/taxi_driver_feedback",
     "ctrlTaxiDriverCargo" : "controllers/driver/taxi_driver_cargo",
     "ctrlTaxiDriverMyAccount" : "controllers/driver/taxi_driver_my_account",
@@ -85,10 +89,8 @@ requirejs.config({
 
 var menus_arr = [];
     menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
-                           {name: 'Мои заказы', url: '#client_my_orders', icon: 'archive'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
-                           {name: 'Избранные', url: '#favorites', icon: 'star'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
                            {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
@@ -105,32 +107,34 @@ var menus_arr = [];
                            {name: 'Режим клиента', url: '#client_city', icon: 'steering-wheel',  add_icon: '<i class="icon-toggle-on toggle_block"></i>'},
                            {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
-  var content;
-  var map, marker, geocoder;
-  var google, placeSearch, autocomplete, directionsService, directionsDisplay, worker;
+  var content,
+      map, marker, geocoder,
+      
+      google, placeSearch, autocomplete, directionsService, directionsDisplay, worker,
   
-  var lasturl = '';
+      lasturl = '',
 
-  var MayLoading = false;
+      MayLoading = false,
   
-  var average_speed = 40;
-  var cost_of_km = 25;
+      average_speed = 40,
+      cost_of_km = 25,
   
-  var safe_zone_polygons = [];
+      safe_zone_polygons = [],
 
-  var User, Car, Event, Settings, MyOrder, SafeWin, Zones;
+      User, Car, Event, Settings, MyOrder, MyOffer, SafeWin, Zones,
 
-  var driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png';
-  var men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png';
+      driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+      men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
 
-  var my_vehicle;
+      my_vehicle,
 
-  var bid_id;
+      bid_id,
+      global_order_id,
 
-  var default_vehicle = 'assets/images/no_vehicle.png';
-  var default_city = 'Хабаровск';
+      default_vehicle = 'assets/images/no_vehicle.png',
+      default_city = 'Хабаровск',
 
-  var timerSearchDriver, 
+      timerSearchDriver, 
       timerGetBidsTaxy, 
       timerGetBidGo, 
       timerUpdateTaxiDriverOrder, 
@@ -138,7 +142,8 @@ var menus_arr = [];
       timerGetPosTaxy,
       setGeoLocationTimer,
       timerGetMyPos,
-      timerCheckLoading;
+      timerCheckLoading,
+      timerUpdateTaxiClientOffers;
 
 
 require(['App'], function (App) {  

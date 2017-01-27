@@ -57,8 +57,8 @@ define(['Dates'], function(Dates) {
                   self.comment = order.comment;
 
                   for (var y = 0; y < order.bids.length; y++) {
-                    var agid = order.bids[y].agentId;                  
-                    var a = order.bids[y].id;
+                    var agid = order.bids[y].agentId,
+                        a = order.bids[y].id;
 
                     if (agid === User.id) {
                       self.agentId = agid;

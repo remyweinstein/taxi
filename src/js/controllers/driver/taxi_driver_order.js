@@ -1,10 +1,10 @@
 /* global User, map, google, map_choice, Car, average_speed, Event */
 
-define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Dates, Modal, Maps) {
+define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (Ajax, Dom, Dates, Modal, Maps, HideForms) {
 
-  var active_bid = false, route, marker_to, marker_from, points = [];
-  var fromAddress, toAddress, fromCoords, toCoords, waypoints, points = [], price, order_id, distanse, ag_distanse, duration;
-  var name_client, photo_client, travelTime;
+  var active_bid = false, route, marker_to, marker_from, points = [],
+      fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
+      name_client, photo_client, travelTime, model;
   
   function initMap() {
     var LatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -13,81 +13,82 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
   }
 
   function setRoute() {
-    var _active_bid = "";
-
-    if (active_bid) {
-      _active_bid = ' active';
+    var _active_bid = active_bid ? ' active' : '',
+        price_minus = !active_bid ? '<i class="icon-minus-circled for-click" data-click="price_minus"></i>' : '',
+        price_plus  = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '',
+        time_minus  = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '',
+        time_plus   = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '',
+        add_button = '<i data-click="taxi_bid" class="font4 icon-ok-circled' + _active_bid + '"></i>',
+        intt = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
+        el_route = Dom.sel('.wait-order-approve__route-info__route'),
+        _addrPoints = "",
+        el_price = Dom.sel('.wait-order-approve__route-info__price'),
+        el = Dom.sel('.wait-bids-approve');
+      
+    if (intt) {
+      intt.innerHTML = add_button;
     }
-    var price_minus = !active_bid ? '<i class="icon-minus-circled for-click" data-click="price_minus"></i>' : '';
-    var price_plus  = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '';
-    var time_minus  = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '';
-    var time_plus   = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '';
     
-    var add_button = '<i data-click="taxi_bid" class="font4 icon-ok-circled' + _active_bid + '"></i>';
-    Dom.selAll('.wait-order-approve__route-info__cancel')[0].innerHTML = add_button;
+    el_route.children[0].innerHTML = fromAddress;
+    el_route.children[2].innerHTML = toAddress;
     
-    var el_route = Dom.sel('.wait-order-approve__route-info__route');
-      el_route.children[0].innerHTML = fromAddress;
-      el_route.children[2].innerHTML = toAddress;
-      var _addrPoints = "";
-      for (var i = 0; i < points.length; i++) {
-        _addrPoints += '<p>' + points[i].address + ', ' + points[i].time + ' мин.</p>';
-      }
-      if (_addrPoints === "") {
-        _addrPoints = "Заездов нет";
-      }
-      el_route.children[1].innerHTML = _addrPoints;
-    var el_price = Dom.sel('.wait-order-approve__route-info__price');
-      el_price.innerHTML = price_minus + '<span>' + price + '</span> руб.' + price_plus;
-
-    var el = Dom.sel('.wait-bids-approve');
+    for (var i = 0; i < points.length; i++) {
+      _addrPoints += '<p>' + points[i].address + ', ' + points[i].time + ' мин.</p>';
+    }
     
-      el.innerHTML = '<div class="wait-bids-approve__item">\n\
-                        <div class="wait-bids-approve__item__distance">\n\
-                          <p>До: <span data-view="distance_to_car">' + ag_distanse + '</span> км.</p>\n\
-                          <p>Буду: ' + time_minus + '<span data-view="while_car">' + travelTime + '</span> мин.' + time_plus + '</p>\n\
-                          <p>Маршрут: <span>' + distanse + ' км.</span> / <span>' + Dates.minToHours(duration) + '</span></p>\n\
-                        </div>\n\
-                        <div class="wait-bids-approve__item__driver">\n\
-                          <div>\n\
-                            <img src="' + photo_client + '" alt="" />\n\
-                          </div>\n\
-                          <div>\n\
-                            ' + name_client + '\
-                          </div>\n\
-                        </div>\n\
-                        <div class="wait-bids-approve__item__approve">\n\
-                        </div>\n\
-                      </div>';
+    if (_addrPoints === "") {
+      _addrPoints = "Заездов нет";
+    }
+    
+    el_route.children[1].innerHTML = _addrPoints;
+      
+    el_price.innerHTML = price_minus + '<span>' + price + '</span> руб.' + price_plus;
+    el.innerHTML = '<div class="wait-bids-approve__item">' +
+                      '<div class="wait-bids-approve__item__distance">' +
+                        '<p>До: <span data-view="distance_to_car">' + ag_distanse + '</span> км.</p>' +
+                        '<p>Буду: ' + time_minus + '<span data-view="while_car">' + travelTime + '</span> мин.' + time_plus + '</p>' +
+                        '<p>Маршрут: <span>' + distanse + ' км.</span> / <span>' + Dates.minToHours(duration) + '</span></p>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__driver">' +
+                        '<div>' +
+                          '<img src="' + photo_client + '" alt="" />' +
+                        '</div>' +
+                        '<div>' +
+                          name_client +
+                        '</div>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__approve"></div>' +
+                    '</div>';
   }
 
   function drawMap() {
-      directionsService = new google.maps.DirectionsService();
-      directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsService = new google.maps.DirectionsService();
+    directionsDisplay = new google.maps.DirectionsRenderer();
 
-      var request = {
-        origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
-        destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
-        waypoints: waypoints,
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
-      };
+    var request = {
+      origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
+      destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
+      waypoints: waypoints,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
 
-      directionsService.route(request, function(response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {
-          route = new google.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: true,
-            directions: response
-          });
-        }
-      });
-    }
+    directionsService.route(request, function(response, status) {
+      if (status === google.maps.DirectionsStatus.OK) {
+        route = new google.maps.DirectionsRenderer({
+          map: map,
+          suppressMarkers: true,
+          directions: response
+        });
+      }
+    });
+  }
   
   function addInfoForMarker(min, marker) {
     if(min && min > 0) {
       var infowindow = new google.maps.InfoWindow({
         content: min + ' мин.'
       });
+      
       infowindow.open(map_choice, marker);
       google.maps.event.addListener(marker, 'click', function() {
         infowindow.open(map_choice, marker);
@@ -109,13 +110,13 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
 
   function addEvents() {
     Event.click = function (event) {
-      var target = event.target;
+      var target = event.target, el;
 
       while (target !== this) {
 
             // Click taxi_bid
         if (target.dataset.click === "taxi_bid") {
-          var el = target;
+          el = target;
 
           if (el.classList.contains('active')) {
             Ajax.request('POST', 'delete-bid', User.token, '&id=' + order_id, '', function(response) {
@@ -123,21 +124,21 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
                 active_bid = false;
                 setRoute();
               }
-            }, function() {});
+            }, Ajax.error);
           } else {
             if (!User.is_auth) {
-              Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>\n\
-                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Войти</button></p>', 
+              Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
+                         '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                         '<button class="button_rounded--green" data-response="yes">Войти</button></p>', 
                         function (response) {
                           if (response === "yes") {
                             window.location.hash = '#login';
                           }
                       });
             } else if (!Car.brand || !Car.model || !Car.number) {
-              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>\n\
-                        <p><button class="button_rounded--yellow" data-response="no">Отмена</button>\n\
-                        <button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>' +
+                         '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                         '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
                           if (response === "yes") {
                             window.location.hash = '#driver_my_auto';
@@ -153,33 +154,16 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
             }
           }
         }
-        
-        if (target.dataset.click === 'drop-down') {
-          var _el = target;
-          var _top = Dom.selAll('.go-order')[0];
-
-          if (_top.style.top === '0em' || _top.style.top === '') {
-            _el.classList.remove('drop-up');
-            _el.classList.add('drop-down');
-            _top.style.top = '-20em';
-            _el.style.opacity = 1;
-            //_el.style.top = '-3.5em';
-          } else {
-            _el.classList.remove('drop-down');
-            _el.classList.add('drop-up');
-            _top.style.top = '0em';
-            //_el.style.top = '-0.5em';
-          }
-
-        }
           
         if (target.dataset.click === "time_minus") {
-          var el = target;
+          el = target;
 
-          var time_el = el.parentNode.children[1];
-          var time = time_el.innerHTML;
-            time = time.split(" ");
-            time = parseInt(time[0]) - 5;
+          var time_el = el.parentNode.children[1],
+              time = time_el.innerHTML;
+          
+          time = time.split(" ");
+          time = parseInt(time[0]) - 5;
+          
           if (time < 5) {
             time = 5;
           }
@@ -188,38 +172,43 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
         }
 
         if (target.dataset.click === "time_plus") {
-          var el = target;
+          el = target;
 
-          var time_el = el.parentNode.children[1];
-          var time = time_el.innerHTML;
-            time = time.split(" ");
-            time = parseInt(time[0]) + 5;
-            if (time < 0) time = 0;
-            travelTime = time;
-            time_el.innerHTML = time;
+          var time_el = el.parentNode.children[1],
+              time = time_el.innerHTML;
+            
+          time = time.split(" ");
+          time = parseInt(time[0]) + 5;
+
+          travelTime = time < 0 ? 0 : time;
+          time_el.innerHTML = travelTime;
         }
 
         if (target.dataset.click === "price_minus") {
-          var el = target;
+          el = target;
 
           var price_el = el.parentNode.children[1];
           var _price = price_el.innerHTML;
-            _price = _price.split(" ");
-            _price = parseInt(_price[0]) - 10;
-            if (_price < 0) _price = 0;
-            price = _price;
-            price_el.innerHTML = _price;
+          
+          _price = _price.split(" ");
+          _price = parseInt(_price[0]) - 10;
+          if (_price < 0) {
+            _price = 0;
+          }
+          price = _price;
+          price_el.innerHTML = _price;
         }
 
         if (target.dataset.click === "price_plus") {
-          var el = target;
+          el = target;
 
-          var price_el = el.parentNode.children[1];
-          var _price = price_el.innerHTML;
-            _price = _price.split(" ");
-            _price = parseInt(_price[0]) + 10;
-            price = _price;
-            price_el.innerHTML = _price;
+          var price_el = el.parentNode.children[1],
+              _price = price_el.innerHTML;
+            
+          _price = _price.split(" ");
+          _price = parseInt(_price[0]) + 10;
+          price = _price;
+          price_el.innerHTML = _price;
         }
 
         if (target) {
@@ -243,13 +232,24 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
     if (route) {
       route.setMap(null);
     }
+    
     for (var i = 0; i < points.length; i++) {
       points[i].setMap(null);
     }
   }
   
-  function start() {
-    var _id = localStorage.getItem('_open_order_id');
+  function start(modelka) {
+    var _id;
+    
+    model = modelka;
+    
+    if (model === "clDriverOffer") {
+      _id = localStorage.getItem('_open_offer_id');
+    }
+    if (model === "clClientOrder") {
+      _id = localStorage.getItem('_open_order_id');
+    }
+
     Maps.mapOn();
     
     initMap();
@@ -269,14 +269,17 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
         distanse = (ords.length / 1000).toFixed(1);
         duration = ords.duration;
         for (var y = 0; y < ords.bids.length; y++) {
-          var agid = ords.bids[y].agentId;                  
+          var agid = ords.bids[y].agentId;
+          
           if (agid === User.id) {
             active_bid = true;
+            
             break;
           }
         }
         ag_distanse = ords.agent.distance.toFixed(1);
         travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
+        
         if (travelTime < 5) {
           travelTime = 5;
         } else {
@@ -287,6 +290,7 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
         if (ords.points) {
           for (var i = 0; i < ords.points.length; i++) {
             var _wp = ords.points[i].location.split(",");
+            
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
             points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
             points.push(addInfoForMarker(ords.points[i].stopTime, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
@@ -298,13 +302,12 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps'], function (Ajax, Dom, Da
 
         setRoute();
         drawMap();
+        HideForms.init();
 
       } else {
-        window.location.hash = '#driver_city';
+        window.history.back();
       }
-    }, function() {
-      window.location.hash = '#driver_city';
-    });
+    }, Ajax.error);
     
 
     addEvents();

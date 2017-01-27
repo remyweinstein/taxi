@@ -1,42 +1,44 @@
-/* global User, menus_arr, timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event */
+/* global User, menus_arr, timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers */
 
-define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
+define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms', 'Multirange'], function (Dom, Chat, Maps, Tabs, HideForms, Multirange) {
   
-  var App, old_controller;
-  var routes = [{hash:'#edit_profile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
-                {hash:'#start', controller:'ctrlPageStart', title:'Добро пожаловать', menu:'', pageType: ''},
-                {hash:'#login', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
-                {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
-                {hash:'#edit_zone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
-                {hash:'#zones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
-                {hash:'#sms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
-                {hash:'#settings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
-                {hash:'#favorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
-                {hash:'#client_choice_location_map', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
-                {hash:'#client_choose_address', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
-                {hash:'#client_city', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
-                {hash:'#client_go', controller:'ctrlTaxiClientGo', title:'Поехали', menu:'client', pageType: ''},
-                {hash:'#client_intercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
-                {hash:'#client_cargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
-                {hash:'#client_feedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
-                {hash:'#client_drivers_rating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
-                {hash:'#client_help', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
-                {hash:'#client_map', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
-                {hash:'#client_my_orders', controller:'ctrlTaxiClientMyOrders', title:'Мои заказы', menu:'client', pageType: ''},
-                {hash:'#driver_help', controller:'ctrlTaxiDriverHelp', title:'Помощь водителю', menu:'driver', pageType: ''},
-                {hash:'#driver_my_account', controller:'ctrlTaxiDriverMyAccount', title:'Личный кабинет', menu:'driver', pageType: ''},
-                {hash:'#driver_feedback', controller:'ctrlTaxiDriverFeedback', title:'Обратная связь', menu:'driver', pageType: ''},
-                {hash:'#driver_rating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: ''},
-                {hash:'#driver_cargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
-                {hash:'#driver_city', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
-                {hash:'#driver_clients_rating', controller:'ctrlTaxiDriverClientsRating', title:'Оставьте свой отзыв', menu:'driver', pageType: ''},
-                {hash:'#driver_go', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
-                {hash:'#driver_order', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
-                {hash:'#driver_intercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
-                {hash:'#driver_my_auto', controller:'ctrlTaxiDriverMyAuto', title:'Мой авто', menu:'driver', pageType: ''}];
-
-  var defaultRoute = '#start';
-  var currentHash = '';
+  var App, 
+      old_controller,
+      routes = [{hash:'#edit_profile', template:'PageEditProfile', controller:'ctrlPageEditProfile', model:'', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
+                {hash:'#start', template:'PageStart', controller:'ctrlPageStart', model:'', title:'Добро пожаловать', menu:'', pageType: ''},
+                {hash:'#login', template:'PageLogin', controller:'ctrlPageLogin', model:'', title:'Авторизация', menu:'', pageType: 'back-arrow'},
+                {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', model:'', title:'Выход', menu:'', pageType: 'back-arrow'},
+                {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', model:'', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
+                {hash:'#trusted_contacts', template:'PagesTrustedContacts', controller:'ctrlPagesTrustedContacts', model:'', title:'Доверенные контакты', menu:'', pageType: 'back-arrow'},
+                {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', model:'', title:'Зоны', menu:'', pageType: 'back-arrow'},
+                {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', model:'', title:'Введите код', menu:'', pageType: 'back-arrow'},
+                {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', model:'', title:'Настройки', menu:'', pageType: 'back-arrow'},
+                {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', model:'', title:'Избранные', menu:'', pageType: 'back-arrow'},
+                {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', model:'', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
+                {hash:'#client_choose_address', template:'TaxiClientChooseAddress', controller:'ctrlTaxiClientChooseAddress', model:'', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
+                {hash:'#client_city', template:'TaxiClientCity', controller:'ctrlTaxiClientCity', model:'clClientOrder', title:'Город', menu:'client', pageType: ''},
+                {hash:'#client_go', template:'TaxiClientGo', controller:'ctrlTaxiClientGo', model:'', title:'Поехали', menu:'client', pageType: ''},
+                {hash:'#client_intercity', template:'TaxiClientIntercity', controller:'ctrlTaxiClientIntercity', model:'', title:'Межгород', menu:'client', pageType: ''},
+                {hash:'#client_cargo', template:'TaxiClientCargo', controller:'ctrlTaxiClientCargo', model:'', title:'Грузоперевозки', menu:'client', pageType: ''},
+                {hash:'#client_feedback', template:'TaxiClientFeedback', controller:'ctrlTaxiClientFeedback', model:'', title:'Обратная связь', menu:'client', pageType: ''},
+                {hash:'#client_drivers_rating', template:'TaxiClientDriversRating', controller:'ctrlTaxiClientDriversRating', model:'', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
+                {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', model:'', title:'Помощь клиенту', menu:'client', pageType: ''},
+                {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', model:'clClientOrder', title:'Поиск водителя', menu:'client', pageType: ''},
+                {hash:'#driver_help', template:'TaxiDriverHelp', controller:'ctrlTaxiDriverHelp', model:'', title:'Помощь водителю', menu:'driver', pageType: ''},
+                {hash:'#driver_new_offer', template:'TaxiDriverNewOffer', controller:'ctrlTaxiClientCity', model:'clDriverOffer', title:'Новое предложение', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_my_offer', template:'TaxiDriverOffer', controller:'ctrlTaxiClientMap', model:'clDriverOffer', title:'Мое предложение', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_my_account', template:'TaxiDriverMyAccount', controller:'ctrlTaxiDriverMyAccount', model:'', title:'Личный кабинет', menu:'driver', pageType: ''},
+                {hash:'#driver_feedback', template:'TaxiDriverFeedback', controller:'ctrlTaxiDriverFeedback', model:'', title:'Обратная связь', menu:'driver', pageType: ''},
+                {hash:'#driver_rating', template:'TaxiDriverRating', controller:'ctrlTaxiDriverRating', model:'', title:'Мой рейтинг', menu:'driver', pageType: ''},
+                {hash:'#driver_cargo', template:'TaxiDriverCargo', controller:'ctrlTaxiDriverCargo', model:'', title:'Грузоперевозки', menu:'driver', pageType: ''},
+                {hash:'#driver_city', template:'TaxiDriverCity', controller:'ctrlTaxiDriverCity', model:'clClientOrder', title:'Город', menu:'driver', pageType: ''},
+                {hash:'#driver_clients_rating', template:'TaxiDriverClientsRating', controller:'ctrlTaxiDriverClientsRating', model:'', title:'Оставьте свой отзыв', menu:'driver', pageType: ''},
+                {hash:'#driver_go', template:'TaxiDriverGo', controller:'ctrlTaxiDriverGo', model:'', title:'Поехали', menu:'driver', pageType: ''},
+                {hash:'#driver_order', template:'TaxiDriverOrder', controller:'ctrlTaxiDriverOrder', model:'clClientOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_intercity', template:'TaxiDriverIntercity', controller:'ctrlTaxiDriverIntercity', model:'', title:'Межгород', menu:'driver', pageType: ''},
+                {hash:'#driver_my_auto', template:'TaxiDriverMyAuto', controller:'ctrlTaxiDriverMyAuto', model:'', title:'Мой авто', menu:'driver', pageType: ''}],
+      defaultRoute = '#start',
+      currentHash = '';
 
   function startRouting(app) {
     App = app;
@@ -70,6 +72,8 @@ define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
   }
   
   function renderMenu (route) {
+    var i;
+    
     Dom.sel('.header__title').innerHTML = route.title;
     
     if (route.pageType === "back-arrow") {
@@ -100,26 +104,27 @@ define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
       toggle.innerHTML = '';
     }
     
-    var list = Dom.sel('.menu__list');
-    var temp_els = [];
+    var list = Dom.sel('.menu__list'),
+        temp_els = [];
     
     if (list.children.length > 2) {
-      for (var i = 0; i < (list.children.length - 2); i++) {
+      for (i = 0; i < (list.children.length - 2); i++) {
         temp_els[i] = list.children[i];
       }
-      for (var i = 0; i < temp_els.length; i++) {
+      for (i = 0; i < temp_els.length; i++) {
         temp_els[i].parentNode.removeChild(temp_els[i]);
       }
     }
     
     if (menus_arr[route.menu]) {
-      for (var i = (menus_arr[route.menu].length - 1); i > -1; i--) {
-        var add_icon = menus_arr[route.menu][i].add_icon || '';
-        var newLi = document.createElement('li');
-          newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">\n\
-                             <i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>\n\
-                             ' + menus_arr[route.menu][i].name + add_icon + '\
-                             </a>';
+      for (i = (menus_arr[route.menu].length - 1); i > -1; i--) {
+        var add_icon = menus_arr[route.menu][i].add_icon || '',
+            newLi = document.createElement('li');
+          
+        newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">' +
+                            '<i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>' +
+                            menus_arr[route.menu][i].name + add_icon +
+                          '</a>';
         list.insertBefore(newLi, list.firstChild);
       }
     }
@@ -143,6 +148,7 @@ define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
     clearInterval(timerGetMyPos);
     clearInterval(timerGetPosTaxy);
     clearInterval(timerCheckLoading);
+    clearInterval(timerUpdateTaxiClientOffers);
 
     Dom.sel('.content').removeEventListener('click', Event.click);
     Dom.sel('.content').removeEventListener('submit', Event.submit);
@@ -152,30 +158,35 @@ define(['Dom', 'Chat', 'Maps'], function (Dom, Chat, Maps) {
   }
   
   function loadController(route) {
-    var content_el = Dom.sel('.content');
-    var dynamic_el = Dom.sel('.dynamic');
-    
+    var content_el = Dom.sel('.content'),
+        dynamic_el = Dom.sel('.dynamic'),
+        content = document.querySelector('#' + route.template).innerHTML,
+        dynamic = document.createElement('div');
+      
+    Tabs.clear();
+    HideForms.clear();
+            
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);
     }
-
-    var content = document.querySelector('#' + route.controller).innerHTML;
-    var dynamic = document.createElement('div');
-      dynamic.classList.add('dynamic');
-      dynamic.innerHTML = content;
+      
+    dynamic.classList.add('dynamic');
+    dynamic.innerHTML = content;
     content_el.appendChild(dynamic);
 
     renderMenu(route);
     Maps.mapOff();
     clearVars();
+    
     if (old_controller) {
       require([old_controller.controller], function(controller) {
         controller.clear();
       });
     }
+    
     require([route.controller], function(controller) {
       App.init();
-      controller.start(App);
+      controller.start(route.model);
       Dom.finishLoading();
     });
   }

@@ -1,6 +1,7 @@
 /* global MyOrder, User, google, map, Event */
 
 define(['Dom', 'Maps'], function (Dom, Maps) {
+  var model, Model;
   
   function initMap() {
     var x, y, zoom = 18;
@@ -8,11 +9,11 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     var _temp_coords = "";
     
     if (_route === "from") {
-      _temp_coords = MyOrder.fromCoords;
+      _temp_coords = Model.fromCoords;
     }
 
     if (_route === "to") {
-      _temp_coords = MyOrder.toCoords;
+      _temp_coords = Model.toCoords;
     }
     
     if (!User.lat || !User.lng) {
@@ -38,8 +39,8 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     map.getDiv().insertAdjacentHTML('beforeend', '<div class="centerMarker"></div>');
     var center_marker = Dom.sel('.centerMarker');
 
-    google.maps.event.addListener(map, 'drag', function() {
-        var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map);
+    google.maps.event.addListener(map, 'dragend', function() {
+        var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34), map);
         localStorage.setItem('_choice_coords', coords);
     });
     
@@ -56,25 +57,25 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
           geocoder = new google.maps.Geocoder();
 
           var latl = localStorage.getItem('_choice_coords');
-           latl = latl.replace("(","");
-           latl = latl.replace(")","");
-           latl = latl.replace(" ","");
-           latl = latl.split(",");
+              latl = latl.replace("(","");
+              latl = latl.replace(")","");
+              latl = latl.replace(" ","");
+              latl = latl.split(",");
           var latlng = latl[0] + ',' + latl[1];
 
           if (_route === "from") {
-            MyOrder.fromCoords = latlng;
+            Model.fromCoords = latlng;
           }
 
           if (_route === "to") {
-            MyOrder.toCoords = latlng;
+            Model.toCoords = latlng;
           }
 
           var substr = _route.substring(0, 7);
           if (substr === "to_plus") {
             var _index = _route.replace("to_plus", "");
 
-            MyOrder.toCoordses[_index] = latlng;
+            Model.toCoordses[_index] = latlng;
           }
 
           var latlng = new google.maps.LatLng(latl[0], latl[1]);
@@ -86,20 +87,20 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
                 var _address = Maps.getStreetFromGoogle(results);
 
                 if (_route === "from") {
-                  MyOrder.fromAddress = _address;
+                  Model.fromAddress = _address;
                 }
 
                 if (_route === "to") {
-                  MyOrder.toAddress = _address;
+                  Model.toAddress = _address;
                 }
 
                 var substr = _route.substring(0, 7);
                 if (substr === "to_plus") {
                   var _index = _route.replace("to_plus", "");
-                  MyOrder.toAddresses[_index] = _address;
+                  Model.toAddresses[_index] = _address;
                 }
                 
-                window.location.hash = '#client_city';
+                window.history.back();
               }
             });
 
@@ -122,9 +123,24 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     var center_marker = Dom.sel('.centerMarker');
     
     center_marker.parentNode.removeChild(center_marker);
+    if (model === "MyOffer") {
+      MyOffer = Model;
+    }
+    if (model === "MyOrder") {
+      MyOrder = Model;
+    }
   }
   
   function start() {
+    model = localStorage.getItem('_active_model');
+    
+    if (model === "MyOffer") {
+      Model = MyOffer;
+    }
+    if (model === "MyOrder") {
+      Model = MyOrder;
+    }
+    
     Maps.mapOn();
     initMap();
     addEvents();

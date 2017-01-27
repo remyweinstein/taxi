@@ -77,6 +77,28 @@
             font-style: italic;
         }
     }
+    &_menu{
+        width: 8%!important;
+        padding-top: .5em;
+        color: #999;
+        cursor: pointer;
+        position: relative;
+        span {
+            position: absolute;
+            right: 1em;
+            top: 2em;
+            border: 2px solid #d3d3d3;
+            padding: .5em;
+            background-color: #fff;
+            font-size: .75em;
+            display: none;
+            a {
+                display: block;
+                text-decoration: none;
+                padding: .5em .15em;
+            }
+        }
+    }
     &_phone{
         i{
         top: -0.1em;

@@ -7,12 +7,12 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
   var block = 'content';
 
   function showLayer() {
-    var el = Dom.sel('.' + block);
-    var new_field = document.createElement('div');
-      new_field.className += 'grey-layer';
-
-    var parentDiv = el.parentNode;
-      parentDiv.insertBefore(new_field, el);
+    var el = Dom.sel('.' + block),
+        new_field = document.createElement('div'),
+        parentDiv = el.parentNode;
+    
+    new_field.className += 'grey-layer';
+    parentDiv.insertBefore(new_field, el);
 
     new_field.addEventListener('click', function() {
       close();
@@ -29,31 +29,33 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
     clearLayer(layer);
     cur_win.parentNode.removeChild(cur_win);
     cur_win = null;
-  };
+  }
   
   function onInputDoubleRange() {
-    var first = this.parentNode.querySelectorAll('input')[0];
-    var second = this.parentNode.querySelectorAll('input')[1];
-    var max, min;
+    var first = this.parentNode.querySelectorAll('input')[0],
+        second = this.parentNode.querySelectorAll('input')[1],
+        max, min,
+        intext;
         
-      max = parseInt(second.value);
-      min = parseInt(first.value);
+    max = parseInt(second.value);
+    min = parseInt(first.value);
 
     if (max < min) {
       max = parseInt(first.value);
       min = parseInt(second.value);
     }
     if (max === 0 && min === 0) {
-      var intext = '';
+      intext = '';
     } else {
-      var intext = min + ' - ' + max;
+      intext = min + ' - ' + max;
     }
     this.parentNode.querySelector('span').innerHTML = intext;
 
-  };
+  }
 
   function onInputRange() {
-    var val = parseInt(this.value), intext;
+    var val = parseInt(this.value), 
+        intext;
     
     if (val === 0) {
       intext = '';
@@ -61,11 +63,11 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
       intext = val;
     }
     this.parentNode.querySelector('span').innerHTML = intext;
-  };
+  }
   
   function changeValuesFilterArray() {
-    var win = Dom.sel('.popup-window');
-    var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+    var win = Dom.sel('.popup-window'),
+        inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
 
     for (var i = 0; i < inputs.length; i++) {
       var temp_el = win.querySelector("input[type=range][name=" + inputs[i].name + "][multiple]:not(.multirange)").value;
@@ -95,12 +97,12 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
     }
     
     return actives_filter;
-  };
+  }
   
   function clearValuesFilterArray() {
-    var temp_min, temp_max;
-
-    var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+    var temp_min, 
+        temp_max,
+        inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
 
     for (var i = 0; i < inputs.length; i++) {
       temp_min = inputs[i].min;
@@ -130,27 +132,28 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
     }
 
     return actives_filter;
-  };
+  }
 
 
   var PopupWindow = {
     
     show: function (el, content, callback) {
                   layer = showLayer();
-                  var new_field = document.createElement('div');
-                    new_field.className += 'popup-window';
-                    new_field.innerHTML = content;
-
-                  var parentDiv = el.parentNode;
-                    parentDiv.insertBefore(new_field, el);
-                    
-                  var height = new_field.offsetHeight;
+                  var new_field = document.createElement('div'),
+                      parentDiv = el.parentNode,
+                      height = new_field.offsetHeight,
+                      i, i_ranges;
+                  
+                  new_field.className += 'popup-window';
+                  new_field.innerHTML = content;
+                  parentDiv.insertBefore(new_field, el);
                   //new_field.style.top = -height + 'px';
                   //new_field.style.display = 'block';
                   new_field.style.top = '0';
                   
                   var buts = new_field.querySelectorAll('[data-sort]');
-                  for (var i = 0; i < buts.length; i++) {
+                  
+                  for (i = 0; i < buts.length; i++) {
                     if (buts[i].dataset.sort === actives_sort.sort && buts[i].dataset.r === actives_sort.r) {
                       buts[i].classList.add('active');
                     }
@@ -160,7 +163,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                   if (localStorage.getItem('_filters_active')) {
                     actives_filter = JSON.parse(localStorage.getItem('_filters_active'));
                   }
-                  for (var i = 0; i < inputs.length; i++) {
+                  for (i = 0; i < inputs.length; i++) {
                     if (actives_filter.filter.distance.max !== "0" && inputs[i].name === "distance_max") {
                       inputs[i].value = actives_filter.filter.distance.max;
                     }
@@ -188,26 +191,21 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                   }
 
                   new_field.addEventListener('click', function(event) {
-                    var target = event.target;
+                    var target = event.target, _el;
 
                     while (target !== this) {
                       if (target) {
                         
                         if (target.dataset.sort) {
-                          var _el = target;
+                          _el = target;
                           
                           if (Dom.toggle(_el, 'active')) {
                             actives_sort = '';
-                            console.log('click, active, el = ' + _el);
                             for (var i = 0; i < buts.length; i++) {
                               buts[i].classList.remove('active');
                             }
-                            
-                            //_el.classList.add('active');
                           } else {
-                            console.log('click, inactive, el = ' + _el);
                             actives_sort = {sort: _el.dataset.sort, r: _el.dataset.r};
-                            //_el.classList.add('active');
                           }
                           
                           Multirange.clear();
@@ -241,16 +239,19 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                     }
                   });
                   
-                  var i_ranges = Dom.selAll('.popup-window__double-range input');
+                  i_ranges = Dom.selAll('.popup-window__double-range input');
+                  
                   if (i_ranges) {
                     Multirange.init();
                   }
-                  for (var i = 0; i < i_ranges.length; i++) {
+                  
+                  for (i = 0; i < i_ranges.length; i++) {
                     i_ranges[i].addEventListener('input', onInputDoubleRange);
                   }
                   
-                  var i_ranges = Dom.selAll('.popup-window__range input');
-                  for (var i = 0; i < i_ranges.length; i++) {
+                  i_ranges = Dom.selAll('.popup-window__range input');
+                  
+                  for (i = 0; i < i_ranges.length; i++) {
                     i_ranges[i].addEventListener('input', onInputRange);
                   }
                   

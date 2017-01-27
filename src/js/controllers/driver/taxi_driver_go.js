@@ -1,6 +1,6 @@
 /* global User, google, map, SafeWin, driver_icon, Event */
 
-define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps'], function (Ajax, Dom, Chat, Dates, Geo, Maps) {
+define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms'], function (Ajax, Dom, Chat, Dates, Geo, Maps, HideForms) {
   
   var order_id;
   var markers = [], marker_client, marker_from, marker_to, route = [], points = [];
@@ -205,27 +205,6 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps'], function (Ajax, Dom, Cha
 
       while (target !== this) {
         
-        if (target.dataset.click === 'drop-down') {
-          var _el = target;
-          var _top = Dom.selAll('.go-order__top')[0];
-          var _bottom = Dom.selAll('.go-order__down')[0];
-
-          if (_top.style.top === '0em' || _top.style.top === '') {
-            _el.classList.remove('drop-down');
-            _el.classList.add('drop-up');
-            _top.style.top = '-15em';
-            _bottom.style.bottom = '-13em';
-            _el.style.opacity = 1;
-            _el.style.top = '-2.5em';
-          } else {
-            _el.classList.remove('drop-up');
-            _el.classList.add('drop-down');
-            _top.style.top = '0em';
-            _bottom.style.bottom = '1em';
-            _el.style.top = '0';
-          }
-        }
-        
         if (target.dataset.click === "driver-came") {
           Ajax.request('POST', 'finish-order', User.token, '&id=' + order_id, '', function() {
             localStorage.setItem('_rating_bid', bid_id);
@@ -287,6 +266,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps'], function (Ajax, Dom, Cha
     initMap();
     
     bid_id = localStorage.getItem('_current_id_bid');
+    global_order_id = localStorage.getItem('_current_id_order');
     
     SafeWin.map = map;
     SafeWin.overviewPath = [];
@@ -326,6 +306,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps'], function (Ajax, Dom, Cha
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
 
     Chat.start('client');
+    HideForms.init();
   }
   
   return {

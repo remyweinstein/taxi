@@ -4,22 +4,25 @@ define(['Dom'], function (Dom) {
   var current_agent;
 
   function addEvents() {
-    Event.click = function () {
+    Event.click = function (event) {
       var target = event.target;
 
       while (target !== this) {
         
         if (target.dataset.view === "star") {
-          var el = target;
-          var id = parseInt(el.dataset.id);
+          var el = target,
+              id = parseInt(el.dataset.id),
+              i,
+              topLev = el.parentNode,
+              els = topLev.querySelectorAll('i');
+            
           current_rating = id + 1;
-          
-          var topLev = el.parentNode;
-          var els = topLev.querySelectorAll('i');
-          for (var i = 0; i < els.length; i++) {
+                    
+          for (i = 0; i < els.length; i++) {
             els[i].classList.remove('active');
           }
-          for (var i = 0; i <= id; i++) {
+          
+          for (i = 0; i <= id; i++) {
             els[i].classList.add('active');
           }
 
@@ -50,13 +53,9 @@ define(['Dom'], function (Dom) {
       while (target !== this) {
         
         if (target.dataset.view === "star") {
-          var el = target;
-          var id = el.dataset.id;
-            console.log(id);
-          
-          for (var i = 0; i < id; i++) {
-            console.log(i);
-          }
+          var el = target,
+              id = el.dataset.id;
+
         }
 
         if (target) {

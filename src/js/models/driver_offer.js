@@ -2,7 +2,7 @@
 
 define(['Ajax'], function(Ajax) {
   
-  var clClientOrder = function () {
+  var clDriverOffer = function () {
     var self = this;
 
     this.id = null;
@@ -46,6 +46,7 @@ define(['Ajax'], function(Ajax) {
       data.append('comment', self.comment);
       data.append('minibus', 0);
       data.append('babyChair', 0);
+      data.append('type', 'offer');
       data.append('length', self.length);
 
       if (self.toAddresses.length > 0) {
@@ -64,7 +65,7 @@ define(['Ajax'], function(Ajax) {
         callback(response);
       }, function() {});
     };
-    
+
     this.getByID = function (_id, callback) {
                   Ajax.request('GET', 'order', User.token, '&id=' + _id, '', function(response) {
                     if (response && response.ok) {
@@ -114,6 +115,6 @@ define(['Ajax'], function(Ajax) {
 
   };
   
-  return clClientOrder;
+  return clDriverOffer;
   
 });

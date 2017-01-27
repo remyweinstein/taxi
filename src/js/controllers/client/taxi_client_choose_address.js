@@ -1,8 +1,8 @@
 /* global google, User, map, MyOrder */
 
-define(['Dom'], function (Dom) {
+define(['Dom', 'Maps'], function (Dom, Maps) {
   
-  var _timer;
+  var _timer, Model, model;
     
   function onchange() {
     clearTimeout(_timer);
@@ -79,24 +79,24 @@ define(['Dom'], function (Dom) {
           var _route = localStorage.getItem('_address_temp');
 
           if (_route === "from") {
-            MyOrder.fromAddress = target.children[0].innerHTML;
-            MyOrder.fromCoords = target.dataset.latlng;
+            Model.fromAddress = target.children[0].innerHTML;
+            Model.fromCoords = target.dataset.latlng;
           }
 
           if (_route === "to") {
-            MyOrder.toAddress = target.children[0].innerHTML;
-            MyOrder.toCoords = target.dataset.latlng;
+            Model.toAddress = target.children[0].innerHTML;
+            Model.toCoords = target.dataset.latlng;
           }
 
           var substr = _route.substring(0, 7);
           if (substr === "to_plus") {
             var _index = _route.replace("to_plus", "");
 
-            MyOrder.toAddresses[_index] = target.children[0].innerHTML;
-            MyOrder.toCoordses[_index] = target.dataset.latlng;
+            Model.toAddresses[_index] = target.children[0].innerHTML;
+            Model.toCoordses[_index] = target.dataset.latlng;
           }
 
-          window.location.hash = '#client_city';
+          window.history.back();
         }
 
         if (target) {
@@ -109,11 +109,25 @@ define(['Dom'], function (Dom) {
   }
   
   function stop() {
-
+    if (model === "MyOffer") {
+      MyOffer = Model;
+    }
+    if (model === "MyOrder") {
+      MyOrder = Model;
+    }
   }
   
   function start() {
     var input = Dom.sel('input[name="enter-address"]');
+    
+    model = localStorage.getItem('_active_model');
+    
+    if (model === "MyOffer") {
+      Model = MyOffer;
+    }
+    if (model === "MyOrder") {
+      Model = MyOrder;
+    }
   
     input.value = localStorage.getItem('_address_string_temp');
     input.addEventListener('input', onchange);

@@ -1,18 +1,18 @@
-/* global User, google, map, MyOrder, cost_of_km, Car, driver_icon, men_icon, Event */
+/* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event */
 
-define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps) {
+define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (Ajax, Dom, Modal, Maps, Dates, HideForms) {
   
-  var marker_mine, points = [];
-  var markers_driver_pos = [];    
-  var recommended_cost = 0;
-  var radiusSearch = 0.5;
-  var zoom, route;
-
-  var marker_a, marker_b, marker_from, marker_to;
-  var price = Dom.sel('[name="cost"]').value;
-  var comment = Dom.sel('[name="description"]').value;
-  
-  var content = Dom.sel('.content');
+  var marker_mine, points = [],
+      markers_driver_pos = [],   
+      recommended_cost = 0,
+      radiusSearch = 0.5,
+      zoom, route,
+      marker_a, marker_b, marker_from, marker_to,
+      price = Dom.sel('[name="cost"]').value,
+      comment = Dom.sel('[name="description"]').value,
+      content = Dom.sel('.content'),
+      model,
+      Model;
 
   function addEventChooseAddress(el) {
     Dom.sel('input[name="' + el + '"]').addEventListener('click', function(event) {
@@ -24,9 +24,9 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
   }
 
   function initMap() {
-    zoom = 15;
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
     
+    zoom = 15;
     map.setCenter(MyLatLng);
     map.setZoom(zoom);
 
@@ -37,16 +37,18 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       title: 'Я здесь!'
     });
 
-    var from_value = Dom.selAll('input[name="from"]')[0].value;
-    var to_value = Dom.selAll('input[name="to"]')[0].value;
+    var from_value = Dom.selAll('input[name="from"]')[0].value,
+        to_value = Dom.selAll('input[name="to"]')[0].value;
 
     if (from_value !== '' && to_value === '') {
-      var _addr_from = MyOrder.fromCoords.split(",");
+      var _addr_from = Model.fromCoords.split(",");
+      
       marker_a = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), from_value, '//www.google.com/mapfiles/markerA.png', map);
     }
 
     if (to_value !== '' && from_value === '') {
-      var _addr_to = MyOrder.toCoords.split(",");
+      var _addr_to = Model.toCoords.split(",");
+      
       marker_b = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), to_value, '//www.google.com/mapfiles/markerB.png', map);
     }
 
@@ -55,27 +57,29 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
     }
 
     function drawLine() {
-      var directionsService = new google.maps.DirectionsService();
-      var _addr_from = MyOrder.fromCoords.split(",");
-      var _addr_to = MyOrder.toCoords.split(",");
-      var waypoints = [];
+      var directionsService = new google.maps.DirectionsService(),
+          _addr_from = Model.fromCoords.split(","),
+          _addr_to = Model.toCoords.split(","),
+          waypoints = [];
+        
       marker_b = null;
       marker_a = null;
 
-      for (var i = 0; i < MyOrder.toAddresses.length; i++) {
-        if (MyOrder.toAddresses[i] && MyOrder.toAddresses[i] !== "") {
-          var _wp = MyOrder.toCoordses[i].split(",");
+      for (var i = 0; i < Model.toAddresses.length; i++) {
+        if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
+          var _wp = Model.toCoordses[i].split(","),
+              time = "";
+          
           waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-          var time = "";
-          if (MyOrder.times[i]) {
-            time = MyOrder.times[i] + ' мин.';
+          if (Model.times[i]) {
+            time = Model.times[i] + ' мин.';
           }
-          points.push(addInfoForMarker(time, true, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), MyOrder.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
+          points.push(addInfoForMarker(time, true, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
         }
       }
 
-      marker_from = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-      marker_to = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
+      marker_from = addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
+      marker_to = addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
 
       var request = {
         origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
@@ -88,17 +92,17 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       directionsService.route(request, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
 
-          var routes_dist = response.routes[0].legs;
-          var dura = 0, dist = 0;
+          var routes_dist = response.routes[0].legs,
+              dura = 0, dist = 0;
           
           for (var i = 0; i < routes_dist.length; i++) {
             dura += routes_dist[i].duration.value;
             dist += routes_dist[i].distance.value;
           }
 
-          MyOrder.duration = Math.round(dura / 60);
-          MyOrder.length = dist;
-          recommended_cost = 10 * Math.ceil( ((MyOrder.length / 1000) * cost_of_km) / 10 );
+          Model.duration = Math.round(dura / 60);
+          Model.length = dist;
+          recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
           Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recommended_cost + ' руб.';
 
@@ -117,7 +121,8 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       //localStorage.setItem('_choice_coords', coords);
     }); 
     map.addListener('zoom_changed', function() {
-      var zoom = map.getZoom();      
+      var zoom = map.getZoom();
+      
       if (zoom <= 12) {
         radiusSearch = 10;
       } else if (zoom === 13) {
@@ -135,7 +140,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
   }
     
   function addInfoForMarker(text, open, marker) {
-    if(text && text !== "") {
+    if (text && text !== "") {
       var infowindow = new google.maps.InfoWindow({
         content: text
       });
@@ -178,19 +183,21 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
     
     Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function(response) {
       if (response && response.ok) {
-        var new_markers = [];
-        var agnts = response.agents;
-        var loc;
+        var new_markers = [],
+            agnts = response.agents,
+            loc,
+            i;
 
-        for (var i = 0; i < agnts.length; i++) {
+        for (i = 0; i < agnts.length; i++) {
           if (!searchArray(agnts[i].id, markers_driver_pos)) {
-            var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar;
-            var photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle;
-            var name = agnts[i].name ? agnts[i].name : '&nbsp;';
-            var brand = agnts[i].brand ? agnts[i].brand : '&nbsp;';
-            var model = agnts[i].model ? agnts[i].model : '&nbsp;';
-            var favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id  + '" data-click="deltofav">Удалить из Избранного</button>';
-            var info = '<div style="text-align:center;">' +
+            var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar,
+                photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle,
+                name = agnts[i].name ? agnts[i].name : '&nbsp;',
+                brand = agnts[i].brand ? agnts[i].brand : '&nbsp;',
+                model = agnts[i].model ? agnts[i].model : '&nbsp;',
+                marker,
+                favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id  + '" data-click="deltofav">Удалить из Избранного</button>',
+                info = '<div style="text-align:center;">' +
                           '<div style="width:50%;display:inline-block;float: left;">' + 
                             '<p>id' + agnts[i].id + '<br>' + name + '</p>' + 
                             '<p><img class="avatar" src="' + photo + '" alt=""/></p>' + 
@@ -202,8 +209,8 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
                             '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' + 
                           '</div>' + 
                         '</div>';
+
             loc = agnts[i].location.split(',');
-            var marker;
             
             if (agnts[i].isDriver) {
               marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map));
@@ -222,7 +229,8 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
         }
 
         var result = [];
-        for (var i = 0; i < markers_driver_pos.length; i++) {
+        
+        for (i = 0; i < markers_driver_pos.length; i++) {
           var s = false;
           for (var y = 0; y < new_markers.length; y++) {
             if (markers_driver_pos[i].id === new_markers[y].id) {
@@ -234,7 +242,7 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
           }
         }
 
-        for (var i = 0; i < result.length; i++) {
+        for (i = 0; i < result.length; i++) {
           result[i].marker.setMap(null);
         }
         
@@ -246,106 +254,88 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
   }
 
   function AddNewZaezd(just_add) {
-    var time = MyOrder.times[just_add];
-    var addr = MyOrder.toAddresses[just_add];
-      time = time ? time + " мин" : "";
-      addr = addr ? addr : "";
-    var el = Dom.sel('.order-city-to');
-    var new_field = document.createElement('div');
-     new_field.className += 'form-order-city__field order-city-to_z';
-     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' + 
-                            '<span class="form-order-city__wrap">' + 
-                              '<input type="text" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' + 
-                            '</span>' + 
-                            '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' + 
-                              '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' + 
-                            '</span>' + 
-                            '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' + 
-                              '<i class="icon-trash"></i>' + 
-                            '</span>' + 
-                            '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
+    var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
+        addr = Model.toAddresses[just_add] ? Model.toAddresses[just_add] : "",
+        el = Dom.sel('.order-city-to'),
+        new_field = document.createElement('div'),
+        parentDiv = el.parentNode;
+      
+    new_field.className += 'form-order-city__field order-city-to_z';
+    new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' + 
+                           '<span class="form-order-city__wrap">' + 
+                             '<input type="text" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' + 
+                           '</span>' + 
+                           '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' + 
+                             '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' + 
+                           '</span>' + 
+                           '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' + 
+                             '<i class="icon-trash"></i>' + 
+                           '</span>' + 
+                           '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
 
-    var parentDiv = el.parentNode;
-      parentDiv.insertBefore(new_field, el);
+    parentDiv.insertBefore(new_field, el);
+        
     addEventChooseAddress('to_plus' + just_add);
   }
+
 
   function addEvents() {
     
     Event.click = function (event) {
-      var target = event.target;
+      var target = event.target,
+          el, id;
       
       while (target !== this) {
           
         if (target) {
+          
           if (target.dataset.click === "addtofav") {
-            var el = target;
+            el = target;
             Ajax.request('POST', 'favorites', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
                 el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
               }
-            }, function() {});
+            }, Ajax.error);
           }
           
           if (target.dataset.click === "deltofav") {
-            var el = target;
+            el = target;
             Ajax.request('POST', 'delete-favorites', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
                 el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="addtofav">Избранное</button>';
               }
-            }, function() {});
+            }, Ajax.error);
           }
           
           if (target.dataset.click === "addtoblack") {
-            var el = target;
+            el = target;
             Ajax.request('POST', 'black-list', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
                 el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="deltoblack">Удалить из Черного списка</button>';
               }
-            }, function() {}); 
+            }, Ajax.error); 
           }  
           
           if (target.dataset.click === "deltoblack") {
-            var el = target;
+            el = target;
             Ajax.request('POST', 'delete-black-list', User.token, '&id=' + el.dataset.id, '', function(response) {
               if (response && response.ok) {
                 el.parentNode.innerHTML = '<button data-id="' + el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
               }
-            }, function() {}); 
+            }, Ajax.error); 
           }  
           
           if (target.dataset.click === 'choice_location') {
             localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             window.location.hash = '#client_choice_location_map';
 
-            return;
-          }
-
-          if (target.dataset.click === 'drop-down') {
-            var _el = target;
-            var _top = Dom.selAll('[data-controller="taxi_client_city"]')[0];
-            var _bottom = Dom.selAll('[data-controller="taxi_client_city_bottom"]')[0];
-
-            if (_top.style.top === '1em' || _top.style.top === '') {
-              _el.classList.remove('drop-down');
-              _el.classList.add('drop-up');
-              _top.style.top = '-10em';
-              _bottom.style.bottom = '-10em';
-              _el.style.opacity = 1;
-              _el.style.top = '-3.5em';
-            } else {
-              _el.classList.remove('drop-up');
-              _el.classList.add('drop-down');
-              _top.style.top = '1em';
-              _bottom.style.bottom = '1em';
-              _el.style.top = '-0.5em';
-            }
-
+            break;
           }
 
               // = Form add new point order =
           if (target.dataset.click === 'field_add') {
             var just_add = Dom.selAll('.icon-record').length;
+            
             if (just_add > 0) {
               if (Dom.selAll('.icon-record')[just_add - 1].parentNode.querySelectorAll('input')[0].value !== "") {
                 AddNewZaezd(just_add);
@@ -354,35 +344,35 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
               AddNewZaezd(just_add);
             }
 
-            return;
+            break;
           }
 
           if (target.dataset.click === 'clean-field') {
             var _field = target.dataset.field;
 
             if (_field === "from") {
-              MyOrder.fromAddress = "";
-              MyOrder.fromCity = "";
-              MyOrder.fromCoords = "";
-              MyOrder.fromFullAddress = "";
+              Model.fromAddress = "";
+              Model.fromCity = "";
+              Model.fromCoords = "";
+              Model.fromFullAddress = "";
             }
 
             if (_field === "to") {
-              MyOrder.toAddress = "";
-              MyOrder.toCity = "";
-              MyOrder.toCoords = "";
-              MyOrder.toFullAddress = "";
+              Model.toAddress = "";
+              Model.toCity = "";
+              Model.toCoords = "";
+              Model.toFullAddress = "";
             }
 
             Dom.selAll('.adress_' + _field)[0].value = "";
             stop();
             initMap();
 
-            return;
+            break;
           }
 
           if (target.dataset.click === 'field_add_time') {
-            var _id = target.dataset.id;
+            id = target.dataset.id;
 
             Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>' +
                       '<p><button class="button_rounded--green" data-response="5">5 мин</button></p>' + 
@@ -391,30 +381,31 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
                       '<p><button class="button_rounded--green" data-response="20">20 мин</button></p>' + 
                       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>', 
                     function (response) {
-                        eval("MyOrder.times[" + _id + "] = " + response);
+                        eval("Model.times[" + id + "] = " + response);
                         reloadPoints();
                         stop();
                         initMap();
                     });
 
-            return;
+            break;
           }
               // = Form delete point order =
           if (target.dataset.click === 'field_delete') {
-            var _id = target.dataset.id;
-
-            MyOrder.toAddresses.splice(_id, 1);
-            MyOrder.toCoordses.splice(_id, 1);
-            MyOrder.times.splice(_id, 1);
-
             var be_dead = target.parentNode;
-              be_dead.parentNode.removeChild(be_dead);
+            
+            id = target.dataset.id;
+
+            Model.toAddresses.splice(id, 1);
+            Model.toCoordses.splice(id, 1);
+            Model.times.splice(id, 1);
+
+            be_dead.parentNode.removeChild(be_dead);
 
             reloadPoints();
             stop();
             initMap();
 
-            return;
+            break;
           }
         }
         
@@ -433,57 +424,29 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       var target = event.target;
 
       while (target !== this) {
-            // = Click choose location =
-        if (target.dataset.submit === "taxy_client_city") {
-            Dom.sel('[data-click="order-taxi"]').disabled = true;
+        if (target.dataset.submit === "taxy_client_city" || target.dataset.submit === "taxy_driver_offer") {
+          var _price = Dom.sel('[name="cost"]').value;
+          
+          event.preventDefault();
+          Dom.sel('[data-click="order-taxi"]').disabled = true;
 
-            var _price = Dom.sel('[name="cost"]').value;
-            MyOrder.price = _price === "" ? recommended_cost : _price;
-            MyOrder.comment = Dom.sel('[name="description"]').value;
-
-            var data = new FormData();
-
-            event.preventDefault();
-
-            data.append('fromCity', User.city);
-            data.append('fromAddress', MyOrder.fromAddress);
-            data.append('fromLocation', MyOrder.fromCoords);
-            data.append('toCity', User.city);
-            data.append('toAddress', MyOrder.toAddress);
-            data.append('toLocation', MyOrder.toCoords);
-            data.append('duration', MyOrder.duration);
-            data.append('isIntercity', 0);
-            //data.append('bidId', '');
-            data.append('price', MyOrder.price);
-            data.append('comment', MyOrder.comment);
-            data.append('minibus', 0);
-            data.append('babyChair', 0);
-            data.append('length', MyOrder.length);
-
-            if (MyOrder.toAddresses.length > 0) {
-              //var _points = [];
-
-              for (var i = 0; i < MyOrder.toAddresses.length; i++) {
-                var time = MyOrder.times[i] ? MyOrder.times[i] : 0;
-                //_points.push({'address': MyOrder.toAddresses[i],'location': MyOrder.toCoordses[i],'stopTime': time,'city': User.city,'fullAddress': ''});
-                data.append('points[' + i + '][address]', MyOrder.toAddresses[i]);
-                data.append('points[' + i + '][location]', MyOrder.toCoordses[i]);
-                data.append('points[' + i + '][stopTime]', time);
-                data.append('points[' + i + '][city]', User.city);
-                data.append('points[' + i + '][fullAddress]', '');
+          Model.price = _price === "" ? recommended_cost : _price;
+          Model.comment = Dom.sel('[name="description"]').value;
+          
+          Model.save(points, function (response) {
+            if (response && response.ok) {
+              Model.id = response.id;
+              if (model === "clClientOrder") {
+                window.location.hash = '#client_map';
               }
-              //data.append('points', _points);
+              if (model === "clDriverOffer") {
+                window.location.hash = '#driver_city';
+              }
+            } else {
+              alert('Укажите в профиле ваш город');
             }
-
-            Ajax.request('POST', 'order', User.token, '', data, function(response) {
-              if (response && response.ok) {
-                MyOrder.id = response.id;
-                window.location.hash = '#client_map';                
-              } else {
-                alert('Укажите в профиле ваш город');
-              }
-            }, function() {});
-
+          });
+          
           return;
         }
 
@@ -496,18 +459,98 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
   }
   
   function reloadPoints() {
-    var rem_old_stops = Dom.selAll('.order-city-to_z');
+    var rem_old_stops = Dom.selAll('.order-city-to_z'),
+        i;
 
-    for (var i = 0; i < rem_old_stops.length; i++) {
+    for (i = 0; i < rem_old_stops.length; i++) {
       rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
     }
 
-    for (var i = 0; i < MyOrder.toAddresses.length; i++) {
+    for (i = 0; i < Model.toAddresses.length; i++) {
       AddNewZaezd(i);
     }
   }
   
+  function getMyOrders() {
+    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=0&my=1', '', function(response) {
+      if (response && response.ok) {
+        var toAppend = Dom.sel('.myorders');
+        if (toAppend) {
+          toAppend.innerHTML = '';
+        }
+        var ords = response.orders;
+
+        for (var i = 0; i < ords.length; i++) {
+          var goto, del;
+
+          if (!ords[i].comeout) {
+            goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
+            del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+          }
+
+          var zaezdy = "";
+          if (ords[i].points) {
+            for (var y = 0; y < ords[i].points.length; y++) {
+                zaezdy += '<p class="myorders__item__to' + (y + 1) + '">' +
+                             ords[i].points[y].address +
+                           '</p>';
+            }
+          }
+
+          show('LI','<div>' +
+                      '<p class="myorders__item__time">' +
+                        Dates.datetimeForPeople(ords[i].created, "LEFT_TIME_OR_DATE") +
+                      '</p>' +
+                      '<p class="myorders__item__from">' +
+                        ords[i].fromAddress +
+                      '</p>' +
+                        zaezdy +
+                      '<p class="myorders__item__to">' +
+                        ords[i].toAddress +
+                      '</p>' +
+                      '<p class="myorders__item__summa">' +
+                        Math.round(ords[i].price) +
+                      '</p>' +
+                      '<p class="myorders__item__info">' +
+                        ords[i].comment +
+                      '</p>' +
+                    '</div>' +
+                    '<div class="myorders__item__menu">' +
+                      '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
+                      '<span>' + goto + del + '</span>' +
+                    '</div>', toAppend);
+        }
+
+        if (response.orders.length < 1) {
+          show('DIV', '<div class="list-orders_norecords">Нет заказов</div>', toAppend);
+        }
+
+        function show(nod, a, to) {
+          var node = document.createElement(nod);
+          
+          node.classList.add('myorders__item');
+          node.innerHTML = a;
+
+          to.appendChild(node);                    
+        }
+
+      }
+
+    }, function() {});
+  }
+  
   function stop() {
+    var i;
+    
+    if (model === "clDriverOffer") {
+      MyOffer = Model;
+      localStorage.setItem('_active_model', 'MyOffer');
+    }
+    if (model === "clClientOrder") {
+      MyOrder = Model;
+      localStorage.setItem('_active_model', 'MyOrder');
+    }
+    
     if (route) {
       route.setMap(null);
     }
@@ -515,10 +558,10 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
       marker_mine.setMap(null);
     }
     if (marker_b) {
-        marker_b.setMap(null);
+      marker_b.setMap(null);
     }
     if (marker_a) {
-        marker_a.setMap(null);
+      marker_a.setMap(null);
     }
     if (marker_from) {
       marker_from.setMap(null);
@@ -526,30 +569,37 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
     if (marker_to) {
       marker_to.setMap(null);
     }
-    for (var i = 0; i < markers_driver_pos.length; i++) {
+    for (i = 0; i < markers_driver_pos.length; i++) {
       markers_driver_pos[i].marker.setMap(null);
     }
-    for (var i = 0; i < points.length; i++) {
+    for (i = 0; i < points.length; i++) {
       points[i].setMap(null);
     }
   }
   
-  function start() {
+  function start(modelka) {
+    model = modelka;
+    
+    if (model === "clDriverOffer") {
+      Model = MyOffer;
+    }
+    if (model === "clClientOrder") {
+      Model = MyOrder;
+      getMyOrders();
+    }
+        
     Maps.mapOn();
     get_pos_drivers();
     
-    price.value = MyOrder.price;
-    comment.value = MyOrder.comment;
-
-    //from.value = localStorage.getItem('_address_from');
-    //to.value = localStorage.getItem('_address_to');
+    price.value = Model.price;
+    comment.value = Model.comment;
     
-    Dom.selAll('input[name="from"]')[0].value = MyOrder.fromAddress;
-    Dom.selAll('input[name="to"]')[0].value = MyOrder.toAddress;
+    Dom.selAll('input[name="from"]')[0].value = Model.fromAddress;
+    Dom.selAll('input[name="to"]')[0].value = Model.toAddress;
     
     reloadPoints();
     
-    addEventChooseAddress('from');    
+    addEventChooseAddress('from');
     addEventChooseAddress('to');
 
     initMap();
@@ -557,6 +607,12 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps'], function (Ajax, Dom, Modal, Maps
     timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
     
     addEvents();
+    
+    require(['ctrlTaxiDriverCity'], function(controller) {
+      controller.start('clDriverOffer');
+    });
+    
+    HideForms.init();
     
   }
   

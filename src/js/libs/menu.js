@@ -3,18 +3,19 @@
 define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
     
   function swipeMenu(route) {
-    var menu = Dom.sel('.menu');
-    var state = route > 0 ? 'opened' : 'closed';
-     menu.classList.remove('menu--closed');
-     menu.classList.remove('menu--opened');
-     menu.classList.add('menu--'+state);
+    var menu = Dom.sel('.menu'),
+        state = route > 0 ? 'opened' : 'closed';
+      
+    menu.classList.remove('menu--closed');
+    menu.classList.remove('menu--opened');
+    menu.classList.add('menu--'+state);
   }
 
   var MainMenu = {
 
       init: function() {
-        var menu = Dom.sel('.menu');
-        var content = Dom.sel('.content');
+        var menu = Dom.sel('.menu'),
+            content = Dom.sel('.content');
 
         //EVENT ON CLICK BURGER MENU ICON
         Dom.sel('[data-click="menu-burger"]').addEventListener('click', function() {
@@ -40,8 +41,8 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
             
                 //EVENT ON CLICK TOGGLE DRIVER
             if (target.dataset.click === "toggleIsDriver") {
-              var el = target;              
-              var data = new FormData();
+              var el = target,
+                  data = new FormData();
               
               if (Dom.toggle(el, 'active')) {
                 data.append('isDriver', 0);
@@ -50,7 +51,7 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
                 data.append('isDriver', 1);
                 localStorage.setItem('_is_driver', true);
               }
-              Ajax.request('POST', 'profile', User.token, '', data, function() {}, function() {});
+              Ajax.request('POST', 'profile', User.token, '', data, function() {}, Ajax.error);
 
             }
             
@@ -67,7 +68,6 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
           var target = event.target;
 
           while (target !== this) {
-            
                 //=  Close Menu on Click body  =
             if(menu.classList.contains('menu--opened')) {
               swipeMenu(-1);
@@ -84,11 +84,12 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
         //EVENTS ON CLICK MENU
         menu.addEventListener('click', function(event) {
           var target = event.target;
+          
           while (target !== this) {
                 //= Change Item menu =
             if (target.tagName === 'A') {
-              var li = target.parentNode;
-              var lis = li.parentNode.querySelectorAll('li');
+              var li = target.parentNode,
+                  lis = li.parentNode.querySelectorAll('li');
               
               for (var i = 0; i < lis.length; i++) {
                 lis[i].classList.remove('menu__list--active');

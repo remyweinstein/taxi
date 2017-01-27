@@ -31,7 +31,7 @@ define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
   }
   
   function start() {
-    Ajax.request('GET', 'orders', User.token, '&isIntercity=1', '', function(response) {
+    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=1', '', function(response) {
       if (response && response.ok) {
         var toAppend = Dom.sel('[data-controller="taxi_driver_intercity_list_orders"]');
          toAppend.innerHTML = '';

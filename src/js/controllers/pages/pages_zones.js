@@ -51,7 +51,7 @@ define(['Dom'], function (Dom) {
       var li = document.createElement('li');
       
       li.dataset.click = 'edit-zone';
-      li.dataset.id = v;
+      li.dataset.id = Zones.list[v].id;
       li.innerHTML = Zones.list[v].name + '<i class="icon-trash" data-click="delete-zone"></i><span>' + (Zones.list[v].note || '') + '</span>';
       listZones.appendChild(li);
     }

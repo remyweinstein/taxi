@@ -10,10 +10,10 @@ define(['Uries'], function(Uries) {
       }
       
       token = token === '' ? '?' : '?token=' + token;
-      var d = new Date();
-      var timestamp = '&_=' + d.getTime();
-
-      var xhr = new XMLHttpRequest();
+      
+      var d = new Date(),
+          timestamp = '&_=' + d.getTime(),
+          xhr = new XMLHttpRequest();
       
       xhr.open(crud, Uries.server_uri + '/' + method + token + add_query + timestamp, true);
       //xhr.setRequestHeader('Content-Type', 'application/json');
@@ -29,8 +29,12 @@ define(['Uries'], function(Uries) {
       };
 
       xhr.send(data);
+    },
+    
+    error: function (response) {
+      console.log(response);
     }
-
+  
   };
   
 	return Ajax;

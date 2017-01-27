@@ -1,11 +1,12 @@
 /* global Zones, google, map, User, Event */
 
-define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
+define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
 
   var polygon = new google.maps.Polygon({});
   var points = [];
   var markers = [];
   var id_edit_zone;
+  var bounds = new google.maps.LatLngBounds();
   
   function addEvents() {
     Event.click = function (event) {
@@ -71,7 +72,7 @@ define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
       lat: lat,
       lng: lng
     });
-    if (markers.length > 2) {
+    if (markers.length > 1) { // default 2
       findStartPoint(lng, lat, function (v) {
         markers.splice(v, 0, marker);
       });
@@ -217,11 +218,13 @@ define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
   function fillName() {
     var name, note = '';
     if (id_edit_zone) {
-      name = Zones.list[id_edit_zone].name;
-      note = Zones.list[id_edit_zone].note;
-      for (var i = 0; i < Zones.list[id_edit_zone].polygon.length; i++) {
-        var lat = Zones.list[id_edit_zone].polygon[i].lat;
-        var lng = Zones.list[id_edit_zone].polygon[i].lng;
+      var arr_id = Funcs.findIdArray(Zones.list, id_edit_zone);
+      
+      name = Zones.list[arr_id].name;
+      note = Zones.list[arr_id].note;
+      for (var i = 0; i < Zones.list[arr_id].polygon.length; i++) {
+        var lat = Zones.list[arr_id].polygon[i].lat;
+        var lng = Zones.list[arr_id].polygon[i].lng;
         
         var marker = new google.maps.Marker({
           position: getLatLng(lat, lng),
@@ -237,8 +240,11 @@ define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
       }
       
       points = [];
+      clearBounds();
+      
       for (var i = 0; i < markers.length; i++) {
         points.push(markers[i].getPosition());
+        bounds.extend(markers[i].getPosition());
       }
       for (var i = 0; i < points.length; i++) {
         points[i].lat0 = markers[i].lat;
@@ -246,7 +252,8 @@ define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
       }
       
       drawPoly();
-
+      map.fitBounds(bounds);
+      
     } else {
       name = 'Зона ' + (Zones.list.length + 1);
     }
@@ -254,6 +261,10 @@ define(['Dom', 'Geo', 'Maps'], function (Dom, Geo, Maps) {
     Dom.sel('input[name="note_edit_zone"]').value = note;
 
     return;
+  }
+  
+  function clearBounds() {
+    bounds = new google.maps.LatLngBounds();
   }
   
   function stop() {

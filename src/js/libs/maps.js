@@ -29,23 +29,24 @@ define(['Dom'], function(Dom) {
       },
       
       init: function() {
-        var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-        var mapCanvas = document.getElementById('map_canvas');
-        var mapOptions = {
-          center: MyLatLng,
-          zoom: 12,
-          streetViewControl: false,
-          mapTypeControl: false,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
+        var MyLatLng = new google.maps.LatLng(User.lat, User.lng),
+            mapCanvas = document.getElementById('map_canvas'),
+            mapOptions = {
+              center: MyLatLng,
+              zoom: 12,
+              streetViewControl: false,
+              mapTypeControl: false,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
 
         map = new google.maps.Map(mapCanvas, mapOptions);
         map.getDiv().insertAdjacentHTML('beforeend', '<i class="icon-target find-me" data-click="find-me"></i>');
+        
         var find_me = Dom.sel('.find-me');
+        
         find_me.addEventListener('click', function() {
           map.setCenter( new google.maps.LatLng(User.lat, User.lng) );
         });
-
 
         SafeWin.map = map;
 
@@ -58,21 +59,32 @@ define(['Dom'], function(Dom) {
         }
       },
       
-      mapOn: function (enable_safe_zone = true) {
+      mapOn: function (disable_safe_zone) {
         document.getElementById('map_canvas').classList.remove("hidden");
         google.maps.event.trigger(map, 'resize'); 
-        if (enable_safe_zone) {
+        if (disable_safe_zone) {
           for (var i = 0; i < safe_zone_polygons.length; i++) {
             safe_zone_polygons[i].setMap(SafeWin.map);
           }
         }
       },
       
+      mapMoveTab: function (parent) {
+        var map_block = document.getElementById('map_canvas');
+        
+        parent.insertBefore(map_block, parent.children[0]);
+      },
+      
+      mapBackTab: function () {
+        var map_block = document.getElementById('map_canvas');
+        document.querySelector('main.content').appendChild(map_block);
+      },
+      
       point2LatLng: function (x, y, map) {
-        var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
-        var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
-        var scale = Math.pow(2, map.getZoom());
-        var worldPoint = new google.maps.Point(x / scale + bottomLeft.x, y / scale + topRight.y);
+        var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast()),
+            bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest()),
+            scale = Math.pow(2, map.getZoom()),
+            worldPoint = new google.maps.Point(x / scale + bottomLeft.x, y / scale + topRight.y);
         
         return map.getProjection().fromPointToLatLng(worldPoint);
       },
@@ -81,8 +93,12 @@ define(['Dom'], function(Dom) {
         var obj = results[0].address_components, key, address;
 
         for(key in obj) {
-          if(obj[key].types[0] === "street_number") address = obj[key].long_name;
-          if(obj[key].types[0] === "route") address = obj[key].long_name + ',' + address;
+          if(obj[key].types[0] === "street_number") {
+            address = obj[key].long_name;
+          }
+          if(obj[key].types[0] === "route") {
+            address = obj[key].long_name + ',' + address;
+          }
         }
         
         return address;
@@ -90,6 +106,7 @@ define(['Dom'], function(Dom) {
 
       addressToLatLng: function(address, success) {
         var geocoder = new google.maps.Geocoder();
+        
         geocoder.geocode( { 'address': address}, function(results, status) {
           if (status === google.maps.GeocoderStatus.OK) {
             success(results[0].geometry.location);

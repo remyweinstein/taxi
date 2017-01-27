@@ -108,7 +108,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   }
   
   function start() {
-    Ajax.request('GET', 'orders', User.token, '&isIntercity=1&my=1', '', function(response) {
+    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=1&my=1', '', function(response) {
       if (response && response.ok) {
         var t = Dom.sel('.myorders');
          t.innerHTML = '';

@@ -1,31 +1,34 @@
-/* global User, bid_id */
+/* global User, order_id, global_order_id */
 
 define(['Ajax', 'Dom'], function(Ajax, Dom) {
 
-  var timerGetMessages;
-  var interlocutor = "client";
+  var timerGetMessages,
+      interlocutor = "client";
 
   function get_new_messages() {
-    Ajax.request('GET', 'messages', User.token, '&id=' + bid_id, '', function(response) {
+    var name;
+    
+    Ajax.request('GET', 'messages', User.token, '&id=' + global_order_id, '', function(response) {
       if (response && response.ok) {
         var textarea = Dom.sel('.go-order__down__messages__textarea');
+        
         if (textarea) {
           var innText = '';
+          
           for (var i = 0; i < response.messages.length; i++ ) {
             var float = 'right';
+            
             if (interlocutor === "client") {
-              var name = 'Клиент';
+              name = 'Клиент';
             } else {
-              var name = 'Водитель';
+              name = 'Водитель';
             }
             if (response.messages[i].sender.id === User.id) {
               float = 'left';
               name = 'Я';
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                          ';
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
             } else {
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>\n\
-                          ';
+              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
             }
           }
           if (innText) {
@@ -38,8 +41,8 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
           }
         }
       }
-    }, function() {});
-  };
+    }, Ajax.error);
+  }
 
   function clickEvent(event) {
     var target = event.target;
@@ -51,10 +54,11 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
         } else {
           if (target.dataset.click === "send_message") {
             var messaga = Dom.sel('[data-text="new_message"]').value;
+            
             Dom.sel('[data-text="new_message"]').value = '';
 
             if (messaga !== "") {
-              Ajax.request('POST', 'message', User.token, '&id=' + bid_id + '&text=' + messaga, '', function () {});
+              Ajax.request('POST', 'message', User.token, '&id=' + global_order_id + '&text=' + messaga, '', function () {});
             }
           }
         }
@@ -66,7 +70,7 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
         break;
       }
     }
-  };
+  }
   
   var Chat = {
 

@@ -12,11 +12,12 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
   
   function addEvents() {
     Event.click = function (event) {
-      var target = event.target;
+      var target = event.target,
+          el;
 
       while (target !== this) {
         if (target && target.dataset.click === "tofavorites") {
-          var el = target;
+          el = target;
           
           if (confirm('Добавить в Избранные?')) {
             Ajax.request('POST', 'favorites', User.token, '&id=' + agent_id, '', function(response) {
@@ -33,7 +34,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
         
         if (target && target.dataset.click === "toblacklist") {
-          var el = target;
+          el = target;
           
           if (confirm('Добавить в Черный список?')) {
             Ajax.request('POST', 'black-list', User.token, '&id=' + agent_id, '', function(response) {
@@ -50,7 +51,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
         
         if (target && target.dataset.click === "sharecard") {
-          var el = target;
+          el = target;
           
           if (confirm('Поделиться контактами?')) {
             
@@ -59,7 +60,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
 
         if (target && target.dataset.click === "tofeedback") {
-          var el = target;
+          el = target;
           
           if (confirm('Хотите пожаловаться?')) {
             
@@ -68,7 +69,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
         
         if (target && target.dataset.click === "peoplescontrol") {
-          var el = target;
+          el = target;
           
           if (confirm('Перейти в Народный контроль?')) {
             
@@ -77,7 +78,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
         
         if (target && target.dataset.click === "claimcheck") {
-          var el = target;
+          el = target;
           
           if (confirm('Нужен чек?')) {
             
@@ -86,7 +87,7 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
         }
         
         if (target && target.dataset.click === "save_rating") {
-          var el = target;
+          el = target;
           
           //localStorage.setItem('_rating_bid', '');
           break;
@@ -113,18 +114,18 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
       Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {
         if (response && response.ok) {
           var ords = response.bid.order;
+          
           order_id = ords.id;
           agent_id = response.bid.order.agent.id;
 
           Stars.init('client');
-          var bl = Dom.sel('.score-agent__but-box');
-          var innertext = '';
-          innertext = '<i class="icon-star" data-click="tofavorites"></i>\n\
-                       <i class="icon-block" data-click="toblacklist"></i>\n\
-                       <i class="icon-address-card-o" data-click="sharecard"></i>\n\
-                       <i class="icon-attention" data-click="tofeedback"></i>\n\
-                       <i class="icon-eye" data-click="peoplescontrol"></i>\n\
-                       <i class="icon-clipboard" data-click="claimcheck"></i>';
+          var bl = Dom.sel('.score-agent__but-box'),
+              innertext = '<i class="icon-star" data-click="tofavorites"></i>' +
+                          '<i class="icon-block" data-click="toblacklist"></i>' +
+                          '<i class="icon-address-card-o" data-click="sharecard"></i>' +
+                          '<i class="icon-attention" data-click="tofeedback"></i>' +
+                          '<i class="icon-eye" data-click="peoplescontrol"></i>' +
+                          '<i class="icon-clipboard" data-click="claimcheck"></i>';
           bl.innerHTML = innertext;
 
           addEvents();
