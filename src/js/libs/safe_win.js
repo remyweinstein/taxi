@@ -1,6 +1,6 @@
 /* global safe_zone_polygons, Zones, Settings */
 
-define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
+define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, Geo, Funcs, Multirange) {
   
   var s_route_to_Zone = [],
       safety_route, safe_win, safe_win_wrap;
@@ -244,7 +244,8 @@ define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
       }
       
       this.render();
-      
+      Multirange.init(safe_win);
+            
       var hammer = new Hammer(safe_win, {domEvents: true, preventDefault: true}),
           longpress = new Hammer.Press({event: 'press', time: 3000}),
           tap = new Hammer.Tap({event: 'tap'}),
@@ -286,7 +287,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
       Dom.sel('[data-click="runZone"]').addEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').addEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').addEventListener('click', gotoNewZone);
-      Dom.sel('input[name="safeRadius"]').addEventListener('input', onInputRange);
+      Dom.sel('input[name="safeRadius"]').addEventListener('change', onInputRange);
     },
     
     render: function() {
@@ -345,6 +346,8 @@ define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
     clear: function() {
       safe_win = Dom.sel('.safety-window');
       
+      Multirange.clear(safe_win);
+      
       safe_win.removeEventListener('swiperight', swipeRight);
       //safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
@@ -355,7 +358,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs'], function (Dom, Hammer, Geo, Funcs) {
       Dom.sel('[data-click="runZone"]').removeEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').removeEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
-      Dom.sel('input[name="safeRadius"]').removeEventListener('input', onInputRange);
+      Dom.sel('input[name="safeRadius"]').removeEventListener('change', onInputRange);
       
       //safe_win_wrap = Dom.selAll('.safety-window__wrap')[0];
       //safe_win_wrap.innerHTML = '';

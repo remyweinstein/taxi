@@ -65,4 +65,8 @@
         -ms-transform: rotate(270deg);
         transform: rotate(270deg);
     }
+    .range-input {
+        display: inline-block;
+        width: 50%;
+    }
 }

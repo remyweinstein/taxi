@@ -1,11 +1,9 @@
 /* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event */
 
-define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (Ajax, Dom, Modal, Maps, Dates, HideForms) {
+define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'HideForms', 'GetPositions', 'Order'], function (Ajax, Dom, Modal, Maps, HideForms, GetPositions, Order) {
   
-  var marker_mine, points = [],
-      markers_driver_pos = [],   
+  var points = [],
       recommended_cost = 0,
-      radiusSearch = 0.5,
       zoom, route,
       marker_a, marker_b, marker_from, marker_to,
       price = Dom.sel('[name="cost"]').value,
@@ -30,13 +28,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     map.setCenter(MyLatLng);
     map.setZoom(zoom);
 
-    marker_mine = new google.maps.Marker({
-      position: MyLatLng,
-      map: map,
-      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
-      title: 'Я здесь!'
-    });
-
     var from_value = Dom.selAll('input[name="from"]')[0].value,
         to_value = Dom.selAll('input[name="to"]')[0].value;
 
@@ -53,10 +44,10 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     }
 
     if (from_value !== '' && to_value !== '') {
-      drawLine();
+      drawRoute();
     }
 
-    function drawLine() {
+    function drawRoute() {
       var directionsService = new google.maps.DirectionsService(),
           _addr_from = Model.fromCoords.split(","),
           _addr_to = Model.toCoords.split(","),
@@ -120,23 +111,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
       //var coords = Maps.point2LatLng(center_marker.offsetLeft, center_marker.offsetTop, map_choice);
       //localStorage.setItem('_choice_coords', coords);
     }); 
-    map.addListener('zoom_changed', function() {
-      var zoom = map.getZoom();
-      
-      if (zoom <= 12) {
-        radiusSearch = 10;
-      } else if (zoom === 13) {
-        radiusSearch = 3;
-      } else if (zoom === 14) {
-        radiusSearch = 2;
-      } else if (zoom === 15) {
-        radiusSearch = 1;
-      } else if (zoom === 16) {
-        radiusSearch = 0.5;
-      } else if (zoom > 16) {
-        radiusSearch = 0.1;
-      }
-    });
   }
     
   function addInfoForMarker(text, open, marker) {
@@ -165,92 +139,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     });
 
     return marker;
-  }
-
-  function get_pos_drivers() {
-    if (marker_mine) {
-      marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
-    }
-    
-    function searchArray(index, arr) {
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i].id === index) {
-          return true;
-        }
-      }
-      return false;
-    }
-    
-    Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function(response) {
-      if (response && response.ok) {
-        var new_markers = [],
-            agnts = response.agents,
-            loc,
-            i;
-
-        for (i = 0; i < agnts.length; i++) {
-          if (!searchArray(agnts[i].id, markers_driver_pos)) {
-            var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar,
-                photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle,
-                name = agnts[i].name ? agnts[i].name : '&nbsp;',
-                brand = agnts[i].brand ? agnts[i].brand : '&nbsp;',
-                model = agnts[i].model ? agnts[i].model : '&nbsp;',
-                marker,
-                favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id  + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id  + '" data-click="deltofav">Удалить из Избранного</button>',
-                info = '<div style="text-align:center;">' +
-                          '<div style="width:50%;display:inline-block;float: left;">' + 
-                            '<p>id' + agnts[i].id + '<br>' + name + '</p>' + 
-                            '<p><img class="avatar" src="' + photo + '" alt=""/></p>' + 
-                            '<p>' + favorite + '</p>' + 
-                          '</div>' + 
-                          '<div style="width:50%;display:inline-block">' + 
-                            '<p>' + brand + '<br>' + model + '</p>' + 
-                            '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' + 
-                            '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' + 
-                          '</div>' + 
-                        '</div>';
-
-            loc = agnts[i].location.split(',');
-            
-            if (agnts[i].isDriver) {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map));
-            } else {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, men_icon, map));
-            }
-            //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
-            new_markers.push({'id': agnts[i].id, 'marker': marker});
-          } else {
-            if (markers_driver_pos[i]) {
-              loc = agnts[i].location.split(',');
-              markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
-              new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
-            }
-          }
-        }
-
-        var result = [];
-        
-        for (i = 0; i < markers_driver_pos.length; i++) {
-          var s = false;
-          for (var y = 0; y < new_markers.length; y++) {
-            if (markers_driver_pos[i].id === new_markers[y].id) {
-              s = true;
-            }
-          }
-          if (!s) {
-            result.push(markers_driver_pos[i]);
-          }
-        }
-
-        for (i = 0; i < result.length; i++) {
-          result[i].marker.setMap(null);
-        }
-        
-        markers_driver_pos = [];
-        markers_driver_pos = new_markers;
-        
-      }
-    }, function() {});
   }
 
   function AddNewZaezd(just_add) {
@@ -471,76 +359,10 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     }
   }
   
-  function getMyOrders() {
-    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=0&my=1', '', function(response) {
-      if (response && response.ok) {
-        var toAppend = Dom.sel('.myorders');
-        if (toAppend) {
-          toAppend.innerHTML = '';
-        }
-        var ords = response.orders;
-
-        for (var i = 0; i < ords.length; i++) {
-          var goto, del;
-
-          if (!ords[i].comeout) {
-            goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
-            del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
-          }
-
-          var zaezdy = "";
-          if (ords[i].points) {
-            for (var y = 0; y < ords[i].points.length; y++) {
-                zaezdy += '<p class="myorders__item__to' + (y + 1) + '">' +
-                             ords[i].points[y].address +
-                           '</p>';
-            }
-          }
-
-          show('LI','<div>' +
-                      '<p class="myorders__item__time">' +
-                        Dates.datetimeForPeople(ords[i].created, "LEFT_TIME_OR_DATE") +
-                      '</p>' +
-                      '<p class="myorders__item__from">' +
-                        ords[i].fromAddress +
-                      '</p>' +
-                        zaezdy +
-                      '<p class="myorders__item__to">' +
-                        ords[i].toAddress +
-                      '</p>' +
-                      '<p class="myorders__item__summa">' +
-                        Math.round(ords[i].price) +
-                      '</p>' +
-                      '<p class="myorders__item__info">' +
-                        ords[i].comment +
-                      '</p>' +
-                    '</div>' +
-                    '<div class="myorders__item__menu">' +
-                      '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
-                      '<span>' + goto + del + '</span>' +
-                    '</div>', toAppend);
-        }
-
-        if (response.orders.length < 1) {
-          show('DIV', '<div class="list-orders_norecords">Нет заказов</div>', toAppend);
-        }
-
-        function show(nod, a, to) {
-          var node = document.createElement(nod);
-          
-          node.classList.add('myorders__item');
-          node.innerHTML = a;
-
-          to.appendChild(node);                    
-        }
-
-      }
-
-    }, function() {});
-  }
-  
   function stop() {
     var i;
+    
+    GetPositions.clear();
     
     if (model === "clDriverOffer") {
       MyOffer = Model;
@@ -550,12 +372,8 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
       MyOrder = Model;
       localStorage.setItem('_active_model', 'MyOrder');
     }
-    
     if (route) {
       route.setMap(null);
-    }
-    if (marker_mine) {
-      marker_mine.setMap(null);
     }
     if (marker_b) {
       marker_b.setMap(null);
@@ -568,9 +386,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     }
     if (marker_to) {
       marker_to.setMap(null);
-    }
-    for (i = 0; i < markers_driver_pos.length; i++) {
-      markers_driver_pos[i].marker.setMap(null);
     }
     for (i = 0; i < points.length; i++) {
       points[i].setMap(null);
@@ -585,11 +400,12 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     }
     if (model === "clClientOrder") {
       Model = MyOrder;
-      getMyOrders();
+      Order.getMy();
     }
         
     Maps.mapOn();
-    get_pos_drivers();
+    GetPositions.drivers();
+    GetPositions.my();
     
     price.value = Model.price;
     comment.value = Model.comment;
@@ -603,8 +419,6 @@ define(['Ajax', 'Dom', 'ModalWindows', 'Maps', 'Dates', 'HideForms'], function (
     addEventChooseAddress('to');
 
     initMap();
-    
-    timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
     
     addEvents();
     

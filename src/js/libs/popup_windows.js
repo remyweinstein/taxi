@@ -208,7 +208,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                             actives_sort = {sort: _el.dataset.sort, r: _el.dataset.r};
                           }
                           
-                          Multirange.clear();
+                          Multirange.clear(Dom.sel('.popup-window'));
                           callback(actives_sort);
                           close();
                         }
@@ -221,7 +221,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                           localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
 
                           callback(actives_filter);
-                          Multirange.reinit();
+                          Multirange.reinit(Dom.sel('.popup-window'));
                           //close();
                         }
                         
@@ -242,7 +242,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                   i_ranges = Dom.selAll('.popup-window__double-range input');
                   
                   if (i_ranges) {
-                    Multirange.init();
+                    Multirange.init(Dom.sel('.popup-window'));
                   }
                   
                   for (i = 0; i < i_ranges.length; i++) {

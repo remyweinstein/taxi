@@ -1,7 +1,27 @@
 define(function() {
   
   var Funcs = {
+      trigger: function (ev, el) {
+        var event; // The custom event that will be created
 
+        if (document.createEvent) {
+          event = document.createEvent("HTMLEvents");
+          event.initEvent(ev, true, true);
+        } else {
+          event = document.createEventObject();
+          event.eventType = ev;
+        }
+
+        event.eventName = ev;
+
+        if (document.createEvent) {
+          el.dispatchEvent(event);
+        } else {
+          el.fireEvent("on" + event.eventType, event);
+        }
+
+      },
+      
       searchCityForIntercity: function (city, parent) {
         var currentCity,
             li = parent.children[1].children;

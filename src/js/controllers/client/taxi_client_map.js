@@ -230,7 +230,6 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms'], function (Ajax, Dom, Dates
     if (model === "clDriverOffer") {
       MyOffer = Model;
     }
-
     if (marker_mine) {
       marker_mine.setMap(null);
     }

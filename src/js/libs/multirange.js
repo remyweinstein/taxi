@@ -1,4 +1,4 @@
-define(['hammer'], function(Hammer) {
+define(['hammer', 'Funcs'], function(Hammer, Funcs) {
 
   function enable_multirange(el) {
     var parentDiv = el.parentNode,
@@ -208,7 +208,13 @@ define(['hammer'], function(Hammer) {
   
   function changeValues(el) {
     var input = document.querySelector("input[type=range][name=" + el.dataset.name + "][multiple]:not(.multirange)"),
-        max = input.max,
+        multi = true;
+    
+    if (!input) {
+      input = document.querySelector("input[type=range][name=" + el.dataset.name + "]:not([multiple])");
+      multi = false;
+    }
+    var max = input.max,
         min = input.min,
         position = parseFloat(el.offsetLeft),
         width = parseFloat(el.parentNode.offsetWidth) - parseFloat(el.offsetWidth),
@@ -217,12 +223,16 @@ define(['hammer'], function(Hammer) {
     
     el.dataset.value = value;
     
-    changeValueInput(el.dataset.name);
+    if (multi) {
+      changeValueInput(el.dataset.name);
+    } else {
+      changeValueOneInput(el.dataset.name);
+    }
   }
   
   function changeValueInput(name) {
-    var inputa = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)"),
-        els = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
+    var inputa = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)");
+    var els = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
         max = parseFloat(els[0].dataset.value),
         min = parseFloat(els[1].dataset.value),
         texts = document.querySelectorAll("input[type=text][data-name=" + name + "]");
@@ -234,12 +244,22 @@ define(['hammer'], function(Hammer) {
     texts[1].value = max;
     inputa.value = min + ',' + max;
   }
+  
+  function changeValueOneInput(name) {
+    var inputa = document.querySelector("input[type=range][name=" + name + "]:not([multiple])");
+    var els = document.querySelector("div.range-input__wrap__line__toddler[data-name=" + name + "]");
+    
+    inputa.value = els.dataset.value;
+    
+    Funcs.trigger('change', inputa);
+  
+  }
 
   var Multirange = {
-    init: function() {
+    init: function(el) {
       var i, 
-          inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)"),
-          input_one = document.querySelectorAll("input[type=range]:not([multiple])");
+          inputs = el.querySelectorAll("input[type=range][multiple]:not(.multirange)"),
+          input_one = el.querySelectorAll("input[type=range]:not([multiple])");
       
       for (i = 0; i < inputs.length; i++) {
         enable_multirange(inputs[i]);
@@ -250,43 +270,44 @@ define(['hammer'], function(Hammer) {
       }
       
       document.addEventListener('mouseleave', handleEnd);
-      var shariki = document.querySelectorAll(".range-input__wrap__line__toddler");
+      var shariki = el.querySelectorAll(".range-input__wrap__line__toddler");
       for (i = 0; i < shariki.length; i++) {
         var ev = new Hammer(shariki[i], {domEvents: true});
         shariki[i].addEventListener('hammer.input', whatDo);
       }
       
-      var texts = document.querySelectorAll("input.range-input__text");
+      var texts = el.querySelectorAll("input.range-input__text");
       for (i = 0; i < texts.length; i++) {
         texts[i].addEventListener('change', changeFromTexts);
       }
       
-      var lines = document.querySelectorAll(".range-input__wrap");
+      var lines = el.querySelectorAll(".range-input__wrap");
       for (i = 0; i < lines.length; i++) {
         lines[i].addEventListener('click', changeFromClick);
       }
     },
     
-    reinit: function() {
-      var inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+    reinit: function(el) {
+      var inputs = el.querySelectorAll("input[type=range][multiple]:not(.multirange)");
       
       for (var i = 0; i < inputs.length; i++) {
         onstartValues(inputs[i].name);
       }
     },
     
-    clear: function() {
-      var i, shariki = document.querySelectorAll(".range-input__wrap__line__toddler");
+    clear: function(el) {
+      var shariki = el.querySelectorAll(".range-input__wrap__line__toddler"),
+          texts = el.querySelectorAll("input.range-input__text"),
+          lines = el.querySelectorAll(".range-input__wrap"),
+          i;
 
       document.removeEventListener('mouseleave', handleEnd);
       for (i = 0; i < shariki.length; i++) {
         shariki[i].removeEventListener('hammer.input', whatDo);
       }
-      var texts = document.querySelectorAll("input.range-input__text");
       for (i = 0; i < texts.length; i++) {
         texts[i].removeEventListener('change', changeFromTexts);
       }
-      var lines = document.querySelectorAll(".range-input__wrap");
       for (i = 0; i < lines.length; i++) {
         lines[i].removeEventListener('click', changeFromClick);
       }

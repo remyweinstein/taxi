@@ -35,6 +35,8 @@
         margin-bottom: 1em;
     }
 }
-input[type=range][multiple]:not(.multirange){
-    visibility: hidden;
+//input[type=range][multiple]:not(.multirange){
+input[type=range]{
+    //visibility: hidden;
+    display: none;
 }

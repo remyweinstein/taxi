@@ -1,6 +1,6 @@
-/* global User, menus_arr, timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerUpdateTaxiDriverOrder, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers */
+/* global User, menus_arr, timerSearchDriver, timerGetBidsTaxy, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers */
 
-define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms', 'Multirange'], function (Dom, Chat, Maps, Tabs, HideForms, Multirange) {
+define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
   
   var App, 
       old_controller,
@@ -144,9 +144,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms', 'Multirange'], function (Dom
     clearInterval(timerSearchDriver);
     clearInterval(timerGetBidsTaxy);
     clearInterval(timerGetBidGo);
-    clearInterval(timerUpdateTaxiDriverOrder);
     clearInterval(timerGetMyPos);
-    clearInterval(timerGetPosTaxy);
     clearInterval(timerCheckLoading);
     clearInterval(timerUpdateTaxiClientOffers);
 
