@@ -104,7 +104,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
         ul.innerHTML = innertext;
         parent.appendChild(ul);
       }
-    }, function() {alert('Ошибка связи с сервером');});
+    }, Ajax.error('Ошибка связи с сервером'));
   }
   
   function stop() {

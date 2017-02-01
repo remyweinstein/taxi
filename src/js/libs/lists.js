@@ -1,8 +1,9 @@
-/* global User */
+/* global User, google, default_vehicle, driver_icon, map, MyOrder, MapElements */
 
-define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, Dates, Dom, clDriverOrders, Popup) {
+define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'], function(Ajax, Dates, Dom, clDriverOrders, Popup, clDriverOffers) {
   var Orders = [],
       timerUpdateTaxiDriverOrder,
+      timerGetBidsTaxy,
       add_filter = '',
       arr_filters = {};
 
@@ -17,7 +18,7 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
         arr_filters.filter.favorite = 1;
       }
     }
-    add_filter = filterConvertToString();
+    add_filter = get_add_filter_string();
   }
   
   function get_add_filter_string() {
@@ -56,16 +57,24 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
     return add_fil;
   }
   
-  function update_taxi_order(model) {
-    var type = '';
+  function update_taxi_order() {
+    update_taxi_order_shared('order');
+  }
+  
+  function update_taxi_offer() {
+    update_taxi_order_shared('offer');
+  }
+  
+  function update_taxi_order_shared(type) {
+    var add_type;
     
-    if (model === "clDriverOffer") {
-      type = '&filter[type]=offer';  
+    if (type === 'order') {
+      add_type = '&filter[type]=order';
+    } else {
+      add_type = '&filter[type]=offer';
     }
-    if (model === "clClientOrder") {
-      type = '&filter[type]=order';
-    }
-    Ajax.request('GET', 'orders', User.token, type + '&isIntercity=0&fromCity=' + User.city + add_filter, '', function(response) {
+    
+    Ajax.request('GET', 'orders', User.token, add_type + '&isIntercity=0&fromCity=' + User.city + add_filter, '', function(response) {
       if (response && response.ok) {
         var ords = response.orders;
 
@@ -84,11 +93,10 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
             if (temp_order.agentBidId === temp_order.bidId) {
               localStorage.setItem('_current_id_bid', temp_order.bidId);
               localStorage.setItem('_current_id_order', temp_order.id);
-              if (model === "clDriverOffer") {
-                window.location.hash = "#client_go";
-              }
-              if (model === "clClientOrder") {
+              if (type === 'order') {
                 window.location.hash = '#driver_go';
+              } else {
+                window.location.hash = "#client_go";
               }
             }
 
@@ -210,8 +218,8 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
           if (ords[i].points) {
             for (var y = 0; y < ords[i].points.length; y++) {
                 zaezdy += '<p class="myorders__item__to' + (y + 1) + '">' +
-                             ords[i].points[y].address +
-                           '</p>';
+                            ords[i].points[y].address +
+                          '</p>';
             }
           }
 
@@ -249,12 +257,12 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
           node.classList.add('myorders__item');
           node.innerHTML = a;
 
-          to.appendChild(node);                    
+          to.appendChild(node);
         }
 
       }
 
-    }, function() {});
+    }, Ajax.error);
   }
   
   function onstartAddFilters() {
@@ -321,65 +329,70 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
   }
   
   function fillMyOffers() {
+    var Offer = new clDriverOffers();
     var listOffers = Dom.sel('[data-model=list-offers]');
 
     if (listOffers) {
-      var arrOffers = Offers.myOffers;
-      listOffers.innerHTML = '';
+      
+      Offer.getMyOffers(function () {
+        
+        var arrOffers = Offer.myOffers;
+        listOffers.innerHTML = '';
 
-      for (var key in arrOffers) {
-        if (arrOffers.hasOwnProperty(key) &&
-            /^0$|^[1-9]\d*$/.test(key) &&
-            key <= 4294967294) {
+        for (var key in arrOffers) {
+          if (arrOffers.hasOwnProperty(key) &&
+              /^0$|^[1-9]\d*$/.test(key) &&
+              key <= 4294967294) {
 
-          var zaezdy = '',
-              goto = '', del;
+            var zaezdy = '',
+                goto = '', del;
 
-          if (!arrOffers[key].comeout) {
-            //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
-            del = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
-          }
+            if (!arrOffers[key].comeout) {
+              //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
+              del = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+            }
 
-          if (arrOffers[key].stops > 0) {
-            zaezdy = '<div class="list-orders_route_to">' +
-                        'Остановок по пути ' + arrOffers[key].stops +
-                      '</div>';
-          }
+            if (arrOffers[key].stops > 0) {
+              zaezdy = '<div class="list-orders_route_to">' +
+                          'Остановок по пути ' + arrOffers[key].stops +
+                        '</div>';
+            }
 
-          show('LI', '<div class="list-orders_route">' +
-                       '<div data-click="open-offer" data-id="' + arrOffers[key].id + '">' +
-                          '<div class="list-orders_route_to">' +
-                            arrOffers[key].created +
-                          '</div>' +
-                          '<div class="list-orders_route_from">' +
-                            arrOffers[key].fromAddress +
-                          '</div>' +
-                          zaezdy +
-                          '<div class="list-orders_route_to">' +
-                            arrOffers[key].toAddress +
-                          '</div>' +
-                          '<div class="list-orders_route_additional">' +
-                            arrOffers[key].comment +
-                          '</div>' +
-                          '<div class="list-orders_route_info">' +
-                            'Длина маршрута: ' + Math.round(arrOffers[key].length / 1000, 2) + ' км' +
-                          '</div>' +
-                          '<div class="list-orders_route_info">' +
-                            'Время по маршруту: ' + Dates.minToHours(arrOffers[key].duration) +
+            show('LI', '<div class="list-orders_route">' +
+                         '<div data-click="open-offer" data-id="' + arrOffers[key].id + '">' +
+                            '<div class="list-orders_route_to">' +
+                              arrOffers[key].created +
+                            '</div>' +
+                            '<div class="list-orders_route_from">' +
+                              arrOffers[key].fromAddress +
+                            '</div>' +
+                            zaezdy +
+                            '<div class="list-orders_route_to">' +
+                              arrOffers[key].toAddress +
+                            '</div>' +
+                            '<div class="list-orders_route_additional">' +
+                              arrOffers[key].comment +
+                            '</div>' +
+                            '<div class="list-orders_route_info">' +
+                              'Длина маршрута: ' + Math.round(arrOffers[key].length / 1000, 2) + ' км' +
+                            '</div>' +
+                            '<div class="list-orders_route_info">' +
+                              'Время по маршруту: ' + Dates.minToHours(arrOffers[key].duration) +
+                            '</div>' +
                           '</div>' +
                         '</div>' +
-                      '</div>' +
-                      '<div class="list-orders_menu">' +
-                        '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
-                        '<span>' + goto + del + '</span>' +
-                      '</div>',
-                    listOffers);
+                        '<div class="list-orders_menu">' +
+                          '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
+                          '<span>' + goto + del + '</span>' +
+                        '</div>',
+                      listOffers);
+          }
         }
-      }
-
-      if (arrOffers.length < 1) {
-        show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
-      }
+        
+        if (arrOffers.length < 1) {
+          show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
+        }
+      });
     }
   }
   
@@ -389,32 +402,41 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
     
     if (saved_filters) {
       arr_filters = JSON.parse(saved_filters);
-      add_filter = Order.filterConvertToString();
+      add_filter = get_add_filter_string();
       response = arr_filters.filter;
     }
     
     return response;
   }
   
+  function deleteOrder(target) {
+    Ajax.request('GET', 'delete-order', User.token, '&id=' + target.dataset.id, '', function(response) {
+      if (response && response.ok) {
+        var item = target.parentNode.parentNode.parentNode;
+         item.style.display = 'none';
+      }
+    }, function() {});
+  }
+  
   function filterSortWindow(el) {
-    Popup.show(el, 'Сортировать по <br/><br/>' +
-                        '<span data-num="0" data-sort="created" data-r="1">Дате <i class="icon-down-circle"></i></span>' +
-                        '<span data-num="1" data-sort="created" data-r="0">Дате <i class="icon-up-circle"></i></span>' +
-                        '<span data-num="2" data-sort="price" data-r="1">Цене <i class="icon-down-circle"></i></span>' +
-                        '<span data-num="3" data-sort="price" data-r="0">Цене <i class="icon-up-circle"></i></span>' +
-                        '<span data-num="4" data-sort="distance" data-r="1">Расстоянию <i class="icon-down-circle"></i></span>' +
-                        '<span data-num="5" data-sort="distance" data-r="0">Расстоянию <i class="icon-up-circle"></i></span>' +
-                        '<span data-num="6" data-sort="length" data-r="1">Маршруту <i class="icon-down-circle"></i></span>' +
-                        '<span data-num="7" data-sort="length" data-r="0">Маршруту <i class="icon-up-circle"></i></span>' +
-                        '<span data-num="8" data-sort="stops" data-r="1">Остановкам <i class="icon-down-circle"></i></span>' +
-                        '<span data-num="9" data-sort="stops" data-r="0">Остановкам <i class="icon-up-circle"></i></span>',
+    Popup.show(el,'Сортировать по <br/><br/>' +
+                  '<span data-num="0" data-sort="created" data-r="1">Дате <i class="icon-down-circle"></i></span>' +
+                  '<span data-num="1" data-sort="created" data-r="0">Дате <i class="icon-up-circle"></i></span>' +
+                  '<span data-num="2" data-sort="price" data-r="1">Цене <i class="icon-down-circle"></i></span>' +
+                  '<span data-num="3" data-sort="price" data-r="0">Цене <i class="icon-up-circle"></i></span>' +
+                  '<span data-num="4" data-sort="distance" data-r="1">Расстоянию <i class="icon-down-circle"></i></span>' +
+                  '<span data-num="5" data-sort="distance" data-r="0">Расстоянию <i class="icon-up-circle"></i></span>' +
+                  '<span data-num="6" data-sort="length" data-r="1">Маршруту <i class="icon-down-circle"></i></span>' +
+                  '<span data-num="7" data-sort="length" data-r="0">Маршруту <i class="icon-up-circle"></i></span>' +
+                  '<span data-num="8" data-sort="stops" data-r="1">Остановкам <i class="icon-down-circle"></i></span>' +
+                  '<span data-num="9" data-sort="stops" data-r="0">Остановкам <i class="icon-up-circle"></i></span>',
     function(response) {
       delete arr_filters.orderBy;
 
       if (response !== "") {
         arr_filters.orderBy = {};
         eval('arr_filters.orderBy.' + response.sort + ' = ' + response.r + ';');
-        add_filter = Order.filterConvertToString();
+        add_filter = get_add_filter_string();
       }
     }); 
   }
@@ -422,25 +444,25 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
   function filterShowWindow(el) {
     var resp = getValueForPopupFilters();
 
-    Popup.show(el, 'Фильтры<br/><br/>' +
-                        '<button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>' +
-                        'Цена' +
-                        '<div class="popup-window__double-range">' +
-                          '<input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="5000" />' +
-                        '</div>' +
-                        'До клиента' +
-                        '<div class="popup-window__double-range">' +
-                          '<input name="distance" type="range" multiple value="' + resp.distance.min + ',' + resp.distance.max + '" min="0" max="20" />' +
-                        '</div>' +
-                        'По маршруту' +
-                        '<div class="popup-window__double-range">' +
-                          '<input name="length" type="range" multiple value="' + resp.length.min + ',' + resp.length.max + '" min="0" max="100000" />' +
-                        '</div>' +
-                        'Остановок' +
-                        '<div class="popup-window__double-range">' +
-                          '<input name="stops" type="range" multiple value="' + resp.stops.min + ',' + resp.stops.max + '" min="0" max="30" />' +
-                        '</div>' +
-                        '<button class="button_rounded--green" data-click="getfilters">Применить</button>',
+    Popup.show(el,'Фильтры<br/><br/>' +
+                  '<button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>' +
+                  'Цена' +
+                  '<div class="popup-window__double-range">' +
+                    '<input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="5000" />' +
+                  '</div>' +
+                  'До клиента' +
+                  '<div class="popup-window__double-range">' +
+                    '<input name="distance" type="range" multiple value="' + resp.distance.min + ',' + resp.distance.max + '" min="0" max="20" />' +
+                  '</div>' +
+                  'По маршруту' +
+                  '<div class="popup-window__double-range">' +
+                    '<input name="length" type="range" multiple value="' + resp.length.min + ',' + resp.length.max + '" min="0" max="100000" />' +
+                  '</div>' +
+                  'Остановок' +
+                  '<div class="popup-window__double-range">' +
+                    '<input name="stops" type="range" multiple value="' + resp.stops.min + ',' + resp.stops.max + '" min="0" max="30" />' +
+                  '</div>' +
+                  '<button class="button_rounded--green" data-click="getfilters">Применить</button>',
     function(response) {
       if (arr_filters.filter) {
         if (arr_filters.filter.favorite) {
@@ -454,7 +476,7 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
       }
 
       arr_filters.filter = response.filter;
-      add_filter = Order.filterConvertToString();
+      add_filter = get_add_filter_string();
 
       /*
         filter[created][min]
@@ -469,12 +491,131 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
     });
   }
   
-  var Order = {
+  function addMarker(location, title, icon, map) {
+    var marker = new google.maps.Marker({
+      position: location,
+      //animation: google.maps.Animation.DROP,
+      icon: icon,
+      title: title,
+      map: map
+    });
+
+    return marker;
+  }
+  
+  function get_bids_driver() {
+    Ajax.request('GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
+      if (response && response.ok) {
+        var el = Dom.sel('.wait-bids-approve'),
+            bids = response.bids,
+            innText = '';
+            
+        el.innerHTML = "";
+
+        for (var i = 0; i < bids.length; i++) {
+
+          var photo, vehicle;
+            photo = bids[i].agent.photo ? bids[i].agent.photo : User.avatar;
+            vehicle = bids[i].agent.vehicle ? bids[i].agent.vehicle : default_vehicle;
+
+          var loc = bids[i].agent.location;
+            loc = loc.split(',');
+          var DrLatLng = new google.maps.LatLng(loc[0], loc[1]);
+          if (MapElements.driver_marker[bids[i].agent.id]) {
+            MapElements.driver_marker[bids[i].agent.id].setPosition(DrLatLng);
+          } else {
+            MapElements.driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
+          }
+
+          var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
+          innText +=  '<div class="wait-bids-approve__item">' +
+                        '<div class="wait-bids-approve__item__distance">' +
+                          'Растояние до водителя, <span>' + dist + ' км</span>' +
+                        '</div>' +
+                        '<div class="wait-bids-approve__item__driver">' +
+                          '<div>' +
+                            '<img src="' + photo + '" alt="" />' +
+                          '</div>' +
+                          '<div>' + bids[i].agent.name + '</div>' +
+                        '</div>' +
+                        '<div class="wait-bids-approve__item__car">' +
+                          '<div>' +
+                            '<img src="' + vehicle + '" alt="" />' +
+                          '</div>' +
+                          '<div>' +
+                            bids[i].agent.brand + ' ' + bids[i].agent.model +
+                          '</div>' +
+                        '</div>' +
+                        '<div class="wait-bids-approve__item__approve">' +
+                          '<i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>' +
+                        '</div>' +
+                        '<div class="wait-bids-approve__item__bid-time">' +
+                          'Время подъезда: <span>' + bids[i].travelTime + ' мин</span>' +
+                        '</div>' +
+                        '<div class="wait-bids-approve__item__bid-price">' +
+                          'Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>' +
+                        '</div>' +
+                      '</div>';
+        }
+        el.innerHTML = innText;
+      }
+
+    }, Ajax.error);
+  }
+  
+  function getByID(id, model) {
+    var ModelTemp;
+    
+    if (model === "offer") {
+      ModelTemp = MyOffer;
+    }
+    if (model === "order") {
+      ModelTemp = MyOrder;
+    }
+
+    ModelTemp.getByID(id, function () {        
+
+      localStorage.setItem('_active_model', model);
+      if (model === "offer") {
+        ModelTemp = MyOffer;
+      }
+      if (model === "order") {
+        ModelTemp = MyOrder;
+      }
+      
+      if (ModelTemp.bid_id) {
+        localStorage.setItem('_current_id_bid', ModelTemp.bid_id);
+        if (model === "order") {
+          window.location.hash = "#client_go";
+        }
+      } else {
+        if (model === "order") {
+          window.location.hash = '#client_map';
+        } else {
+          window.location.hash = '#driver_my_offer';
+        }
+      }
+    });      
+  }
+  
+  var Lists = {
     clear: function () {
       clearInterval(timerUpdateTaxiDriverOrder);
+      clearInterval(timerGetBidsTaxy);
+      MapElements.clear();
     },
     start: function () {
       
+    },
+    getBidsDriver: function () {
+      get_bids_driver();
+      timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
+    },
+    getOfferByID: function (id) {
+      getByID(id, 'offer');
+    },
+    getOrderByID: function (id) {
+      getByID(id, 'order');
     },
     fillMyOffers: function () {
       fillMyOffers();
@@ -496,6 +637,25 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
     filtersStart: function () {
       onstartAddFilters();
     },
+    deleteOrder: function (target) {
+      deleteOrder(target);
+    },
+    getModel: function (model) {
+      if (model === "clDriverOffer") {
+        Model = MyOffer;
+      }
+      if (model === "clClientOrder") {
+        Model = MyOrder;
+      }
+    },
+    setModel: function (model) {
+      if (model === "clDriverOffer") {
+        MyOffer = Model;
+      }
+      if (model === "clClientOrder") {
+        MyOrder = Model;
+      }
+    },
     priceMinus: function (el) {
       priceMinus(el);
     },
@@ -508,15 +668,19 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Ajax, 
     timePlus: function (el) {
       timePlus(el);
     },
-    getMy: function () {
+    getAllMyOrders: function () {
       getMyOrders();
     },
-    getList: function (model) {
-      update_taxi_order(model);
-      timerUpdateTaxiDriverOrder = setInterval(update_taxi_order(model), 2000);
+    getAllOrders: function () {
+      update_taxi_order();
+      timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
+    },
+    getAllOffers: function () {
+      update_taxi_offer();
+      timerUpdateTaxiDriverOrder = setInterval(update_taxi_offer, 2000);
     }
   };
   
-  return Order;
+  return Lists;
   
   });

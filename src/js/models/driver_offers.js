@@ -38,7 +38,7 @@ define(['Dates', 'Ajax'], function(Dates, Ajax) {
                       self.myOffers = response.orders;
                       callback();
                     }
-                  }, function() {});
+                  }, Ajax.error);
                 };
     this.getAllOffers = function (add_filter, callback) {
                   self.listOffers = [];
@@ -48,7 +48,7 @@ define(['Dates', 'Ajax'], function(Dates, Ajax) {
                       self.listOffers = response.orders;
                       callback();
                     }
-                  }, function() {});
+                  }, Ajax.error);
                 };
     this.getOneOffer = function (id, callback) {
                   self.idOffer = null;
@@ -58,7 +58,7 @@ define(['Dates', 'Ajax'], function(Dates, Ajax) {
                       self.idOffer = response.orders;
                       callback();
                     }
-                  }, function() {});
+                  }, Ajax.error);
                 };
 
   };

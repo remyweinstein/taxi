@@ -9,33 +9,34 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
         prev;
 
     while (target !== this) {
+      if (target.dataset) {
+        if (target.dataset.click === "drop-down") {
+          el = target;
+          prev = el.previousSibling;
 
-      if (target.dataset.click === "drop-down") {
-        el = target;
-        prev = el.previousSibling;
+          prev.classList.add('hidden-forms');
+          el.classList.remove('drop-down');
+          el.classList.add('drop-up');
+          el.dataset.click = 'drop-up';
 
-        prev.classList.add('hidden-forms');
-        el.classList.remove('drop-down');
-        el.classList.add('drop-up');
-        el.dataset.click = 'drop-up';
+          el.style.top = 12 + 'px';
 
-        el.style.top = 12 + 'px';
+          break;
+        }
 
-        break;
-      }
+        if (target.dataset.click === "drop-up") {
+          el = target;
+          prev = el.previousSibling;
 
-      if (target.dataset.click === "drop-up") {
-        el = target;
-        prev = el.previousSibling;
+          prev.classList.remove('hidden-forms');
+          el.classList.add('drop-down');
+          el.classList.remove('drop-up');
+          el.dataset.click = 'drop-down';
 
-        prev.classList.remove('hidden-forms');
-        el.classList.add('drop-down');
-        el.classList.remove('drop-up');
-        el.dataset.click = 'drop-down';
+          el.style.top = el_top;
 
-        el.style.top = el_top;
-
-        break;
+          break;
+        }
       }
 
       if (target) {

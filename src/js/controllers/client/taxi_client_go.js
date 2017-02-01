@@ -347,9 +347,10 @@ define(['Ajax', 'Dom', 'Dates', 'Chat', 'Geo', 'Maps', 'HideForms'], function (A
 
     get_pos_driver();
 
-    timerGetBidGo = setInterval(get_pos_driver, 1000);//get_bids_driver
+    timerGetBidGo = setInterval(get_pos_driver, 1000);
 
     Chat.start('driver');
+    
     HideForms.init();
   }
   

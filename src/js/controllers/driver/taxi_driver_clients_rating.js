@@ -107,6 +107,8 @@ define(['Ajax', 'Dom', 'Geo', 'Dates', 'Stars'], function (Ajax, Dom, Geo, Dates
   
   function start() {
     bid_id = localStorage.getItem('_rating_bid');
+    localStorage.removeItem('_current_id_bid');
+    localStorage.removeItem('_current_id_order');
     
     if (bid_id && bid_id !== "") {
       Ajax.request('GET', 'bid', User.token, '&id=' + bid_id, '', function(response) {

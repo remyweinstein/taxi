@@ -13,7 +13,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
               User.avatar = User.default_avatar;
               Dom.sel('.avatar').src = User.avatar;
             }
-          }, function() {});
+          }, Ajax.error);
         }
 
         if (target) {
@@ -75,7 +75,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
         var photo = response.profile.photo ? response.profile.photo : User.avatar;
         Dom.sel('.avatar').src = photo;
       }
-    }, function() {});
+    }, Ajax.error);
     addEvents();
   }
   

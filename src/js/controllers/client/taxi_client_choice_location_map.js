@@ -4,7 +4,7 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   var model, Model;
   
   function initMap() {
-    var x, y, zoom = 18;
+    var x = User.lat, y = User.lng, zoom = 18;
     var _route = localStorage.getItem('_address_temp');
     var _temp_coords = "";
     
@@ -14,15 +14,6 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
 
     if (_route === "to") {
       _temp_coords = Model.toCoords;
-    }
-    
-    if (!User.lat || !User.lng) {
-      x = 48.4;
-      y = 135.07;
-      zoom = 12;
-    } else {
-      x = User.lat;
-      y = User.lng;
     }
     
     if (_temp_coords) {
@@ -40,8 +31,8 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     var center_marker = Dom.sel('.centerMarker');
 
     google.maps.event.addListener(map, 'dragend', function() {
-        var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34), map);
-        localStorage.setItem('_choice_coords', coords);
+      var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34), map);
+      localStorage.setItem('_choice_coords', coords);
     });
     
   }
@@ -78,7 +69,7 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
             Model.toCoordses[_index] = latlng;
           }
 
-          var latlng = new google.maps.LatLng(latl[0], latl[1]);
+          latlng = new google.maps.LatLng(latl[0], latl[1]);
 
           geocoder.geocode ({
             'latLng': latlng
@@ -123,21 +114,22 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     var center_marker = Dom.sel('.centerMarker');
     
     center_marker.parentNode.removeChild(center_marker);
-    if (model === "MyOffer") {
+    if (model === "offer") {
       MyOffer = Model;
     }
-    if (model === "MyOrder") {
+    if (model === "order") {
       MyOrder = Model;
     }
+    localStorage.removeItem('_active_model');
   }
   
   function start() {
     model = localStorage.getItem('_active_model');
     
-    if (model === "MyOffer") {
+    if (model === "offer") {
       Model = MyOffer;
     }
-    if (model === "MyOrder") {
+    if (model === "order") {
       Model = MyOrder;
     }
     

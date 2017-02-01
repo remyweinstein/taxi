@@ -1,9 +1,7 @@
-/* global google, map, driver_icon, men_icon */
+/* global google, map, driver_icon, men_icon, User, MapElements */
 
-define(['Ajax', 'User', 'Car'], function(Ajax, User, Car) {
-  var marker_mine,
-      markers_driver_pos = [],
-      radiusSearch = 0.5,
+define(['Ajax', 'Car', 'Destinations'], function(Ajax, Car, Destinations) {
+  var radiusSearch = 0.5,
       timerGetPosTaxy,
       timerMyPos;
   
@@ -28,10 +26,10 @@ define(['Ajax', 'User', 'Car'], function(Ajax, User, Car) {
 
   }
   function get_my_pos() {
-    if (marker_mine) {
-      marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
+    if (MapElements.marker_mine) {
+      MapElements.marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
     } else {
-      marker_mine = new google.maps.Marker({
+      MapElements.marker_mine = new google.maps.Marker({
         position: new google.maps.LatLng(User.lat, User.lng),
         map: map,
         icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
@@ -57,7 +55,7 @@ define(['Ajax', 'User', 'Car'], function(Ajax, User, Car) {
             i;
 
         for (i = 0; i < agnts.length; i++) {
-          if (!searchArray(agnts[i].id, markers_driver_pos)) {
+          if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
             var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar,
                 photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle,
                 name = agnts[i].name ? agnts[i].name : '&nbsp;',
@@ -80,33 +78,33 @@ define(['Ajax', 'User', 'Car'], function(Ajax, User, Car) {
 
             loc = agnts[i].location.split(',');
             
-            if (agnts[i].isDriver) {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, driver_icon, map));
-            } else {
-              marker = addInfoForMarker(info, false, addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, men_icon, map));
-            }
-            //markers_driver_pos.push({'id': agnts[i].id, 'marker': marker});
-            new_markers.push({'id': agnts[i].id, 'marker': marker});
+            var icon = agnts[i].isDriver ? driver_icon : men_icon;
+            
+            //marker = 
+            Destinations.addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, icon, map, function (mark) {
+              Destinations.addInfoForMarker(info, false, mark);              
+              new_markers.push({'id': agnts[i].id, 'marker': mark});
+            });
           } else {
-            if (markers_driver_pos[i]) {
+            if (MapElements.markers_driver_pos[i]) {
               loc = agnts[i].location.split(',');
-              markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
-              new_markers.push({'id': agnts[i].id, 'marker': markers_driver_pos[i].marker});
+              MapElements.markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
+              new_markers.push({'id': agnts[i].id, 'marker': MapElements.markers_driver_pos[i].marker});
             }
           }
         }
 
         var result = [];
         
-        for (i = 0; i < markers_driver_pos.length; i++) {
+        for (i = 0; i < MapElements.markers_driver_pos.length; i++) {
           var s = false;
           for (var y = 0; y < new_markers.length; y++) {
-            if (markers_driver_pos[i].id === new_markers[y].id) {
+            if (MapElements.markers_driver_pos[i].id === new_markers[y].id) {
               s = true;
             }
           }
           if (!s) {
-            result.push(markers_driver_pos[i]);
+            result.push(MapElements.markers_driver_pos[i]);
           }
         }
 
@@ -114,37 +112,33 @@ define(['Ajax', 'User', 'Car'], function(Ajax, User, Car) {
           result[i].marker.setMap(null);
         }
         
-        markers_driver_pos = [];
-        markers_driver_pos = new_markers;
+        MapElements.markers_driver_pos = [];
+        MapElements.markers_driver_pos = new_markers;
         
       }
     }, function() {});
   }
   
-  var PosDrivers = {
+  var GetPositions = {
+    
     clear: function () {
       clearInterval(timerGetPosTaxy);
       clearInterval(timerMyPos);
       
-      if (marker_mine) {
-        marker_mine.setMap(null);
-      }
-      for (i = 0; i < markers_driver_pos.length; i++) {
-        markers_driver_pos[i].marker.setMap(null);
-      }
+      MapElements.clear();
 
     },
     my: function () {
-      
+      get_my_pos();
+      timerMyPos = setInterval(get_my_pos, 1000);
     },
     drivers: function () {
       init();
       get_pos_drivers();          
       timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
-      timerMyPos = setInterval(get_my_pos, 1000);
     }
   };
   
-  return PosDrivers;
+  return GetPositions;
   
   });

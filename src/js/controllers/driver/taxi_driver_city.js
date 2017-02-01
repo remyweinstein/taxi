@@ -1,17 +1,12 @@
 /* global User, Event, Car, MyOffer */
 
-define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal, clDriverOffers, Order) {
+define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal, clDriverOffers, Lists) {
   
-  var Offers,
-      model,
-      Model;
-
-
+  var Offers;
   
   function addEvents() {
     Event.click = function (event) {
-      var target = event.target;
-      var time_el, time, price_el, price, el;
+      var target = event.target, el;
 
       while (target !== this) {
         
@@ -36,27 +31,14 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal,
           }
               // = Menu my Orders Item DELETE order =
           if (target.dataset.click === 'myorders_item_menu_delete') {
-              Ajax.request('GET', 'delete-order', User.token, '&id=' + target.dataset.id, '', function(response) {
-                if (response && response.ok) {
-                  var item = target.parentNode.parentNode.parentNode;
-                   item.style.display = 'none';
-                }
-              }, function() {});
+            Lists.Delete(target);
 
             return;
           }
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
-            var elem = target;
             
-            Model.getByID(elem.dataset.id, function () {
-              if (Model.bid_id) {
-                localStorage.setItem('_current_id_bid', Model.bid_id);
-                window.location.hash = "#client_go";
-              } else {
-                window.location.hash = '#client_map';
-              }
-            });
+            Lists.getOfferByID(target.dataset.id);
 
             return;
           }
@@ -69,30 +51,24 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal,
           }
 
           if (target.dataset.click === "open-offer") {
-            el = target;
+            var id = target.dataset.id;
 
-            localStorage.setItem('_open_offer_id', el.dataset.id);
+            localStorage.setItem('_open_offer_id', id);
             
-            MyOffer.getByID(el.dataset.id, function () {
-              if (MyOffer.bid_id) {
-                localStorage.setItem('_current_id_bid', MyOffer.bid_id);
-                //window.location.hash = "#client_go";
-              } else {
-                window.location.hash = '#driver_my_offer';
-              }
-            });
+            Lists.getOfferByID(id);
+
           }
 
           if (target.dataset.click === "fav-orders") {
-            Order.filterToggleFav(target);
+            Lists.filterToggleFav(target);
           }
 
           if (target.dataset.click === "filter-orders") {
-            Order.filterShowWindow(target);
+            Lists.filterShowWindow(target);
           }
 
           if (target.dataset.click === "sort-orders") {
-            Order.filterSortWindow(target);
+            Lists.filterSortWindow(target);
           }
 
             // Click taxi_bid
@@ -104,7 +80,7 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal,
                 if (response && response.ok) {
                   el.classList.remove('active');
                 }
-              }, function() {});
+              }, Ajax.error);
             } else {
               if (!User.is_auth && model === "clClientOrder") {
                 Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
@@ -137,33 +113,25 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal,
                   if (response && response.ok) {
                     el.classList.add('active');
                   }  
-                }, function() {});
+                }, Ajax.error);
               }
             }
           }
 
           if (target.dataset.click === "time_minus") {
-            el = target;
-            
-            Order.timeMinus(el);
+            Lists.timeMinus(target);
           }
 
           if (target.dataset.click === "time_plus") {
-            el = target;
-
-            Order.timePlus(el);
+            Lists.timePlus(target);
           }
 
           if (target.dataset.click === "price_minus") {
-            el = target;
-
-            Order.priceMinus(el);
+            Lists.priceMinus(target);
           }
 
           if (target.dataset.click === "price_plus") {
-            el = target;
-
-            Order.pricePlus(el);
+            Lists.pricePlus(target);
           }
         }
 
@@ -180,39 +148,26 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Order'], function (Ajax, Modal,
   }
     
   function stop() {
-    if (model === "clDriverOffer") {
-      MyOffer = Model;
-      localStorage.setItem('_active_model', 'MyOffer');
-    }
-    if (model === "clClientOrder") {
-      MyOrder = Model;
-      localStorage.setItem('_active_model', 'MyOrder');
-    }
+    
   }
   
-  function start(modelka) {
-    model = modelka;
-    Order.filtersStart();
+  function start() {
+    Lists.filtersStart();
     
-    if (model === "clDriverOffer") {
-      Model = MyOffer;
-    }
-    if (model === "clClientOrder") {
-      Model = MyOrder;
-      Offers = new clDriverOffers();
-      Offers.getMyOffers(function () {
-        Order.fillMyOffers();
-      });
-    }
+    Offers = new clDriverOffers();
+    Offers.getMyOffers(function () {
+      Lists.fillMyOffers();
+    });
 
-    Order.getList(model);
+    Lists.getAllOrders();
     
     addEvents();
   }
   
   return {
     start: start,
-    clear: stop
+    clear: stop,
+    addEvents: addEvents
   };
     
 });    

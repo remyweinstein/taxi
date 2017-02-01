@@ -1,6 +1,6 @@
 /* global google, User, map, MyOrder */
 
-define(['Dom', 'Maps'], function (Dom, Maps) {
+define(['Dom'], function (Dom) {
   
   var _timer, Model, model;
     
@@ -109,23 +109,25 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   }
   
   function stop() {
-    if (model === "MyOffer") {
+    if (model === "offer") {
       MyOffer = Model;
     }
-    if (model === "MyOrder") {
+    if (model === "order") {
       MyOrder = Model;
     }
+    localStorage.removeItem('_active_model');
   }
   
   function start() {
     var input = Dom.sel('input[name="enter-address"]');
-    
+    var event;
+
     model = localStorage.getItem('_active_model');
     
-    if (model === "MyOffer") {
+    if (model === "offer") {
       Model = MyOffer;
     }
-    if (model === "MyOrder") {
+    if (model === "order") {
       Model = MyOrder;
     }
   
@@ -136,10 +138,10 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
     });
     
     try {
-      var event = new Event("touchstart");
+      event = new Event("touchstart");
     }
     catch (e) {
-      var event = document.createEvent('Event');
+      event = document.createEvent('Event');
       event.initEvent("touchstart", true, true);
     }
 

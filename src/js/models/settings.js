@@ -11,6 +11,8 @@ define([], function() {
     this.enableSosWithoutConn;
     this.enableSosByKeyfob;
     this.favoritesAgents;
+    this.myAuto;
+    this.myRating;
     
     this.label = [];
     this.type = [];
@@ -19,6 +21,14 @@ define([], function() {
       self.favoritesAgents = '#favorites';
       self.label.favoritesAgents = 'Избранные агенты';
       self.type.favoritesAgents = 'link';
+      
+      self.myRating = '#driver_rating';
+      self.label.myRating = 'Мой рейтинг';
+      self.type.myRating = 'link';
+      
+      self.myAuto = '#driver_my_auto';
+      self.label.myAuto = 'Мой авто';
+      self.type.myAuto = 'link';
       
       self.safeRadius = 50;
       self.label.safeRadius = 'Радиус зоны безопасности (м)';

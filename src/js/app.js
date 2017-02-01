@@ -1,5 +1,39 @@
-define(['User', 'Car', 'ClientOrder', 'Events', 'Settings', 'Geo', 'MainMenu', 'InputFilters', 'Router', 'Tabs', 'Dom', 'Funcs', 'domReady', 'SafeWin', 'Maps', 'Zones', 'DriverOffer'], 
-function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, InputFilters, Router, Tabs, Dom, Funcs, domReady, clSafeWin, Maps, clZones, clDriverOffer) {
+define(['User', 
+        'Car', 
+        'ClientOrder', 
+        'Events', 
+        'Settings', 
+        'Geo', 
+        'MainMenu', 
+        'InputFilters', 
+        'Router', 
+        'Tabs', 
+        'Dom', 
+        'Funcs', 
+        'domReady', 
+        'SafeWin', 
+        'Maps', 
+        'Zones', 
+        'DriverOffer',
+        'MapElements'], 
+  function (clUser, 
+            clCar, 
+            clClientOrder, 
+            clEvents, 
+            clSettings, 
+            Geo, 
+            MainMenu, 
+            InputFilters, 
+            Router, 
+            Tabs, 
+            Dom, 
+            Funcs, 
+            domReady, 
+            clSafeWin, 
+            Maps, 
+            clZones, 
+            clDriverOffer,
+            clMapElements) {
 
   var App =  {
     
@@ -8,14 +42,15 @@ function(clUser, clCar, clClientOrder, clEvents, clSettings, Geo, MainMenu, Inpu
       domReady(function () {
         content = Dom.sel('.content');
         
-        SafeWin =  clSafeWin;
-        User =     new clUser();
-        Car =      new clCar();
-        Event =    new clEvents();
-        MyOrder =  new clClientOrder();
-        MyOffer =  new clDriverOffer();
-        Zones =    new clZones();
-        Settings = new clSettings();
+        SafeWin =     clSafeWin;
+        User =        new clUser();
+        Car =         new clCar();
+        Event =       new clEvents();
+        MapElements = new clMapElements();
+        MyOrder =     new clClientOrder();
+        MyOffer =     new clDriverOffer();
+        Zones =       new clZones();
+        Settings =    new clSettings();
           Settings.getSettings();
 
         User.initToken();

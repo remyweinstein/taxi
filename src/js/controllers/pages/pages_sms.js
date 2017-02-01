@@ -21,9 +21,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
                 } else {
                   alert('Неверный код');
                 }
-              }, function() {
-                alert('Ошибка связи с сервером');
-              });
+              }, Ajax.error('Ошибка связи с сервером'));
 
               return;
             }

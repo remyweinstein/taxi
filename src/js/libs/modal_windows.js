@@ -5,7 +5,7 @@ define(['Dom'], function(Dom) {
       cur_win;
     
   function close() {
-    clearLayer(layer);
+    clearLayer();
     cur_win.parentNode.removeChild(cur_win);
     cur_win = null;
   }
@@ -41,8 +41,8 @@ define(['Dom'], function(Dom) {
     return new_field;
   }
 
-  function clearLayer(el) {
-    el.parentNode.removeChild(el);
+  function clearLayer() {
+    layer.parentNode.removeChild(layer);
   }
 
   

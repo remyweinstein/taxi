@@ -17,7 +17,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
          current.selected = true;
       }
 
-    }, function() {});
+    }, Ajax.error);
   }
   
   function addEvents() {
@@ -43,7 +43,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
             data.append('name', name);
             data.append('city', city);
 
-          Ajax.request('POST', 'profile', User.token, '', data, function() {}, function() {});
+          Ajax.request('POST', 'profile', User.token, '', data, function() {}, Ajax.error);
 
           var data2 = new FormData();
             data2.append('conditioner', Dom.sel('input[name="conditioner"]:checked').value);
@@ -55,7 +55,7 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
               //window.location.hash = '/';
               window.history.back();
             }
-          }, function() {});
+          }, Ajax.error);
         }
 
         if (target) {

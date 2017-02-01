@@ -1,10 +1,10 @@
-/* global User, map, google, map_choice, Car, average_speed, Event */
+/* global User, map, google, Car, average_speed, Event */
 
 define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (Ajax, Dom, Dates, Modal, Maps, HideForms) {
 
-  var active_bid = false, route, marker_to, marker_from, points = [],
+  var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
-      name_client, photo_client, travelTime, model;
+      name_client, photo_client, travelTime;
   
   function initMap() {
     var LatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -32,8 +32,8 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
     el_route.children[0].innerHTML = fromAddress;
     el_route.children[2].innerHTML = toAddress;
     
-    for (var i = 0; i < points.length; i++) {
-      _addrPoints += '<p>' + points[i].address + ', ' + points[i].time + ' мин.</p>';
+    for (var i = 0; i < name_points.length; i++) {
+      _addrPoints += '<p>' + name_points[i].address + ', ' + name_points[i].time + ' мин.</p>';
     }
     
     if (_addrPoints === "") {
@@ -89,11 +89,13 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
         content: min + ' мин.'
       });
       
-      infowindow.open(map_choice, marker);
+      infowindow.open(map, marker);
       google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map_choice, marker);
+        infowindow.open(map, marker);
       });
     }
+    
+    return marker;
   }
 
   function addMarker(location, title, icon, map) {
@@ -150,7 +152,7 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
                   active_bid = true;
                   setRoute();
                 }  
-              }, function() {});
+              }, Ajax.error);
             }
           }
         }
@@ -232,24 +234,17 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
     if (route) {
       route.setMap(null);
     }
-    
-    for (var i = 0; i < points.length; i++) {
-      points[i].setMap(null);
+    if (points) {
+      for (var i = 0; i < points.length; i++) {
+        points[i].setMap(null);
+      }
     }
   }
   
-  function start(modelka) {
+  function start() {
     var _id;
+    _id = localStorage.getItem('_open_order_id');
     
-    model = modelka;
-    
-    if (model === "clDriverOffer") {
-      _id = localStorage.getItem('_open_offer_id');
-    }
-    if (model === "clClientOrder") {
-      _id = localStorage.getItem('_open_order_id');
-    }
-
     Maps.mapOn();
     
     initMap();
@@ -286,13 +281,15 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
           travelTime = 5 * Math.ceil( travelTime / 5 );
         }
         waypoints = [];
+        points = [];
+        name_points = [];
         
         if (ords.points) {
           for (var i = 0; i < ords.points.length; i++) {
             var _wp = ords.points[i].location.split(",");
             
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-            points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
+            name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
             points.push(addInfoForMarker(ords.points[i].stopTime, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
           }
         }
@@ -309,7 +306,6 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
       }
     }, Ajax.error);
     
-
     addEvents();
   }
   
