@@ -1,4 +1,4 @@
-/* global google, SafeWin, User, safe_zone_polygons */
+/* global google, SafeWin, User, safe_zone_polygons, MapElements, cost_of_km, MyOrder, MyOffer */
 
 define(['Dom'], function(Dom) {
 
@@ -16,6 +16,182 @@ define(['Dom'], function(Dom) {
     directionsRenderer.setDirections(result);
   }
   
+  function addInfoForMarker(text, open, marker) {    
+    if (text && text !== "") {
+      var infowindow = new google.maps.InfoWindow({
+        content: text
+      });
+      if (open) {
+        infowindow.open(map, marker);
+      }
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map, marker);
+      });
+    }
+  }
+
+  function addMarker(location, title, icon, callback) {
+    var marker = new google.maps.Marker({
+      position: location,
+      //animation: google.maps.Animation.DROP,
+      icon: icon,
+      title: title,
+      map: map
+    });
+    callback(marker);
+    
+    return marker;
+  }
+  
+  function drawRouteForMap(type) {
+    var Model;
+    
+    if (type === "order") {
+      Model = MyOrder;
+    } else {
+      Model = MyOffer;
+    }
+    var _coord_from = Model.fromCoords.split(","),
+        _coord_to = Model.toCoords.split(","),
+        waypoints = [], i, Model;
+    
+    for (i = 0; i < Model.toAddresses.length; i++) {
+      var _to_coord = Model.toCoordses[i].split(",");
+      
+      waypoints.push({location: new google.maps.LatLng(_to_coord[0], _to_coord[1]), stopover: true});
+      
+      Maps.addMarker(new google.maps.LatLng(_to_coord[0], _to_coord[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', function (mark) {
+        Maps.addInfoForMarker(Model.times[i] + ' мин.', false, mark);
+        MapElements.points.push(mark);
+      });
+    }
+
+    MapElements.marker_from = Maps.addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', function(){});
+    MapElements.marker_to = Maps.addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', function(){});
+
+    directionsService = new google.maps.DirectionsService();
+    directionsDisplay = new google.maps.DirectionsRenderer();
+
+    var request = {
+      origin: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
+      destination: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+    
+    var requestBackTrip = {
+      destination: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
+      origin: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+    
+    SafeWin.overviewPath = [];
+    directionsService.route(request, function(response, status) {
+      if (status === google.maps.DirectionsStatus.OK) {            
+        for (i = 0; i < response.routes.length; i++) {
+          MapElements.routes.push(new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true,
+            directions: response,
+            routeIndex: i
+          }));
+        }
+        for (i = 0; i < response.routes.length; i++) {
+          var temp = response.routes[i].overview_path;
+          
+          SafeWin.overviewPath.push(temp);
+        }
+        directionsService.route(requestBackTrip, function(response, status) {
+          if (status === google.maps.DirectionsStatus.OK) {            
+            for (i = 0; i < response.routes.length; i++) {
+              MapElements.routes.push(new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                directions: response,
+                routeIndex: i
+              }));
+            }
+            for (i = 0; i < response.routes.length; i++) {
+              var temp = response.routes[i].overview_path;
+              
+              SafeWin.overviewPath.push(temp);
+            }
+          }
+        });
+
+      }
+    });
+  }
+  
+  function drawRoute(Model) {
+    var directionsService = new google.maps.DirectionsService(),
+        _addr_from = Model.fromCoords.split(","),
+        _addr_to = Model.toCoords.split(","),
+        waypoints = [],
+        recommended_cost = 0;
+
+    MapElements.marker_b = null;
+    MapElements.marker_a = null;
+
+    for (var i = 0; i < Model.toAddresses.length; i++) {
+      if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
+        var _wp = Model.toCoordses[i].split(","),
+            time = "";
+
+        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+        if (Model.times[i]) {
+          time = Model.times[i] + ' мин.';
+        }
+        Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', function(mark){
+          Maps.addInfoForMarker(time, true, mark);
+          MapElements.points.push(mark);
+        });
+      }
+    }
+
+    MapElements.marker_from = Maps.addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', function(){});
+    MapElements.marker_to = Maps.addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', function(){});
+
+    var request = {
+      origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+      destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: false,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+
+    directionsService.route(request, function(response, status) {
+      if (status === google.maps.DirectionsStatus.OK) {
+
+        var routes_dist = response.routes[0].legs,
+            dura = 0, dist = 0;
+
+        for (var i = 0; i < routes_dist.length; i++) {
+          dura += routes_dist[i].duration.value;
+          dist += routes_dist[i].distance.value;
+        }
+
+        Model.duration = Math.round(dura / 60);
+        Model.length = dist;
+        recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+        recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+
+        MapElements.route = new google.maps.DirectionsRenderer({
+          map: map,
+          suppressMarkers: true,
+          directions: response,
+          routeIndex: 0
+        });
+      }
+      
+      return recommended_cost;
+    });
+  }
+
+  
   var Maps = {
     
       requestDirections: function (directionsService, start, end, polylineOpts) {
@@ -26,6 +202,24 @@ define(['Dom'], function(Dom) {
         }, function(result) {
           renderDirections(result, polylineOpts);
         });
+      },
+      
+      addInfoForMarker: function (text, open, marker) {
+        addInfoForMarker(text, open, marker);
+      },
+
+      addMarker: function (location, title, icon, callback) {
+        addMarker(location, title, icon, function (mark) {
+          callback(mark);
+        });
+      },
+      
+      drawRoute: function (Model) {
+        return drawRoute(Model);
+      },
+      
+      drawRouteForMap: function (type) {
+        drawRouteForMap(type);
       },
       
       init: function() {

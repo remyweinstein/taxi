@@ -52,6 +52,7 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
       domReady(function () {
         var bottom_block = Dom.sel('div[data-hide-form=bottom]'),
             parent_block = Dom.sel('[data-hide-form=enable]'),
+            top_block = Dom.sel('[data-hide-form=top]'),
             height_bottom_block,
             coords_bottom_block,
             el,
@@ -59,18 +60,29 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
             winHeight = window.innerHeight;
 
         if (bottom_block) {
-          coords_bottom_block = bottom_block.getBoundingClientRect();
+          //if (top_block) {
+          //  coords_bottom_block = top_block.getBoundingClientRect().bottom;
+          //} else {
+          coords_bottom_block = bottom_block.getBoundingClientRect().top;
+          //}
           height_bottom_block = Funcs.outerHeight(bottom_block);
-          bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block.top - height_bottom_block - 26) + 'px';
+          console.log(height_bottom_block + ', ' + coords_bottom_block + ', ' + winHeight);
+          bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block - height_bottom_block - 26) + 'px';
         }
 
         if (parent_block) {
+          var target_block = parent_block;
           el = document.createElement('div');
           el.className += 'drop-down';
           el.dataset.click = 'drop-down';
-          parent_block.parentNode.insertBefore(el, parent_block.nextSibling);
+          
+          if (top_block) {
+            target_block = top_block;
+          }
+          
+          target_block.parentNode.insertBefore(el, target_block.nextSibling);
 
-          height_parent = Funcs.outerHeight(parent_block);
+          height_parent = Funcs.outerHeight(target_block);
           el_top = el.style.top;
           if (bottom_block) {
             var drop_coords = el.getBoundingClientRect();

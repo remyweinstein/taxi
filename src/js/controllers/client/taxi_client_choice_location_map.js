@@ -112,8 +112,9 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   
   function stop() {
     var center_marker = Dom.sel('.centerMarker');
-    
-    center_marker.parentNode.removeChild(center_marker);
+        center_marker.parentNode.removeChild(center_marker);
+        
+    model = localStorage.getItem('_active_model');
     if (model === "offer") {
       MyOffer = Model;
     }

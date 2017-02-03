@@ -109,6 +109,8 @@ define(['Dom'], function (Dom) {
   }
   
   function stop() {
+    model = localStorage.getItem('_active_model');
+
     if (model === "offer") {
       MyOffer = Model;
     }

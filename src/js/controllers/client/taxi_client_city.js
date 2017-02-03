@@ -1,7 +1,7 @@
 /* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event */
 
-define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Favorites'], 
-  function (Dom, Maps, HideForms, GetPositions, Lists, Destinations, Favorites) {
+define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Favorites', 'Ajax'], 
+  function (Dom, Maps, HideForms, GetPositions, Lists, Destinations, Favorites, Ajax) {
   
   var zoom, content = Dom.sel('.content');
 
@@ -11,13 +11,12 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
     zoom = 15;
     map.setCenter(MyLatLng);
     map.setZoom(zoom);
-
   }
 
   function addEvents() {
     
     Event.click = function (event) {
-      var target = event.target;
+      var target = event.target, el;
       
       while (target !== this) {
           
@@ -40,7 +39,7 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
           
         //  ============= EVENTS FOR DESTINATION FIELDS ============== 
           if (target.dataset.click === 'choose_address') {
-            var el = target;
+            el = target;
             
             localStorage.setItem('_address_temp', el.name);
             localStorage.setItem('_address_string_temp', el.value);
@@ -118,10 +117,24 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
 
         //  =============== EVENTS FOR LIST OF OFFERS ================
           if (target.dataset.click === "open-order") {
-            var el = target;
+            el = target;
 
             localStorage.setItem('_open_order_id', el.dataset.id);
             window.location.hash = "#driver_order";
+          }
+          
+          if (target.dataset.click === "taxi_bid") {
+            el = target;
+
+            Ajax.request('POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
+              if (response && response.ok) {
+                MyOffer.bid_id = el.dataset.id;
+                localStorage.setItem('_current_id_bid', MyOffer.bid_id);
+                localStorage.setItem('_current_id_order', MyOffer.id);
+
+                  window.location.hash = "#client_go";
+              }
+            }, Ajax.error);
           }
 
           if (target.dataset.click === "open-offer") {
@@ -163,7 +176,7 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
       var target = event.target;
 
       while (target !== this) {
-        if (target.dataset.submit === "taxy_client_city" || target.dataset.submit === "taxy_driver_offer") {
+        if (target.dataset.submit === "taxy_client_city") {
           localStorage.setItem('_active_model', 'order');
           Destinations.saveOrder();
           
@@ -179,21 +192,20 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
   }
   
   function stop() {
-    
+    Lists.clear();
     GetPositions.clear();
-    Destinations.clear();
-        
+    Destinations.clear();        
   }
   
   function start() {    
-    //Destinations.getModel(model);
-            
     Maps.mapOn();
     
+    /*
     var current_bid_id = localStorage.getItem('_current_id_bid');
     if (current_bid_id) {
       Lists.getOrderByID(localStorage.getItem('_current_id_order'));
     }
+    */
     
     GetPositions.drivers();
     GetPositions.my();

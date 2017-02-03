@@ -30,6 +30,10 @@ define(['Ajax'], function(Ajax) {
     this.price = 0;
     this.comment = "";
     
+    this.clear = function () {
+      self = null;
+    };
+    
     this.save = function (points, callback) {
 
       var data = new FormData();

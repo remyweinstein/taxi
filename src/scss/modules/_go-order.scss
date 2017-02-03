@@ -4,7 +4,7 @@
 .go-order {
     position: relative;
     top: 0em;
-    width: 100%;   
+    width: 100%;
     -webkit-transition: top .5s ease-out .25s;
     transition: top .5s ease-out .25s;
     &__top {
@@ -28,30 +28,29 @@
         }
     }
     &__down {
-        position: relative;
-        bottom: 1em;
+        position: absolute;
         width: 100%;
-        -webkit-transition: bottom 0.5s ease-out 0.25s;
-        -moz-transition: bottom 0.5s ease-out 0.25s;
-        -o-transition: bottom 0.5s ease-out 0.25s;
-        transition: bottom 0.5s ease-out 0.25s;
+        //-webkit-transition: bottom 0.5s ease-out 0.25s;
+        //-moz-transition: bottom 0.5s ease-out 0.25s;
+        //-o-transition: bottom 0.5s ease-out 0.25s;
+        //transition: bottom 0.5s ease-out 0.25s;
         &__driver-panel {
             width: 100%;
             background-color: white;
-            &__info{
+            &__info {
                 width: 49%;
                 display: inline-block;
                 vertical-align: middle;
-                p{
+                p {
                     font-size: 0.75em;
-                    span{
+                    span {
                         color: $active;
                         font-size: 1em;
                     }
 
                 }
             }
-            &__action{
+            &__action {
                 width: 49%;
                 display: inline-block;
                 vertical-align: middle;
@@ -61,23 +60,23 @@
             height: 5em;
             width: 100%;
             background-color: white;
-            &__textarea{
+            &__textarea {
                 height: 2.5em;
                 overflow: hidden;
                 overflow-y: scroll;
-                p{
+                p {
                     margin: 0;
                     font-size: 0.75em;
                 }
             }
-            &__textinput{
+            &__textinput {
                 height: 2.5em;
-                input{
+                input {
                     font-size: 0.75em;
                     margin: 1em;
                     width: 65%;
                 }
-                button{
+                button {
                     width: 7em;
                 }
             }

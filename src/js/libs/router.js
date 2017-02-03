@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerSearchDriver, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers */
+/* global User, menus_arr, timerSearchDriver, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers, timerGetPosOneDriver */
 
 define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
   
@@ -25,8 +25,8 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
                 {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
                 {hash:'#driver_help', template:'TaxiDriverHelp', controller:'ctrlTaxiDriverHelp', title:'Помощь водителю', menu:'driver', pageType: ''},
-                {hash:'#driver_new_offer', template:'TaxiDriverNewOffer', controller:'ctrlTaxiClientCity', title:'Новое предложение', menu:'driver', pageType: 'back-arrow'},
-                {hash:'#driver_my_offer', template:'TaxiDriverOffer', controller:'ctrlTaxiClientMap', title:'Мое предложение', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_new_offer', template:'TaxiDriverNewOffer', controller:'ctrlTaxiDriverNewOffer', title:'Новое предложение', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_my_offer', template:'TaxiDriverOffer', controller:'ctrlTaxiDriverOffer', title:'Мое предложение', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_my_account', template:'TaxiDriverMyAccount', controller:'ctrlTaxiDriverMyAccount', title:'Личный кабинет', menu:'driver', pageType: ''},
                 {hash:'#driver_feedback', template:'TaxiDriverFeedback', controller:'ctrlTaxiDriverFeedback', title:'Обратная связь', menu:'driver', pageType: ''},
                 {hash:'#driver_rating', template:'TaxiDriverRating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: 'back-arrow'},
@@ -146,6 +146,8 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
     clearInterval(timerGetMyPos);
     clearInterval(timerCheckLoading);
     clearInterval(timerUpdateTaxiClientOffers);
+    clearInterval(timerGetPosOneDriver);
+
 
     Dom.sel('.content').removeEventListener('click', Event.click);
     Dom.sel('.content').removeEventListener('submit', Event.submit);

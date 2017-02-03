@@ -160,19 +160,23 @@ define(['hammer', 'Funcs'], function(Hammer, Funcs) {
         toddlers = el.childNodes;
       
     if (toddlers[0]) {
-      var first_distance = Math.abs(event.layerX - toddlers[0].offsetLeft);
-      var second_distance = Math.abs(event.layerX - toddlers[1].offsetLeft);
-
-      if (first_distance < second_distance) {
+      if (!toddlers[1]) {
         element = toddlers[0];
       } else {
-        element = toddlers[1];
+        var first_distance = Math.abs(event.layerX - toddlers[0].offsetLeft);
+        var second_distance = Math.abs(event.layerX - toddlers[1].offsetLeft);
+
+        if (first_distance < second_distance) {
+          element = toddlers[0];
+        } else {
+          element = toddlers[1];
+        }
       }
+    }
 
       handleStart(element);
       moveShariki(element, distance);
       handleEnd(element);
-    }
   }
   
   function changeFromTexts(el) {

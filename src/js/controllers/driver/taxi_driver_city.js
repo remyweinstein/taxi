@@ -148,7 +148,7 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
   }
     
   function stop() {
-    
+    Lists.clear();
   }
   
   function start() {

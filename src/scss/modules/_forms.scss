@@ -99,6 +99,11 @@
         width:90%;
         border-bottom: 1px solid grey;
         display: inline-block;
+        &_two_thirds {
+            width:70%;
+            border-bottom: 1px solid grey;
+            display: inline-block;
+        }
     }
     &__label{
         width: 10%;

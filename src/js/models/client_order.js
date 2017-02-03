@@ -30,6 +30,33 @@ define(['Ajax'], function(Ajax) {
     this.price = 0;
     this.comment = "";
     
+    this.clear = function () {
+      self.id = null;
+      self.bid_id = null;
+
+      self.fromAddress = "";
+      self.toAddress = "";
+      self.toAddresses = [];
+      self.fromCoords = "";
+      self.toCoords = "";
+      self.duration = 0;
+      self.toCoordses = [];
+      self.fromFullAddress = "";
+      self.toFullAddress = "";
+      self.toFullAddresses = [];
+      self.times = [];
+      self.toCities = [];
+
+      self.length = 0;
+
+      self.fromCity  = "" ;
+      self.toCity = "";
+
+      self.distance = 0;
+      self.price = 0;
+      self.comment = "";
+    };
+    
     this.save = function (points, callback) {
 
       var data = new FormData();

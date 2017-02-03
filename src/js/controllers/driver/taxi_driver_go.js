@@ -298,6 +298,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms'], function (A
 
         setRoute();
         addEvents();
+        HideForms.init();
       } else {
         window.location.hash = '#driver_city';
       }
@@ -306,7 +307,7 @@ define(['Ajax', 'Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms'], function (A
     timerGetBidGo = setInterval(get_pos_driver, 3000);//get_bids_driver
 
     Chat.start('client');
-    HideForms.init();
+    
   }
   
   return {

@@ -2,8 +2,6 @@
 
 define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'], function(Ajax, Dates, Dom, clDriverOrders, Popup, clDriverOffers) {
   var Orders = [],
-      timerUpdateTaxiDriverOrder,
-      timerGetBidsTaxy,
       add_filter = '',
       arr_filters = {};
 
@@ -503,8 +501,21 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     return marker;
   }
   
-  function get_bids_driver() {
-    Ajax.request('GET', 'bids', User.token, '&id=' + MyOrder.id, '', function(response) {
+  function get_bid_drivers () {
+    get_bids_shared('order');
+  }
+  
+  function get_bid_clients () {
+    get_bids_shared('offer');
+  }
+  
+  function get_bids_shared(type) {
+    if (type === 'order') {
+      Model = MyOrder;
+    } else {
+      Model = MyOffer;
+    }
+    Ajax.request('GET', 'bids', User.token, '&id=' + Model.id, '', function(response) {
       if (response && response.ok) {
         var el = Dom.sel('.wait-bids-approve'),
             bids = response.bids,
@@ -573,7 +584,7 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
       ModelTemp = MyOrder;
     }
 
-    ModelTemp.getByID(id, function () {        
+    ModelTemp.getByID(id, function () {
 
       localStorage.setItem('_active_model', model);
       if (model === "offer") {
@@ -586,7 +597,7 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
       if (ModelTemp.bid_id) {
         localStorage.setItem('_current_id_bid', ModelTemp.bid_id);
         if (model === "order") {
-          window.location.hash = "#client_go";
+          //window.location.hash = "#client_go";
         }
       } else {
         if (model === "order") {
@@ -598,18 +609,28 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     });      
   }
   
+  function clearIntervals() {
+    clearInterval(timerUpdateTaxiDriverOrder);
+    clearInterval(timerGetBidsTaxy);
+  }
+  
   var Lists = {
     clear: function () {
-      clearInterval(timerUpdateTaxiDriverOrder);
-      clearInterval(timerGetBidsTaxy);
+      clearIntervals();
       MapElements.clear();
     },
     start: function () {
       
     },
     getBidsDriver: function () {
-      get_bids_driver();
-      timerGetBidsTaxy = setInterval(get_bids_driver, 3000);
+      get_bid_drivers();
+      clearInterval(timerGetBidsTaxy);
+      timerGetBidsTaxy = setInterval(get_bid_drivers, 3000);
+    },
+    getBidsClient: function () {
+      get_bid_clients();
+      clearInterval(timerGetBidsTaxy);
+      timerGetBidsTaxy = setInterval(get_bid_clients, 3000);
     },
     getOfferByID: function (id) {
       getByID(id, 'offer');
@@ -673,10 +694,12 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     },
     getAllOrders: function () {
       update_taxi_order();
+      clearInterval(timerUpdateTaxiDriverOrder);
       timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
     },
     getAllOffers: function () {
       update_taxi_offer();
+      clearInterval(timerUpdateTaxiDriverOrder);
       timerUpdateTaxiDriverOrder = setInterval(update_taxi_offer, 2000);
     }
   };

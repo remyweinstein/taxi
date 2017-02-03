@@ -68,6 +68,7 @@ requirejs.config({
     
     "ctrlTaxiDriverCity" : "controllers/driver/taxi_driver_city",
     "ctrlTaxiDriverNewOffer" : "controllers/driver/taxi_driver_new_offer",
+    "ctrlTaxiDriverOffer" : "controllers/driver/taxi_driver_my_offer",
     "ctrlTaxiDriverFeedback" : "controllers/driver/taxi_driver_feedback",
     "ctrlTaxiDriverCargo" : "controllers/driver/taxi_driver_cargo",
     "ctrlTaxiDriverMyAccount" : "controllers/driver/taxi_driver_my_account",
@@ -135,7 +136,13 @@ var menus_arr = [];
 
       default_vehicle = 'assets/images/no_vehicle.png',
       default_city = 'Хабаровск',
-
+      
+      timerUpdateTaxiDriverOrder,
+      timerGetBidsTaxy,
+      timerGetPosTaxy,
+      timerGetPosOneDriver,
+      timerMyPos,
+        
       timerSearchDriver, 
       timerGetBidGo,
       timerUpdateCoords,

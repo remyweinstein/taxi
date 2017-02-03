@@ -4,21 +4,15 @@ var gulp = require('gulp'),
   watch = require('gulp-watch'),
   prefixer = require('gulp-autoprefixer'),
   uglify = require('gulp-uglify'),
-  sass = require('gulp-sass'),
-  sourcemaps = require('gulp-sourcemaps'),
-  cssmin = require('gulp-minify-css'),
+  //sourcemaps = require('gulp-sourcemaps'),
   //gutil = require('gulp-util'),
   //rjs = require("gulp-rjs"),
   //amdOptimize = require('amd-optimize'),
-  babel = require('gulp-babel'),
-  concat = require('gulp-concat'),
-  //rigger = require('gulp-rigger'),
+  //concat = require('gulp-concat'),
   //plumber = require('gulp-plumber'),
-  /* //server
-  browserSync = require("browser-sync"),
-  reload = browserSync.reload;
-  */
-  imagemin = require('gulp-imagemin');
+  //imagemin = require('gulp-imagemin');
+  sass = require('gulp-sass'),
+  cssmin = require('gulp-minify-css');
    
 var path = {
   build: {
@@ -51,42 +45,23 @@ var path = {
   clean: './build'
 };
 
-/*
-var config = {
-  server: {
-    baseDir: "./build"
-  },
-  tunnel: true,
-  host: 'localhost',
-  port: 9000,
-  logPrefix: "Frontend_Devil"
-};
-*/
-
-
 gulp.task('html:build', function () {
   gulp.src(path.src.html)
-    //.pipe(rigger())
     .pipe(gulp.dest(path.build.html));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('php:build', function () {
   gulp.src(path.src.php)
     .pipe(gulp.dest(path.build.php));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('js:build', function () {
   gulp.src(path.src.js)
-    //.pipe(rigger())
     //.pipe(sourcemaps.init())
-    //.pipe(babel({presets: ['es2015']}))
     //.pipe(uglify())
     //.pipe(concat('main.js'))
     //.pipe(sourcemaps.write())
     .pipe(gulp.dest(path.build.js));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('css:build', function () {
@@ -97,7 +72,6 @@ gulp.task('css:build', function () {
     .pipe(cssmin())
     //.pipe(sourcemaps.write())
     .pipe(gulp.dest(path.build.css));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('image:build', function () {
@@ -111,13 +85,11 @@ gulp.task('image:build', function () {
     //}))
     //.pipe(plumber.stop())
     .pipe(gulp.dest(path.build.img));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('fonts:build', function() {
   gulp.src(path.src.fonts)
     .pipe(gulp.dest(path.build.fonts));
-    //.pipe(reload({stream: true}));
 });
 
 gulp.task('clean', function (cb) {
@@ -145,7 +117,6 @@ gulp.task('watch', function(){
   });
   watch([path.watch.js], function(event, cb) {
     gulp.start('js:build');
-    //gulp.start('requirejsBuild');
   });
   watch([path.watch.img], function(event, cb) {
     gulp.start('image:build');

@@ -7,10 +7,10 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
     
     map.setCenter(MyLatLng);
     map.setZoom(12);
-    
-    Maps.drawRouteForMap('order');
+
+    Maps.drawRouteForMap('offer');
   }
-    
+  
   function addEvents() {
     Event.click = function (event) {
       var target = event.target, el;
@@ -21,9 +21,9 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
 
           Ajax.request('POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
             if (response && response.ok) {
-              MyOrder.bid_id = el.dataset.id;
-              localStorage.setItem('_current_id_bid', MyOrder.bid_id);
-              localStorage.setItem('_current_id_order', MyOrder.id);
+              MyOffer.bid_id = el.dataset.id;
+              localStorage.setItem('_current_id_bid', MyOffer.bid_id);
+              localStorage.setItem('_current_id_order', MyOffer.id);
               
                 window.location.hash = "#client_go";
             }
@@ -33,7 +33,7 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
         if (target && target.dataset.click === "cancel-order") {
           el = target;
           
-          Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOrder.id, '', function(response) {
+          Ajax.request('POST', 'cancel-order', User.token, '&id=' + MyOffer.id, '', function(response) {
             if (response && response.ok) {
               window.location.hash = '#client_city';
             }
@@ -51,7 +51,7 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
   }
   
   function stop() {
-    MyOrder.clear();
+    MyOffer.clear();
     Destinations.clear();
     GetPositions.clear();
     Lists.clear();
@@ -60,19 +60,19 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
   }
   
   function start() {
-    
-    if (MyOrder.id > 0) {
+        
+    if (MyOffer.id > 0) {
       Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();
       
       GetPositions.my();
       
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[0].innerHTML = MyOrder.fromAddress;
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[2].innerHTML = MyOrder.toAddress;
-      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'В пути: ' + (MyOrder.length / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOrder.duration);
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[0].innerHTML = MyOffer.fromAddress;
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[2].innerHTML = MyOffer.toAddress;
+      Dom.selAll('.wait-order-approve__route-info__route')[0].children[3].innerHTML = 'В пути: ' + (MyOffer.length / 1000).toFixed(1) + ' км / ' + Dates.minToHours(MyOffer.duration);
 
-      var _count_waypoint = MyOrder.toAddresses.length;
+      var _count_waypoint = MyOffer.toAddresses.length;
 
       if (_count_waypoint > 0) {
         Dom.selAll('.wait-order-approve__route-info__route')[0].children[1].innerHTML = 'Заездов ' + _count_waypoint;
@@ -81,16 +81,16 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
       }
 
       var el_price = Dom.sel('.wait-order-approve__route-info__price');
-        el_price.innerHTML = Math.round(MyOrder.price) + ' руб';
+        el_price.innerHTML = Math.round(MyOffer.price) + ' руб';
 
       var el_cancel = Dom.sel('.wait-order-approve__route-info__cancel');
         el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
         
       HideForms.init();
-      Lists.getBidsDriver();
+      Lists.getBidsClient();
 
     } else {
-      window.location.hash = "#client_city";
+      window.location.hash = "#driver_city";
     }
     
     addEvents();
