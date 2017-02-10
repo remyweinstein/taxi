@@ -42,17 +42,17 @@ define(['User',
       domReady(function () {
         content = Dom.sel('.content');
         
-        SafeWin =     clSafeWin;
-        User =        new clUser();
-        Car =         new clCar();
-        Event =       new clEvents();
+        SafeWin     = clSafeWin;
+        User        = new clUser();
+        Car         = new clCar();
+        Event       = new clEvents();
         MapElements = new clMapElements();
-        MyOrder =     new clClientOrder();
-        MyOffer =     new clDriverOffer();
-        Zones =       new clZones();
-        Settings =    new clSettings();
-          Settings.getSettings();
-
+        MyOrder     = new clClientOrder();
+        MyOffer     = new clDriverOffer();
+        Zones       = new clZones();
+        Settings    = new clSettings();
+        
+        Settings.getSettings();
         User.initToken();
 
         User.city = localStorage.getItem('_my_city');

@@ -8,7 +8,7 @@ define(['Ajax', 'Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositio
     map.setCenter(MyLatLng);
     map.setZoom(12);
 
-    Maps.drawRouteForMap('offer');
+    Maps.drawRoute('offer', true, function(){});
   }
   
   function addEvents() {

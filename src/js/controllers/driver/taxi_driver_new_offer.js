@@ -29,6 +29,7 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
             localStorage.setItem('_active_model', 'offer');
             window.location.hash = '#client_choose_address';
           }
+          
           if (target.dataset.click === 'choice_location') {
             localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             localStorage.setItem('_active_model', 'offer');
@@ -36,23 +37,16 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
 
             break;
           }
+          
+          if (target.dataset.click === 'date_offer') {
+            Modal.calendar(function () {
+                                      
+                                    });
+          }
+          
           if (target.dataset.click === 'clean-field') {
             Destinations.cleanFieldOffer(target.dataset.field);
 
-            break;
-          }
-          
-          if (target.dataset.click === 'set-time-offer') {
-            Modal.show('<p><button class="button_rounded--green"  data-response="0">Сейчас</button></p>' +
-                       '<p><button class="button_rounded--green"  data-response="5">5 мин</button></p>' +
-                       '<p><button class="button_rounded--green" data-response="10">10 мин</button></p>' +
-                       '<p><button class="button_rounded--green" data-response="15">15 мин</button></p>' +
-                       '<p><button class="button_rounded--green" data-response="20">20 мин</button></p>' +
-                       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>',
-                    function (response) {
-                        MyOffer.time = response;
-                    });
-            
             break;
           }
           
@@ -62,7 +56,6 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
             
             break;
           }
-
         }
 
         if (target) {
@@ -74,51 +67,28 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
     };
     
     content.addEventListener('click', Event.click);
-    /*
-    Event.submit = function (event) {
-      var target = event.target;
 
-      while (target !== this) {
-        if (target.dataset.submit === "taxy_driver_offer") {
-          localStorage.setItem('_active_model', 'offer');
-          Destinations.saveOffer();
-          
-          return;
-        }
-
-        target = target.parentNode;
-      }
-    };
-
-    content.addEventListener('submit', Event.submit);
-    */
   }
   
   function stop() {
-    
     GetPositions.clear();
     Destinations.clear();
-        
   }
   
-  function start() {    
+  function start() {
+    var current_bid_id = localStorage.getItem('_current_id_bid');
+    
     Maps.mapOn();
     
-    var current_bid_id = localStorage.getItem('_current_id_bid');
     if (current_bid_id) {
       Lists.getOrderByID(localStorage.getItem('_current_id_order'));
     }
     
     GetPositions.my();
-    
     initMap();
-    
-    Destinations.initOffer();    
-    
-    
+    Destinations.initOffer();
     HideForms.init();
     addEvents();
-
   }
 
 

@@ -66,7 +66,6 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
           coords_bottom_block = bottom_block.getBoundingClientRect().top;
           //}
           height_bottom_block = Funcs.outerHeight(bottom_block);
-          console.log(height_bottom_block + ', ' + coords_bottom_block + ', ' + winHeight);
           bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block - height_bottom_block - 26) + 'px';
         }
 

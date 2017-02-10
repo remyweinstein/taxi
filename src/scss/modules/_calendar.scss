@@ -1,0 +1,28 @@
+.calendar {
+    width: 100%;
+    font: monospace;
+    line-height: 1.2em;
+    font-size: 15px;
+    text-align: center;
+    thead tr:last-child {
+      font-size: small;
+      color: rgb(85, 85, 85);
+    }
+    thead tr:nth-child(1) td:nth-child(2) {
+      color: rgb(50, 50, 50);
+    }
+    thead tr:nth-child(1) td:nth-child(1):hover, thead tr:nth-child(1) td:nth-child(3):hover {
+      cursor: pointer;
+    }
+    tbody td {
+      color: rgb(44, 86, 122);
+      cursor: pointer;
+    }
+    tbody td:nth-child(n+6), .holiday {
+      color: rgb(231, 140, 92);
+    }
+    tbody td.today {
+      background: rgb(220, 0, 0);
+      color: #fff;
+    }
+}

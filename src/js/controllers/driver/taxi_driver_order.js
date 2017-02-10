@@ -1,4 +1,4 @@
-/* global User, map, google, Car, average_speed, Event */
+/* global User, map, google, Car, average_speed, Event, MapElements */
 
 define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (Ajax, Dom, Dates, Modal, Maps, HideForms) {
 
@@ -59,55 +59,6 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve"></div>' +
                     '</div>';
-  }
-
-  function drawMap() {
-    directionsService = new google.maps.DirectionsService();
-    directionsDisplay = new google.maps.DirectionsRenderer();
-
-    var request = {
-      origin: new google.maps.LatLng(fromCoords[0], fromCoords[1]),
-      destination: new google.maps.LatLng(toCoords[0], toCoords[1]),
-      waypoints: waypoints,
-      travelMode: google.maps.DirectionsTravelMode.DRIVING
-    };
-
-    directionsService.route(request, function(response, status) {
-      if (status === google.maps.DirectionsStatus.OK) {
-        route = new google.maps.DirectionsRenderer({
-          map: map,
-          suppressMarkers: true,
-          directions: response
-        });
-      }
-    });
-  }
-  
-  function addInfoForMarker(min, marker) {
-    if(min && min > 0) {
-      var infowindow = new google.maps.InfoWindow({
-        content: min + ' мин.'
-      });
-      
-      infowindow.open(map, marker);
-      google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map, marker);
-      });
-    }
-    
-    return marker;
-  }
-
-  function addMarker(location, title, icon, map) {
-    var marker = new google.maps.Marker({
-      position: location,
-      //animation: google.maps.Animation.DROP,
-      icon: icon,
-      title: title,
-      map: map
-    });
-
-    return marker;
   }
 
   function addEvents() {
@@ -290,15 +241,25 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
             
             waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
             name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-            points.push(addInfoForMarker(ords.points[i].stopTime, addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', map)));
+            Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+              function (mark) {
+                Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
+                MapElements.points.push(mark);
+              });
           }
         }
 
-        marker_from = addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', map);
-        marker_to = addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', map);
-
+        Maps.addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+          function (mark) {
+            MapElements.marker_to = mark;
+          });
+        Maps.addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+          function (mark) {
+            MapElements.marker_from = mark;
+          });
+          
         setRoute();
-        drawMap();
+        Maps.drawRoute('order', false, function(){});
         HideForms.init();
 
       } else {

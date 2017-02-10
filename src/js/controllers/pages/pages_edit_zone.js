@@ -58,12 +58,14 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
   }
 
   function addMarker(e, edit) {
+    var lat, lng;
+    
     if (edit) {
-      var lat = e.lat;
-      var lng = e.lng;
+      lat = e.lat;
+      lng = e.lng;
     } else {
-      var lat = e.latLng.lat();
-      var lng = e.latLng.lng();
+      lat = e.latLng.lat();
+      lng = e.latLng.lng();
     }
     var marker = new google.maps.Marker({
       position: getLatLng(lat, lng),
@@ -81,7 +83,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
     }
     bindMarkerEvents(marker);
     showPoly();
-  };
+  }
 
   function pDistance(x, y, x1, y1, x2, y2) {
 
@@ -118,14 +120,14 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
 
   function findStartPoint(lng, lat, callback) {
     var distA = 10000000000000000000;
-    var y = 0;
+    var y = 0, dist;
 
     for (var i = 0; i < markers.length; i++) {
 
       if (i === (markers.length - 1)) {
-        var dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
+        dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
       } else {
-        var dist = pDistance(lng, lat, markers[i + 1].lng, markers[i + 1].lat, markers[i].lng, markers[i].lat);
+        dist = pDistance(lng, lat, markers[i + 1].lng, markers[i + 1].lat, markers[i].lng, markers[i].lat);
       }
 
       if (distA > dist) {
@@ -168,11 +170,12 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
   }
     
   function showPoly() {
+    var i;
 
     points = [];
     var bounds = new google.maps.LatLngBounds();
 
-    for (var i = 0; i < markers.length; i++) {
+    for (i = 0; i < markers.length; i++) {
       points.push(markers[i].getPosition());
       bounds.extend(markers[i].getPosition());
     }
@@ -180,7 +183,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
     var center = bounds.getCenter();
     var bearing = [];
 
-    for (var i = 0; i < points.length; i++) {
+    for (i = 0; i < points.length; i++) {
       if (google.maps.geometry) {
         bearing = google.maps.geometry.spherical.computeHeading(center, points[i]);
 
@@ -216,13 +219,13 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
   }
   
   function fillName() {
-    var name, note = '';
+    var name, i, note = '';
     if (id_edit_zone) {
       var arr_id = Funcs.findIdArray(Zones.list, id_edit_zone);
       
       name = Zones.list[arr_id].name;
       note = Zones.list[arr_id].note;
-      for (var i = 0; i < Zones.list[arr_id].polygon.length; i++) {
+      for (i = 0; i < Zones.list[arr_id].polygon.length; i++) {
         var lat = Zones.list[arr_id].polygon[i].lat;
         var lng = Zones.list[arr_id].polygon[i].lng;
         
@@ -242,11 +245,11 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
       points = [];
       clearBounds();
       
-      for (var i = 0; i < markers.length; i++) {
+      for (i = 0; i < markers.length; i++) {
         points.push(markers[i].getPosition());
         bounds.extend(markers[i].getPosition());
       }
-      for (var i = 0; i < points.length; i++) {
+      for (i = 0; i < points.length; i++) {
         points[i].lat0 = markers[i].lat;
         points[i].lng0 = markers[i].lng;
       }

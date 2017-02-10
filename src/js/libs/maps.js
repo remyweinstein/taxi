@@ -43,95 +43,21 @@ define(['Dom'], function(Dom) {
     return marker;
   }
   
-  function drawRouteForMap(type) {
-    var Model;
+  function drawRoute(type, back, callback) {
+    var directionsService = new google.maps.DirectionsService(),
+        _addr_from, _addr_to,
+        waypoints = [],
+        recommended_cost = 0,
+        Model;
     
     if (type === "order") {
       Model = MyOrder;
     } else {
       Model = MyOffer;
     }
-    var _coord_from = Model.fromCoords.split(","),
-        _coord_to = Model.toCoords.split(","),
-        waypoints = [], i, Model;
     
-    for (i = 0; i < Model.toAddresses.length; i++) {
-      var _to_coord = Model.toCoordses[i].split(",");
-      
-      waypoints.push({location: new google.maps.LatLng(_to_coord[0], _to_coord[1]), stopover: true});
-      
-      Maps.addMarker(new google.maps.LatLng(_to_coord[0], _to_coord[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', function (mark) {
-        Maps.addInfoForMarker(Model.times[i] + ' мин.', false, mark);
-        MapElements.points.push(mark);
-      });
-    }
-
-    MapElements.marker_from = Maps.addMarker(new google.maps.LatLng(_coord_from[0], _coord_from[1]), Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', function(){});
-    MapElements.marker_to = Maps.addMarker(new google.maps.LatLng(_coord_to[0], _coord_to[1]), Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', function(){});
-
-    directionsService = new google.maps.DirectionsService();
-    directionsDisplay = new google.maps.DirectionsRenderer();
-
-    var request = {
-      origin: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
-      destination: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
-      waypoints: waypoints,
-      provideRouteAlternatives: true,
-      travelMode: google.maps.DirectionsTravelMode.DRIVING
-    };
-    
-    var requestBackTrip = {
-      destination: new google.maps.LatLng(_coord_from[0], _coord_from[1]),
-      origin: new google.maps.LatLng(_coord_to[0], _coord_to[1]),
-      waypoints: waypoints,
-      provideRouteAlternatives: true,
-      travelMode: google.maps.DirectionsTravelMode.DRIVING
-    };
-    
-    SafeWin.overviewPath = [];
-    directionsService.route(request, function(response, status) {
-      if (status === google.maps.DirectionsStatus.OK) {            
-        for (i = 0; i < response.routes.length; i++) {
-          MapElements.routes.push(new google.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: true,
-            directions: response,
-            routeIndex: i
-          }));
-        }
-        for (i = 0; i < response.routes.length; i++) {
-          var temp = response.routes[i].overview_path;
-          
-          SafeWin.overviewPath.push(temp);
-        }
-        directionsService.route(requestBackTrip, function(response, status) {
-          if (status === google.maps.DirectionsStatus.OK) {            
-            for (i = 0; i < response.routes.length; i++) {
-              MapElements.routes.push(new google.maps.DirectionsRenderer({
-                map: map,
-                suppressMarkers: true,
-                directions: response,
-                routeIndex: i
-              }));
-            }
-            for (i = 0; i < response.routes.length; i++) {
-              var temp = response.routes[i].overview_path;
-              
-              SafeWin.overviewPath.push(temp);
-            }
-          }
-        });
-
-      }
-    });
-  }
-  
-  function drawRoute(Model) {
-    var directionsService = new google.maps.DirectionsService(),
-        _addr_from = Model.fromCoords.split(","),
-        _addr_to = Model.toCoords.split(","),
-        waypoints = [],
-        recommended_cost = 0;
+    _addr_from = Model.fromCoords.split(",");
+    _addr_to = Model.toCoords.split(",");
 
     MapElements.marker_b = null;
     MapElements.marker_a = null;
@@ -163,9 +89,17 @@ define(['Dom'], function(Dom) {
       travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
 
+    var requestBackTrip = {
+      destination: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+      origin: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+      waypoints: waypoints,
+      provideRouteAlternatives: true,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+    
+    SafeWin.overviewPath = [];
     directionsService.route(request, function(response, status) {
       if (status === google.maps.DirectionsStatus.OK) {
-
         var routes_dist = response.routes[0].legs,
             dura = 0, dist = 0;
 
@@ -179,31 +113,51 @@ define(['Dom'], function(Dom) {
         recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
         recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
-        MapElements.route = new google.maps.DirectionsRenderer({
-          map: map,
-          suppressMarkers: true,
-          directions: response,
-          routeIndex: 0
+        for (i = 0; i < response.routes.length; i++) {
+          MapElements.routes.push(new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true,
+            directions: response,
+            routeIndex: i
+          }));
+        }
+        for (i = 0; i < response.routes.length; i++) {
+          var temp = response.routes[i].overview_path;
+          
+          SafeWin.overviewPath.push(temp);
+        }
+        directionsService.route(requestBackTrip, function(response, status) {
+          if (status === google.maps.DirectionsStatus.OK) {            
+            for (i = 0; i < response.routes.length; i++) {
+              MapElements.routes.push(new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                directions: response,
+                routeIndex: i
+              }));
+            }
+            for (i = 0; i < response.routes.length; i++) {
+              var temp = response.routes[i].overview_path;
+              
+              SafeWin.overviewPath.push(temp);
+            }
+            callback(recommended_cost);
+            if (type === "order") {
+              MyOrder = Model;
+            } else {
+              MyOffer = Model;
+            }
+          }
         });
+
       }
-      
-      return recommended_cost;
     });
+
+    
   }
 
   
   var Maps = {
-    
-      requestDirections: function (directionsService, start, end, polylineOpts) {
-        directionsService.route({
-          origin: start,
-          destination: end,
-          travelMode: google.maps.DirectionsTravelMode.DRIVING
-        }, function(result) {
-          renderDirections(result, polylineOpts);
-        });
-      },
-      
       addInfoForMarker: function (text, open, marker) {
         addInfoForMarker(text, open, marker);
       },
@@ -214,12 +168,8 @@ define(['Dom'], function(Dom) {
         });
       },
       
-      drawRoute: function (Model) {
-        return drawRoute(Model);
-      },
-      
-      drawRouteForMap: function (type) {
-        drawRouteForMap(type);
+      drawRoute: function (type, back, callback) {
+        drawRoute(type, back, callback);
       },
       
       init: function() {
