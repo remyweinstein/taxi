@@ -54,18 +54,7 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
     Model.price = _price === "" ? recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
 
-    Model.save(MapElements.points, function (response) {
-      if (response && response.ok) {
-        Model.id = response.id;
-        if (type === "order") {
-          window.location.hash = '#client_map';
-        } else {
-          window.location.hash = '#driver_city';
-        }
-      } else {
-        alert('Укажите в профиле ваш город');
-      }
-    });
+    Model.save(MapElements.points);
   }
 
   function cleanField(_field, type) {

@@ -1,4 +1,4 @@
-/* global User */
+/* global User, Conn */
 
 define(['Ajax'], function(Ajax) {
   
@@ -8,71 +8,56 @@ define(['Ajax'], function(Ajax) {
     this.id = null;
     this.bid_id = null;
 
-    this.fromAddress = "";
-    this.toAddress = "";
+    this.fromAddress = null;
+    this.toAddress = null;
     this.toAddresses = [];
-    this.fromCoords = "";
-    this.toCoords = "";
+    this.fromCoords = null;
+    this.toCoords = null;
     this.duration = 0;
     this.toCoordses = [];
-    this.fromFullAddress = "";
-    this.toFullAddress = "";
+    this.fromFullAddress = null;
+    this.toFullAddress = null;
     this.toFullAddresses = [];
     this.times = [];
     this.toCities = [];
     
     this.length = 0;
 
-    this.fromCity  = "" ;
-    this.toCity = "";
+    this.fromCity  = null;
+    this.toCity = null;
 
     this.distance = 0;
     this.price = 0;
-    this.comment = "";
+    this.comment = null;
     
     this.clear = function () {
       self = null;
     };
     
-    this.save = function (points, callback) {
+    this.save = function () {
 
-      var data = new FormData();
+      var data = {};
 
-      data.append('fromCity', User.city);
-      data.append('fromAddress', self.fromAddress);
-      data.append('fromLocation', self.fromCoords);
-      data.append('toCity', User.city);
-      data.append('toAddress', self.toAddress);
-      data.append('toLocation', self.toCoords);
-      data.append('duration', self.duration);
-      data.append('isIntercity', 0);
-      data.append('price', self.price);
-      data.append('comment', self.comment);
-      data.append('minibus', 0);
-      data.append('babyChair', 0);
-      data.append('type', 'offer');
-      data.append('length', self.length);
+      data.fromCity = User.city;
+      data.fromAddress = self.fromAddress;
+      data.fromLocation = self.fromCoords;
+      data.toCity = User.city;
+      data.toAddress = self.toAddress;
+      data.toLocation = self.toCoords;
+      data.duration = self.duration;
+      data.isIntercity = 0;
+      data.price = self.price;
+      data.comment = self.comment;
+      data.minibus = 0;
+      data.babyChair = 0;
+      data.type = 'offer';
+      data.length = self.length;
 
-      if (self.toAddresses.length > 0) {
-        for (var i = 0; i < self.toAddresses.length; i++) {
-          var time = self.times[i] ? self.times[i] : 0;
-          
-          data.append('points[' + i + '][address]', self.toAddresses[i]);
-          data.append('points[' + i + '][location]', self.toCoordses[i]);
-          data.append('points[' + i + '][stopTime]', time);
-          data.append('points[' + i + '][city]', User.city);
-          data.append('points[' + i + '][fullAddress]', '');
-        }
-      }
-
-      Ajax.request('POST', 'order', User.token, '', data, function(response) {
-        callback(response);
-      }, function() {});
+      Conn.createOffer(data);
     };
 
     this.getByID = function (_id, callback) {
-                  Ajax.request('GET', 'order', User.token, '&id=' + _id, '', function(response) {
-                    if (response && response.ok) {
+                  Conn.getOfferById(_id);
                       var ord = response.order;
                       
                       if(ord.bidId && ord.bidId > 0) {
@@ -112,9 +97,6 @@ define(['Ajax'], function(Ajax) {
                       self.price = ord.price;
                       self.comment = ord.comment;
 
-                      callback();
-                    }
-                  }, function() {});
     };
 
   };

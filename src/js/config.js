@@ -24,6 +24,7 @@ requirejs.config({
     "Address" :       "libs/address",
     "Ajax" :          "libs/ajax",
     "Chat" :          "libs/chat",
+    "Conn" :          "libs/connection",
     "Dates" :         "libs/dates",
     "Destinations" :  "libs/destinations",
     "Dom" :           "libs/dom",
@@ -48,6 +49,7 @@ requirejs.config({
     "ctrlPageStart" :           "controllers/pages/pages_start",
     "ctrlPageLogin" :           "controllers/pages/pages_login",
     "ctrlPageLogout" :          "controllers/pages/pages_logout",
+    "ctrlPageMessages" :          "controllers/pages/pages_messages",
     "ctrlPageSettings" :        "controllers/pages/pages_settings",
     "ctrlPageSms" :             "controllers/pages/pages_sms",
     "ctrlPagesTrustedContacts": "controllers/pages/pages_trusted_contacts",
@@ -97,6 +99,7 @@ var menus_arr = [];
     menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
+                           {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
                            {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
@@ -105,6 +108,7 @@ var menus_arr = [];
                            {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
                            {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
+                           {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#driver_feedback', icon: 'attention'},
                            {name: 'Режим клиента', url: '#client_city', icon: 'steering-wheel',  add_icon: '<i class="icon-toggle-on toggle_block"></i>'},
@@ -114,8 +118,8 @@ var menus_arr = [];
       map, marker, geocoder,
       
       google, placeSearch, autocomplete, worker,
-  
-      lasturl = '',
+      
+      lastURL = '',
 
       MayLoading = false,
   
@@ -124,7 +128,7 @@ var menus_arr = [];
   
       safe_zone_polygons = [],
 
-      User, Car, Event, Settings, MyOrder, MyOffer, SafeWin, Zones,
+      User, Car, Conn, Event, Settings, MyOrder, MyOffer, SafeWin, Zones,
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',

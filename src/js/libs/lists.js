@@ -1,4 +1,4 @@
-/* global User, google, default_vehicle, driver_icon, map, MyOrder, MapElements */
+/* global User, google, default_vehicle, driver_icon, map, MyOrder, MapElements, Conn */
 
 define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'], function(Ajax, Dates, Dom, clDriverOrders, Popup, clDriverOffers) {
   var Orders = [],
@@ -55,63 +55,47 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     return add_fil;
   }
   
-  function update_taxi_order() {
-    update_taxi_order_shared('order');
-  }
-  
-  function update_taxi_offer() {
-    update_taxi_order_shared('offer');
-  }
-  
-  function update_taxi_order_shared(type) {
-    var add_type;
-    
+  function render_list(type, response) {
+    var add_type, ords, tempOrder = Orders;
+
     if (type === 'order') {
-      add_type = '&filter[type]=order';
+      ords = response.orders;
     } else {
-      add_type = '&filter[type]=offer';
+      ords = response.offers;
     }
-    
-    Ajax.request('GET', 'orders', User.token, add_type + '&isIntercity=0&fromCity=' + User.city + add_filter, '', function(response) {
-      if (response && response.ok) {
-        var ords = response.orders;
 
-        var tempOrder = Orders;
-        Orders = [];
-        for (var i = 0; i < ords.length;) {
-          var ordId = ords[i].id;
-          var same_el = tempOrder.filter(function(ord) {
-            return ord.id === ordId;
-          });
+    Orders = [];
+    for (var i = 0; i < ords.length;) {
+      var ordId = ords[i].id;
+      var same_el = tempOrder.filter(function(ord) {
+        return ord.id === ordId;
+      });
 
-          var tempOrders = new clDriverOrders(ords[i], same_el[0]);
-          tempOrders.constructor(function(temp_order) {
-            Orders.push(temp_order);
+      var tempOrders = new clDriverOrders(ords[i], same_el[0]);
+      tempOrders.constructor(function(temp_order) {
+        Orders.push(temp_order);
 
-            if (temp_order.agentBidId === temp_order.bidId) {
-              localStorage.setItem('_current_id_bid', temp_order.bidId);
-              localStorage.setItem('_current_id_order', temp_order.id);
-              if (type === 'order') {
-                window.location.hash = '#driver_go';
-              } else {
-                window.location.hash = "#client_go";
-              }
-            }
-
-            i++;
-          });            
+        if (temp_order.agentBidId === temp_order.bidId) {
+          localStorage.setItem('_current_id_bid', temp_order.bidId);
+          localStorage.setItem('_current_id_order', temp_order.id);
+          if (type === 'order') {
+            //window.location.hash = '#driver_go';
+          } else {
+            //window.location.hash = "#client_go";
+          }
         }
-        
-        var orders_result = Dom.sel('.list-orders__result span');
-        
-        if (orders_result) {
-          orders_result.innerHTML = Orders.length;
-        }
-        
-        fillOrders();
-      }
 
-    }, function() {});
+        i++;
+      });            
+    }
+
+    var orders_result = Dom.sel('.list-orders__result span');
+
+    if (orders_result) {
+      orders_result.innerHTML = Orders.length;
+    }
+
+    fillOrders();
   }
   
   function fillOrders() {
@@ -195,9 +179,7 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     to.appendChild(n);
   }
   
-  function getMyOrders() {
-    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=0&my=1', '', function(response) {
-      if (response && response.ok) {
+  function render_list_my_order(response) {
         var toAppend = Dom.sel('.myorders');
         if (toAppend) {
           toAppend.innerHTML = '';
@@ -257,10 +239,6 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
 
           to.appendChild(node);
         }
-
-      }
-
-    }, Ajax.error);
   }
   
   function onstartAddFilters() {
@@ -326,71 +304,69 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     price_el.innerHTML = price + ' руб.';
   }
   
-  function fillMyOffers() {
+  function render_list_my_offer(response) {
     var Offer = new clDriverOffers();
     var listOffers = Dom.sel('[data-model=list-offers]');
 
-    if (listOffers) {
-      
-      Offer.getMyOffers(function () {
-        
-        var arrOffers = Offer.myOffers;
-        listOffers.innerHTML = '';
+    if (listOffers) {      
+      Offer.myOffers = response.offers;
 
-        for (var key in arrOffers) {
-          if (arrOffers.hasOwnProperty(key) &&
-              /^0$|^[1-9]\d*$/.test(key) &&
-              key <= 4294967294) {
+      var arrOffers = Offer.myOffers;
+      listOffers.innerHTML = '';
 
-            var zaezdy = '',
-                goto = '', del;
+      for (var key in arrOffers) {
+        if (arrOffers.hasOwnProperty(key) &&
+            /^0$|^[1-9]\d*$/.test(key) &&
+            key <= 4294967294) {
 
-            if (!arrOffers[key].comeout) {
-              //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
-              del = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
-            }
+          var zaezdy = '',
+              goto = '', del;
 
-            if (arrOffers[key].stops > 0) {
-              zaezdy = '<div class="list-orders_route_to">' +
-                          'Остановок по пути ' + arrOffers[key].stops +
-                        '</div>';
-            }
+          if (!arrOffers[key].comeout) {
+            //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
+            del = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+          }
 
-            show('LI', '<div class="list-orders_route">' +
-                         '<div data-click="open-offer" data-id="' + arrOffers[key].id + '">' +
-                            '<div class="list-orders_route_to">' +
-                              arrOffers[key].created +
-                            '</div>' +
-                            '<div class="list-orders_route_from">' +
-                              arrOffers[key].fromAddress +
-                            '</div>' +
-                            zaezdy +
-                            '<div class="list-orders_route_to">' +
-                              arrOffers[key].toAddress +
-                            '</div>' +
-                            '<div class="list-orders_route_additional">' +
-                              arrOffers[key].comment +
-                            '</div>' +
-                            '<div class="list-orders_route_info">' +
-                              'Длина маршрута: ' + Math.round(arrOffers[key].length / 1000, 2) + ' км' +
-                            '</div>' +
-                            '<div class="list-orders_route_info">' +
-                              'Время по маршруту: ' + Dates.minToHours(arrOffers[key].duration) +
-                            '</div>' +
+          if (arrOffers[key].stops > 0) {
+            zaezdy = '<div class="list-orders_route_to">' +
+                        'Остановок по пути ' + arrOffers[key].stops +
+                      '</div>';
+          }
+
+          show('LI', '<div class="list-orders_route">' +
+                       '<div data-click="open-offer" data-id="' + arrOffers[key].id + '">' +
+                          '<div class="list-orders_route_to">' +
+                            arrOffers[key].created +
+                          '</div>' +
+                          '<div class="list-orders_route_from">' +
+                            arrOffers[key].fromAddress +
+                          '</div>' +
+                          zaezdy +
+                          '<div class="list-orders_route_to">' +
+                            arrOffers[key].toAddress +
+                          '</div>' +
+                          '<div class="list-orders_route_additional">' +
+                            arrOffers[key].comment +
+                          '</div>' +
+                          '<div class="list-orders_route_info">' +
+                            'Длина маршрута: ' + Math.round(arrOffers[key].length / 1000, 2) + ' км' +
+                          '</div>' +
+                          '<div class="list-orders_route_info">' +
+                            'Время по маршруту: ' + Dates.minToHours(arrOffers[key].duration) +
                           '</div>' +
                         '</div>' +
-                        '<div class="list-orders_menu">' +
-                          '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
-                          '<span>' + goto + del + '</span>' +
-                        '</div>',
-                      listOffers);
-          }
+                      '</div>' +
+                      '<div class="list-orders_menu">' +
+                        '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
+                        '<span>' + goto + del + '</span>' +
+                      '</div>',
+                    listOffers);
         }
-        
-        if (arrOffers.length < 1) {
-          show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
-        }
-      });
+      }
+
+      if (arrOffers.length < 1) {
+        show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
+      }
     }
   }
   
@@ -408,12 +384,9 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
   }
   
   function deleteOrder(target) {
-    Ajax.request('GET', 'delete-order', User.token, '&id=' + target.dataset.id, '', function(response) {
-      if (response && response.ok) {
-        var item = target.parentNode.parentNode.parentNode;
-         item.style.display = 'none';
-      }
-    }, function() {});
+    Conn.deleteOrderById(target.dataset.id);
+    var item = target.parentNode.parentNode.parentNode;
+    item.style.display = 'none';
   }
   
   function filterSortWindow(el) {
@@ -608,15 +581,9 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
       }
     });      
   }
-  
-  function clearIntervals() {
-    clearInterval(timerUpdateTaxiDriverOrder);
-    clearInterval(timerGetBidsTaxy);
-  }
-  
+    
   var Lists = {
     clear: function () {
-      clearIntervals();
       MapElements.clear();
     },
     start: function () {
@@ -637,9 +604,6 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     },
     getOrderByID: function (id) {
       getByID(id, 'order');
-    },
-    fillMyOffers: function () {
-      fillMyOffers();
     },
     filterToggleFav: function (el) {
       filterToggleFav(el);
@@ -689,18 +653,17 @@ define(['Ajax', 'Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'DriverOffers'],
     timePlus: function (el) {
       timePlus(el);
     },
-    getAllMyOrders: function () {
-      getMyOrders();
+    myOffers: function (response) {
+      render_list_my_offer(response);
     },
-    getAllOrders: function () {
-      update_taxi_order();
-      clearInterval(timerUpdateTaxiDriverOrder);
-      timerUpdateTaxiDriverOrder = setInterval(update_taxi_order, 2000);
+    myOrders: function (response) {
+      render_list_my_order(response);
     },
-    getAllOffers: function () {
-      update_taxi_offer();
-      clearInterval(timerUpdateTaxiDriverOrder);
-      timerUpdateTaxiDriverOrder = setInterval(update_taxi_offer, 2000);
+    allOrders: function (response) {
+      render_list('order', response);
+    },
+    allOffers: function (response) {
+      render_list('offer', response);
     }
   };
   

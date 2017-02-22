@@ -1,5 +1,8 @@
+/* global User */
+
 define(['User', 
         'Car', 
+        'Conn',
         'ClientOrder', 
         'Events', 
         'Settings', 
@@ -18,6 +21,7 @@ define(['User',
         'MapElements'], 
   function (clUser, 
             clCar, 
+            clConn,
             clClientOrder, 
             clEvents, 
             clSettings, 
@@ -45,6 +49,7 @@ define(['User',
         SafeWin     = clSafeWin;
         User        = new clUser();
         Car         = new clCar();
+        Conn        = new clConn();
         Event       = new clEvents();
         MapElements = new clMapElements();
         MyOrder     = new clClientOrder();
@@ -52,26 +57,9 @@ define(['User',
         Zones       = new clZones();
         Settings    = new clSettings();
         
-        Settings.getSettings();
-        User.initToken();
-
-        User.city = localStorage.getItem('_my_city');
-        User.id   = localStorage.getItem('_my_id');
-        User.lat  = localStorage.getItem('_my_pos_lat');
-        User.lng  = localStorage.getItem('_my_pos_lon');    
-
-        if ( localStorage.getItem('_is_auth') === "true" ) {
-          User.is_auth = true;
-        }
-
-        User.token = localStorage.getItem('_my_token');
-        
-        Geo.init(App);
-        MainMenu.init();
-        InputFilters.init();
-        Router.start(App);
-        SafeWin.init();
-        Maps.init();
+        Router.start(App, function () {
+          App.afterConnection();
+        });
 
         window.addEventListener('resize', function() {
           App.init();
@@ -80,19 +68,29 @@ define(['User',
 
       return User;
     },
+    
+    afterConnection: function () {
+      Settings.getSettings();
+      User.getData();
+
+      Geo.init();
+      Zones.get();        
+
+      MainMenu.init();
+      InputFilters.init();
+      Maps.init();
+    },
 
     init: function () {
       domReady(function () {
-
-        User.getData();
-
+        
         Tabs.init();
 
         content.style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
 
         var item_login = Dom.sel('.menu__list__item_login'),
             item_logout = Dom.sel('.menu__list__item_logout');
-          
+
         if (item_login) {
           if (User.is_auth) {
             item_login.style.display = 'none';
@@ -102,6 +100,7 @@ define(['User',
             item_logout.style.display = 'none';
           }
         }
+        
       });
     }
   };

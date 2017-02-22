@@ -1,4 +1,4 @@
-/* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event */
+/* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event, Conn */
 
 define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Favorites', 'Ajax'],
   function (Dom, Maps, HideForms, GetPositions, Lists, Destinations, Favorites, Ajax) {
@@ -187,6 +187,7 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
       Lists.clear();
       GetPositions.clear();
       Destinations.clear();
+      Conn.stopGetOffers();
     }
 
     function start() {
@@ -203,10 +204,12 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
 
       // = Draw Offers of Drivers =
       Lists.filtersStart();
-      Lists.getAllOffers();
+
+      Conn.startGetOffers();
+
 
       // ===== Draw My Orders =====
-      Lists.getAllMyOrders();
+         
 
       HideForms.init();
       addEvents();

@@ -1,8 +1,6 @@
-/* global User, Event, Car, MyOffer */
+/* global User, Event, Car, MyOffer, Conn */
 
 define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal, clDriverOffers, Lists) {
-  
-  var Offers;
   
   function addEvents() {
     Event.click = function (event) {
@@ -76,13 +74,13 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
             el = target;
 
             if (el.classList.contains('active')) {
-              Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
-                if (response && response.ok) {
-                  el.classList.remove('active');
-                }
-              }, Ajax.error);
+              el.classList.remove('active');
+              //Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
+              //  if (response && response.ok) {
+              //  }
+              //}, Ajax.error);
             } else {
-              if (!User.is_auth && model === "clClientOrder") {
+              if (!User.is_auth) {
                 Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
                           '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                           '<button class="button_rounded--green" data-response="yes">Войти</button></p>',
@@ -91,7 +89,7 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
                               window.location.hash = '#login';
                             }
                         });
-              } else if ((!Car.brand || !Car.model || !Car.number) && model === "clClientOrder") {
+              } else if ((!Car.brand || !Car.model || !Car.number)) {
                 Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>' +
                           '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                           '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
@@ -109,11 +107,8 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
                 get_price = get_price.split(" ");
                 get_time = get_time.split(" ");
                 
-                Ajax.request('POST', 'bid', User.token, '&id=' + el.dataset.id + '&price=' + get_price[0] + '&travelTime=' + get_time[0], '', function(response) {
-                  if (response && response.ok) {
-                    el.classList.add('active');
-                  }  
-                }, Ajax.error);
+                Conn.approveOrder(id);
+                el.classList.add('active');
               }
             }
           }
@@ -149,19 +144,17 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
     
   function stop() {
     Lists.clear();
+    Conn.stopGetOrders();
   }
   
   function start() {
     Lists.filtersStart();
-    
-    Offers = new clDriverOffers();
-    Offers.getMyOffers(function () {
-      Lists.fillMyOffers();
-    });
 
-    Lists.getAllOrders();
+    Conn.requestMyOffers();
+    Conn.startGetOrders();
     
     addEvents();
+    
   }
   
   return {

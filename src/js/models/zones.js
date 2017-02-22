@@ -1,4 +1,4 @@
-/* global User, SafeWin */
+/* global User, SafeWin, Conn */
 
 define(['Ajax', 'Funcs'], function(Ajax, Funcs) {
   
@@ -6,33 +6,34 @@ define(['Ajax', 'Funcs'], function(Ajax, Funcs) {
     var self = this;
   
     this.list = [];
-        
-    this.get = function(callback) {
-      Ajax.request('GET', 'zones', User.token, '', '', function(response) {
-        if (response && response.ok) {
-          var active = [];
-          
-          for (var i = 0; i < response.zones.length; i++) {
-            var polygon =  response.zones[i].polygon;
-            var id =       response.zones[i].id;
-            var note =     response.zones[i].note;
-            var name =     response.zones[i].name;
-            var isActive = response.zones[i].isActive;
-            
-            if (isActive) {
-              active.push(id);
-            }
-            self.list.push({polygon:polygon,id:id,note:note,name:name,isActive:isActive});
-          }
-          if (active.length > 0) {
-            localStorage.setItem('_enable_safe_zone', active.join(','));
-          } else {
-            localStorage.removeItem('_enable_safe_zone');
-          }
-          callback();
-          win_reload();
+    
+    this.initSafeWin = function (response) {
+      var active = [];
+
+      for (var i = 0; i < response.zones.length; i++) {
+        var polygon =  response.zones[i].polygon;
+        var id =       response.zones[i].id;
+        var note =     response.zones[i].note;
+        var name =     response.zones[i].name;
+        var isActive = response.zones[i].isActive;
+
+        if (isActive) {
+          active.push(id);
         }
-      }, function() {});
+        self.list.push({polygon:polygon,id:id,note:note,name:name,isActive:isActive});
+      }
+      if (active.length > 0) {
+        localStorage.setItem('_enable_safe_zone', active.join(','));
+      } else {
+        localStorage.removeItem('_enable_safe_zone');
+      }
+
+      //win_reload();
+      win_init();
+    };
+    
+    this.get = function() {
+      Conn.requestZones();
     };
     
     this.add = function(polygon, note, name) {
@@ -126,6 +127,10 @@ define(['Ajax', 'Funcs'], function(Ajax, Funcs) {
     
     function win_reload() {
       SafeWin.reload();
+    };
+    
+    function win_init() {
+      SafeWin.initial();
     };
   
   };

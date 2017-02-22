@@ -9,7 +9,7 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
         prev;
 
     while (target !== this) {
-      if (target.dataset) {
+      if (target) {
         if (target.dataset.click === "drop-down") {
           el = target;
           prev = el.previousSibling;

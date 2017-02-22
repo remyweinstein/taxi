@@ -28,11 +28,13 @@ define(['Dates'], function(Dates) {
     this.comment;
 
     this.constructor = function (callback) {
+                if (order.points) {
                   for (var i = 0; i < order.points.length; i++) {
                     self.toAddresses.push(order.points[i].address);
                     self.toLocations.push(order.points[i].location);
                     self.totimes.push(order.points[i].stopTime);  
                   }
+                }
 
                   self.id = order.id;
                   self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
@@ -43,7 +45,9 @@ define(['Dates'], function(Dates) {
                     } else {
                       travelTime = 5 * Math.ceil( travelTime / 5 );
                     }
+                if (order.bids) {
                   self.bids_length = order.bids.length;
+                }
                   self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
                   self.stops = self.toAddresses.length || 0;
                   self.length = order.length || 0;
@@ -56,6 +60,7 @@ define(['Dates'], function(Dates) {
                   self.toAddress = order.toAddress;
                   self.comment = order.comment;
 
+                if (order.bids) {
                   for (var y = 0; y < order.bids.length; y++) {
                     var agid = order.bids[y].agentId,
                         a = order.bids[y].id;
@@ -68,6 +73,7 @@ define(['Dates'], function(Dates) {
                       break;
                     }
                   }
+                }
 
                   callback(self);
                 };

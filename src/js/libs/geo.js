@@ -1,14 +1,11 @@
-/* global User, google, Settings */
+/* global User, google, Settings, Conn */
 
-define(['Ajax', 'jsts'], function (Ajax, jsts) {
+define(['jsts'], function (jsts) {
 
     var old_lat, old_lng;
-    
-    function updateUserCoord() {
-      Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, Ajax.error);
-    }
 
-    function geoFindMe(App) {
+
+    function geoFindMe() {
       if (!navigator.geolocation) {
         alert("К сожалению, геолокация не поддерживается в вашем браузере");
         
@@ -33,7 +30,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
         localStorage.setItem('_my_pos_lat', latitude);
         localStorage.setItem('_my_pos_lon', longitude);
         
-        updateUserCoord();
+        Conn.updateUserLocation();
 
         if (!User.city || User.city === null || User.city === "null") {
           var latlng = new google.maps.LatLng(latitude,longitude);
@@ -49,17 +46,13 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
                       if (obj[key].long_name) {
                         User.city = obj[key].long_name;
                         localStorage.setItem('_my_city', User.city);
-                        var name = User.name || 'Гость';
-                        var data = new FormData();
-                          data.append('city', User.city);
-                          data.append('name', name);
-
-                        Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-                          if (response && response.ok) {
-                            MayLoading = true;
-                            App.init();
-                          }
-                        }, Ajax.error);
+                        var name = User.name || 'Гость',
+                            data = new FormData();
+                            data.append('city', User.city);
+                            data.append('name', name);
+                        MayLoading = true;
+                        Conn.updateProfile(data);
+                        //App.init();
                       }
                     }
                     
@@ -122,65 +115,6 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
       },
 
       showPoly: function(overviewPath, map) {
-        
-        
-          /*
-        var coordsPoly = [];
-        
-        
-        //console.log(overviewPath[0]);
-        if (overviewPath[0]) {
-          
-          var r = [];
-          var bla = overviewPath[0];
-          z = 0.01;
-          
-          for (var i = 0; i < bla.length; i++) {
-            
-              if (i < bla.length - 1) {
-                var a1 = google.maps.geometry.spherical.computeHeading(new google.maps.LatLng(bla[i].lat(), bla[i].lng()), new google.maps.LatLng(bla[i+1].lat(), bla[i+1].lng()));
-                console.log(a1);
-              }
-              
-              r.push(new google.maps.LatLng(bla[i].lat() + z, bla[i].lng() - z));
-          }
-          
-          bla.reverse();
-          
-          for (var x in bla) {
-              r.push(new google.maps.LatLng(bla[x].lat() - z, bla[x].lng() + z));
-          }
-          
-          fonas = new google.maps.Polygon ({
-              paths: r,
-              strokeColor: "#FF0000",
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: "#FF0000",
-              fillOpacity: 0.35
-          });
-
-          fonas.setMap(map);
-          
-          //var geofence = new BDCCParallelLines(overviewPath[0], "#00FF00", 4, 0.3, 100, 'polygon', false);
-          
-          //geofence.recalc();
-          
-          //console.log(geofence);
-          
-          //geofence.setMap(map);
-        }
-/*
-        new google.maps.Polygon({
-          path: pts,
-          //geodesic: true,
-          map: map,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 1
-        });
-*/        
-        
         var overviewPathGeo = [];
           
         for (var i = 0; i < overviewPath.length; i++) {
@@ -190,7 +124,7 @@ define(['Ajax', 'jsts'], function (Ajax, jsts) {
           }
         }
 
-        var distance = Settings.safeRadius / 500 / 111.12, // Roughly x km / 111.12
+        var distance = Settings.safeRadius / 500 / 111.12,
         geoInput = {
           type: "MultiLineString",
           coordinates: overviewPathGeo

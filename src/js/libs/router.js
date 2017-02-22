@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerSearchDriver, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers, timerGetPosOneDriver */
+/* global User, menus_arr, timerSearchDriver, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers, timerGetPosOneDriver, Conn, lastURL */
 
 define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
   
@@ -11,6 +11,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
                 {hash:'#trusted_contacts', template:'PagesTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные контакты', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
+                {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
@@ -40,16 +41,15 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
       defaultRoute = '#start',
       currentHash = '';
 
-  function startRouting(app) {
-    App = app;
-    window.location.hash = window.location.hash || defaultRoute;
-    setInterval(hashCheck, 250);
-  }
-
   function hashCheck() {
-    if (User.city) {
+    if (User.city && Conn.is_connect) {
       MayLoading = true;
     } else {
+      if (!Conn.is_connect) {
+        if (!Conn.is_connecting) {
+          Conn.start(function(){});
+        }
+      }
       MayLoading = false;
     }
     if (!MayLoading) {
@@ -164,7 +164,9 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
       
     Tabs.clear();
     HideForms.clear();
-            
+    
+    lastURL = currentHash;
+
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);
     }
@@ -191,7 +193,20 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
   }
 
   return {
-    start: startRouting
+    start: function (app, callback) {
+      App = app;
+      //window.location.hash = window.location.hash || defaultRoute;
+      
+            setInterval(hashCheck, 250);
+
+      if (!Conn.is_connect) {
+        if (!Conn.is_connecting) {
+          Conn.start(function(){
+            callback();
+          });
+        }
+      }
+    }
   };
   
 });

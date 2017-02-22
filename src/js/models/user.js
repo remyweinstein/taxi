@@ -1,4 +1,4 @@
-/* global lasturl, Car, User */
+/* global lastURL, Car, User, Conn */
 
 define(['Dom', 'Ajax'], function(Dom, Ajax) {
   
@@ -15,98 +15,103 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
 
     this.token = getToken();
     this.id = getId();
-    this.lat;
-    this.lng;
+    this.lat = null;
+    this.lng = null;
     this.city = null;
-    this.country;
+    this.country = null;
     this.is_auth = false;
-    this.authToken;
-    this.name;
-    this.phone;
-    this.avatar;
-    this.birthday;
-    this.sex;
+    this.authToken = null;
+    this.name = null;
+    this.phone = null;
+    this.avatar = null;
+    this.birthday = null;
+    this.sex = null;
 
     this.getInfo = function () {
       return "token = " + this.token + ", id =  " + this.id;
     };
 
     this.getData = function () {
+      self.city = localStorage.getItem('_my_city');
+      self.id   = localStorage.getItem('_my_id');
+      self.lat  = localStorage.getItem('_my_pos_lat');
+      self.lng  = localStorage.getItem('_my_pos_lon');    
+
+      if ( localStorage.getItem('_is_auth') === "true" ) {
+        self.is_auth = true;
+      }
+
+      self.token = localStorage.getItem('_my_token');
+
       if (self.token) {
-        Ajax.request('GET', 'profile', self.token, '', '', function(response) {
-          if (response) {
-            if (!response.ok && lasturl !== "#sms") {
-              self.is_auth = false;
-              localStorage.removeItem('_is_auth');
-              
-              self.token = "";
-              localStorage.removeItem('_my_token');
-
-              self.initToken;
-
-            } else if (response.ok) {
-              
-              var prfl = response.profile;
-              self.id = prfl.id;
-              localStorage.setItem('_my_id', self.id);
-              
-              Car.brand = prfl.brand;
-              Car.model = prfl.model;
-              Car.number = prfl.number;
-              Car.photo = prfl.vehicle;
-              Car.color = prfl.color;
-              
-              self.city = prfl.city || self.city;
-              if (self.city) {
-                localStorage.setItem('_my_city', self.city);
-              }
-
-              self.phone = prfl.phone;
-              self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
-              self.avatar = prfl.photo ? prfl.photo : default_avatar;
-              //my_vehicle = prfl.vehicle;
-
-              if (Dom.selAll('.jq_my_name').length) {
-                Dom.sel('.jq_my_name').innerHTML = self.name;
-                Dom.sel('.jq_my_phone').innerHTML = self.phone;
-
-                if (!self.avatar) {
-                  self.avatar = default_avatar;
-                }
-
-                Dom.sel('.menu__desc_avatar').src = self.avatar;
-              }
-
-            }
-          }
-        }, function() {});
+        Conn.requestProfile();
       } else {
         self.initToken();
       }
     };
+    
+    this.setData = function (response) {
+      if (lastURL === "#sms") {
+        self.is_auth = false;
+        localStorage.removeItem('_is_auth');
 
+        self.token = "";
+        localStorage.removeItem('_my_token');
+
+        self.initToken();
+
+      } else {
+        
+        var prfl = response.profile;
+        self.id = prfl.id;
+        localStorage.setItem('_my_id', self.id);
+
+        Car.brand = prfl.brand;
+        Car.model = prfl.model;
+        Car.number = prfl.number;
+        Car.photo = prfl.vehicle;
+        Car.color = prfl.color;
+
+        self.city = prfl.city || self.city;
+        if (self.city) {
+          localStorage.setItem('_my_city', self.city);
+        }
+
+        self.phone = prfl.phone;
+        self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
+        self.avatar = prfl.photo ? prfl.photo : default_avatar;
+        //my_vehicle = prfl.vehicle;
+
+        if (Dom.selAll('.jq_my_name').length) {
+          Dom.sel('.jq_my_name').innerHTML = self.name;
+          Dom.sel('.jq_my_phone').innerHTML = self.phone;
+
+          if (!self.avatar) {
+            self.avatar = default_avatar;
+          }
+
+          Dom.sel('.menu__desc_avatar').src = self.avatar;
+        }
+      }
+    };
+    
+    this.setNewToken = function (response) {
+      setToken(response.token);
+      setId(response.id);
+      self.name = default_name;
+    };
+    
     this.initToken = function () {
       if (!self.token) {
-        Ajax.request('GET', 'token', '', '', '', function(response) {
-          if (response && response.ok) {
-            setToken(response.token);
-            setId(response.id);
-            self.name = default_name;
-            if (!User.lat || !User.lng) {
-              User.lat = 48.471041;
-              User.lng = 135.063500;
-            }
-            Ajax.request('POST', 'location', User.token, '&location=' + User.lat + ',' + User.lng, '', function() {}, function() {});
-          }
-        }, function() {});
+        Conn.requestToken();
       }
-
       return;
     };
 
     function setToken(token) {
       localStorage.setItem('_my_token', token);
       self.token = token;
+      Conn.updateUserLocation();
     }
 
     function getToken() {

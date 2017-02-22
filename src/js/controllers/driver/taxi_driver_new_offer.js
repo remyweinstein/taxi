@@ -1,6 +1,6 @@
 /* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MyOffer */
 
-define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'ModalWindows'], function (Dom, Destinations, GetPositions, Lists, Maps, HideForms, Modal) {
+define(['Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'ModalWindows'], function (Destinations, GetPositions, Lists, Maps, HideForms, Modal) {
 
   function initMap() {
     var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -53,7 +53,7 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
           if (target.dataset.click === 'order-taxi') {
             localStorage.setItem('_active_model', 'offer');
             Destinations.saveOffer();
-            
+
             break;
           }
         }
@@ -81,7 +81,7 @@ define(['Dom', 'Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'Mo
     Maps.mapOn();
     
     if (current_bid_id) {
-      Lists.getOrderByID(localStorage.getItem('_current_id_order'));
+      //Lists.getOrderByID(localStorage.getItem('_current_id_order'));
     }
     
     GetPositions.my();

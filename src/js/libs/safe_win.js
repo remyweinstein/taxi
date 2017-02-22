@@ -226,13 +226,6 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     
     overviewPath: [],
     
-    init: function () {
-      var safewin = this;
-      Zones.get(function () {
-        safewin.initial();
-      });
-    },
-    
     initial: function () {
       var enable_safe_route = localStorage.getItem('_enable_safe_route');
       

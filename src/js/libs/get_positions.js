@@ -1,4 +1,4 @@
-/* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin */
+/* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin, Conn */
 
 define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps, Dates, Dom, Geo) {
   var radiusSearch = 0.5;
@@ -20,6 +20,9 @@ define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps
       } else if (zoom > 16) {
         radiusSearch = 0.1;
       }
+      
+      Conn.stopGetAgents();
+      Conn.startGetAgents(radiusSearch);
     });
 
   }
@@ -217,7 +220,8 @@ define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps
     }, Ajax.error);
   }
 
-  function get_pos_drivers() {
+  function get_pos_drivers(response) {
+    
     function searchArray(index, arr) {
       for (var i = 0; i < arr.length; i++) {
         if (arr[i].id === index) {
@@ -227,8 +231,6 @@ define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps
       return false;
     }
 
-    Ajax.request('GET', 'agents', User.token, '&radius=' + radiusSearch, '', function (response) {
-      if (response && response.ok) {
         var new_markers = [],
           agnts = response.agents,
           loc,
@@ -294,14 +296,13 @@ define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps
         MapElements.markers_driver_pos = [];
         MapElements.markers_driver_pos = new_markers;
 
-      }
-    }, function () {});
   }
 
   var GetPositions = {
 
     clear: function () {
-      clearInterval(timerGetPosTaxy);
+      Conn.stopGetAgents();
+      //clearInterval(timerGetPosTaxy);
       clearInterval(timerMyPos);
 
       MapElements.clear();
@@ -318,9 +319,13 @@ define(['Ajax', 'Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Ajax, Car, Maps
     },
     drivers: function () {
       init();
-      get_pos_drivers();
-      clearInterval(timerGetPosTaxy);
-      timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
+      Conn.startGetAgents(radiusSearch);
+      //get_pos_drivers();
+      //clearInterval(timerGetPosTaxy);
+      //timerGetPosTaxy = setInterval(get_pos_drivers, 1000);
+    },
+    getPositionDrivers: function (response) {
+      get_pos_drivers(response);
     }
   };
 

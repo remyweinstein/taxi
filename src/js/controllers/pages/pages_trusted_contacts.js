@@ -8,7 +8,7 @@ define(['Dom'], function (Dom) {
 
           while (target !== this) {
             if (target.dataset.submit === 'form-auth-sms') {
-
+              //example
               return;
             }
 
@@ -28,8 +28,9 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
-    addEvents();
     
+    
+    addEvents();
   }
   
   return {

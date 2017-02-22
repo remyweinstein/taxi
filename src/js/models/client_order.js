@@ -8,53 +8,53 @@ define(['Ajax'], function(Ajax) {
     this.id = null;
     this.bid_id = null;
 
-    this.fromAddress = "";
-    this.toAddress = "";
+    this.fromAddress = null;
+    this.toAddress = null;
     this.toAddresses = [];
-    this.fromCoords = "";
-    this.toCoords = "";
+    this.fromCoords = null;
+    this.toCoords = null;
     this.duration = 0;
     this.toCoordses = [];
-    this.fromFullAddress = "";
-    this.toFullAddress = "";
+    this.fromFullAddress = null;
+    this.toFullAddress = null;
     this.toFullAddresses = [];
     this.times = [];
     this.toCities = [];
     
     this.length = 0;
 
-    this.fromCity  = "" ;
-    this.toCity = "";
+    this.fromCity  = null;
+    this.toCity = null;
 
     this.distance = 0;
     this.price = 0;
-    this.comment = "";
+    this.comment = null;
     
     this.clear = function () {
       self.id = null;
       self.bid_id = null;
 
-      self.fromAddress = "";
-      self.toAddress = "";
+      self.fromAddress = null;
+      self.toAddress = null;
       self.toAddresses = [];
-      self.fromCoords = "";
-      self.toCoords = "";
+      self.fromCoords = null;
+      self.toCoords = null;
       self.duration = 0;
       self.toCoordses = [];
-      self.fromFullAddress = "";
-      self.toFullAddress = "";
+      self.fromFullAddress = null;
+      self.toFullAddress = null;
       self.toFullAddresses = [];
       self.times = [];
       self.toCities = [];
 
       self.length = 0;
 
-      self.fromCity  = "" ;
-      self.toCity = "";
+      self.fromCity  = null;
+      self.toCity = null;
 
       self.distance = 0;
       self.price = 0;
-      self.comment = "";
+      self.comment = null;
     };
     
     this.save = function (points, callback) {
