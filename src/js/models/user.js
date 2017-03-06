@@ -1,12 +1,20 @@
 /* global lastURL, Car, User, Conn */
 
-define(['Dom', 'Ajax'], function(Dom, Ajax) {
+define(['Dom'], function(Dom) {
+  
+  function cbGetToken(response) {
+    User.setNewToken(response);
+    Conn.clearCb('cbGetToken');
+  }
   
   var clUser = function () {
     var self = this;
-    var options = {
-
-    };
+    
+    function cbgetProfileData(response) {
+      self.setData(response);
+      Conn.clearCb('cbgetProfileData');
+    }
+    
     var default_avatar = 'assets/images/no_avatar.png';
     var default_name = 'Гость';
 
@@ -44,13 +52,14 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
       self.token = localStorage.getItem('_my_token');
 
       if (self.token) {
-        Conn.requestProfile();
+        Conn.request('requestProfile', '', cbgetProfileData);
       } else {
         self.initToken();
       }
     };
     
     this.setData = function (response) {
+      Car.setData(response);
       if (lastURL === "#sms") {
         self.is_auth = false;
         localStorage.removeItem('_is_auth');
@@ -65,12 +74,6 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
         var prfl = response.profile;
         self.id = prfl.id;
         localStorage.setItem('_my_id', self.id);
-
-        Car.brand = prfl.brand;
-        Car.model = prfl.model;
-        Car.number = prfl.number;
-        Car.photo = prfl.vehicle;
-        Car.color = prfl.color;
 
         self.city = prfl.city || self.city;
         if (self.city) {
@@ -103,7 +106,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     
     this.initToken = function () {
       if (!self.token) {
-        Conn.requestToken();
+        Conn.request('requestToken', '', cbGetToken);
       }
       return;
     };
@@ -111,7 +114,7 @@ define(['Dom', 'Ajax'], function(Dom, Ajax) {
     function setToken(token) {
       localStorage.setItem('_my_token', token);
       self.token = token;
-      Conn.updateUserLocation();
+      Conn.request('updateUserLocation');
     }
 
     function getToken() {

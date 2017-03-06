@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerSearchDriver, timerGetBidGo, timerGetMyPos, timerGetPosTaxy, timerCheckLoading, Event, timerUpdateTaxiClientOffers, timerGetPosOneDriver, Conn, lastURL */
+/* global User, menus_arr, timerGetBidGo, timerGetPosTaxy, timerCheckLoading, Event, timerGetPosOneDriver, Conn, lastURL */
 
 define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
   
@@ -141,11 +141,8 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
   
   function clearVars() {
     Chat.stop();
-    clearInterval(timerSearchDriver);
     clearInterval(timerGetBidGo);
-    clearInterval(timerGetMyPos);
     clearInterval(timerCheckLoading);
-    clearInterval(timerUpdateTaxiClientOffers);
     clearInterval(timerGetPosOneDriver);
 
 

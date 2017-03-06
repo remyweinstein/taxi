@@ -1,6 +1,23 @@
-/* global Event, User */
+/* global Event, User, Conn */
 
-define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
+define(['Dom', 'Dates'], function (Dom, Dates) {
+  
+  function cbFillFields(response) {
+    var sex = response.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
+        city = response.profile.city ? Dom.sel('select[name="city"] option[value="' + response.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
+
+    Dom.sel('input[name="myname"]').value = User.name || response.profile.name;
+    Dom.sel('input[name="dob"]').value = response.profile.birthday ? Dates.dateFromBase(response.profile.birthday) : '';
+    sex.selected = true;
+    city.selected = true;
+    Dom.sel('.avatar').src = response.profile.photo || User.avatar;
+    Conn.clearCb('cbFillFields');
+  }
+  
+  function cbUpdateProfile() {
+    window.history.back();
+    Conn.clearCb('cbUpdateProfile');
+  }
   
   function addEvents() {
     Event.click = function (event) {
@@ -8,12 +25,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
 
       while (target !== this) {
         if (target.dataset.click === 'clear_photo') {
-          Ajax.request('POST', 'clear-photo', User.token, '', '', function(response) {
-            if (response && response.ok) {
-              User.avatar = User.default_avatar;
-              Dom.sel('.avatar').src = User.avatar;
-            }
-          }, Ajax.error);
+          Conn.request('deletePhoto');
         }
 
         if (target) {
@@ -32,19 +44,37 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
       while (target !== this) {
         if (target.dataset.submit === 'form-edit-profile') {
           // = Form edit profile = 
-          var file = Dom.sel('input[name=ava_file]').files[0];
-          var data = new FormData();
-           data.append('photo', file);
-           data.append('name', Dom.sel('input[name=myname]').value);
-           data.append('birthday', Dates.dateToBase(Dom.sel('input[name=dob]').value));
-           data.append('city', Dom.sel('select[name=city]').value);
-           data.append('sex', Dom.sel('select[name=sex]').value);
+          var file = Dom.sel('input[name=ava_file]').files[0],
+              reader = new FileReader();
+            
+          reader.onabort = function() {
+            
+          };
 
-          Ajax.request('POST', 'profile', User.token, '', data, function(response) {
-            if (response && response.ok) {
-              window.history.back();
-            }
-          }, function() {});
+          reader.onerror = function(event) {
+            switch(event.target.error.code) {
+                  case event.target.error.NOT_FOUND_ERR:
+                    console.log('File not found');
+                    break;
+                  case event.target.error.NOT_READABLE_ERR:
+                    console.log('File is not readable');
+                    break;
+                  case event.target.error.ABORT_ERR:
+                    console.log('File upload aborted');
+                    break;
+                  default:
+                    console.log('An error occurred reading the file.');
+              };
+          };
+          reader.onloadend = function(event) {
+            SaveProfile(event.target.result);
+          };
+          
+          if (file) {
+            reader.readAsBinaryString(file);
+          } else {
+            SaveProfile();
+          }
         }
 
         if (target) {
@@ -56,6 +86,22 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
     };
 
     content.addEventListener('submit', Event.submit);
+  }  
+  
+  function SaveProfile(file) {
+    var data = {};
+    
+    if (file) {
+      data.photo = window.btoa(file);
+    }
+    
+    data.name = Dom.sel('input[name=myname]').value;
+    data.birthday = Dates.dateToBase(Dom.sel('input[name=dob]').value);
+    data.city = Dom.sel('select[name=city]').value;
+    data.sex = Dom.sel('select[name=sex]').value;
+
+    Conn.request('updateProfile', data, cbUpdateProfile);
+
   }
   
   function stop() {
@@ -63,19 +109,7 @@ define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
   }
   
   function start() {
-    Ajax.request('GET', 'profile', User.token, '', '', function(response) {
-      if (response && response.ok) {
-        Dom.sel('input[name="myname"]').value = User.name ? User.name : response.profile.name;
-        Dom.sel('input[name="dob"]').value = response.profile.birthday ? Dates.dateFromBase(response.profile.birthday) : '';
-        var sex = response.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]');
-         sex.selected = true;
-        var city = response.profile.city ? Dom.sel('select[name="city"] option[value="' + response.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
-         city.selected = true;
-
-        var photo = response.profile.photo ? response.profile.photo : User.avatar;
-        Dom.sel('.avatar').src = photo;
-      }
-    }, Ajax.error);
+    Conn.request('getProfile', '', cbFillFields);
     addEvents();
   }
   

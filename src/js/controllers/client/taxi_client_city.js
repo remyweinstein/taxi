@@ -1,9 +1,36 @@
 /* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event, Conn */
 
-define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Favorites', 'Ajax'],
-  function (Dom, Maps, HideForms, GetPositions, Lists, Destinations, Favorites, Ajax) {
-
-    var content = Dom.sel('.content');
+define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
+  function (Dom, Maps, HideForms, GetPositions, Lists, Destinations) {
+    var content = Dom.sel('.content'), global_el;
+    
+    function cbAfterAddFav() {
+      global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
+      Conn.clearCb();
+    }
+    
+    function cbAfterDeleteFav() {
+      global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtofav">Избранное</button>';
+      Conn.clearCb();
+    }
+    
+    function cbAfterAddBlackList() {
+      global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltoblack">Удалить из Черного списка</button>';
+    }
+    
+    function cbAfterDeleteBlackList() {
+      global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
+    }
+    
+    function cbGetOffers(response) {
+      Lists.allOffers(response);
+    }
+    
+    function cbGetMyOrder(response) {
+      Lists.myOrders(response);
+      Conn.request('stopGetOrders');
+      Conn.clearCb('cbGetMyOrder');
+    }
 
     function initMap() {
       var MyLatLng = new google.maps.LatLng(User.lat, User.lng),
@@ -17,24 +44,26 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
     function addEvents() {
       Event.click = function (event) {
         var target = event.target,
-          el;
+            el;
 
         while (target !== this) {
-
           if (target) {
-
             //  = EVENTS FOR ADD FAV AND BLACK LIST FRON MARKER's DRIVER = 
             if (target.dataset.click === "addtofav") {
-              Favorites.addFav(target);
+              global_el = target;
+              Conn.addFavorites(target.dataset.id, cbAfterAddFav);
             }
             if (target.dataset.click === "deltofav") {
-              Favorites.deleteFav(target);
+              global_el = target;
+              Conn.deleteFavorites(target.dataset.id, cbAfterDeleteFav);
             }
             if (target.dataset.click === "addtoblack") {
-              Favorites.addBlack(target);
+              global_el = target;
+              Conn.addBlackList(target.dataset.id, cbAfterAddBlackList);
             }
             if (target.dataset.click === "deltoblack") {
-              Favorites.deleteBlack(target);
+              global_el = target;
+              Conn.deleteBlackList(target.dataset.id, cbAfterDeleteBlackList);
             }
 
             //  ============= EVENTS FOR DESTINATION FIELDS ============== 
@@ -47,11 +76,9 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
               window.location.hash = '#client_choose_address';
             }
             if (target.dataset.click === 'choice_location') {
-
               localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
               localStorage.setItem('_active_model', 'order');
               window.location.hash = '#client_choice_location_map';
-
               break;
             }
             // = Form add new point order =
@@ -65,26 +92,21 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
               } else {
                 Destinations.addNewInterpoint(just_add);
               }
-
               break;
             }
             if (target.dataset.click === 'clean-field') {
               Destinations.cleanFieldOrder(target.dataset.field);
-
               break;
             }
             if (target.dataset.click === 'field_add_time') {
               Destinations.addTimeOrder(target.dataset.id);
-
               break;
             }
               // = Form delete point order =
             if (target.dataset.click === 'field_delete') {
               Destinations.deleteField(target);
-
               break;
             }
-
             //  =============== EVENTS FOR MENU MY ORDERS ================
               // = Menu my Orders Item =
             if (target.dataset.click === 'myorders_item_menu') {
@@ -111,7 +133,6 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
 
               return;
             }
-
             //  =============== EVENTS FOR LIST OF OFFERS ================
             if (target.dataset.click === "open-order") {
               el = target;
@@ -119,28 +140,21 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
               localStorage.setItem('_open_order_id', el.dataset.id);
               window.location.hash = "#driver_order";
             }
-
             if (target.dataset.click === "taxi_bid") {
-              el = target;
+              var id_offer = target.dataset.id;
               
-              Ajax.request('POST', 'approve-bid', User.token, '&id=' + el.dataset.id, '', function (response) {
-                if (response && response.ok) {
-                  MyOffer.bid_id = el.dataset.id;
-                  localStorage.setItem('_current_id_bid', MyOffer.bid_id);
-                  localStorage.setItem('_current_id_order', MyOffer.id);
-                  window.location.hash = "#client_go";
-                }
-              }, Ajax.error);
+              if (Dom.toggle(target, 'active')) {
+                Conn.request('disagreeOffer',id_offer);
+              } else {
+                Conn.request('agreeOffer', id_offer);
+              }
             }
-
             if (target.dataset.click === "open-offer") {
               var id = target.dataset.id;
 
               localStorage.setItem('_open_offer_id', id);
               Lists.getByID(id, 'clDriverOffer');
-
             }
-
             //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============
             if (target.dataset.click === "fav-orders") {
               Lists.filterToggleFav(target);
@@ -151,7 +165,6 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
             if (target.dataset.click === "sort-orders") {
               Lists.filterSortWindow(target);
             }
-
           }
 
           if (target) {
@@ -161,7 +174,6 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
           }
         }
       };
-
       content.addEventListener('click', Event.click);
 
       Event.submit = function (event) {
@@ -174,46 +186,34 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'Fa
 
             return;
           }
-
           target = target.parentNode;
         }
       };
-
       content.addEventListener('submit', Event.submit);
-
     }
 
     function stop() {
       Lists.clear();
       GetPositions.clear();
       Destinations.clear();
-      Conn.stopGetOffers();
+      Conn.clearCb('cbGetOffers');
+      Conn.request('stopGetOffers');
     }
 
     function start() {
       Maps.mapOn();
-
-
       GetPositions.drivers();
       GetPositions.my();
-
       initMap();
-
       // ===== Draw New Order =====
       Destinations.initOrder();
-
       // = Draw Offers of Drivers =
       Lists.filtersStart();
-
-      Conn.startGetOffers();
-
-
+      Conn.request('startGetOffers', '', cbGetOffers);
       // ===== Draw My Orders =====
-         
-
+      Conn.request('requestMyOrders', '', cbGetMyOrder);
       HideForms.init();
       addEvents();
-
     }
 
     return {

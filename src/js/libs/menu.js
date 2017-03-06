@@ -1,6 +1,6 @@
-/* global User */
+/* global User, Conn */
 
-define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
+define(['Dom', 'hammer'], function (Dom, Hammer) {
     
   function swipeMenu(route) {
     var menu = Dom.sel('.menu'),
@@ -15,7 +15,13 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
 
       init: function() {
         var menu = Dom.sel('.menu'),
-            content = Dom.sel('.content');
+            content = Dom.sel('.content'),
+            isDriver = localStorage.getItem('_is_driver'),
+            but = Dom.sel('.header__toggle__button');
+          
+        if (isDriver) {
+          //Dom.toggle(but, 'active');
+        }
 
         //EVENT ON CLICK BURGER MENU ICON
         Dom.sel('[data-click="menu-burger"]').addEventListener('click', function() {
@@ -42,17 +48,16 @@ define(['Dom', 'hammer', 'Ajax'], function (Dom, Hammer, Ajax) {
                 //EVENT ON CLICK TOGGLE DRIVER
             if (target.dataset.click === "toggleIsDriver") {
               var el = target,
-                  data = new FormData();
-              
+                  data = {};
+
               if (Dom.toggle(el, 'active')) {
-                data.append('isDriver', 0);
+                data.isDriver = 0;
                 localStorage.removeItem('_is_driver');
               } else {
-                data.append('isDriver', 1);
+                data.isDriver = 1;
                 localStorage.setItem('_is_driver', true);
               }
-              Ajax.request('POST', 'profile', User.token, '', data, function() {}, Ajax.error);
-
+              Conn.request('updateProfile', data);
             }
             
             if (target) {

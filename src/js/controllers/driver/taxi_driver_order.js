@@ -1,10 +1,72 @@
-/* global User, map, google, Car, average_speed, Event, MapElements */
+/* global User, map, google, Car, average_speed, Event, MapElements, Conn */
 
-define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (Ajax, Dom, Dates, Modal, Maps, HideForms) {
+define(['Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (Dom, Dates, Modal, Maps, HideForms) {
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
       name_client, photo_client, travelTime;
+  
+  function cbGetOrderById(response) {
+    var ords = response.order;
+
+    order_id = ords.id;
+    fromAddress = ords.fromAddress;
+    toAddress = ords.toAddress;
+    fromCoords = ords.fromLocation.split(",");
+    toCoords = ords.toLocation.split(",");
+    price = Math.round(ords.price);
+    name_client = ords.agent.name || User.default_name;
+    photo_client = ords.agent.photo || User.default_avatar;
+    distanse = (ords.length / 1000).toFixed(1);
+    duration = ords.duration;
+    for (var y = 0; y < ords.bids.length; y++) {
+      var agid = ords.bids[y].agentId;
+
+      if (agid === User.id) {
+        active_bid = true;
+        break;
+      }
+    }
+    ag_distanse = ords.agent.distance.toFixed(1);
+    travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
+
+    if (travelTime < 5) {
+      travelTime = 5;
+    } else {
+      travelTime = 5 * Math.ceil( travelTime / 5 );
+    }
+    waypoints = [];
+    points = [];
+    name_points = [];
+
+    if (ords.points) {
+      for (var i = 0; i < ords.points.length; i++) {
+        var _wp = ords.points[i].location.split(",");
+
+        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+        name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
+        Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+          function (mark) {
+            Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
+            MapElements.points.push(mark);
+          });
+      }
+    }
+
+    Maps.addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+      function (mark) {
+        MapElements.marker_to = mark;
+      });
+    Maps.addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+      function (mark) {
+        MapElements.marker_from = mark;
+      });
+
+    setRoute();
+    Maps.drawRoute('order', false, function(){});
+    HideForms.init();
+    Conn.clearCb('cbGetOrderById');
+  }
   
   function initMap() {
     var LatLng = new google.maps.LatLng(User.lat, User.lng);
@@ -72,12 +134,10 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
           el = target;
 
           if (el.classList.contains('active')) {
-            Ajax.request('POST', 'delete-bid', User.token, '&id=' + order_id, '', function(response) {
-              if (response && response.ok) {
-                active_bid = false;
-                setRoute();
-              }
-            }, Ajax.error);
+              Conn.request('disagreeOrder', order_id);
+              el.classList.remove('active');
+              active_bid = false;
+              setRoute();
           } else {
             if (!User.is_auth) {
               Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
@@ -98,12 +158,9 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
                           }
                       });
             } else {
-              Ajax.request('POST', 'bid', User.token, '&id=' + order_id + '&price=' + price + '&travelTime=' + travelTime, '', function(response) {
-                if (response && response.ok) {
-                  active_bid = true;
-                  setRoute();
-                }  
-              }, Ajax.error);
+              Conn.request('agreeOrder', order_id);
+              active_bid = true;
+              setRoute();
             }
           }
         }
@@ -193,80 +250,12 @@ define(['Ajax', 'Dom', 'Dates', 'ModalWindows', 'Maps', 'HideForms'], function (
   }
   
   function start() {
-    var _id;
-    _id = localStorage.getItem('_open_order_id');
+    var _id = localStorage.getItem('_open_order_id');
     
     Maps.mapOn();
-    
     initMap();
-    
-    Ajax.request('GET', 'order', User.token, '&id=' + _id, '', function(response) {
-      if (response.ok) {
-        var ords = response.order;
-
-        order_id = ords.id;
-        fromAddress = ords.fromAddress;
-        toAddress = ords.toAddress;
-        fromCoords = ords.fromLocation.split(",");
-        toCoords = ords.toLocation.split(",");
-        price = Math.round(ords.price);
-        name_client = ords.agent.name ? ords.agent.name : User.default_name;
-        photo_client = ords.agent.photo ? ords.agent.photo : User.default_avatar;
-        distanse = (ords.length / 1000).toFixed(1);
-        duration = ords.duration;
-        for (var y = 0; y < ords.bids.length; y++) {
-          var agid = ords.bids[y].agentId;
-          
-          if (agid === User.id) {
-            active_bid = true;
-            
-            break;
-          }
-        }
-        ag_distanse = ords.agent.distance.toFixed(1);
-        travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
-        
-        if (travelTime < 5) {
-          travelTime = 5;
-        } else {
-          travelTime = 5 * Math.ceil( travelTime / 5 );
-        }
-        waypoints = [];
-        points = [];
-        name_points = [];
-        
-        if (ords.points) {
-          for (var i = 0; i < ords.points.length; i++) {
-            var _wp = ords.points[i].location.split(",");
-            
-            waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-            name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-            Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
-              function (mark) {
-                Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
-                MapElements.points.push(mark);
-              });
-          }
-        }
-
-        Maps.addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
-          function (mark) {
-            MapElements.marker_to = mark;
-          });
-        Maps.addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
-          function (mark) {
-            MapElements.marker_from = mark;
-          });
-          
-        setRoute();
-        Maps.drawRoute('order', false, function(){});
-        HideForms.init();
-
-      } else {
-        window.history.back();
-      }
-    }, Ajax.error);
-    
+    Conn.request('getOrderById', _id, cbGetOrderById);
+    Conn.request('stopGetOrder');
     addEvents();
   }
   

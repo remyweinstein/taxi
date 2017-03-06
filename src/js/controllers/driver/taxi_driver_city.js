@@ -1,10 +1,20 @@
 /* global User, Event, Car, MyOffer, Conn */
 
-define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal, clDriverOffers, Lists) {
+define(['ModalWindows', 'Lists'], function (Modal, Lists) {
+  
+  function cbMyOffers(response) {
+    Lists.myOffers(response);
+    Conn.request('stopGetOffers');
+    Conn.clearCb('cbMyOffers');
+  }
+  
+  function cbGetOrders(response) {
+    Lists.allOrders(response);
+  }
   
   function addEvents() {
     Event.click = function (event) {
-      var target = event.target, el;
+      var target = event.target, el, id;
 
       while (target !== this) {
         
@@ -35,7 +45,6 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
           }
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
-            
             Lists.getOfferByID(target.dataset.id);
 
             return;
@@ -49,7 +58,7 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
           }
 
           if (target.dataset.click === "open-offer") {
-            var id = target.dataset.id;
+            id = target.dataset.id;
 
             localStorage.setItem('_open_offer_id', id);
             
@@ -72,13 +81,11 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
             // Click taxi_bid
           if (target.dataset.click === "taxi_bid") {
             el = target;
+            id = target.dataset.id;
 
             if (el.classList.contains('active')) {
+              Conn.request('disagreeOrder', id);
               el.classList.remove('active');
-              //Ajax.request('POST', 'delete-bid', User.token, '&id=' + el.dataset.id, '', function(response) {
-              //  if (response && response.ok) {
-              //  }
-              //}, Ajax.error);
             } else {
               if (!User.is_auth) {
                 Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
@@ -107,7 +114,7 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
                 get_price = get_price.split(" ");
                 get_time = get_time.split(" ");
                 
-                Conn.approveOrder(id);
+                Conn.request('agreeOrder', id);
                 el.classList.add('active');
               }
             }
@@ -144,14 +151,15 @@ define(['Ajax', 'ModalWindows', 'DriverOffers', 'Lists'], function (Ajax, Modal,
     
   function stop() {
     Lists.clear();
-    Conn.stopGetOrders();
+    Conn.clearCb('cbGetOrders');
+    Conn.request('stopGetOrders');
   }
   
   function start() {
     Lists.filtersStart();
 
-    Conn.requestMyOffers();
-    Conn.startGetOrders();
+    Conn.request('requestMyOffers', '', cbMyOffers);
+    Conn.request('startGetOrders', '', cbGetOrders);
     
     addEvents();
     

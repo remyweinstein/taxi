@@ -1,47 +1,42 @@
-/* global User, order_id, global_order_id */
+/* global User, order_id, global_order_id, Conn */
 
-define(['Ajax', 'Dom'], function(Ajax, Dom) {
+define(['Dom'], function(Dom) {
 
   var timerGetMessages,
       interlocutor = "client";
 
-  function get_new_messages() {
-    var name;
-    
-    Ajax.request('GET', 'messages', User.token, '&id=' + global_order_id, '', function(response) {
-      if (response && response.ok) {
-        var textarea = Dom.sel('.go-order__down__messages__textarea');
-        
-        if (textarea) {
-          var innText = '';
-          
-          for (var i = 0; i < response.messages.length; i++ ) {
-            var float = 'right';
-            
-            if (interlocutor === "client") {
-              name = 'Клиент';
-            } else {
-              name = 'Водитель';
-            }
-            if (response.messages[i].sender.id === User.id) {
-              float = 'left';
-              name = 'Я';
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
-            } else {
-              innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
-            }
-          }
-          if (innText) {
-            var oldText = textarea.innerHTML;
+  function cbGetChatMessages(response) {
+    var textarea = Dom.sel('.go-order__down__messages__textarea'),
+        name;
 
-            if (innText !== oldText) {
-              textarea.innerHTML = innText;
-              textarea.scrollTop = textarea.scrollHeight;
-            }
-          }
+    if (textarea) {
+      var innText = '';
+
+      for (var i = 0; i < response.messages.length; i++ ) {
+        var float = 'right';
+
+        if (interlocutor === "client") {
+          name = 'Клиент';
+        } else {
+          name = 'Водитель';
+        }
+        if (response.messages[i].sender.id === User.id) {
+          float = 'left';
+          name = 'Я';
+          innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
+        } else {
+          innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
         }
       }
-    }, Ajax.error);
+      if (innText) {
+        var oldText = textarea.innerHTML;
+
+        if (innText !== oldText) {
+          textarea.innerHTML = innText;
+          textarea.scrollTop = textarea.scrollHeight;
+        }
+      }
+    }
   }
 
   function clickEvent(event) {
@@ -58,7 +53,11 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
             Dom.sel('[data-text="new_message"]').value = '';
 
             if (messaga !== "") {
-              Ajax.request('POST', 'message', User.token, '&id=' + global_order_id + '&text=' + messaga, '', function () {});
+              var data = {};
+              
+              data.id = global_order_id;
+              data.text = messaga;
+              Conn.request('sendMessageChat', data);
             }
           }
         }
@@ -77,14 +76,14 @@ define(['Ajax', 'Dom'], function(Ajax, Dom) {
     stop: function() {
       clearInterval(timerGetMessages);
       content.removeEventListener('click', clickEvent);
+      Conn.clearCb('cbGetChatMessages');
+      Conn.request('stopChatMessages');
     },
 
     start: function(loc) {
       interlocutor = loc;
-      get_new_messages();
-      timerGetMessages = setInterval(get_new_messages, 1000);
-
       content.addEventListener('click', clickEvent);
+      Conn.request('startChatMessages', global_order_id, cbGetChatMessages);    
     }
       
     };

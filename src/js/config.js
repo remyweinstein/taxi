@@ -15,20 +15,17 @@ requirejs.config({
 		"ClientOrder" :   "models/client_order",
 		"DriverOffer" :   "models/driver_offer",
 		"DriverOrders" :  "models/driver_orders",
-		"DriverOffers" :  "models/driver_offers",
 		"Events" :        "models/events",
 		"MapElements" :   "models/map_elements",
 		"Settings" :      "models/settings",
 		"Zones" :         "models/zones",
     
     "Address" :       "libs/address",
-    "Ajax" :          "libs/ajax",
     "Chat" :          "libs/chat",
     "Conn" :          "libs/connection",
     "Dates" :         "libs/dates",
     "Destinations" :  "libs/destinations",
     "Dom" :           "libs/dom",
-    "Favorites" :     "libs/favorites",
     "Funcs" :         "libs/funcs",
     "Geo" :           "libs/geo",
     "GetPositions" :  "libs/get_positions",
@@ -141,19 +138,10 @@ var menus_arr = [];
       default_vehicle = 'assets/images/no_vehicle.png',
       default_city = 'Хабаровск',
       
-      timerUpdateTaxiDriverOrder,
-      timerGetBidsTaxy,
-      timerGetPosTaxy,
       timerGetPosOneDriver,
       timerMyPos,
-        
-      timerSearchDriver, 
       timerGetBidGo,
-      timerUpdateCoords,
-      setGeoLocationTimer,
-      timerGetMyPos,
-      timerCheckLoading,
-      timerUpdateTaxiClientOffers;
+      timerCheckLoading;
 
 
 require(['App'], function (App) {  

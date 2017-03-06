@@ -1,6 +1,6 @@
 /* global Event, User */
 
-define(['Ajax', 'Dom', 'Dates'], function (Ajax, Dom, Dates) {
+define(function () {
   
   function addEvents() {
     Event.click = function (event) {

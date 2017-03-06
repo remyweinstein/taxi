@@ -293,7 +293,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       wrap.classList.add('safety-window__wrap');
 
       for (var v = 0; v < Zones.list.length; v++) {
-        zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + v + '">' + (v + 1) + '</button></span>';
+        zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + Zones.list[v].id + '">' + (v + 1) + '</button></span>';
       }
       wrap.innerHTML = '<div class="safety-window__grid">' + 
                           '<div data-click="runSos" class="safety-window__round">SOS</div>' + 

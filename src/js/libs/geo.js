@@ -30,7 +30,7 @@ define(['jsts'], function (jsts) {
         localStorage.setItem('_my_pos_lat', latitude);
         localStorage.setItem('_my_pos_lon', longitude);
         
-        Conn.updateUserLocation();
+        Conn.request('updateUserLocation');
 
         if (!User.city || User.city === null || User.city === "null") {
           var latlng = new google.maps.LatLng(latitude,longitude);
@@ -51,7 +51,7 @@ define(['jsts'], function (jsts) {
                             data.append('city', User.city);
                             data.append('name', name);
                         MayLoading = true;
-                        Conn.updateProfile(data);
+                        Conn.request('updateProfile', data);
                         //App.init();
                       }
                     }

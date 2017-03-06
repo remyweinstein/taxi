@@ -1,7 +1,13 @@
-/* global User, Conn */
+/* global User, Conn, MyOffer */
 
-define(['Ajax'], function(Ajax) {
+define(function() {
   
+  function cbCreateOffer(response) {
+    MyOffer.id = response.id;
+    window.location.hash = '#driver_city';
+    Conn.clearCb('cbCreateOffer');
+  }
+
   var clDriverOffer = function () {
     var self = this;
 
@@ -30,6 +36,57 @@ define(['Ajax'], function(Ajax) {
     this.price = 0;
     this.comment = null;
     
+    function cbgetOfferById(response) {
+      var ord = response.offer;
+
+      if (ord.bids) {
+        if(ord.bids.length > 0) {
+          self.bid_id = ord.bids[0];
+        }
+      } else {
+        self.bid_id = null;
+      }
+      self.id = ord.id;
+      self.fromAddress = ord.fromAddress;
+      self.toAddress = ord.toAddress;
+      self.fromCoords = ord.fromLocation;
+      self.toCoords = ord.toLocation;
+      //self.duration = ord.duration;
+      //self.distance = ord.distance;
+      self.length = ord.length;
+      self.fromFullAddress = "";
+      self.toFullAddress = "";
+      self.time0 = 0;
+      self.toAddresses = [];
+      self.toCities = [];
+      self.toCoordses = [];
+      self.toFullAddresses = [];
+      self.times = [];
+      self.cities = [];
+      if (ord.points) {
+        if (ord.points.length > 0) {
+          for (var i = 0; i < ord.points.length; i++) {
+            self.toAddresses[i] = ord.points[i].address || "";
+            self.toCoordses[i] = ord.points[i].location || "";
+            self.toFullAddresses[i] = ord.points[i].fullAddress || "";
+            self.times[i] = ord.points[i].stopTime || "";
+            self.cities[i] = ord.points[i].city || "";
+          }
+        }
+      }
+      self.fromCity  = ord.fromCity;
+      self.toCity = ord.toCity;
+      self.price = ord.price;
+      self.comment = ord.comment;
+      Conn.clearCb('cbgetOfferById');
+      
+      if (self.bid_id) {
+        localStorage.setItem('_current_id_bid', self.bid_id);
+      }
+
+      window.location.hash = '#driver_my_offer';
+    }
+    
     this.clear = function () {
       self = null;
     };
@@ -44,59 +101,19 @@ define(['Ajax'], function(Ajax) {
       data.toCity = User.city;
       data.toAddress = self.toAddress;
       data.toLocation = self.toCoords;
-      data.duration = self.duration;
-      data.isIntercity = 0;
       data.price = self.price;
       data.comment = self.comment;
-      data.minibus = 0;
-      data.babyChair = 0;
-      data.type = 'offer';
-      data.length = self.length;
+      data.type = 'taxi';
+      //data.duration = self.duration;
+      //data.minibus = 0;
+      //data.babyChair = 0;
+      //data.length = self.length;
 
-      Conn.createOffer(data);
+      Conn.request('createOffer', data, cbCreateOffer);
     };
 
-    this.getByID = function (_id, callback) {
-                  Conn.getOfferById(_id);
-                      var ord = response.order;
-                      
-                      if(ord.bidId && ord.bidId > 0) {
-                        self.bid_id = ord.bidId;
-                      } else {
-                        self.bid_id = null;
-                      }
-                      self.id = ord.id;
-                      self.fromAddress = ord.fromAddress;
-                      self.toAddress = ord.toAddress;
-                      self.fromCoords = ord.fromLocation;
-                      self.toCoords = ord.toLocation;
-                      self.duration = ord.duration;
-                      self.length = ord.length;
-                      self.fromFullAddress = "";
-                      self.toFullAddress = "";
-                      self.time0 = 0;
-                      self.toAddresses = [];
-                      self.toCities = [];
-                      self.toCoordses = [];
-                      self.toFullAddresses = [];
-                      self.times = [];
-                      self.cities = [];
-                      if (ord.points.length > 0) {
-                        for (var i = 0; i < ord.points.length; i++) {
-                          self.toAddresses[i] = ord.points[i].address || "";
-                          self.toCoordses[i] = ord.points[i].location || "";
-                          self.toFullAddresses[i] = ord.points[i].fullAddress || "";
-                          self.times[i] = ord.points[i].stopTime || "";
-                          self.cities[i] = ord.points[i].city || "";
-                        }
-                      }
-                      self.fromCity  = ord.fromCity;
-                      self.toCity = ord.toCity;
-
-                      self.distance = ord.distance;
-                      self.price = ord.price;
-                      self.comment = ord.comment;
-
+    this.getByID = function (id) {
+      Conn.request('getOfferById', id, cbgetOfferById);
     };
 
   };

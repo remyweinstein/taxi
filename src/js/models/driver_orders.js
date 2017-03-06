@@ -28,55 +28,43 @@ define(['Dates'], function(Dates) {
     this.comment;
 
     this.constructor = function (callback) {
-                if (order.points) {
-                  for (var i = 0; i < order.points.length; i++) {
-                    self.toAddresses.push(order.points[i].address);
-                    self.toLocations.push(order.points[i].location);
-                    self.totimes.push(order.points[i].stopTime);  
-                  }
-                }
+      if (order.points) {
+        for (var i = 0; i < order.points.length; i++) {
+          self.toAddresses.push(order.points[i].address);
+          self.toLocations.push(order.points[i].location);
+          self.totimes.push(order.points[i].stopTime);  
+        }
+      }
 
-                  self.id = order.id;
-                  self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
-                  self.distance = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
-                  var travelTime = ((self.distance / average_speed) * 60).toFixed(0);
-                    if (travelTime < 5) {
-                      travelTime = 5;
-                    } else {
-                      travelTime = 5 * Math.ceil( travelTime / 5 );
-                    }
-                if (order.bids) {
-                  self.bids_length = order.bids.length;
-                }
-                  self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
-                  self.stops = self.toAddresses.length || 0;
-                  self.length = order.length || 0;
-                  self.duration = order.duration || 0;
-                  self.name = order.agent.name || User.default_name;
-                  self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
-                  self.photo = order.agent.photo || User.default_avatar;
-                  self.bidId = order.bidId;
-                  self.fromAddress = order.fromAddress;
-                  self.toAddress = order.toAddress;
-                  self.comment = order.comment;
+      self.id = order.id;
+      self.price = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.price : Math.round(order.price);
+      self.distance = order.agent.distance ? order.agent.distance.toFixed(1) : 0;
+      var travelTime = ((self.distance / average_speed) * 60).toFixed(0);
+        if (travelTime < 5) {
+          travelTime = 5;
+        } else {
+          travelTime = 5 * Math.ceil( travelTime / 5 );
+        }
+      self.travelTime = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
+      self.stops = self.toAddresses.length || 0;
+      self.length = order.length || 0;
+      self.duration = order.duration || 0;
+      self.name = order.agent.name || User.default_name;
+      self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
+      self.photo = order.agent.photo || User.default_avatar;
+      self.bidId = order.bidId;
+      self.fromAddress = order.fromAddress;
+      self.toAddress = order.toAddress;
+      self.comment = order.comment;
 
-                if (order.bids) {
-                  for (var y = 0; y < order.bids.length; y++) {
-                    var agid = order.bids[y].agentId,
-                        a = order.bids[y].id;
+      if (order.bids) {
+        if (order.bids[0]) {
+          self.active_bid = true;
+        }
+      }
 
-                    if (agid === User.id) {
-                      self.agentId = agid;
-                      self.agentBidId = a;
-                      //self.price = Math.round(order.bids[y].price);
-                      self.active_bid = true;
-                      break;
-                    }
-                  }
-                }
-
-                  callback(self);
-                };
+      callback(self);
+      };
 
   };
   

@@ -1,6 +1,13 @@
-/* global Event, User */
+/* global Event, User, Conn */
 
-define(['Ajax', 'Dom'], function (Ajax, Dom) {
+define(['Dom'], function (Dom) {
+  
+  function cbRegisterUser(response) {
+    localStorage.setItem('_auth_token', response.authToken);
+    User.authToken = response.authToken;
+    window.location.hash = '#sms';
+    Conn.clearCb('cbRegisterUser');
+  }
   
   function addEvents() {
     Event.click = function (event) {
@@ -8,25 +15,11 @@ define(['Ajax', 'Dom'], function (Ajax, Dom) {
 
           while (target !== this) {
             if (target.dataset.click === 'form-submit') {
-              var _el = target;
+              var _el = target,
+                  phone = Dom.selAll('input[name="phone"]')[0].value;
               
               _el.disabled = true;
-
-              var phone = Dom.selAll('input[name="phone"]')[0].value;
-
-              Ajax.request('POST', 'register', '', '&phone=7' + phone, '', function(response) {
-
-                if (response && response.ok) {
-                  localStorage.setItem('_auth_token', response.authToken);
-                  User.authToken = response.authToken;
-                  window.location.hash = '#sms';
-                }
-                _el.disabled = false;
-
-              }, function() {
-                _el.disabled = false;
-                alert('Ошибка связи с сервером');
-              });
+              Conn.request('registerUser', phone, cbRegisterUser);
 
             return;
             }

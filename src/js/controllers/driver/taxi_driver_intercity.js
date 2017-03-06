@@ -1,6 +1,11 @@
-/* global User */
+/* global User, Conn */
 
-define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
+define(['Lists', 'Dom', 'Funcs'], function (Lists, Dom, Funcs) {
+  
+  function cbGetOrders(response) {
+    Lists.allOrders(response);
+  }
+
   
   function addEvents() {
     content.addEventListener('keyup', function(e) {
@@ -27,57 +32,13 @@ define(['Ajax', 'Dom', 'Funcs', 'Dates'], function (Ajax, Dom, Funcs, Dates) {
   }
   
   function stop() {
-
+    Conn.clearCb('cbGetOrders');
+    Conn.request('stopGetOrders');
   }
   
   function start() {
-    Ajax.request('GET', 'orders', User.token, '&filter[type]=order&isIntercity=1', '', function(response) {
-      if (response && response.ok) {
-        var toAppend = Dom.sel('[data-controller="taxi_driver_intercity_list_orders"]');
-         toAppend.innerHTML = '';
+    Conn.request('startGetIntercityOrders', '', cbGetOrders);
 
-        var ords = response.orders;
-
-        for (var i=0; i < ords.length; i++) {
-          show('LI','<div class="list-extended__personal">\n\
-                      <img src="' + ords[i].agent.photo + '" alt="" />\n\
-                    </div>\n\
-                    <div class="list-extended__route">\n\
-                      <div class="list-extended__route_name">\n\
-                        ' + ords[i].agent.name + '\
-                      </div>\n\
-                      <div class="list-extended__route_time">\n\
-                        ' + Dates.datetimeForPeople(ords[i].created, "ONLY_TIME") + '\
-                      </div>\n\
-                      <div class="list-extended__route_from">\n\
-                        ' + ords[i].fromCity + '\
-                      </div>\n\
-                      <div class="list-extended__route_to">\n\
-                        ' + ords[i].toCity0 + '\
-                      </div>\n\
-                      <div class="list-extended__route_sum">\n\
-                        ' + ords[i].price + ' руб.\n\
-                      </div>\n\
-                      <div class="list-extended__route_info">\n\
-                        ' + ords[i].comment + '\
-                      </div>\n\
-                    </div>');
-        }
-
-        if (ords.length < 1) {
-          show('DIV','<div class="list-orders_norecords">Нет заказов</div>');
-        }
-
-        function show(el, a) {
-          var n = document.createElement(el);
-           // n.classList.add('myorders__item');
-           n.innerHTML = a;
-
-          toAppend.appendChild(n);
-        }
-      }
-    }, Ajax.error);
-    
     addEvents();
   }
   

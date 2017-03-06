@@ -9,19 +9,16 @@ define(['Dom'], function (Dom) {
           while (target !== this) {
             if (target) {
               if (target.dataset.click === 'edit-zone') {
-                var el = target;
-                
-                localStorage.setItem('_edit_zone', el.dataset.id);
+                localStorage.setItem('_edit_zone', target.dataset.id);
                 window.location.hash = '#edit_zone';
                 
                 return;
               }
               
               if (target.dataset.click === 'delete-zone') {
-                var el = target;
-                var parent = el.parentNode;
-                var id = parent.dataset.id;
-                
+                var parent = target.parentNode,
+                    id = parent.dataset.id;
+                  
                 Zones.remove(id);
                 parent.parentNode.removeChild(parent);
                 
@@ -45,7 +42,7 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
-    var listZones = Dom.selAll('.zone-list')[0];
+    var listZones = Dom.selAll('.list-zone')[0];
 
     for (var v = 0; v < Zones.list.length; v++) {
       var li = document.createElement('li');
