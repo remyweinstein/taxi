@@ -64,6 +64,8 @@ requirejs.config({
     "ctrlTaxiClientHelp" :              "controllers/client/taxi_client_help",
     "ctrlTaxiClientMap" :               "controllers/client/taxi_client_map",
     "ctrlTaxiClientDriversRating" :     "controllers/client/taxi_client_drivers_rating",
+    "ctrlTaxiClientOffer" :     "controllers/client/taxi_client_offer",
+
     
     "ctrlTaxiDriverCity" :          "controllers/driver/taxi_driver_city",
     "ctrlTaxiDriverNewOffer" :      "controllers/driver/taxi_driver_new_offer",
@@ -114,14 +116,9 @@ var menus_arr = [];
   var content,
       map, marker, geocoder,
       
-      google, placeSearch, autocomplete, worker,
-      
       lastURL = '',
 
       MayLoading = false,
-  
-      average_speed = 40,
-      cost_of_km = 25,
   
       safe_zone_polygons = [],
 
@@ -129,18 +126,14 @@ var menus_arr = [];
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
-
-      my_vehicle,
-
-      bid_id,
-      global_order_id,
-
       default_vehicle = 'assets/images/no_vehicle.png',
       default_city = 'Хабаровск',
+      average_speed = 40,
+      cost_of_km = 25,
+  
+      global_order_id,
       
-      timerGetPosOneDriver,
       timerMyPos,
-      timerGetBidGo,
       timerCheckLoading;
 
 

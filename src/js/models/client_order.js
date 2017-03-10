@@ -132,15 +132,17 @@ define(function() {
       data.type = 'taxi';
       data.length = self.length;
 
-      if (self.toAddresses.length > 0) {
-        for (var i = 0; i < self.toAddresses.length; i++) {
-          var time = self.times[i] ? self.times[i] : 0;
-          
-          data.points[i].address = self.toAddresses[i];
-          data.points[i].location = self.toCoordses[i];
-          data.points[i].stopTime = time;
-          data.points[i].city = User.city;
-          data.points[i].fullAddress = '';
+      if (self.toAddresses) {
+        if (self.toAddresses.length > 0) {
+          for (var i = 0; i < self.toAddresses.length; i++) {
+            var time = self.times[i] ? self.times[i] : 0;
+
+            data.points[i].address = self.toAddresses[i];
+            data.points[i].location = self.toCoordses[i];
+            data.points[i].stopTime = time;
+            data.points[i].city = User.city;
+            data.points[i].fullAddress = '';
+          }
         }
       }
 

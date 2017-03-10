@@ -3,30 +3,24 @@
 define(['Dom'], function(Dom) {
 
   var timerGetMessages,
-      interlocutor = "client";
+      interlocutor;
 
   function cbGetChatMessages(response) {
     var textarea = Dom.sel('.go-order__down__messages__textarea'),
-        name;
+        name, float;
 
     if (textarea) {
-      var innText = '';
+      var innText = '',
+          messages = response.chat;
 
-      for (var i = 0; i < response.messages.length; i++ ) {
-        var float = 'right';
-
-        if (interlocutor === "client") {
-          name = 'Клиент';
-        } else {
-          name = 'Водитель';
-        }
-        if (response.messages[i].sender.id === User.id) {
+      for (var i = 0; i < messages.length; i++ ) {
+        float = 'right';
+        name = messages[i].sender.name;
+        if (messages[i].sender.id === User.id) {
           float = 'left';
           name = 'Я';
-          innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
-        } else {
-          innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + response.messages[i].text + '</p>';
         }
+        innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + messages[i].text + '</p>';
       }
       if (innText) {
         var oldText = textarea.innerHTML;
@@ -55,7 +49,11 @@ define(['Dom'], function(Dom) {
             if (messaga !== "") {
               var data = {};
               
-              data.id = global_order_id;
+              if (interlocutor === "order") {
+                data.orderId = localStorage.getItem('_active_order_id');
+              } else {
+                data.offerId = localStorage.getItem('_active_offer_id');
+              }
               data.text = messaga;
               Conn.request('sendMessageChat', data);
             }
@@ -76,14 +74,24 @@ define(['Dom'], function(Dom) {
     stop: function() {
       clearInterval(timerGetMessages);
       content.removeEventListener('click', clickEvent);
+    },
+    
+    exit: function() {
       Conn.clearCb('cbGetChatMessages');
       Conn.request('stopChatMessages');
     },
 
-    start: function(loc) {
+    start: function(loc, id) {
+      var paramparam = {};
+      
       interlocutor = loc;
+      if (loc === "offer") {
+        paramparam.offerId = id;
+      } else {
+        paramparam.orderId = id;
+      }
       content.addEventListener('click', clickEvent);
-      Conn.request('startChatMessages', global_order_id, cbGetChatMessages);    
+      Conn.request('startChatMessages', paramparam, cbGetChatMessages);
     }
       
     };

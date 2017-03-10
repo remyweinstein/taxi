@@ -3,9 +3,9 @@
 define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], function (Dom, Dates, Maps, HideForms, Destinations, GetPositions, Lists) {
   
   function cbOnApproveOrder() {
-    localStorage.setItem('_current_id_bid', MyOffer.bid_id);
     localStorage.setItem('_current_id_order', MyOffer.id);
-    window.location.hash = "#client_go";
+    localStorage.setItem('_active_offer_id', MyOffer.id);
+    window.location.hash = "#driver_go";
     Conn.clearCb('cbOnApproveOrder');
   }
   
@@ -59,6 +59,9 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
   function start() {
         
     if (MyOffer.id > 0) {
+      if (localStorage.getItem('_active_offer_id')) {
+        window.location.hash = '#driver_go';
+      }
       var _count_waypoint = MyOffer.toAddresses.length,
           el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),

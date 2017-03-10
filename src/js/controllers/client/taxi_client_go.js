@@ -1,4 +1,4 @@
-/* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn */
+/* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, MyOffer */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Destinations'], 
 function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
@@ -8,7 +8,7 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
       price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time;
 
   function cbFinishOrder() {
-    localStorage.setItem('_rating_bid', bid_id);
+    localStorage.setItem('_rating_order', MyOrder.id);
     localStorage.removeItem('_enable_safe_zone');
     localStorage.removeItem('_enable_safe_route');
     window.location.hash = '#client_drivers_rating';
@@ -17,23 +17,40 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
   function cbCancelOrder() {
     window.location.hash = '#client_city';
   }
-  
+
   function cbGetOrderById(response) {
-    var ords = response.bid.order,
-        agnt = response.bid.agent,
+    var ords = response.order;
+    
+    if (!ords) {
+      stop();
+      alert('К сожалению, заказ не найден.');
+      window.location.hash = '#client_city';
+    }
+    
+    if (ords.finished) {
+      cbFinishOrder();
+    }
+
+    var offer = ords.bids[0].offer,
+        agnt = offer.agent,
         toLoc = ords.toLocation,
         loc = agnt.location.split(','),
-        lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime),
+        lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
         VLatLng = new google.maps.LatLng(loc[0], loc[1]),
         incar_but = Dom.sel('button[data-click="client-incar"]'),
-        but = Dom.sel('[data-click="client-came"]');
-
-    MyOrder.id = ords.id;
+        but = Dom.sel('[data-click="client-came"]'),
+        field_distance_to_car = Dom.sel('[data-view="distance_to_car"]'),
+        field_while_car = Dom.sel('[data-view="while_car"]'),
+        field_duration = Dom.sel('[data-view="duration"]');
+      
+    if (ords.id) {
+      MyOrder.id = ords.id;
+    }
     dr_model = agnt.brand + ' ' + agnt.model;
     dr_name = agnt.name;
     dr_color = agnt.color;
     dr_number = agnt.number;
-    dr_distanse = agnt.distance.toFixed(1);
+    dr_distanse = ords.agent.distance.toFixed(1);
 
     if (lost_diff >= 0) {
       dr_time = lost_diff;
@@ -64,7 +81,7 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
     toCoords = ords.toLocation.split(",");
     fromAddress = ords.fromAddress;
     toAddress = ords.toAddress;
-    price = Math.round(response.bid.price);
+    price = Math.round(ords.price);
     duration_time = Dates.minToHours(ords.duration);
     MyOrder.fromCoords = ords.fromLocation;
     MyOrder.toCoords = ords.toLocation;
@@ -73,9 +90,15 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
     MyOrder.fromAddress = ords.fromAddress;
     MyOrder.toAddress = ords.toAddress;
     MyOrder.times = ords.toTimes;
-    Dom.sel('[data-view="distance_to_car"]').innerHTML = dr_distanse;
-    Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
-    Dom.sel('[data-view="duration"]').innerHTML = duration_time;
+    if (field_distance_to_car) {
+      field_distance_to_car.innerHTML = dr_distanse;
+    }
+    if (field_while_car) {
+      field_while_car.innerHTML = dr_time;
+    }
+    if (field_duration) {
+      field_duration.innerHTML = duration_time;
+    }
     waypoints = [];
     if (ords.toAddresses) {
       for (var i = 0; i < ords.toAddresses.length; i++) {
@@ -113,7 +136,8 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
         but.disabled = false;
       }
     }
-    if (ords.canceled) {
+    if (ords.canceledByDriver || ords.canceledByClient) {
+      stop();
       alert('К сожалению, заказ отменен.');
       window.location.hash = '#client_city';
     }
@@ -188,7 +212,8 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
         if (target.dataset.click === "client-came") {
           Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
         }
-        if (target.dataset.click === 'client-incar') {          
+        if (target.dataset.click === 'client-incar') {
+          console.log('try click client-incar');
           Conn.request('inCarClient', MyOrder.id);
         }
         if (target.dataset.click === 'cancel-order') {
@@ -196,6 +221,7 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
             Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
           }
         }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -211,19 +237,18 @@ function (Dom, Dates, Chat, Geo, Maps, HideForms, GetPositions, Destinations) {
     Destinations.clear();
     Conn.clearCb('cbGetOrderById');
     Conn.request('stopGetOrder');
+    Chat.exit();
   }
   
   function start() {
     Maps.mapOn();
     initMap();
     SafeWin.overviewPath = [];
-    bid_id = localStorage.getItem('_current_id_bid');
-    global_order_id = localStorage.getItem('_current_id_order');
-    MyOrder.bid_id = bid_id;
-    MyOrder.id = global_order_id;
+    MyOrder.id = localStorage.getItem('_active_order_id');
     GetPositions.my();
-    Conn.request('startGetOrder', MyOrder.id, cbGetOrderById);
-    Chat.start('driver');
+    //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
+    Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
+    Chat.start('order', MyOrder.id);
     HideForms.init();
   }
   

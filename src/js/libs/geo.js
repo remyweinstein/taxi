@@ -13,8 +13,8 @@ define(['jsts'], function (jsts) {
       }
       
       var options = {
-        enableHighAccuracy: true, 
-        maximumAge        : 30000, 
+        enableHighAccuracy: true,
+        maximumAge        : 0,
         timeout           : 27000
       };
       
@@ -32,7 +32,7 @@ define(['jsts'], function (jsts) {
         
         Conn.request('updateUserLocation');
 
-        if (!User.city || User.city === null || User.city === "null") {
+        if (!User.city) {
           var latlng = new google.maps.LatLng(latitude,longitude);
           
           geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
@@ -41,6 +41,7 @@ define(['jsts'], function (jsts) {
             }, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK) {
                   var obj = results[0].address_components,key;
+                  
                   for (key in obj) {
                     if(obj[key].types[0] === "locality") {
                       if (obj[key].long_name) {
@@ -50,6 +51,7 @@ define(['jsts'], function (jsts) {
                             data = new FormData();
                             data.append('city', User.city);
                             data.append('name', name);
+                            
                         MayLoading = true;
                         Conn.request('updateProfile', data);
                         //App.init();
@@ -76,19 +78,19 @@ define(['jsts'], function (jsts) {
 
   var Geo = {
 
-      init: function(app) {
-        geoFindMe(app);
+      init: function() {
+        geoFindMe();
       },
 
       distance: function(lat1, lon1, lat2, lon2) {
-        var radlat1 = Math.PI * lat1/180,
-            radlat2 = Math.PI * lat2/180,
-            theta = lon1-lon2,
+        var radlat1 = Math.PI * lat1 / 180,
+            radlat2 = Math.PI * lat2 / 180,
+            theta = lon1 - lon2,
             radtheta = Math.PI * theta/180,
             dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
         
         dist = Math.acos(dist);
-        dist = dist * 180/Math.PI;
+        dist = dist * 180 / Math.PI;
         dist = dist * 60 * 1.1515;
         dist = dist * 1.609344;
           

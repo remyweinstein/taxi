@@ -29,7 +29,7 @@ define(['Uries'], function(Uries) {
         }
       }
     } else {
-      viewLog(response.error);
+      viewLog(response);
     }
   }
   
@@ -97,7 +97,13 @@ define(['Uries'], function(Uries) {
     params.orderId = id;
     Conn.sendMessage("delete-order", params);
   }
-
+  
+  function startGetOrdersById(id) {
+    params.filter = {};
+    params.filter.orderId = id;
+    Conn.sendMessage("get-orders", params);
+  }
+  
   function startGetOrders(type) {
     params.filter = {};
     params.filter.type = type;
@@ -147,18 +153,18 @@ define(['Uries'], function(Uries) {
     Conn.sendMessage("post-order", params);
   }
   
-  function startChatMessages(id) {
-    params.orderId = id;
+  function startChatMessages(data) {
+    params = data;
     Conn.sendMessage("get-messages", params);
   }
 
   function stopChatMessages() {
-    Conn.sendMessage("stop-messages");
+    Conn.sendMessage("stop-get-messages");
   }
   
   function sendMessageChat(data) {
     params = data;
-    Conn.request('sendMessageChat', params);
+    Conn.sendMessage('post-message', params);
   }
   
   function createOffer(data) {
@@ -288,7 +294,6 @@ define(['Uries'], function(Uries) {
     Conn.sendMessage("post-zone", params);
   }
   
-  
   var clConn = function () {
     var self = this;
     
@@ -323,8 +328,6 @@ define(['Uries'], function(Uries) {
     };
     
     this.request = function(func, data, cb) {
-      //var fn = window[func];
-      
       params = {};
       
       if (cb) {
@@ -332,12 +335,7 @@ define(['Uries'], function(Uries) {
       } else {
         global_id = null;
       }
-      
-      //if (typeof fn === "function") {
-      //  fn(data);
-      //}
 
-      
       switch (func) {
         case "requestFavorites":
           requestFavorites();
@@ -411,6 +409,9 @@ define(['Uries'], function(Uries) {
         case "deleteOrderById":
           deleteOrderById(data);
           break;
+        case "startGetOrdersById":
+          startGetOrdersById(data);
+          break;
         case "startGetOrders":
           startGetOrders('taxi');
           break;
@@ -470,9 +471,6 @@ define(['Uries'], function(Uries) {
           break;
         case "requestMyOffers":
           requestMyOffers();
-          break;
-        case "stopGetOrders":
-          stopGetOrders();
           break;
         case "startGetAgents":
           startGetAgents(data);
@@ -545,9 +543,7 @@ define(['Uries'], function(Uries) {
       req.id = global_id || method;
       req.params = params || {};
       req.params.token = User.token;
-      
-      viewLog(JSON.stringify(req));
-      
+      viewLog(JSON.stringify(req));      
       if (self.is_connect) {
         socket.send(JSON.stringify(req));
       }

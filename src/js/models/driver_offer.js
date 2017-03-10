@@ -41,7 +41,7 @@ define(function() {
 
       if (ord.bids) {
         if(ord.bids.length > 0) {
-          self.bid_id = ord.bids[0];
+          self.bid_id = ord.bids[0].id;
         }
       } else {
         self.bid_id = null;
@@ -82,6 +82,9 @@ define(function() {
       
       if (self.bid_id) {
         localStorage.setItem('_current_id_bid', self.bid_id);
+      }
+      if (ord.bids[0].approved) {
+        localStorage.setItem('_active_offer_id', self.id);
       }
 
       window.location.hash = '#driver_my_offer';

@@ -4,7 +4,6 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   
   function cbMyOffers(response) {
     Lists.myOffers(response);
-    Conn.request('stopGetOffers');
     Conn.clearCb('cbMyOffers');
   }
   
@@ -17,13 +16,10 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
       var target = event.target, el, id;
 
       while (target !== this) {
-        
         if (target) {
-          
           if (target.dataset.click === "new-offer") {
             window.location.hash = "#driver_new_offer";
           }
-          
               // = Menu my Orders Item =
           if (target.dataset.click === 'myorders_item_menu') {
             var menu = target.parentNode.children[1],
@@ -34,50 +30,37 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
             } else {
               menu.style.display = 'none';
             }
-
             return;
           }
               // = Menu my Orders Item DELETE order =
           if (target.dataset.click === 'myorders_item_menu_delete') {
             Lists.Delete(target);
-
             return;
           }
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
             Lists.getOfferByID(target.dataset.id);
-
             return;
           }
-          
           if (target.dataset.click === "open-order") {
             el = target;
-
             localStorage.setItem('_open_order_id', el.dataset.id);
             window.location.hash = "#driver_order";
           }
-
           if (target.dataset.click === "open-offer") {
             id = target.dataset.id;
-
             localStorage.setItem('_open_offer_id', id);
-            
             Lists.getOfferByID(id);
-
           }
-
           if (target.dataset.click === "fav-orders") {
             Lists.filterToggleFav(target);
           }
-
           if (target.dataset.click === "filter-orders") {
             Lists.filterShowWindow(target);
           }
-
           if (target.dataset.click === "sort-orders") {
             Lists.filterSortWindow(target);
           }
-
             // Click taxi_bid
           if (target.dataset.click === "taxi_bid") {
             el = target;
@@ -119,19 +102,15 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
               }
             }
           }
-
           if (target.dataset.click === "time_minus") {
             Lists.timeMinus(target);
           }
-
           if (target.dataset.click === "time_plus") {
             Lists.timePlus(target);
           }
-
           if (target.dataset.click === "price_minus") {
             Lists.priceMinus(target);
           }
-
           if (target.dataset.click === "price_plus") {
             Lists.pricePlus(target);
           }
@@ -157,12 +136,10 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   
   function start() {
     Lists.filtersStart();
-
     Conn.request('requestMyOffers', '', cbMyOffers);
     Conn.request('startGetOrders', '', cbGetOrders);
-    
+    Conn.request('stopGetOffers');
     addEvents();
-    
   }
   
   return {

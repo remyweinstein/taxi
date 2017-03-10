@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerGetBidGo, timerGetPosTaxy, timerCheckLoading, Event, timerGetPosOneDriver, Conn, lastURL */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, lastURL */
 
 define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
   
@@ -25,6 +25,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
                 {hash:'#client_drivers_rating', template:'TaxiClientDriversRating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
+                {hash:'#client_offer', template:'TaxiClientOffer', controller:'ctrlTaxiClientOffer', title:'Предложение водителя', menu:'client', pageType: ''},
                 {hash:'#driver_help', template:'TaxiDriverHelp', controller:'ctrlTaxiDriverHelp', title:'Помощь водителю', menu:'driver', pageType: ''},
                 {hash:'#driver_new_offer', template:'TaxiDriverNewOffer', controller:'ctrlTaxiDriverNewOffer', title:'Новое предложение', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_my_offer', template:'TaxiDriverOffer', controller:'ctrlTaxiDriverOffer', title:'Мое предложение', menu:'driver', pageType: 'back-arrow'},
@@ -141,10 +142,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
   
   function clearVars() {
     Chat.stop();
-    clearInterval(timerGetBidGo);
     clearInterval(timerCheckLoading);
-    clearInterval(timerGetPosOneDriver);
-
 
     Dom.sel('.content').removeEventListener('click', Event.click);
     Dom.sel('.content').removeEventListener('submit', Event.submit);
@@ -163,15 +161,12 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
     HideForms.clear();
     
     lastURL = currentHash;
-
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);
     }
-      
     dynamic.classList.add('dynamic');
     dynamic.innerHTML = content;
     content_el.appendChild(dynamic);
-
     renderMenu(route);
     Maps.mapOff();
     clearVars();
@@ -193,9 +188,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
     start: function (app, callback) {
       App = app;
       //window.location.hash = window.location.hash || defaultRoute;
-      
-            setInterval(hashCheck, 250);
-
+      setInterval(hashCheck, 250);
       if (!Conn.is_connect) {
         if (!Conn.is_connecting) {
           Conn.start(function(){

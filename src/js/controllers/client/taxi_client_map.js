@@ -9,6 +9,7 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
     Conn.clearCb('cbApproveOffer');
     MyOrder.bid_id = global_el.dataset.id;
     localStorage.setItem('_current_id_bid', MyOrder.bid_id);
+    localStorage.setItem('_active_order_id', MyOrder.id);
     localStorage.setItem('_current_id_order', MyOrder.id);
     window.location.hash = "#client_go";
   }
@@ -37,7 +38,7 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
         
         if (target && target.dataset.click === "cancel-order") {
           global_el = target;
-          Conn.request('cancelOrder', global_el.dataset.id, cbCancelOrder);
+          Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
         }
         
         if (target) {
@@ -75,12 +76,13 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
                                             (MyOrder.length / 1000).toFixed(1) + 
                                             ' км / ' + 
                                             Dates.minToHours(MyOrder.duration);
-      var _count_waypoint = MyOrder.toAddresses.length;
 
-      if (_count_waypoint > 0) {
-        el_routes[0].children[1].innerHTML = 'Заездов ' + _count_waypoint;
-      } else {
-        el_routes[0].children[1].style.display = 'none';
+      if (MyOrder.toAddresses) {
+        if (MyOrder.toAddresses.length > 0) {
+          el_routes[0].children[1].innerHTML = 'Заездов ' + MyOrder.toAddresses.length;
+        } else {
+          el_routes[0].children[1].style.display = 'none';
+        }
       }
       el_price.innerHTML = Math.round(MyOrder.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';        

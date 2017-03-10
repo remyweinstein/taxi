@@ -3,7 +3,7 @@
 define(['Dom', 'Stars'], function (Dom, Stars) {
 
   
-  var order_id, offer_id, agent_id, bid_id, global_el;
+  var order_id, agent_id, global_el;
   
   function cbAddFavorites() {
     var stars = Dom.selAll('[data-view="star"]');
@@ -110,9 +110,8 @@ define(['Dom', 'Stars'], function (Dom, Stars) {
   }
   
   function start() {
-    order_id = localStorage.getItem('_current_id_order');
-    localStorage.removeItem('_current_id_offer');
-    localStorage.removeItem('_current_id_order');
+    order_id = localStorage.getItem('_rating_order');
+    localStorage.removeItem('_rating_order');
     
     if (order_id && order_id !== "") {
       var bl = Dom.sel('.score-agent__but-box'),

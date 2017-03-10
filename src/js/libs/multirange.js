@@ -1,8 +1,7 @@
 define(['hammer', 'Funcs'], function (Hammer, Funcs) {
 
   function enable_multirange(el) {
-    var parentDiv = el.parentNode,
-        name = el.name;
+    var new_field = document.createElement('div');
 
     Object.defineProperty(el, "value", {
       configurable: true,
@@ -14,27 +13,22 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         return this.getAttribute("value");
       }
     });
-
-    var new_field = document.createElement('div');
-
     new_field.className += 'range-input';
-    new_field.innerHTML = '<input type="text" data-order="min" data-name="' + name + '" value="" class="range-input__text" />' +
-      '<input type="text" data-order="max" data-name="' + name + '" value="" class="range-input__text" />' +
+    new_field.innerHTML = '<input type="text" data-order="min" data-name="' + el.name + '" value="" class="range-input__text" />' +
+      '<input type="text" data-order="max" data-name="' + el.name + '" value="" class="range-input__text" />' +
       '<div class="range-input__wrap">' +
       '<div class="range-input__wrap__line">' +
-      '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
-      '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
+      '<div data-value data-name="' + el.name + '" class="range-input__wrap__line__toddler"></div>' +
+      '<div data-value data-name="' + el.name + '" class="range-input__wrap__line__toddler"></div>' +
       '</div>' +
       '</div>';
-
-    parentDiv.insertBefore(new_field, el);
-    onstartValues(name);
+    el.parentNode.insertBefore(new_field, el);
+    onstartValues(el.name);
   }
 
   function enable_range(el) {
-    var parentDiv = el.parentNode,
-        name = el.name;
-
+    var new_field = document.createElement('div');
+      
     Object.defineProperty(el, "value", {
       configurable: true,
       enumerable: true,
@@ -45,18 +39,14 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         return this.getAttribute("value");
       }
     });
-
-    var new_field = document.createElement('div');
-
     new_field.className += 'range-input';
     new_field.innerHTML = '<div class="range-input__wrap">' +
       '<div class="range-input__wrap__line">' +
-      '<div data-value data-name="' + name + '" class="range-input__wrap__line__toddler"></div>' +
+      '<div data-value data-name="' + el.name + '" class="range-input__wrap__line__toddler"></div>' +
       '</div>' +
       '</div>';
-
-    parentDiv.insertBefore(new_field, el);
-    onstartValuesOne(name);
+    el.parentNode.insertBefore(new_field, el);
+    onstartValuesOne(el.name);
   }
 
   function whatDo(e) {
@@ -65,15 +55,13 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         el_left = parseFloat(e.target.parentNode.offsetLeft),
         el_width = parseFloat(e.target.offsetWidth),
         whatdo;
-
+      
     if (type === "pointerdown" || type === "mousedown" || type === "touchstart") {
       handleStart(e.target);
     }
-
     if (type === "pointerup" || type === "mouseup" || type === "touchend") {
       handleEnd(e.target);
     }
-
     if (type === "pointermove" || type === "mousemove" || type === "touchmove") {
       whatdo = 'move';
       if (isF) {
@@ -82,7 +70,6 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         }
       }
     }
-
     if (whatdo === 'move') {
       moveShariki(e.target, (e.gesture.changedPointers[0].clientX - el_left - el_width));
     }
@@ -96,11 +83,9 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         if (delta < 0) {
           delta = 0;
         }
-
         if (delta > max_left) {
           delta = max_left;
         }
-
         el.style.left = delta + 'px';
         changeValues(el);
       }
@@ -124,16 +109,12 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
   function onstartValues(name) {
     var input = document.querySelector("input[type=range][name=" + name + "][multiple]:not(.multirange)"),
         texts = document.querySelectorAll("input[type=text][data-name=" + name + "]"),
-        values = input.value,
-        max = input.max,
-        min = input.min,
-        toggies = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]");
-
-    values = values.split(',');
+        toggies = document.querySelectorAll("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
+        values = input.value.split(',');
 
     for (var i = 0; i < toggies.length; i++) {
       var width = parseFloat(toggies[i].parentNode.offsetWidth) - parseFloat(toggies[i].offsetWidth),
-          position = parseFloat((values[i] / (max - min)) * width);
+          position = parseFloat((values[i] / (input.max - input.min)) * width);
 
       texts[i].value = values[i];
       toggies[i].dataset.value = values[i];
@@ -144,14 +125,11 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
 
   function onstartValuesOne(name) {
     var input = document.querySelector("input[type=range][name=" + name + "]:not([multiple])"),
-        value = input.value,
-        max = input.max,
-        min = input.min,
         toggies = document.querySelector("div.range-input__wrap__line__toddler[data-name=" + name + "]"),
         width = parseFloat(toggies.parentNode.offsetWidth) - parseFloat(toggies.offsetWidth),
-        position = parseFloat((value / (max - min)) * width);
+        position = parseFloat((input.value / (input.max - input.min)) * width);
 
-    toggies.dataset.value = value;
+    toggies.dataset.value = input.value;
     toggies.style.left = position + 'px';
   }
 
@@ -271,21 +249,17 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       for (i = 0; i < inputs.length; i++) {
         enable_multirange(inputs[i]);
       }
-
       for (i = 0; i < input_one.length; i++) {
         enable_range(input_one[i]);
       }
-
       document.addEventListener('mouseleave', handleEnd);
       for (i = 0; i < shariki.length; i++) {
         var ev = new Hammer(shariki[i], {domEvents: true});
         shariki[i].addEventListener('hammer.input', whatDo);
       }
-
       for (i = 0; i < texts.length; i++) {
         texts[i].addEventListener('change', changeFromTexts);
       }
-
       for (i = 0; i < lines.length; i++) {
         lines[i].addEventListener('click', changeFromClick);
       }

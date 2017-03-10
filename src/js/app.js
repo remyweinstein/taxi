@@ -72,7 +72,6 @@ define(['User',
     afterConnection: function () {
       Settings.getSettings();
       User.getData();
-
       Geo.init();
       Zones.get();        
 

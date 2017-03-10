@@ -83,7 +83,6 @@ define(['Dom'], function(Dom) {
         self.phone = prfl.phone;
         self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
         self.avatar = prfl.photo ? prfl.photo : default_avatar;
-        //my_vehicle = prfl.vehicle;
 
         if (Dom.selAll('.jq_my_name').length) {
           Dom.sel('.jq_my_name').innerHTML = self.name;

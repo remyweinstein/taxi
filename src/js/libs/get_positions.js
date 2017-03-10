@@ -1,6 +1,6 @@
 /* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin, Conn */
 
-define(['Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Car, Maps, Dates, Dom, Geo) {
+define(['Car', 'Maps'], function (Car, Maps) {
   var radiusSearch = 0.5;
   
   function cbGetAgents(response) {
@@ -24,7 +24,6 @@ define(['Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Car, Maps, Dates, Dom, 
       } else if (zoom > 16) {
         radiusSearch = 0.1;
       }
-      
       Conn.request('stopGetAgents');
       Conn.request('startGetAgents', radiusSearch, cbGetAgents);
     });
@@ -127,7 +126,9 @@ define(['Car', 'Maps', 'Dates', 'Dom', 'Geo'], function (Car, Maps, Dates, Dom, 
     },
     my: function () {
       get_my_pos();
-      clearInterval(timerMyPos);
+      if (timerMyPos) {
+        clearInterval(timerMyPos);
+      }
       timerMyPos = setInterval(get_my_pos, 1000);
     },
     drivers: function () {

@@ -113,7 +113,13 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function render_list(type, response) {
-    var add_type, ords, tempOrder = Orders;
+    var add_type, 
+        ords, 
+        order_canceled, 
+        order_finished, 
+        order_finishedClient,
+        order_finishedDriver,
+        tempOrder = Orders;
 
     if (type === 'order') {
       ords = response.orders;
@@ -122,36 +128,53 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
     }
 
     Orders = [];
-    for (var i = 0; i < ords.length;) {
-      var ordId = ords[i].id;
-      var same_el = tempOrder.filter(function(ord) {
-        return ord.id === ordId;
-      });
+    
+    if (ords) {
+      for (var i = 0; i < ords.length;) {
+        var ordId = ords[i].id;
+        var same_el = tempOrder.filter(function(ord) {
+          return ord.id === ordId;
+        });
+        
+        if (type === 'order') {
+          order_canceled = ords[i].canceled;
+          order_finished = ords[i].finished;
+          order_finishedDriver = ords[i].finishedByDriver;
+          order_finishedClient = ords[i].finishedByClient;
+        } else if (ords[i].bids[0].order) {
+          order_canceled = ords[i].bids[0].order.canceled;
+          order_finished = ords[i].bids[0].order.finished;
+          order_finishedDriver = ords[i].bids[0].finishedByDriver;
+          order_finishedClient = ords[i].bids[0].finishedByClient;
+        }
 
-      var tempOrders = new clDriverOrders(ords[i], same_el[0]);
-      
-      tempOrders.constructor(function(temp_order) {
-        Orders.push(temp_order);
-        if(ords[i].bids && ords[i].bids.length > 0) {
-          if (ords[i].bids[0].approved) {
-            if (type === 'order') {
-              window.location.hash = '#driver_go';
-            } else {
-              window.location.hash = "#client_go";
+        var tempOrders = new clDriverOrders(ords[i], same_el[0]);
+
+        tempOrders.constructor(function(temp_order) {
+          Orders.push(temp_order);
+          if(ords[i].bids && ords[i].bids.length > 0) {
+            if (ords[i].bids[0].approved && !order_finished && !order_canceled && !order_finishedDriver && !order_finishedClient) {
+              if (type === 'order') {
+                localStorage.setItem('_active_offer_id', ords[i].bids[0].offerId);
+                window.location.hash = '#driver_go';
+              } else {
+                localStorage.setItem('_active_order_id', ords[i].bids[0].orderId);
+                window.location.hash = '#client_go';
+              }
             }
           }
-        }
-        if (temp_order.agentBidId === temp_order.bidId) {
-          localStorage.setItem('_current_id_bid', temp_order.bidId);
-          localStorage.setItem('_current_id_order', temp_order.id);
-          if (type === 'order') {
-            //window.location.hash = '#driver_go';
-          } else {
-            //window.location.hash = "#client_go";
+          if (temp_order.agentBidId === temp_order.bidId) {
+            localStorage.setItem('_current_id_bid', temp_order.bidId);
+            localStorage.setItem('_current_id_order', temp_order.id);
+            if (type === 'order') {
+              //window.location.hash = '#driver_go';
+            } else {
+              //window.location.hash = "#client_go";
+            }
           }
-        }
-        i++;
-      });
+          i++;
+        });
+      }
     }
 
     var orders_result = Dom.sel('.list-orders__result span');
@@ -160,10 +183,10 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       orders_result.innerHTML = Orders.length;
     }
 
-    fillOrders();
+    fillOrders(type);
   }
   
-  function fillOrders() {
+  function fillOrders(type) {
     var listOrders = Dom.sel('[data-model=list-orders]');
 
     if (listOrders) {
@@ -189,7 +212,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
               time_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '';
 
           show('LI', '<div class="list-orders_route">' +
-                       '<div data-click="open-order" data-id="' + Orders[key].id + '">' +
+                       '<div data-click="open-' + type + '" data-id="' + Orders[key].id + '">' +
                         '<div class="list-orders_route_from">' +
                            Orders[key].fromAddress +
                         '</div>' +
@@ -550,6 +573,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   var Lists = {
     clear: function () {
       MapElements.clear();
+      Conn.request('stopGetOrders');
+      Conn.clearCb('cbGetBids');
     },
     start: function () {
       

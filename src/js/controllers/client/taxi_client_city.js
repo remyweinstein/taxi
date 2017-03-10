@@ -134,11 +134,11 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
               return;
             }
             //  =============== EVENTS FOR LIST OF OFFERS ================
-            if (target.dataset.click === "open-order") {
+            if (target.dataset.click === "open-offer") {
               el = target;
               
-              localStorage.setItem('_open_order_id', el.dataset.id);
-              window.location.hash = "#driver_order";
+              localStorage.setItem('_open_offer_id', el.dataset.id);
+              window.location.hash = "#client_offer";
             }
             if (target.dataset.click === "taxi_bid") {
               var id_offer = target.dataset.id;

@@ -61,20 +61,22 @@ define(['Dom'], function(Dom) {
 
     MapElements.marker_b = null;
     MapElements.marker_a = null;
+    
+    if (Model.toAddresses) {
+      for (var i = 0; i < Model.toAddresses.length; i++) {
+        if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
+          var _wp = Model.toCoordses[i].split(","),
+              time = "";
 
-    for (var i = 0; i < Model.toAddresses.length; i++) {
-      if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
-        var _wp = Model.toCoordses[i].split(","),
-            time = "";
-
-        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
-        if (Model.times[i]) {
-          time = Model.times[i] + ' мин.';
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover: true});
+          if (Model.times[i]) {
+            time = Model.times[i] + ' мин.';
+          }
+          Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', function(mark){
+            Maps.addInfoForMarker(time, true, mark);
+            MapElements.points.push(mark);
+          });
         }
-        Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', function(mark){
-          Maps.addInfoForMarker(time, true, mark);
-          MapElements.points.push(mark);
-        });
       }
     }
 

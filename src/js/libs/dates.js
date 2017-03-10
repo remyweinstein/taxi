@@ -17,8 +17,8 @@ define(function() {
         if (!options) {
             options = "TIME_AND_TODAY";
         }
-
         date = date.split(" ");
+        
         var date_order = date[0].split("-"),
             time_order = date[1].split(":"),
             today_text = '',
@@ -35,23 +35,18 @@ define(function() {
         } else {
           today_text = "Сегодня";
         }
-
         if (options === "ONLY_TIME") {
           date = time_text;
         }
-
         if (options === "ONLY_TIME_IF_TODAY") {
           date = today_text === "Сегодня" ? time_text : today_text + ', ' + time_text;
         }
-
         if (options === "TIME_AND_TODAY") {
           date = today_text + ', ' + time_text;
         }
-
         if (options === "TIME_AND TODAY_ONLY") {
           date = today_text !== "Вчера" && today_text !== "Сегодня" ? today_text : today_text + ', ' + time_text;
         }
-        
         if (options === "LEFT_TIME_OR_DATE") {
           //today, other, 1000 * 60 {one minute};
           var diff = now - order_time;

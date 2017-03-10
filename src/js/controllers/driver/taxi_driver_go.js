@@ -3,29 +3,41 @@
 define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Destinations'],
   function (Dom, Chat, Dates, Geo, Maps, HideForms, GetPositions, Destinations) {
   
-  var order_id, timerStatusOffer, fromAddress, toAddress, fromCoords, toCoords, 
+  var order_id, fromAddress, toAddress, fromCoords, toCoords, 
       waypoints, price, name_client, photo_client, first_time = true;
   
-  function cbOnFinish() {
-    localStorage.setItem('_rating_bid', bid_id);
+  function cbOnFinish() { 
+    localStorage.setItem('_rating_offer', MyOffer.id);
     localStorage.removeItem('_enable_safe_zone');
-    localStorage.removeItem('_enable_safe_route');            
-    window.location.hash = '#driver_clients_rating';
+    localStorage.removeItem('_enable_safe_route');
+    localStorage.removeItem('_active_offer_id');
     Conn.clearCb('cbOnFinish');
+    window.location.hash = '#driver_clients_rating';
   }
 
   function startOffer(response) {
-    var ords = response.order;
+    if (response.orders.length === 0) {
+      stop();
+      alert('К сожалению, заказ отменен.');
+      window.location.hash = '#driver_city';
+      return;
+    }
+
+    var ords = response.orders[0];
     
+    if (!ords) {
+      //localStorage.removeItem('_active_offer_id');
+      window.location.hash = '#driver_city';
+    }
     order_id = ords.id;
+    MyOrder.id = ords.id;
     fromAddress = ords.fromAddress;
     toAddress = ords.toAddress;
     fromCoords = ords.fromLocation.split(",");
     toCoords = ords.toLocation.split(",");
-    price = Math.round(response.bid.price);
-    name_client = response.bid.order.agent.name ? response.bid.order.agent.name : User.default_name;
-    photo_client = response.bid.order.agent.photo ? response.bid.order.agent.photo : User.default_avatar;
-
+    price = Math.round(ords.price);
+    name_client = ords.agent.name || User.default_name;
+    photo_client = ords.agent.photo || User.default_avatar;
     MyOffer.fromCoords = ords.fromLocation;
     MyOffer.toCoords = ords.toLocation;
     MyOffer.toAddresses = ords.toAddresses;
@@ -33,7 +45,6 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
     MyOffer.fromAddress = ords.fromAddress;
     MyOffer.toAddress = ords.toAddress;
     MyOffer.times = ords.toTimes;
-
     waypoints = [];
 
     if (ords.toAddresses) {
@@ -75,17 +86,25 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
       startOffer(response);
       first_time = false;
     }
-    var ords = response.bid.order,
-        agnt = response.bid.agent,
+    
+    if (response.orders.length === 0) {
+      stop();
+      alert('К сожалению, заказ не найден.');
+      localStorage.removeItem('_active_offer_id');
+      window.location.hash = '#driver_city';
+      return;
+    }
+
+    var ords = response.orders[0],
+        agnt = response.orders[0].agent,
         radius = agnt.distance,
-        lost_diff = Dates.diffTime(ords.updated, response.bid.travelTime),
+        lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
         toLoc = ords.toLocation.split(','),
         arrived_but = Dom.sel('button[data-click="driver-arrived"]'),
-        loc = response.bid.order.agent.location,
-        kuda = arrived_but.parentNode,
+        loc = agnt.location,
         dist = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
         dr_time, but;
-
+      
     if (lost_diff >= 0) {
       dr_time = lost_diff;
     } else {
@@ -112,12 +131,15 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
     }
     if (radius < 1) {
       if (arrived_but) {
+        var kuda = arrived_but.parentNode;
+        
         arrived_but.disabled = false;
       }
     }
-    if (ords.canceled) {
+    if (ords.canceledByDriver || ords.canceledByClient) {
+      stop();
       alert('К сожалению, заказ отменен.');
-      window.location.hash = '#driver_city';
+      window.location.hash = '#client_city';
     }
     if (ords.arrived) {
       if (arrived_but) {
@@ -196,21 +218,22 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
   function stop() {
     GetPositions.clear();
     Destinations.clear();
-    clearTimeout(timerStatusOffer);
     Conn.request('stopOrdersByOffer');
     Conn.clearCb('cbGetOrdersByOffer');
+    Chat.exit();
   }
   
   function start() {
+    console.log('first_time = ' + first_time);
+
     Maps.mapOn();
     initMap();
-    bid_id = localStorage.getItem('_current_id_bid');
-    global_order_id = localStorage.getItem('_current_id_order');
+    MyOffer.id = localStorage.getItem('_active_offer_id');
     SafeWin.map = map;
     SafeWin.overviewPath = [];
     Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
     GetPositions.my();
-    Chat.start('client');
+    Chat.start('offer', MyOffer.id);
   }
   
   return {

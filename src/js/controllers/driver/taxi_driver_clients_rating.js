@@ -1,7 +1,7 @@
 /* global Event, User, Conn */
 
 define(['Dom', 'Stars'], function (Dom, Stars) {  
-  var order_id, offer_id, agent_id, bid_id, global_el;
+  var order_id, offer_id, agent_id, global_el;
   
   function cbAddFavorites() {
     var stars = Dom.selAll('[data-view="star"]');
@@ -15,6 +15,7 @@ define(['Dom', 'Stars'], function (Dom, Stars) {
   
   function cbAddToBlackList() {
     var stars = Dom.selAll('[data-view="star"]');
+    
     for (var i = 0; i < stars.length; i++) {
       stars[i].classList.remove('active');
     }
@@ -109,9 +110,8 @@ define(['Dom', 'Stars'], function (Dom, Stars) {
   }
   
   function start() {
-    offer_id = localStorage.getItem('_current_id_offer');
-    localStorage.removeItem('_current_id_bid');
-    localStorage.removeItem('_current_id_order');
+    offer_id = localStorage.getItem('_rating_offer');
+    localStorage.removeItem('_rating_offer');
     
     if (offer_id && offer_id !== "") {
       var bl = Dom.sel('.score-agent__but-box'),

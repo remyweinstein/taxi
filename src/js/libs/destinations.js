@@ -6,7 +6,7 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
 
   function AddNewZaezd(just_add) {
     var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
-      addr = Model.toAddresses[just_add] ? Model.toAddresses[just_add] : "",
+      addr = Model.toAddresses[just_add] || "",
       el = Dom.sel('.order-city-to'),
       new_field = document.createElement('div'),
       parentDiv = el.parentNode;
@@ -34,9 +34,10 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
     for (i = 0; i < rem_old_stops.length; i++) {
       rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
     }
-
-    for (i = 0; i < Model.toAddresses.length; i++) {
-      AddNewZaezd(i);
+    if (Model.toAddresses) {
+      for (i = 0; i < Model.toAddresses.length; i++) {
+        AddNewZaezd(i);
+      }
     }
   }
 
@@ -48,7 +49,7 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
     } else {
       Model = MyOffer;
     }
-    event.preventDefault();
+    //event.preventDefault();
     Dom.sel('[data-click="order-taxi"]').disabled = true;
 
     Model.price = _price === "" ? recommended_cost : _price;
