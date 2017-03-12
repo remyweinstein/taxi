@@ -60,6 +60,7 @@ define(['Dom'], function(Dom) {
     
     this.setData = function (response) {
       Car.setData(response);
+      /*
       if (lastURL === "#sms") {
         self.is_auth = false;
         localStorage.removeItem('_is_auth');
@@ -70,7 +71,7 @@ define(['Dom'], function(Dom) {
         self.initToken();
 
       } else {
-        
+        */
         var prfl = response.profile;
         self.id = prfl.id;
         localStorage.setItem('_my_id', self.id);
@@ -93,7 +94,9 @@ define(['Dom'], function(Dom) {
           }
 
           Dom.sel('.menu__desc_avatar').src = self.avatar;
+        /*
         }
+        */
       }
     };
     

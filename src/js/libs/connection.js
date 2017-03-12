@@ -511,7 +511,7 @@ define(['Uries'], function(Uries) {
         self.is_connecting = false;
         viewLog('Соединение установлено');
         clearInterval(timerReconnectionWebSocket);
-        callback();
+        callback;
       };
 
       socket.onerror = function (error) {

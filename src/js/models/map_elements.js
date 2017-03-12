@@ -53,7 +53,9 @@ define(function() {
         self.markers_driver_pos[i].marker.setMap(null);
       }
       for (i = 0; i < self.driver_marker.length; i++) {
-        self.driver_marker[i].setMap(null);
+        if (self.driver_marker[i]) { 
+          self.driver_marker[i].setMap(null);
+        }
       }
       
       self.route = null;

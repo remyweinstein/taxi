@@ -66,7 +66,7 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
           coords_bottom_block = bottom_block.getBoundingClientRect().top;
           //}
           height_bottom_block = Funcs.outerHeight(bottom_block);
-          bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block - height_bottom_block - 26) + 'px';
+          ////bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block - height_bottom_block - 26) + 'px';
         }
 
         if (parent_block) {
@@ -87,7 +87,7 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
             var drop_coords = el.getBoundingClientRect();
             
             el_top = '-' + ((drop_coords.top - winHeight) + height_bottom_block + 55) + 'px';
-            el.style.top = el_top;
+            ////el.style.top = el_top;
           }
         }
 

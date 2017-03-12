@@ -141,7 +141,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           order_finished = ords[i].finished;
           order_finishedDriver = ords[i].finishedByDriver;
           order_finishedClient = ords[i].finishedByClient;
-        } else if (ords[i].bids[0].order) {
+        } else if (ords[i].bids) {
           order_canceled = ords[i].bids[0].order.canceled;
           order_finished = ords[i].bids[0].order.finished;
           order_finishedDriver = ords[i].bids[0].finishedByDriver;

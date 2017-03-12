@@ -21,7 +21,7 @@ define(['Dom', 'Maps'], function(Dom, Maps) {
 */
 
   //CHANGE TAB
-  function changeTabs(tab){
+  function changeTabs(tab) {
     var step = window.innerWidth,
         i;
 
@@ -30,6 +30,23 @@ define(['Dom', 'Maps'], function(Dom, Maps) {
     }
 
     for (i = 0; i < tabs.length; i++) {
+      var elem = Dom.sel('[data-tab-content="' + (i + 1) + '"]'),
+          elems = elem.querySelectorAll('[data-hide-form="bottom"]');
+
+      for (var y = 0; y < elems.length; y++) {
+        //var position = elems[y].getAttribute('position');
+        var position = window.getComputedStyle(elems[y]).getPropertyValue('position'),
+            pos_style = elems[y].style.position;
+
+        if (parseInt(i + 1) !== parseInt(tab) && (position === 'fixed' || pos_style === 'fixed')) {
+          console.log('find fixed');
+          elems[y].style.position = "static";
+        }
+        if (parseInt(i + 1) === parseInt(tab) && pos_style === 'static') {
+          console.log('find static');
+          elems[y].style.position = "fixed";
+        }
+      }
       tabs[i].classList.remove(active_tab_class);
     }
 
