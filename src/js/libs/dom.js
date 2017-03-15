@@ -10,6 +10,10 @@ define(function() {
         return document.querySelector(sel);
       },
       
+      selAllIn: function (el, sel) {
+        return el.querySelectorAll(sel);
+      },
+      
       toggle: function (el, cl) {
         if (el.classList.contains(cl)) {
           el.classList.remove(cl);
@@ -20,6 +24,10 @@ define(function() {
           
           return false;
         }
+      },
+      
+      historyBack: function () {
+        window.history.back();
       },
       
       startLoading: function () {

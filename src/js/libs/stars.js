@@ -72,13 +72,13 @@ define(['Dom'], function (Dom) {
 
   var Stars = {
 
-    init: function(agent) {
-      current_agent = agent;
-      
-      addEvents();
-    }
-};
+      init: function(agent) {
+        current_agent = agent;
 
-return Stars;
+        addEvents();
+      }
+  };
+
+  return Stars;
   
 });

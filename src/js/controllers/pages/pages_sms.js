@@ -3,10 +3,10 @@
 define(['Dom'], function (Dom) {
 
   function cbConfirmSms(response) {
-    localStorage.setItem('_my_token', response.token);
-    User.token = response.token;
-    localStorage.setItem('_my_id', response.id);
-    User.id = response.id;
+    localStorage.setItem('_my_token', response.result.token);
+    User.token = response.result.token;
+    localStorage.setItem('_my_id', response.result.id);
+    User.id = response.result.id;
     localStorage.setItem('_is_auth', 'true');              
     User.is_auth = true;
     User.getData();

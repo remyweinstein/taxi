@@ -13,6 +13,7 @@ define([], function() {
     this.favoritesAgents;
     this.myAuto;
     this.myRating;
+    this.selectMapProvider;
     
     this.label = [];
     this.type = [];
@@ -57,6 +58,14 @@ define([], function() {
       self.enableSosByKeyfob = false;
       self.label.enableSosByKeyfob = 'Включать SOS брелоком-кнопкой';
       self.type.enableSosByKeyfob = 'boolean';
+      
+      if (!localStorage.getItem('_map_provider') || localStorage.getItem('_map_provider') === "" ) {
+        self.selectMapProvider = 'google';
+      } else {
+        self.selectMapProvider = localStorage.getItem('_map_provider');
+      }
+      self.label.selectMapProvider = 'Google, Yandex';
+      self.type.selectMapProvider = 'select';
 
     };
   };

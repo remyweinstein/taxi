@@ -7,57 +7,59 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       
   function cbGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
-        bids = response.offers,
+        bids = response.result.offers,
         innText = '';
       
     el.innerHTML = "";
     if (!bids || bids === "undefined") {
-      bids = response.orders;
+      bids = response.result.orders;
     }
 
-    for (var i = 0; i < bids.length; i++) {
-      var photo = bids[i].agent.photo || User.avatar,
-          vehicle = bids[i].agent.vehicle || default_vehicle,
-          loc = bids[i].agent.location;
-        
-      loc = loc.split(',');
-      var DrLatLng = new google.maps.LatLng(loc[0], loc[1]);
-      
-      if (MapElements.driver_marker[bids[i].agent.id]) {
-        MapElements.driver_marker[bids[i].agent.id].setPosition(DrLatLng);
-      } else {
-        MapElements.driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
-      }
+    if (bids) {
+      for (var i = 0; i < bids.length; i++) {
+        var photo = bids[i].agent.photo || User.avatar,
+            vehicle = bids[i].agent.vehicle || default_vehicle,
+            loc = bids[i].agent.location;
 
-      var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
-      innText +=  '<div class="wait-bids-approve__item">' +
-                    '<div class="wait-bids-approve__item__distance">' +
-                      'Растояние до водителя, <span>' + dist + ' км</span>' +
-                    '</div>' +
-                    '<div class="wait-bids-approve__item__driver">' +
-                      '<div>' +
-                        '<img src="' + photo + '" alt="" />' +
+        loc = loc.split(',');
+        var DrLatLng = new google.maps.LatLng(loc[0], loc[1]);
+
+        if (MapElements.driver_marker[bids[i].agent.id]) {
+          MapElements.driver_marker[bids[i].agent.id].setPosition(DrLatLng);
+        } else {
+          MapElements.driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
+        }
+
+        var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
+        innText +=  '<div class="wait-bids-approve__item">' +
+                      '<div class="wait-bids-approve__item__distance">' +
+                        'Растояние до водителя, <span>' + dist + ' км</span>' +
                       '</div>' +
-                      '<div>' + bids[i].agent.name + '</div>' +
-                    '</div>' +
-                    '<div class="wait-bids-approve__item__car">' +
-                      '<div>' +
-                        '<img src="' + vehicle + '" alt="" />' +
+                      '<div class="wait-bids-approve__item__driver">' +
+                        '<div>' +
+                          '<img src="' + photo + '" alt="" />' +
+                        '</div>' +
+                        '<div>' + bids[i].agent.name + '</div>' +
                       '</div>' +
-                      '<div>' +
-                        bids[i].agent.brand + ' ' + bids[i].agent.model +
+                      '<div class="wait-bids-approve__item__car">' +
+                        '<div>' +
+                          '<img src="' + vehicle + '" alt="" />' +
+                        '</div>' +
+                        '<div>' +
+                          bids[i].agent.brand + ' ' + bids[i].agent.model +
+                        '</div>' +
                       '</div>' +
-                    '</div>' +
-                    '<div class="wait-bids-approve__item__approve">' +
-                      '<i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>' +
-                    '</div>' +
-                    '<div class="wait-bids-approve__item__bid-time">' +
-                      'Время подъезда: <span>' + bids[i].travelTime + ' мин</span>' +
-                    '</div>' +
-                    '<div class="wait-bids-approve__item__bid-price">' +
-                      'Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>' +
-                    '</div>' +
-                  '</div>';
+                      '<div class="wait-bids-approve__item__approve">' +
+                        '<i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__bid-time">' +
+                        'Время подъезда: <span>' + bids[i].travelTime + ' мин</span>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__bid-price">' +
+                        'Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>' +
+                      '</div>' +
+                    '</div>';
+      }
     }
     el.innerHTML = innText;
   }

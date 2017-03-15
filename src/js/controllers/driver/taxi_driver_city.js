@@ -3,12 +3,16 @@
 define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   
   function cbMyOffers(response) {
-    Lists.myOffers(response);
+    if (!response.error) {
+      Lists.myOffers(response.result);
+    }
     Conn.clearCb('cbMyOffers');
   }
   
   function cbGetOrders(response) {
-    Lists.allOrders(response);
+    if (!response.error) {
+      Lists.allOrders(response.result);
+    }
   }
   
   function addEvents() {

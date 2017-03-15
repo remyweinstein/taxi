@@ -6,28 +6,30 @@ define(['Dom'], function(Dom) {
       interlocutor;
 
   function cbGetChatMessages(response) {
-    var textarea = Dom.sel('.go-order__down__messages__textarea'),
-        name, float;
+    if (!response.error) {
+      var textarea = Dom.sel('.go-order__down__messages__textarea'),
+          name, float;
 
-    if (textarea) {
-      var innText = '',
-          messages = response.chat;
+      if (textarea) {
+        var innText = '',
+            messages = response.result.chat;
 
-      for (var i = 0; i < messages.length; i++ ) {
-        float = 'right';
-        name = messages[i].sender.name;
-        if (messages[i].sender.id === User.id) {
-          float = 'left';
-          name = 'Я';
+        for (var i = 0; i < messages.length; i++ ) {
+          float = 'right';
+          name = messages[i].sender.name;
+          if (messages[i].sender.id === User.id) {
+            float = 'left';
+            name = 'Я';
+          }
+          innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + messages[i].text + '</p>';
         }
-        innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + messages[i].text + '</p>';
-      }
-      if (innText) {
-        var oldText = textarea.innerHTML;
+        if (innText) {
+          var oldText = textarea.innerHTML;
 
-        if (innText !== oldText) {
-          textarea.innerHTML = innText;
-          textarea.scrollTop = textarea.scrollHeight;
+          if (innText !== oldText) {
+            textarea.innerHTML = innText;
+            textarea.scrollTop = textarea.scrollHeight;
+          }
         }
       }
     }

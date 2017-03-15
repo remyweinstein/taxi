@@ -4,11 +4,11 @@ define(['Dom'], function (Dom) {
   var model;
   
   function cbGetAuto(response) {
-    var conditioner = response.auto.conditioner ? Dom.sel('input[name="conditioner"][value="1"]') : Dom.sel('input[name="conditioner"][value="0"]');
+    var conditioner = response.result.auto.conditioner ? Dom.sel('input[name="conditioner"][value="1"]') : Dom.sel('input[name="conditioner"][value="0"]');
      conditioner.checked = true;
 
-    if (response.auto.type) {
-      var type = Dom.sel('select[name="type"] option[value="' + response.auto.type + '"]');
+    if (response.result.auto.type) {
+      var type = Dom.sel('select[name="type"] option[value="' + response.result.auto.type + '"]');
        type.selected = true;
     }
     Conn.clearCb('cbGetAuto');
@@ -18,8 +18,8 @@ define(['Dom'], function (Dom) {
     var model_el = Dom.sel('select[name="model"]', model);
     
     model_el.options.length = 0;
-    for (var i = 0; i < response.models.length; i++) {
-        model_el.options[i] = new Option(response.models[i], response.models[i]);
+    for (var i = 0; i < response.result.models.length; i++) {
+        model_el.options[i] = new Option(response.result.models[i], response.result.models[i]);
     }
     if (model) {
       var current = Dom.sel('select[name="model"] option[value="' + model + '"]');
@@ -30,22 +30,22 @@ define(['Dom'], function (Dom) {
   
   function cbUpdateAuto() {
     Conn.clearCb('cbUpdateAuto');
-    window.history.back();
+    Dom.historyBack();
   }
   
   function cbGetProfileAuto(response) {
-    Dom.sel('input[name="color"]').value = response.profile.color;
-    Dom.sel('input[name="number"]').value = response.profile.number;
-    Dom.sel('input[name="tonnage"]').value = response.profile.tonnage;
+    Dom.sel('input[name="color"]').value = response.result.profile.color;
+    Dom.sel('input[name="number"]').value = response.result.profile.number;
+    Dom.sel('input[name="tonnage"]').value = response.result.profile.tonnage;
 
-    if (response.profile.brand) {
-      var brand = Dom.sel('select[name="brand"] option[value="' + response.profile.brand + '"]');
+    if (response.result.profile.brand) {
+      var brand = Dom.sel('select[name="brand"] option[value="' + response.result.profile.brand + '"]');
        brand.selected = true;
     }
     
-    model = response.profile.model;
-    changeModel(response.profile.brand);
-    var photo_car = response.profile.vehicle || default_vehicle;
+    model = response.result.profile.model;
+    changeModel(response.result.profile.brand);
+    var photo_car = response.result.profile.vehicle || default_vehicle;
     Dom.sel('.avatar').src = photo_car;
     Conn.clearCb('cbGetProfileAuto');
   }

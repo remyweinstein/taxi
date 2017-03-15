@@ -1,7 +1,7 @@
 /* global map, User, google, MyOrder, SafeWin, default_vehicle, driver_icon, Event, MyOffer, MapElements, Conn */
 
-define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], 
-  function (Dom, Dates, Maps, HideForms, Destinations, GetPositions, Lists) {
+define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], 
+  function (Dom, Dates, HideForms, Destinations, GetPositions, Lists) {
   
   var global_el;
   
@@ -19,10 +19,8 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
   }
   
   function initMap() {
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    
-    map.setCenter(MyLatLng);
-    map.setZoom(12);
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(12);
     Maps.drawRoute('order', true, function(){});
   }
   

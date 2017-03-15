@@ -31,7 +31,7 @@ define(['jsts'], function (jsts) {
         localStorage.setItem('_my_pos_lon', longitude);
         
         Conn.request('updateUserLocation');
-
+        
         if (!User.city) {
           var latlng = new google.maps.LatLng(latitude,longitude);
           
@@ -70,16 +70,17 @@ define(['jsts'], function (jsts) {
       
       function error() {}
       
-      //navigator.geolocation.getCurrentPosition(success, error);
-      var watchID = navigator.geolocation.watchPosition(success, error, options);
+      navigator.geolocation.getCurrentPosition(success, error);
+      //var watchID = navigator.geolocation.watchPosition(success, error, options);
       
-      return watchID;
+      return;
     }
 
   var Geo = {
 
       init: function() {
-        geoFindMe();
+        setInterval(geoFindMe, 1000);
+        //geoFindMe();
       },
 
       distance: function(lat1, lon1, lat2, lon2) {

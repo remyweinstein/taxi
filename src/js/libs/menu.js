@@ -30,7 +30,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
 
         //EVENT ON CLICK BURGER BACK ICON
         Dom.sel('[data-click="back-burger"]').addEventListener('click', function() {
-          window.history.back();
+          Dom.historyBack();
         });
         
         //EVENTS ON SWIPE MENU => SwipeMenu()

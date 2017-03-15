@@ -1,8 +1,8 @@
-/* global User, google, map, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event, Conn */
+/* global User, google, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event, Conn, Maps, map */
 
-define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
-  function (Dom, Maps, HideForms, GetPositions, Lists, Destinations) {
-    var content = Dom.sel('.content'), global_el;
+define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
+  function (Dom, HideForms, GetPositions, Lists, Destinations) {
+    var content = Dom.sel('.content'), global_el, eventOnChangeZoom;
     
     function cbAfterAddFav() {
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
@@ -23,22 +23,22 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
     }
     
     function cbGetOffers(response) {
-      Lists.allOffers(response);
+      if (!response.error) {
+        Lists.allOffers(response.result);
+      }
     }
     
     function cbGetMyOrder(response) {
-      Lists.myOrders(response);
-      Conn.request('stopGetOrders');
-      Conn.clearCb('cbGetMyOrder');
+      if (!response.error) {
+        Lists.myOrders(response.result);
+      }
+        Conn.request('stopGetOrders');
+        Conn.clearCb('cbGetMyOrder');
     }
 
     function initMap() {
-      var MyLatLng = new google.maps.LatLng(User.lat, User.lng),
-          zoom;
-
-      zoom = 15;
-      map.setCenter(MyLatLng);
-      map.setZoom(zoom);
+      Maps.setCenter(User.lat, User.lng);
+      Maps.setZoom(15);
     }
 
     function addEvents() {
@@ -198,11 +198,17 @@ define(['Dom', 'Maps', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
       Destinations.clear();
       Conn.clearCb('cbGetOffers');
       Conn.request('stopGetOffers');
+      
+      if (Maps.currentMapProvider === "google") {
+        google.maps.event.removeListener(eventOnChangeZoom);
+      } else if (Maps.currentMapProvider === "yandex") {
+        eventOnChangeZoom.removeAll();
+      }
     }
 
     function start() {
       Maps.mapOn();
-      GetPositions.drivers();
+      eventOnChangeZoom = GetPositions.drivers();
       GetPositions.my();
       initMap();
       // ===== Draw New Order =====

@@ -3,19 +3,19 @@
 define(['Dom', 'Dates'], function (Dom, Dates) {
   
   function cbFillFields(response) {
-    var sex = response.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
-        city = response.profile.city ? Dom.sel('select[name="city"] option[value="' + response.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
+    var sex = response.result.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
+        city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
 
-    Dom.sel('input[name="myname"]').value = User.name || response.profile.name;
-    Dom.sel('input[name="dob"]').value = response.profile.birthday ? Dates.dateFromBase(response.profile.birthday) : '';
+    Dom.sel('input[name="myname"]').value = User.name || response.result.profile.name;
+    Dom.sel('input[name="dob"]').value = response.result.profile.birthday ? Dates.dateFromBase(response.result.profile.birthday) : '';
     sex.selected = true;
     city.selected = true;
-    Dom.sel('.avatar').src = response.profile.photo || User.avatar;
+    Dom.sel('.avatar').src = response.result.profile.photo || User.avatar;
     Conn.clearCb('cbFillFields');
   }
   
   function cbUpdateProfile() {
-    window.history.back();
+    Dom.historyBack();
     Conn.clearCb('cbUpdateProfile');
   }
   
@@ -105,7 +105,7 @@ define(['Dom', 'Dates'], function (Dom, Dates) {
   }
   
   function stop() {
-
+    
   }
   
   function start() {

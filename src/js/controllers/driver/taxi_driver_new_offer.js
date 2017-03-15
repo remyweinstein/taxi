@@ -1,14 +1,10 @@
 /* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MyOffer */
 
-define(['Destinations', 'GetPositions', 'Lists', 'Maps', 'HideForms', 'ModalWindows'], function (Destinations, GetPositions, Lists, Maps, HideForms, Modal) {
+define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (Destinations, GetPositions, HideForms, Modal) {
 
   function initMap() {
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    
-    zoom = 15;
-    map.setCenter(MyLatLng);
-    map.setZoom(zoom);
-
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(15);
   }
   
   function addEvents() {

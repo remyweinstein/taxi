@@ -1,33 +1,68 @@
-/* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin, Conn */
+/* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin, Conn, Maps */
 
-define(['Car', 'Maps'], function (Car, Maps) {
+define(['Car'], function (Car) {
   var radiusSearch = 0.5;
   
   function cbGetAgents(response) {
-    GetPositions.getPositionDrivers(response);
+    if (!response.error) {
+      GetPositions.getPositionDrivers(response.result);
+    }
   }
   
   function init() {
-    map.addListener('zoom_changed', function () {
-      var zoom = map.getZoom();
+    var zoomer;
+    
+    if (Maps.currentMapProvider === "google") {
+      zoomer = Maps.map.addListener('zoom_changed', function () {
+        var zoom = Maps.map.getZoom();
 
-      if (zoom <= 12) {
-        radiusSearch = 10;
-      } else if (zoom === 13) {
-        radiusSearch = 3;
-      } else if (zoom === 14) {
-        radiusSearch = 2;
-      } else if (zoom === 15) {
-        radiusSearch = 1;
-      } else if (zoom === 16) {
-        radiusSearch = 0.5;
-      } else if (zoom > 16) {
-        radiusSearch = 0.1;
-      }
-      Conn.request('stopGetAgents');
-      Conn.request('startGetAgents', radiusSearch, cbGetAgents);
-    });
+        if (zoom <= 12) {
+          radiusSearch = 10;
+        } else if (zoom === 13) {
+          radiusSearch = 3;
+        } else if (zoom === 14) {
+          radiusSearch = 2;
+        } else if (zoom === 15) {
+          radiusSearch = 1;
+        } else if (zoom === 16) {
+          radiusSearch = 0.5;
+        } else if (zoom > 16) {
+          radiusSearch = 0.1;
+        }
+        Conn.request('stopGetAgents');
+        Conn.request('startGetAgents', radiusSearch, cbGetAgents);
+      });
+    } else if (Maps.currentMapProvider === "yandex") {
+      zoomer = Maps.map.events.group();
+        
+      zoomer.add('boundschange', function (e) {
+        var zoom = e.get('newZoom');
 
+        if (zoom <= 12) {
+          radiusSearch = 10;
+        } else if (zoom === 13) {
+          radiusSearch = 3;
+        } else if (zoom === 14) {
+          radiusSearch = 2;
+        } else if (zoom === 15) {
+          radiusSearch = 1;
+        } else if (zoom === 16) {
+          radiusSearch = 0.5;
+        } else if (zoom > 16) {
+          radiusSearch = 0.1;
+        }
+        Conn.request('stopGetAgents');
+        Conn.request('startGetAgents', radiusSearch, cbGetAgents);
+      });
+      
+      zoomer.add('click', function (e) {
+        console.log('i click');
+      });
+
+    }
+    console.log('zoomer = ');
+    console.log(zoomer);
+    return zoomer;
   }
   function get_my_pos() {
     if (MapElements.marker_mine) {
@@ -35,7 +70,7 @@ define(['Car', 'Maps'], function (Car, Maps) {
     } else {
       MapElements.marker_mine = new google.maps.Marker({
         position: new google.maps.LatLng(User.lat, User.lng),
-        map: map,
+        map: Maps.map,
         icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
         title: 'Я здесь!'
       });
@@ -54,44 +89,43 @@ define(['Car', 'Maps'], function (Car, Maps) {
     }
 
     var new_markers = [],
-      agnts = response.agents,
-      loc,
-      i;
+        agnts = response.agents,
+        loc,
+        i;
 
     for (i = 0; i < agnts.length; i++) {
       if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
-        var photo = agnts[i].photo ? agnts[i].photo : User.default_avatar,
-          photo_car = agnts[i].vehicle ? agnts[i].vehicle : Car.default_vehicle,
-          name = agnts[i].name ? agnts[i].name : '&nbsp;',
-          brand = agnts[i].brand ? agnts[i].brand : '&nbsp;',
-          model = agnts[i].model ? agnts[i].model : '&nbsp;',
-          favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
-          info = '<div style="text-align:center;">' +
-          '<div style="width:50%;display:inline-block;float: left;">' +
-          '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
-          '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
-          '<p>' + favorite + '</p>' +
-          '</div>' +
-          '<div style="width:50%;display:inline-block">' +
-          '<p>' + brand + '<br>' + model + '</p>' +
-          '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
-          '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
-          '</div>' +
-          '</div>';
+        var photo = agnts[i].photo || User.default_avatar,
+            photo_car = agnts[i].vehicle || Car.default_vehicle,
+            name = agnts[i].name || '&nbsp;',
+            brand = agnts[i].brand || '&nbsp;',
+            model = agnts[i].model || '&nbsp;',
+            favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
+            icon = agnts[i].isDriver ? driver_icon : men_icon,
+            info  = '<div style="text-align:center;">' +
+                    '<div style="width:50%;display:inline-block;float: left;">' +
+                    '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
+                    '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
+                    '<p>' + favorite + '</p>' +
+                    '</div>' +
+                    '<div style="width:50%;display:inline-block">' +
+                    '<p>' + brand + '<br>' + model + '</p>' +
+                    '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
+                    '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
+                    '</div>' +
+                    '</div>';
 
         loc = agnts[i].location.split(',');
 
-        var icon = agnts[i].isDriver ? driver_icon : men_icon;
-
         //marker = 
-        Maps.addMarker(new google.maps.LatLng(loc[0], loc[1]), agnts[i].name, icon, function (mark) {
+        Maps.addMarker(loc[0], loc[1], agnts[i].name, icon, function (mark) {
           Maps.addInfoForMarker(info, false, mark);
           new_markers.push({'id': agnts[i].id, 'marker': mark});
         });
       } else {
         if (MapElements.markers_driver_pos[i]) {
           loc = agnts[i].location.split(',');
-          MapElements.markers_driver_pos[i].marker.setPosition(new google.maps.LatLng(loc[0], loc[1]));
+          markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[i].marker);
           new_markers.push({'id': agnts[i].id, 'marker': MapElements.markers_driver_pos[i].marker});
         }
       }
@@ -124,6 +158,7 @@ define(['Car', 'Maps'], function (Car, Maps) {
       clearInterval(timerMyPos);
       MapElements.clear();
     },
+    
     my: function () {
       get_my_pos();
       if (timerMyPos) {
@@ -131,10 +166,15 @@ define(['Car', 'Maps'], function (Car, Maps) {
       }
       timerMyPos = setInterval(get_my_pos, 1000);
     },
+    
     drivers: function () {
-      init();
+      var link = init();
+      
       Conn.request('startGetAgents', radiusSearch, cbGetAgents);
+      
+      return link;
     },
+    
     getPositionDrivers: function (response) {
       get_pos_drivers(response);
     }

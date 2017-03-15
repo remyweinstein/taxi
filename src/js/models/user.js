@@ -1,26 +1,31 @@
 /* global lastURL, Car, User, Conn */
 
 define(['Dom'], function(Dom) {
-  
-  function cbGetToken(response) {
-    User.setNewToken(response);
-    Conn.clearCb('cbGetToken');
-  }
-  
   var clUser = function () {
     var self = this;
     
     function cbgetProfileData(response) {
-      self.setData(response);
-      Conn.clearCb('cbgetProfileData');
+      if (response.error) {
+        self.token = null;
+        self.initToken();
+      } else {
+        self.setData(response.result);
+        Conn.clearCb('cbgetProfileData');
+      }
     }
     
+    function cbGetToken(response) {
+      self.initialization_token = false;
+      self.setNewToken(response.result);
+      Conn.clearCb('cbGetToken');
+    }
+
     var default_avatar = 'assets/images/no_avatar.png';
     var default_name = 'Гость';
 
+    this.initialization_token = false;
     this.default_avatar = default_avatar;
     this.default_name = default_name;
-
     this.token = getToken();
     this.id = getId();
     this.lat = null;
@@ -108,8 +113,14 @@ define(['Dom'], function(Dom) {
     
     this.initToken = function () {
       if (!self.token) {
-        Conn.request('requestToken', '', cbGetToken);
+        localStorage.removeItem('_is_auth');
+        self.is_auth = false;
+        if (!self.initialization_token) {
+          Conn.request('requestToken', '', cbGetToken);
+        }
+        self.initialization_token = true;
       }
+      
       return;
     };
 

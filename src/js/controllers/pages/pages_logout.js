@@ -12,7 +12,7 @@ define(function () {
     localStorage.removeItem('_is_auth');
     User.is_auth = false;
     User.token = '';
-    window.history.back();
+    window.location.hash = '#client_city';
   }
   
   return {

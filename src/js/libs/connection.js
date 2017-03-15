@@ -18,18 +18,32 @@ define(['Uries'], function(Uries) {
     console.log(text);
   }
   
+  function getFnName(fn) {
+    var f = typeof fn === 'function',
+        s = f && ((fn.name && ['', fn.name]) || fn.toString().match(/function ([^\(]+)/));
+      
+    return (!f && 'not a function') || (s && s[1] || 'anonymous');
+  }
+  
   function onMessage(data) {
     var response = JSON.parse(data);
     
-    if (!response.error) {
-      viewLog(response);
-      for (var i = 0; i < Conn.callback.length; i++) {
-        if (typeof Conn.callback[i] === 'function' && response.id === Conn.callback[i].name) {
-          Conn.callback[i](response.result);
+    viewLog(response);
+    if (response.error) {
+      if (response.error[0] === "Token not found.") {
+        if (!User.initialization_token) {
+          User.token = null;
+          User.initToken();
+          MayLoading = false;
         }
+        
+        return;
       }
-    } else {
-      viewLog(response);
+    }
+    for (var i = 0; i < Conn.callback.length; i++) {
+      if (typeof Conn.callback[i] === 'function' && response.id === getFnName(Conn.callback[i])) {
+        Conn.callback[i](response);
+      }
     }
   }
   
@@ -298,17 +312,19 @@ define(['Uries'], function(Uries) {
     var self = this;
     
     function addCbFunc(cb) {
-      var sov = false;
-      
+      var sov = false,
+          name = getFnName(cb);
+        
       for (var i = 0; i < self.callback.length; i++) {
-        if (self.callback[i].name === cb.name) {
+        if (getFnName(self.callback[i]) === name) {
           sov = true;
+          
           break;
         }
       }
       if (!sov) {
         self.callback.push(cb);
-        global_id = cb.name;
+        global_id = name;
       }
     }
     
@@ -319,7 +335,7 @@ define(['Uries'], function(Uries) {
     this.clearCb = function(name) {
       for (var i = 0; i < self.callback.length; i++) {
         if (typeof self.callback[i] === 'function') {
-          if (self.callback[i].name === name) {
+          if (getFnName(self.callback[i]) === name) {
             self.callback.splice(i, 1);
             break;
           }
@@ -504,6 +520,7 @@ define(['Uries'], function(Uries) {
           
     this.start = function (callback) {
       socket = new WebSocket("wss://" + Uries.server_uri + ":4443");
+      //socket = new WebSocket("ws://" + Uries.server_uri + ":8080");
       self.is_connecting = true;
       
       socket.onopen = function () {
@@ -511,7 +528,7 @@ define(['Uries'], function(Uries) {
         self.is_connecting = false;
         viewLog('Соединение установлено');
         clearInterval(timerReconnectionWebSocket);
-        callback;
+        callback();
       };
 
       socket.onerror = function (error) {

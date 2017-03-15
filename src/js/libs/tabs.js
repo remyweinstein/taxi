@@ -1,4 +1,6 @@
-define(['Dom', 'Maps'], function(Dom, Maps) {
+/* global Maps */
+
+define(['Dom'], function(Dom) {
 
   var tab, 
       tabs, 
@@ -65,16 +67,18 @@ define(['Dom', 'Maps'], function(Dom, Maps) {
 
   // CHANGE WIDTH AND HEIGHT CONTENTS
   function changeSizes() {
-    var header = Dom.sel('.header'),
-        tab_count = tabs.length,
-        i;
-    
-    for (i = 0; i < tab_count; i++) {
-      tabs[i].style.width = (100 / tab_count - 1) + '%';
-    }
+    if (tab) {
+      var header = Dom.sel('.header'),
+          tab_count = tabs.length,
+          i;
 
-    tabs_viewport.style.width = (tab_count * window.innerWidth) + 'px';
-    tabs_wrapper.style.height = (window.innerHeight - outerHeight(header) - outerHeight(tab)) + 'px';
+      for (i = 0; i < tab_count; i++) {
+        tabs[i].style.width = (100 / tab_count - 1) + '%';
+      }
+
+      tabs_viewport.style.width = (tab_count * window.innerWidth) + 'px';
+      tabs_wrapper.style.height = (window.innerHeight - outerHeight(header) - outerHeight(tab)) + 'px';
+    }
   }
   
   function changeOnClick(event) {

@@ -240,7 +240,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                   });
                   
                   i_ranges = Dom.selAll('.popup-window__double-range input');
-                  
+
                   if (i_ranges) {
                     Multirange.init(Dom.sel('.popup-window'));
                   }

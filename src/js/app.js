@@ -15,10 +15,12 @@ define(['User',
         'Funcs', 
         'domReady', 
         'SafeWin', 
-        'Maps', 
         'Zones', 
         'DriverOffer',
-        'MapElements'], 
+        'MapElements',
+        'Maps',
+        'Google', 
+        'Yandex'], 
   function (clUser, 
             clCar, 
             clConn,
@@ -34,10 +36,12 @@ define(['User',
             Funcs, 
             domReady, 
             clSafeWin, 
-            Maps, 
             clZones, 
             clDriverOffer,
-            clMapElements) {
+            clMapElements,
+            clMaps,
+            clGoogle, 
+            clYandex) {
 
   var App =  {
     
@@ -52,10 +56,15 @@ define(['User',
         Conn        = new clConn();
         Event       = new clEvents();
         MapElements = new clMapElements();
+        Maps        = new clMaps();
+        MapGoogle   = new clGoogle();
+        MapYandex   = new clYandex();
         MyOrder     = new clClientOrder();
         MyOffer     = new clDriverOffer();
         Zones       = new clZones();
         Settings    = new clSettings();
+        
+        Maps.start();
         
         Router.start(App, function () {
           App.afterConnection();

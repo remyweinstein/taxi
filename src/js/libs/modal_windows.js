@@ -170,6 +170,13 @@ define(['Dom'], function(Dom) {
                         close();
                       }
 
+                      if (target.dataset.getvalue === "select") {
+                        _el = target;
+
+                        callback(_el.dataset.value);
+                        close();
+                      }
+
                       if (target.dataset.getvalue === "val") {
                         _el = target;
                         

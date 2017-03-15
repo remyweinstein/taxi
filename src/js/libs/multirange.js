@@ -1,6 +1,6 @@
 define(['hammer', 'Funcs'], function (Hammer, Funcs) {
 
-  function enable_multirange(el) {
+  function enable_multirange(parent, el) {
     var new_field = document.createElement('div');
 
     Object.defineProperty(el, "value", {
@@ -23,10 +23,11 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       '</div>' +
       '</div>';
     el.parentNode.insertBefore(new_field, el);
+    addEvents(parent);
     onstartValues(el.name);
   }
 
-  function enable_range(el) {
+  function enable_range(parent, el) {
     var new_field = document.createElement('div');
       
     Object.defineProperty(el, "value", {
@@ -46,6 +47,7 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       '</div>' +
       '</div>';
     el.parentNode.insertBefore(new_field, el);
+    addEvents(parent);
     onstartValuesOne(el.name);
   }
 
@@ -59,9 +61,11 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
     if (type === "pointerdown" || type === "mousedown" || type === "touchstart") {
       handleStart(e.target);
     }
+    
     if (type === "pointerup" || type === "mouseup" || type === "touchend") {
       handleEnd(e.target);
     }
+    
     if (type === "pointermove" || type === "mousemove" || type === "touchmove") {
       whatdo = 'move';
       if (isF) {
@@ -70,6 +74,7 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         }
       }
     }
+    
     if (whatdo === 'move') {
       moveShariki(e.target, (e.gesture.changedPointers[0].clientX - el_left - el_width));
     }
@@ -230,28 +235,10 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
     inputa.value = min + ',' + max;
   }
 
-  function changeValueOneInput(name) {
-    var inputa = document.querySelector("input[type=range][name=" + name + "]:not([multiple])"),
-        els = document.querySelector("div.range-input__wrap__line__toddler[data-name=" + name + "]");
-
-    inputa.value = els.dataset.value;
-    Funcs.trigger('change', inputa);
-  }
-
-  var Multirange = {
-    init: function (el) {
-      var i, inputs = el.querySelectorAll("input[type=range][multiple]:not(.multirange)"),
-          input_one = el.querySelectorAll("input[type=range]:not([multiple])"),
-          shariki = el.querySelectorAll(".range-input__wrap__line__toddler"),
+  function addEvents(el) {
+      var shariki = el.querySelectorAll(".range-input__wrap__line__toddler"),
           texts = el.querySelectorAll("input.range-input__text"),
           lines = el.querySelectorAll(".range-input__wrap");
-
-      for (i = 0; i < inputs.length; i++) {
-        enable_multirange(inputs[i]);
-      }
-      for (i = 0; i < input_one.length; i++) {
-        enable_range(input_one[i]);
-      }
       document.addEventListener('mouseleave', handleEnd);
       for (i = 0; i < shariki.length; i++) {
         var ev = new Hammer(shariki[i], {domEvents: true});
@@ -262,6 +249,28 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       }
       for (i = 0; i < lines.length; i++) {
         lines[i].addEventListener('click', changeFromClick);
+      }
+  }
+
+  function changeValueOneInput(name) {
+    var inputa = document.querySelector("input[type=range][name=" + name + "]:not([multiple])"),
+        els = document.querySelector("div.range-input__wrap__line__toddler[data-name=" + name + "]");
+
+    inputa.value = els.dataset.value;
+    Funcs.trigger('change', inputa);
+  }
+
+  var Multirange = {
+    init: function (el) {
+      var inputs = el.querySelectorAll("input[type=range][multiple]:not(.multirange)"),
+          input_one = el.querySelectorAll("input[type=range]:not([multiple])"),
+          i;
+
+      for (i = 0; i < inputs.length; i++) {
+        enable_multirange(el, inputs[i]);
+      }
+      for (i = 0; i < input_one.length; i++) {
+        enable_range(el, input_one[i]);
       }
     },
 

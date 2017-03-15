@@ -3,7 +3,7 @@
 define(['Lists', 'Dom', 'Funcs'], function (Lists, Dom, Funcs) {
   
   function cbGetOrders(response) {
-    Lists.allOrders(response);
+    Lists.allOrders(response.result);
   }
 
   

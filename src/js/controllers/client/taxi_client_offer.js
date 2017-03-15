@@ -1,13 +1,13 @@
-/* global User, map, google, Car, average_speed, Event, MapElements, Conn */
+/* global User, map, google, Car, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Dates', 'Maps', 'HideForms'], function (Dom, Dates, Maps, HideForms) {
+define(['Dom', 'Dates', 'HideForms'], function (Dom, Dates, HideForms) {
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
       name_client, photo_client, travelTime;
   
   function cbGetOfferById(response) {
-    var ords = response.order;
+    var ords = response.result.order;
 
     order_id = ords.id;
     fromAddress = ords.fromAddress;
@@ -45,7 +45,7 @@ define(['Dom', 'Dates', 'Maps', 'HideForms'], function (Dom, Dates, Maps, HideFo
 
         waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
         name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-        Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+        Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
           function (mark) {
             Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
             MapElements.points.push(mark);
@@ -53,11 +53,11 @@ define(['Dom', 'Dates', 'Maps', 'HideForms'], function (Dom, Dates, Maps, HideFo
       }
     }
 
-    Maps.addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
       function (mark) {
         MapElements.marker_to = mark;
       });
-    Maps.addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
       function (mark) {
         MapElements.marker_from = mark;
       });
@@ -69,9 +69,8 @@ define(['Dom', 'Dates', 'Maps', 'HideForms'], function (Dom, Dates, Maps, HideFo
   }
   
   function initMap() {
-    var LatLng = new google.maps.LatLng(User.lat, User.lng);
-      map.setCenter(LatLng);
-      map.setZoom(12);
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(12);
   }
 
   function setRoute() {

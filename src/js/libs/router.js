@@ -1,6 +1,6 @@
-/* global User, menus_arr, timerCheckLoading, Event, Conn, lastURL */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, lastURL, Maps */
 
-define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, Tabs, HideForms) {
+define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForms) {
   
   var App, 
       old_controller,
@@ -48,7 +48,7 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
     } else {
       if (!Conn.is_connect) {
         if (!Conn.is_connecting) {
-          Conn.start(function(){});
+          //Conn.start(function(){});
         }
       }
       MayLoading = false;
@@ -189,12 +189,10 @@ define(['Dom', 'Chat', 'Maps', 'Tabs', 'HideForms'], function (Dom, Chat, Maps, 
       App = app;
       //window.location.hash = window.location.hash || defaultRoute;
       setInterval(hashCheck, 250);
-      if (!Conn.is_connect) {
-        if (!Conn.is_connecting) {
-          Conn.start(function(){
-            callback();
-          });
-        }
+      if (!Conn.is_connect && !Conn.is_connecting) {
+        Conn.start(function(){
+          callback();
+        });
       }
     }
   };

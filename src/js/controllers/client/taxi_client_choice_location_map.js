@@ -1,7 +1,7 @@
-/* global MyOrder, User, google, map, Event */
+/* global MyOrder, User, google, map, Event, Maps, ymaps */
 
-define(['Dom', 'Maps'], function (Dom, Maps) {
-  var model, Model;
+define(['Dom'], function (Dom) {
+  var model, Model, dragEvent, center_marker;
   
   function initMap() {
     var x = User.lat, y = User.lng, zoom = 18;
@@ -22,21 +22,29 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
       x = x[0];
     }
     
-    var LatLng = new google.maps.LatLng(x, y);
+    Maps.setCenter(x, y);
+    Maps.setZoom(zoom);
+    Maps.insertHtml('beforeend', '<div class="centerMarker"></div>');
     
-    map.setCenter(LatLng);
-    map.setZoom(zoom);
-
-    map.getDiv().insertAdjacentHTML('beforeend', '<div class="centerMarker"></div>');
-    var center_marker = Dom.sel('.centerMarker');
-
-    google.maps.event.addListener(map, 'dragend', function() {
-      var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34), map);
+    center_marker = Dom.sel('.centerMarker');
+    
+    if (Maps.currentMapProvider === "google") {
+      dragEvent = Maps.addEvent('dragend', function() {
+        setNewCoord();
+      });
+    } else if (Maps.currentMapProvider === "yandex") {
+      dragEvent = Maps.map.events.group().add('actionend', function () {
+        setNewCoord();
+      });
+    }
+    
+    function setNewCoord() {
+      var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34));
       localStorage.setItem('_choice_coords', coords);
-    });
-    
+    }
+
   }
-  
+    
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -44,14 +52,15 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
       while (target !== this) {
             // = I choose location =
         if (target.dataset.click === 'i_choice_location') {
-          var _route = localStorage.getItem('_address_temp');
+          var _route = localStorage.getItem('_address_temp'),
+              latl = localStorage.getItem('_choice_coords');
+          
           geocoder = new google.maps.Geocoder();
-
-          var latl = localStorage.getItem('_choice_coords');
-              latl = latl.replace("(","");
-              latl = latl.replace(")","");
-              latl = latl.replace(" ","");
-              latl = latl.split(",");
+          latl = latl.replace("(", "");
+          latl = latl.replace(")", "");
+          latl = latl.replace(" ", "");
+          latl = latl.split(",");
+          
           var latlng = latl[0] + ',' + latl[1];
 
           if (_route === "from") {
@@ -91,7 +100,7 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
                   Model.toAddresses[_index] = _address;
                 }
                 
-                window.history.back();
+                Dom.historyBack();
               }
             });
 
@@ -112,31 +121,44 @@ define(['Dom', 'Maps'], function (Dom, Maps) {
   
   function stop() {
     var center_marker = Dom.sel('.centerMarker');
-        center_marker.parentNode.removeChild(center_marker);
-        
+    
+    center_marker.parentNode.removeChild(center_marker);
     model = localStorage.getItem('_active_model');
+    
+    if (Maps.currentProvider === "google") {
+      google.maps.event.removeListener(dragEvent);
+    } else if (Maps.currentMapProvider === "yandex") {
+      dragEvent.removeAll();
+    }
+    
+    dragEvent = null;
+    
     if (model === "offer") {
       MyOffer = Model;
     }
+    
     if (model === "order") {
       MyOrder = Model;
     }
+    
     localStorage.removeItem('_active_model');
   }
   
   function start() {
+    dragEvent = null;
     model = localStorage.getItem('_active_model');
     
     if (model === "offer") {
       Model = MyOffer;
     }
+    
     if (model === "order") {
       Model = MyOrder;
     }
     
     Maps.mapOn();
-    initMap();
     addEvents();
+    initMap();
   }
   
   return {

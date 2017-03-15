@@ -3,7 +3,7 @@
 define(function() {
   
   function cbCreateOrder(response) {
-    MyOrder.id = response.id;
+    MyOrder.id = response.result.id;
     Conn.clearCb('cbCreateOrder');
     window.location.hash = '#client_map';
   }
@@ -12,7 +12,7 @@ define(function() {
     var self = this;
 
     function cbgetOrderById(response) {
-      var ord = response.order;
+      var ord = response.result.order;
 
       if(ord.bidId && ord.bidId > 0) {
         self.bid_id = ord.bidId;
@@ -63,7 +63,6 @@ define(function() {
     
     this.id = null;
     this.bid_id = null;
-
     this.fromAddress = null;
     this.toAddress = null;
     this.toAddresses = [];
@@ -76,12 +75,10 @@ define(function() {
     this.toFullAddresses = [];
     this.times = [];
     this.toCities = [];
-    
     this.length = 0;
-
+    this.recommended_cost = null;
     this.fromCity  = null;
     this.toCity = null;
-
     this.distance = 0;
     this.price = 0;
     this.comment = null;

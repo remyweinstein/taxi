@@ -1,7 +1,7 @@
-/* global User, google, map, SafeWin, driver_icon, Event, MapElements, MyOffer, Conn, MyOrder */
+/* global User, google, map, SafeWin, driver_icon, Event, MapElements, MyOffer, Conn, MyOrder, Maps */
 
-define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Destinations'],
-  function (Dom, Chat, Dates, Geo, Maps, HideForms, GetPositions, Destinations) {
+define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations'],
+  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
       waypoints, price, name_client, photo_client, first_time = true;
@@ -18,6 +18,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
   function startOffer(response) {
     if (response.orders.length === 0) {
       stop();
+      localStorage.removeItem('_active_offer_id');
       alert('К сожалению, заказ отменен.');
       window.location.hash = '#driver_city';
       return;
@@ -51,7 +52,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
       for (var i = 0; i < ords.toAddresses.length; i++) {
         var _wp = ords.toLocations[i].split(",");
         waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-        Maps.addMarker(new google.maps.LatLng(_wp[0], _wp[1]), ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+        Maps.addMarker(_wp[0], _wp[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
           function (mark) {
             Maps.addInfoForMarker(ords.times[i] + 'мин.', true, mark);
             MapElements.points.push(mark);
@@ -59,11 +60,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
       }
     }
 
-    Maps.addMarker(new google.maps.LatLng(fromCoords[0], fromCoords[1]), fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
       function (mark) {
         MapElements.marker_from = mark;
       });
-    Maps.addMarker(new google.maps.LatLng(toCoords[0], toCoords[1]), toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
       function (mark) {
         MapElements.marker_to = mark;
       });
@@ -75,28 +76,26 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
   }
   
   function initMap() {
-    var LatLng = new google.maps.LatLng(User.lat, User.lng);
-    
-    map.setCenter(LatLng);
-    map.setZoom(12);
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(12);
   }
 
   function cbGetOrdersByOffer(response) {
     if (first_time) {
-      startOffer(response);
+      startOffer(response.result);
       first_time = false;
     }
     
-    if (response.orders.length === 0) {
+    if (response.result.orders.length === 0) {
       stop();
-      alert('К сожалению, заказ не найден.');
       localStorage.removeItem('_active_offer_id');
+      alert('К сожалению, заказ не найден.');
       window.location.hash = '#driver_city';
       return;
     }
 
-    var ords = response.orders[0],
-        agnt = response.orders[0].agent,
+    var ords = response.result.orders[0],
+        agnt = response.result.orders[0].agent,
         radius = agnt.distance,
         lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
         toLoc = ords.toLocation.split(','),
@@ -138,6 +137,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'Maps', 'HideForms', 'GetPositions', 'Des
     }
     if (ords.canceledByDriver || ords.canceledByClient) {
       stop();
+      localStorage.removeItem('_active_offer_id');
       alert('К сожалению, заказ отменен.');
       window.location.hash = '#client_city';
     }

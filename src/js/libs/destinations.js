@@ -1,6 +1,6 @@
-/* global google, map, cost_of_km, MyOffer, MyOrder, MapElements */
+/* global google, map, cost_of_km, MyOffer, MyOrder, MapElements, Maps */
 
-define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
+define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
   var Model, recommended_cost = 0, price, comment;
 
@@ -52,7 +52,7 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
     //event.preventDefault();
     Dom.sel('[data-click="order-taxi"]').disabled = true;
 
-    Model.price = _price === "" ? recommended_cost : _price;
+    Model.price = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
 
     Model.save(MapElements.points);
@@ -137,18 +137,23 @@ define(['Dom', 'ModalWindows', 'Maps'], function (Dom, Modal, Maps) {
     if (from_value !== '' && to_value === '') {
       var _addr_from = Model.fromCoords.split(",");
 
-      MapElements.marker_a = Maps.addMarker(new google.maps.LatLng(_addr_from[0], _addr_from[1]), from_value, '//www.google.com/mapfiles/markerA.png', function () {});
+      MapElements.marker_a = Maps.addMarker(_addr_from[0], _addr_from[1], from_value, '//www.google.com/mapfiles/markerA.png', function () {});
     }
 
     if (to_value !== '' && from_value === '') {
       var _addr_to = Model.toCoords.split(",");
 
-      MapElements.marker_b = Maps.addMarker(new google.maps.LatLng(_addr_to[0], _addr_to[1]), to_value, '//www.google.com/mapfiles/markerB.png', function () {});
+      MapElements.marker_b = Maps.addMarker(_addr_to[0], _addr_to[1], to_value, '//www.google.com/mapfiles/markerB.png', function () {});
     }
 
     if (from_value !== '' && to_value !== '') {
       Maps.drawRoute(type, false, function (recomended) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recomended + ' руб.';
+        if (type === 'order') {
+          MyOrder.recommended_cost = recomended;
+        } else {
+          MyOffer.recommended_cost = recomended;
+        }
       });
 
     }

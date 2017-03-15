@@ -8,8 +8,10 @@ define(['Dom'], function (Dom) {
     clearTimeout(_timer);
 
     var query     = Dom.sel('input[name="enter-address"]').value;
+    
+    
     var MyLatLng  = new google.maps.LatLng(User.lat, User.lng);
-    var service   = new google.maps.places.PlacesService(map);
+    var service   = new google.maps.places.PlacesService(Maps.map);
     var requestSt = {
       location: MyLatLng,
       radius: 50000,
@@ -96,7 +98,7 @@ define(['Dom'], function (Dom) {
             Model.toCoordses[_index] = target.dataset.latlng;
           }
 
-          window.history.back();
+          Dom.historyBack();
         }
 
         if (target) {

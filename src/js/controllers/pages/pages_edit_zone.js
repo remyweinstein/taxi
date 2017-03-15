@@ -1,6 +1,6 @@
-/* global Zones, google, map, User, Event */
+/* global Zones, google, map, User, Event, Maps */
 
-define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
+define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
 
   var polygon = new google.maps.Polygon({});
   var points = [];
@@ -31,7 +31,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
                   } else {
                     Zones.add(Coords, note, name);
                   }
-                  window.history.back();
+                  Dom.historyBack();
                 }
 
                 return;
@@ -53,7 +53,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
     google.maps.event.clearListeners(polygon, 'click', addMarker);
     polygon.setMap(null);
 
-    polygon = Geo.drawPoly(points, map);      
+    polygon = Geo.drawPoly(points, Maps.map);
     google.maps.event.addListener(polygon, 'click', addMarker);
   }
 
@@ -69,7 +69,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
     }
     var marker = new google.maps.Marker({
       position: getLatLng(lat, lng),
-      map: map,
+      map: Maps.map,
       draggable : true,
       lat: lat,
       lng: lng
@@ -204,18 +204,19 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
   function initMap() {
     id_edit_zone = localStorage.getItem('_edit_zone');
     
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-      map.setCenter(MyLatLng);
-      map.setZoom(12);
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(12);
 
+    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
+    
     marker_mine = new google.maps.Marker({
       position: MyLatLng,
-      map: map,
+      map: Maps.map,
       icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
       title: 'Я здесь!'
     });
         
-    google.maps.event.addListener(map, 'click', addMarker);    
+    google.maps.event.addListener(Maps.map, 'click', addMarker);    
   }
   
   function fillName() {
@@ -231,7 +232,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
         
         var marker = new google.maps.Marker({
           position: getLatLng(lat, lng),
-          map: map,
+          map: Maps.map,
           draggable : true,
           lat: lat,
           lng: lng
@@ -255,7 +256,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
       }
       
       drawPoly();
-      map.fitBounds(bounds);
+      Maps.map.fitBounds(bounds);
       
     } else {
       name = 'Зона ' + (Zones.list.length + 1);
@@ -277,7 +278,7 @@ define(['Dom', 'Geo', 'Maps', 'Funcs'], function (Dom, Geo, Maps, Funcs) {
     }
     google.maps.event.clearListeners(markers, 'click');
     google.maps.event.clearListeners(polygon, 'click');
-    google.maps.event.clearListeners(map, 'click');
+    google.maps.event.clearListeners(Maps.map, 'click');
     polygon = new google.maps.Polygon({});
     markers = [];
     points = [];

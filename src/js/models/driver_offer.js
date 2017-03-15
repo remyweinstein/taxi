@@ -3,7 +3,7 @@
 define(function() {
   
   function cbCreateOffer(response) {
-    MyOffer.id = response.id;
+    MyOffer.id = response.result.id;
     window.location.hash = '#driver_city';
     Conn.clearCb('cbCreateOffer');
   }
@@ -13,7 +13,6 @@ define(function() {
 
     this.id = null;
     this.bid_id = null;
-
     this.fromAddress = null;
     this.toAddress = null;
     this.toAddresses = [];
@@ -26,18 +25,16 @@ define(function() {
     this.toFullAddresses = [];
     this.times = [];
     this.toCities = [];
-    
     this.length = 0;
-
+    this.recommended_cost = null;
     this.fromCity  = null;
     this.toCity = null;
-
     this.distance = 0;
     this.price = 0;
     this.comment = null;
     
     function cbgetOfferById(response) {
-      var ord = response.offer;
+      var ord = response.result.offer;
 
       if (ord.bids) {
         if(ord.bids.length > 0) {
@@ -83,8 +80,11 @@ define(function() {
       if (self.bid_id) {
         localStorage.setItem('_current_id_bid', self.bid_id);
       }
-      if (ord.bids[0].approved) {
-        localStorage.setItem('_active_offer_id', self.id);
+      
+      if (ord.bids) {
+        if (ord.bids[0].approved) {
+          localStorage.setItem('_active_offer_id', self.id);
+        }
       }
 
       window.location.hash = '#driver_my_offer';

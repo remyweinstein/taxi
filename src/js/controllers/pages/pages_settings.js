@@ -30,6 +30,27 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           window.location.hash = el.dataset.link;
         }
 
+        if (target.dataset.click === "select") {
+          el = target;
+          var _key = el.dataset.key, 
+              val;
+          
+          Modal.show('<button class="button_rounded--green" data-getvalue=select data-value=google>Google</button>' + 
+                     '<button class="button_rounded--green" data-getvalue=select data-value=yandex>Yandex</button>', 
+            function (response) {
+              if (response === "yandex") {
+                val = "yandex";
+              } else {
+                val = "google";
+              }
+              Maps.setCurrentModel(val);
+              eval('Settings.' + _key + ' = "' + val + '"');
+              Maps.init();
+              var str = val;
+              el.querySelectorAll('span')[0].innerHTML = str;
+            });
+        }
+        
         if (target.dataset.click === "boolean") {
           el = target;
           var _key = el.dataset.key, val;
@@ -74,6 +95,10 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
       var _ins, _click, _res;
       if (typeof _obj[key] !== "function" && key !== "label" && key !== "type") {
         if (Settings.type[key]) {
+          if (Settings.type[key] === "select") {
+            _ins = ' <span>' + _obj[key] + '</span>';
+            _click = ' data-click="' + Settings.type[key]  + '"';
+          }
           if (Settings.type[key] === "boolean") {
             _res = 'Выключено';
             if (_obj[key]) {

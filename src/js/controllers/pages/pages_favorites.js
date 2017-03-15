@@ -4,7 +4,7 @@ define(['Dom'], function (Dom) {
 
   function cbFillFavorites(response) {
     var parent = Dom.sel('[data-view="favorites"]'),
-        favs = response.favorites,
+        favs = response.result.favorites,
         innertext = '',
         ul = document.createElement('ul');
   
@@ -39,7 +39,7 @@ define(['Dom'], function (Dom) {
   
   function cbFillBlackList(response) {
     var parent = Dom.sel('[data-view="blacklist"]'),
-        blacks = response.blackList,
+        blacks = response.result.blackList,
         innertext = '',
         ul = document.createElement('ul');
       

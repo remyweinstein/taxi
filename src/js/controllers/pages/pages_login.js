@@ -3,8 +3,8 @@
 define(['Dom'], function (Dom) {
   
   function cbRegisterUser(response) {
-    localStorage.setItem('_auth_token', response.authToken);
-    User.authToken = response.authToken;
+    localStorage.setItem('_auth_token', response.result.authToken);
+    User.authToken = response.result.authToken;
     window.location.hash = '#sms';
     Conn.clearCb('cbRegisterUser');
   }

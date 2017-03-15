@@ -1,6 +1,6 @@
 /* global map, User, google, MyOrder, SafeWin, default_vehicle, driver_icon, Event, MyOffer, MapElements, Conn */
 
-define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], function (Dom, Dates, Maps, HideForms, Destinations, GetPositions, Lists) {
+define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], function (Dom, Dates, HideForms, Destinations, GetPositions, Lists) {
   
   function cbOnApproveOrder() {
     localStorage.setItem('_current_id_order', MyOffer.id);
@@ -15,11 +15,8 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
   }
   
   function initMap() {
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    
-    map.setCenter(MyLatLng);
-    map.setZoom(12);
-
+    Maps.setCenter(User.lat, User.lng);
+    Maps.setZoom(12);
     Maps.drawRoute('offer', true, function(){});
   }
   
@@ -59,7 +56,7 @@ define(['Dom', 'Dates', 'Maps', 'HideForms', 'Destinations', 'GetPositions', 'Li
   function start() {
         
     if (MyOffer.id > 0) {
-      if (localStorage.getItem('_active_offer_id')) {
+      if (localStorage.getItem('_active_offer_id') > 0) {
         window.location.hash = '#driver_go';
       }
       var _count_waypoint = MyOffer.toAddresses.length,

@@ -237,7 +237,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       }
       
       this.render();
-      Multirange.init(safe_win);
+      Multirange.init(Dom.sel('.safety-window'));
             
       var hammer = new Hammer(safe_win, {domEvents: true, preventDefault: true}),
           longpress = new Hammer.Press({event: 'press', time: 3000}),
@@ -339,7 +339,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     clear: function() {
       safe_win = Dom.sel('.safety-window');
       
-      Multirange.clear(safe_win);
+      Multirange.clear(Dom.sel('.safety-window'));
       
       safe_win.removeEventListener('swiperight', swipeRight);
       //safe_win.removeEventListener('tap', swipeRight);

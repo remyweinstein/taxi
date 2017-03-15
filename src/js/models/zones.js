@@ -8,12 +8,14 @@ define(['Funcs'], function(Funcs) {
       new_name;
   
   function cbAddZones(response) {
-    Zones.list.push({polygon:new_polygon, id:response.id, note:new_note, name:new_name});
+    Zones.list.push({polygon:new_polygon, id:response.result.id, note:new_note, name:new_name});
     win_reload();
     Conn.clearCb('cbAddZones');
   }
   function cbGetZones(response) {
-    Zones.initSafeWin(response);
+    if (!response.error) {
+      Zones.initSafeWin(response.result);
+    }
     Conn.clearCb('cbGetZones');
   }
   
