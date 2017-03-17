@@ -1,8 +1,8 @@
-/* global google, map, cost_of_km, MyOffer, MyOrder, MapElements, Maps */
+/* global MyOffer, MyOrder, MapElements, Maps */
 
 define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
-  var Model, recommended_cost = 0, price, comment;
+  var Model, price, comment;
 
   function AddNewZaezd(just_add) {
     var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
@@ -13,16 +13,16 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
     new_field.className += 'form-order-city__field order-city-to_z';
     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' +
-      '<span class="form-order-city__wrap">' +
-      '<input type="text" data-click="choose_address" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' +
-      '</span>' +
-      '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' +
-      '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' +
-      '</span>' +
-      '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' +
-      '<i class="icon-trash"></i>' +
-      '</span>' +
-      '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
+                          '<span class="form-order-city__wrap">' +
+                          '<input type="text" data-click="choose_address" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' +
+                          '</span>' +
+                          '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' +
+                          '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' +
+                          '</span>' +
+                          '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' +
+                          '<i class="icon-trash"></i>' +
+                          '</span>' +
+                          '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
 
     parentDiv.insertBefore(new_field, el);
   }
@@ -105,8 +105,8 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>',
       function (response) {
         eval("Model.times[" + id + "] = " + response);
-        Destinations.clear();
-        Destinations.init();
+        clear();
+        init();
         if (type === "order") {
           MyOrder = Model;
         } else {
@@ -137,13 +137,13 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     if (from_value !== '' && to_value === '') {
       var _addr_from = Model.fromCoords.split(",");
 
-      MapElements.marker_a = Maps.addMarker(_addr_from[0], _addr_from[1], from_value, '//www.google.com/mapfiles/markerA.png', function () {});
+      MapElements.marker_a = Maps.addMarker(_addr_from[0], _addr_from[1], from_value, '//www.google.com/mapfiles/markerA.png', [32,32], function () {});
     }
 
     if (to_value !== '' && from_value === '') {
       var _addr_to = Model.toCoords.split(",");
 
-      MapElements.marker_b = Maps.addMarker(_addr_to[0], _addr_to[1], to_value, '//www.google.com/mapfiles/markerB.png', function () {});
+      MapElements.marker_b = Maps.addMarker(_addr_to[0], _addr_to[1], to_value, '//www.google.com/mapfiles/markerB.png', [32,32], function () {});
     }
 
     if (from_value !== '' && to_value !== '') {

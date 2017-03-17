@@ -1,6 +1,7 @@
 /* global User, Event, Car, MyOffer, Conn */
 
 define(['ModalWindows', 'Lists'], function (Modal, Lists) {
+  var old_filters = localStorage.getItem('_filters_active');
   
   function cbMyOffers(response) {
     if (!response.error) {
@@ -10,9 +11,22 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   }
   
   function cbGetOrders(response) {
+    var filters = localStorage.getItem('_filters_active');
+    
+    if (filters !== old_filters) {
+      Conn.request('stopGetOrders');
+      Conn.clearCb('cbGetOrders');
+      Conn.request('startGetOrders', '', cbGetOrders);
+      old_filters = filters;
+
+      return;
+    }
+    
     if (!response.error) {
       Lists.allOrders(response.result);
     }
+    
+    old_filters = filters;
   }
   
   function addEvents() {

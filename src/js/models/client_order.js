@@ -12,6 +12,17 @@ define(function() {
     var self = this;
 
     function cbgetOrderById(response) {
+      self.setModel(response);
+      Conn.clearCb('cbgetOrderById');
+      
+      if (self.bid_id) {
+        localStorage.setItem('_current_id_bid', self.bid_id);
+        //window.location.hash = "#client_go";
+      } else {
+        window.location.hash = '#client_map';
+      }      
+    }
+    this.setModel = function (response) {
       var ord = response.result.order;
 
       if(ord.bidId && ord.bidId > 0) {
@@ -51,15 +62,7 @@ define(function() {
       self.distance = ord.distance;
       self.price = ord.price;
       self.comment = ord.comment;
-      Conn.clearCb('cbgetOrderById');
-      
-      if (self.bid_id) {
-        localStorage.setItem('_current_id_bid', self.bid_id);
-        //window.location.hash = "#client_go";
-      } else {
-        window.location.hash = '#client_map';
-      }      
-    }
+    };
     
     this.id = null;
     this.bid_id = null;

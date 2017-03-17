@@ -1,72 +1,35 @@
-/* global google, User, map, MyOrder */
+/* global MyOrder, Maps */
 
 define(['Dom'], function (Dom) {
   
   var _timer, Model, model;
     
   function onchange() {
-    clearTimeout(_timer);
-
-    var query     = Dom.sel('input[name="enter-address"]').value;
+    var list_results = Dom.sel('.choice-location__results-search'),
+        input = Dom.sel('input[name="enter-address"]'),
+        query = input.value,
+        innText = '';
     
-    
-    var MyLatLng  = new google.maps.LatLng(User.lat, User.lng);
-    var service   = new google.maps.places.PlacesService(Maps.map);
-    var requestSt = {
-      location: MyLatLng,
-      radius: 50000,
-      query: query
-    };
-    var request   = {
-      location: MyLatLng,
-      radius: 500
-    };
+    list_results.innerHTML = "";
+    clearTimeout(_timer);    
 
-    if (Dom.sel('input[name="enter-address"]').value && Dom.sel('input[name="enter-address"]').value !== "") {
+    if (query !== "") {
       _timer = setTimeout(startSearch, 1000);
     } else {
-      service.nearbySearch(request, callback);
+      Maps.searchPlaces('', 500, callback);
     }
 
     function startSearch() {
-      service.textSearch(requestSt, callbackSt);
+      Maps.searchStreet(query, 5000, callback);
     }
 
-    function callbackSt(results, status) {
-      Dom.sel('.choice-location__results-search').innerHTML = "";
-      if (results.length) {
-        var innText = '';
+    function callback(results) {
+      console.log(results);
+      if (results) {
         for (var i = 0; i < results.length; i++) {
-          var addr = results[i].formatted_address;
-          var lat = results[i].geometry.location.lat();
-          var lng = results[i].geometry.location.lng();
-          innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
+          innText += '<p data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
         }
-
-        Dom.sel('.choice-location__results-search').innerHTML = innText;
-      }
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        return;
-      }
-    }
-
-    function callback(results, status) {
-      Dom.sel('.choice-location__results-search').innerHTML = "";
-
-      if (results.length) {
-        var innText = '';
-        for (var i = 0; i < results.length; i++) {
-          var addr = results[i].vicinity;
-          if (addr !== "") {
-            var lat = results[i].geometry.location.lat();
-            var lng = results[i].geometry.location.lng();
-            innText += '<p data-latlng="' + lat + ',' + lng + '"><span>' + results[i].name + '</span><span>' + addr + '</span></p>';
-          }
-        }
-        Dom.sel('.choice-location__results-search').innerHTML = innText;
-      }
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        return;
+        list_results.innerHTML = innText;
       }
     }
 
@@ -116,21 +79,24 @@ define(['Dom'], function (Dom) {
     if (model === "offer") {
       MyOffer = Model;
     }
+    
     if (model === "order") {
       MyOrder = Model;
     }
+    
     localStorage.removeItem('_active_model');
   }
   
   function start() {
-    var input = Dom.sel('input[name="enter-address"]');
-    var event;
+    var input = Dom.sel('input[name="enter-address"]'),
+        event;
 
     model = localStorage.getItem('_active_model');
     
     if (model === "offer") {
       Model = MyOffer;
     }
+    
     if (model === "order") {
       Model = MyOrder;
     }
@@ -149,10 +115,8 @@ define(['Dom'], function (Dom) {
       event.initEvent("touchstart", true, true);
     }
 
-    input.dispatchEvent(event);
-
+    //input.dispatchEvent(event);
     onchange();
-    
     addEvents();
   }
   

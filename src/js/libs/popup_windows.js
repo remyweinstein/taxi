@@ -138,12 +138,12 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
   var PopupWindow = {
     
     show: function (el, content, callback) {
-                  layer = showLayer();
                   var new_field = document.createElement('div'),
                       parentDiv = el.parentNode,
                       height = new_field.offsetHeight,
                       i, i_ranges;
                   
+                  layer = showLayer();
                   new_field.className += 'popup-window';
                   new_field.innerHTML = content;
                   parentDiv.insertBefore(new_field, el);

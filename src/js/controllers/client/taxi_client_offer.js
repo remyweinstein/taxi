@@ -1,4 +1,4 @@
-/* global User, map, google, Car, average_speed, Event, MapElements, Conn, Maps */
+/* global User, average_speed, Event, MapElements, Conn, Maps */
 
 define(['Dom', 'Dates', 'HideForms'], function (Dom, Dates, HideForms) {
 
@@ -45,7 +45,7 @@ define(['Dom', 'Dates', 'HideForms'], function (Dom, Dates, HideForms) {
 
         waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
         name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-        Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+        Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
           function (mark) {
             Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
             MapElements.points.push(mark);
@@ -53,11 +53,11 @@ define(['Dom', 'Dates', 'HideForms'], function (Dom, Dates, HideForms) {
       }
     }
 
-    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
       function (mark) {
         MapElements.marker_to = mark;
       });
-    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
       function (mark) {
         MapElements.marker_from = mark;
       });
@@ -213,17 +213,17 @@ define(['Dom', 'Dates', 'HideForms'], function (Dom, Dates, HideForms) {
   
   function stop() {
     if (marker_from) {
-      marker_from.setMap(null);
+      Maps.removeElement(marker_from);
     }
     if (marker_to) {
-      marker_to.setMap(null);
+      Maps.removeElement(marker_to);
     }
     if (route) {
-      route.setMap(null);
+      Maps.removeElement(route);
     }
     if (points) {
       for (var i = 0; i < points.length; i++) {
-        points[i].setMap(null);
+        Maps.removeElement(points[i]);
       }
     }
   }

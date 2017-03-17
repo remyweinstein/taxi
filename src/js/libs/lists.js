@@ -1,4 +1,4 @@
-/* global User, google, default_vehicle, driver_icon, map, MapElements, Conn, MyOrder, MyOffer */
+/* global User, default_vehicle, driver_icon, MapElements, Conn, MyOrder, MyOffer, Maps */
 
 define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, clDriverOrders, Popup) {
   var Orders = [],
@@ -22,12 +22,11 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
             loc = bids[i].agent.location;
 
         loc = loc.split(',');
-        var DrLatLng = new google.maps.LatLng(loc[0], loc[1]);
-
-        if (MapElements.driver_marker[bids[i].agent.id]) {
-          MapElements.driver_marker[bids[i].agent.id].setPosition(DrLatLng);
+        
+        if (!MapElements.driver_marker[bids[i].agent.id]) {
+          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], bids[i].agent.name, driver_icon, [32,32], function(){});
         } else {
-          MapElements.driver_marker[bids[i].agent.id] = addMarker(DrLatLng, bids[i].agent.name, driver_icon, map);
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[bids[i].agent.id]);
         }
 
         var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
@@ -550,18 +549,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         filter[email]=1
       */
     });
-  }
-  
-  function addMarker(location, title, icon, map) {
-    var marker = new google.maps.Marker({
-      position: location,
-      //animation: google.maps.Animation.DROP,
-      icon: icon,
-      title: title,
-      map: map
-    });
-
-    return marker;
   }
   
   function get_bid_drivers () {

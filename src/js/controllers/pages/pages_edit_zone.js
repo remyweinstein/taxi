@@ -1,13 +1,17 @@
-/* global Zones, google, map, User, Event, Maps */
+/* global Zones, google, map, User, Event, Maps, MapElements */
 
 define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
 
-  var polygon = new google.maps.Polygon({});
-  var points = [];
-  var markers = [];
-  var id_edit_zone;
-  var bounds = new google.maps.LatLngBounds();
-  
+  var polygon = new google.maps.Polygon({}),
+      points = [],
+      markers = [],
+      id_edit_zone,
+      bounds = new google.maps.LatLngBounds(),
+      eventOnClickMarkers,
+      eventOnClickPolygon = false,
+      eventOnClickMap,
+      eventOnDragEndMarker;
+      
   function addEvents() {
     Event.click = function (event) {
           var target = event.target;
@@ -50,52 +54,47 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
   }
 
   function drawPoly() {
-    google.maps.event.clearListeners(polygon, 'click', addMarker);
-    polygon.setMap(null);
+    if (eventOnClickPolygon) {
+      Maps.removeEvent(eventOnClickPolygon);
+    }
+    Maps.removeElement(polygon);
 
-    polygon = Geo.drawPoly(points, Maps.map);
-    google.maps.event.addListener(polygon, 'click', addMarker);
+    polygon = Maps.drawPoly(points);
+    eventOnClickPolygon = Maps.addEvent(polygon, 'click', addMarker);
   }
 
   function addMarker(e, edit) {
-    var lat, lng;
-    
+    var LatLng;
+
     if (edit) {
-      lat = e.lat;
-      lng = e.lng;
+      LatLng = [e.lat, e.lng];
     } else {
-      lat = e.latLng.lat();
-      lng = e.latLng.lng();
+      LatLng = Maps.getLocationClick(e);
     }
-    var marker = new google.maps.Marker({
-      position: getLatLng(lat, lng),
-      map: Maps.map,
-      draggable : true,
-      lat: lat,
-      lng: lng
-    });
+    
+    var marker = Maps.addMarker(LatLng[0], LatLng[1], '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
+    
     if (markers.length > 1) { // default 2
-      findStartPoint(lng, lat, function (v) {
+      findStartPoint(LatLng[0], LatLng[1], function (v) {
         markers.splice(v, 0, marker);
       });
     } else {
       markers.push(marker);
     }
+
     bindMarkerEvents(marker);
     showPoly();
   }
 
   function pDistance(x, y, x1, y1, x2, y2) {
-
-    var xx, yy;
-    var A = x - x1;
-    var B = y - y1;
-    var C = x2 - x1;
-    var D = y2 - y1;
-
-    var dot = A * C + B * D;
-    var len_sq = C * C + D * D;
-    var param = -1;
+    var xx, yy,
+        A = x - x1,
+        B = y - y1,
+        C = x2 - x1,
+        D = y2 - y1,
+        dot = A * C + B * D,
+        len_sq = C * C + D * D,
+        param = -1;
 
     if (len_sq !== 0) {
       param = dot / len_sq;
@@ -112,18 +111,18 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
       yy = y1 + param * D;
     }
 
-    var dx = x - xx;
-    var dy = y - yy;
+    var dx = x - xx,
+        dy = y - yy;
 
     return Math.sqrt(dx * dx + dy * dy);
   }
 
   function findStartPoint(lng, lat, callback) {
-    var distA = 10000000000000000000;
-    var y = 0, dist;
+    var distA = 10000000000000000000,
+        y = 0, 
+        dist;
 
     for (var i = 0; i < markers.length; i++) {
-
       if (i === (markers.length - 1)) {
         dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
       } else {
@@ -139,19 +138,13 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     callback(y);
   }
   
-  function getLatLng(lat, lng) {
-    return new google.maps.LatLng(lat, lng);
-  }
-  
   function bindMarkerEvents(marker) {
-    google.maps.event.addListener(marker, 'click', function () {
+    eventOnClickMap = Maps.addEvent(marker, 'click', function () {
       removeMarker(marker);
     });
-
-    google.maps.event.addListener(marker, 'dragend', function (point) {
-      var latlng = new google.maps.LatLng(point.latLng.lat(), point.latLng.lng());
-
-      marker.setPosition(latlng);
+    
+    eventOnDragEndMarker = Maps.addEvent(marker, 'dragend', function (point) {
+      Maps.markerSetPosition(point.latLng.lat(), point.latLng.lng(), marker);
       marker.lat = point.latLng.lat();
       marker.lng = point.latLng.lng();
       showPoly();
@@ -161,32 +154,32 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
   function removeMarker(marker) {
     for (var i = 0; i < markers.length; i++) {
       if (google.maps.geometry.spherical.computeDistanceBetween(
-            marker.getPosition(), markers[i].getPosition()) < 0.1) {
-       markers[i].setMap(null);
-       markers.splice(i,1);
-      }
+        marker.getPosition(), markers[i].getPosition()) < 0.1) {
+          Maps.removeElement(markers[i]);
+          markers.splice(i, 1);
+        }
     }
     showPoly();
   }
     
   function showPoly() {
-    var i;
+    var bounds,
+        bearing = [],
+        i;
 
     points = [];
-    var bounds = new google.maps.LatLngBounds();
 
     for (i = 0; i < markers.length; i++) {
-      points.push(markers[i].getPosition());
-      bounds.extend(markers[i].getPosition());
+      var coords = Maps.getMarkerCoords(markers[i]);
+      
+      points.push(coords);
     }
-
-    var center = bounds.getCenter();
-    var bearing = [];
+    
+    bounds = Maps.newPolygon(points);
 
     for (i = 0; i < points.length; i++) {
       if (google.maps.geometry) {
-        bearing = google.maps.geometry.spherical.computeHeading(center, points[i]);
-
+        bearing = Maps.getDistance(Maps.getCenterPolygon(bounds), points[i]);
         points[i].bearing = bearing;
         markers[i].bearing = bearing;
         points[i].lat0 = markers[i].lat;
@@ -194,11 +187,7 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
       }
     }
 
-    //points.sort(bearingsort);
-    //markers.sort(bearingsort);
-
     drawPoly();
-
   }
 
   function initMap() {
@@ -207,39 +196,27 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
 
-    var MyLatLng = new google.maps.LatLng(User.lat, User.lng);
-    
-    marker_mine = new google.maps.Marker({
-      position: MyLatLng,
-      map: Maps.map,
-      icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
-      title: 'Я здесь!'
-    });
-        
-    google.maps.event.addListener(Maps.map, 'click', addMarker);    
+    MapElements.marker_mine = Maps.addMarker(User.lat, User.lng, 'Я здесь!', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+    eventOnClickMarkers = Maps.addEvent(Maps.map, 'click', addMarker);
   }
   
   function fillName() {
-    var name, i, note = '';
+    var name,
+        note = '',
+        i;
+    
     if (id_edit_zone) {
       var arr_id = Funcs.findIdArray(Zones.list, id_edit_zone);
       
       name = Zones.list[arr_id].name;
       note = Zones.list[arr_id].note;
+      
       for (i = 0; i < Zones.list[arr_id].polygon.length; i++) {
-        var lat = Zones.list[arr_id].polygon[i].lat;
-        var lng = Zones.list[arr_id].polygon[i].lng;
-        
-        var marker = new google.maps.Marker({
-          position: getLatLng(lat, lng),
-          map: Maps.map,
-          draggable : true,
-          lat: lat,
-          lng: lng
-        });
+        var lat = Zones.list[arr_id].polygon[i].lat,
+            lng = Zones.list[arr_id].polygon[i].lng,
+            marker = Maps.addMarker(lat, lng, '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
         
         markers.push(marker);
-
         bindMarkerEvents(marker);
       }
       
@@ -250,6 +227,7 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
         points.push(markers[i].getPosition());
         bounds.extend(markers[i].getPosition());
       }
+      
       for (i = 0; i < points.length; i++) {
         points[i].lat0 = markers[i].lat;
         points[i].lng0 = markers[i].lng;
@@ -261,6 +239,7 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     } else {
       name = 'Зона ' + (Zones.list.length + 1);
     }
+    
     Dom.sel('input[name="name_edit_zone"]').value = name;
     Dom.sel('input[name="note_edit_zone"]').value = note;
 
@@ -272,13 +251,16 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
   }
   
   function stop() {
-    polygon.setMap(null);
+    Maps.removeElement(polygon);
+    
     for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(null);
+      Maps.removeElement(markers[i]);
     }
-    google.maps.event.clearListeners(markers, 'click');
-    google.maps.event.clearListeners(polygon, 'click');
-    google.maps.event.clearListeners(Maps.map, 'click');
+    
+    Maps.removeEvent(eventOnClickMarkers);
+    Maps.removeEvent(eventOnClickPolygon);
+    Maps.removeEvent(eventOnClickMap);
+    
     polygon = new google.maps.Polygon({});
     markers = [];
     points = [];

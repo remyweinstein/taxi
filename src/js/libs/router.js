@@ -43,7 +43,7 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
       currentHash = '';
 
   function hashCheck() {
-    if (User.city && Conn.is_connect) {
+    if (User.city && Conn.is_connect && !Maps.loading) {
       MayLoading = true;
     } else {
       if (!Conn.is_connect) {

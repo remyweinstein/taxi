@@ -1,8 +1,11 @@
-/* global User, google, MyOrder, MyOffer, cost_of_km, Car, driver_icon, men_icon, Event, Conn, Maps, map */
+/* global User, MyOrder, Event, Conn, Maps */
 
 define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
   function (Dom, HideForms, GetPositions, Lists, Destinations) {
-    var content = Dom.sel('.content'), global_el, eventOnChangeZoom;
+    var content = Dom.sel('.content'), 
+        global_el, 
+        eventOnChangeZoom,
+        old_filters = localStorage.getItem('_filters_active');
     
     function cbAfterAddFav() {
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
@@ -23,9 +26,22 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
     }
     
     function cbGetOffers(response) {
+      var filters = localStorage.getItem('_filters_active');
+
+      if (filters !== old_filters) {
+        Conn.request('stopGetOffers');
+        Conn.clearCb('cbGetOffers');
+        Conn.request('startGetOffers', '', cbGetOffers);
+        old_filters = filters;
+
+        return;
+      }
+      
       if (!response.error) {
         Lists.allOffers(response.result);
       }
+      
+      old_filters = filters;
     }
     
     function cbGetMyOrder(response) {
@@ -198,12 +214,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
       Destinations.clear();
       Conn.clearCb('cbGetOffers');
       Conn.request('stopGetOffers');
-      
-      if (Maps.currentMapProvider === "google") {
-        google.maps.event.removeListener(eventOnChangeZoom);
-      } else if (Maps.currentMapProvider === "yandex") {
-        eventOnChangeZoom.removeAll();
-      }
+      Maps.removeEvent(eventOnChangeZoom);
     }
 
     function start() {

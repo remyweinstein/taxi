@@ -1,6 +1,6 @@
-/* global User, google, Settings, Conn */
+/* global User, Settings, Conn, Maps */
 
-define(['jsts'], function (jsts) {
+define(function () {
 
     var old_lat, old_lng;
 
@@ -70,8 +70,8 @@ define(['jsts'], function (jsts) {
       
       function error() {}
       
-      navigator.geolocation.getCurrentPosition(success, error);
-      //var watchID = navigator.geolocation.watchPosition(success, error, options);
+      //navigator.geolocation.getCurrentPosition(success, error);
+      var watchID = navigator.geolocation.watchPosition(success, error, options);
       
       return;
     }
@@ -79,8 +79,8 @@ define(['jsts'], function (jsts) {
   var Geo = {
 
       init: function() {
-        setInterval(geoFindMe, 1000);
-        //geoFindMe();
+        //setInterval(geoFindMe, 1000);
+        geoFindMe();
       },
 
       distance: function(lat1, lon1, lat2, lon2) {
@@ -96,64 +96,6 @@ define(['jsts'], function (jsts) {
         dist = dist * 1.609344;
           
         return dist;
-      },
-
-      drawPoly: function(Coords, map) {
-        var polygon = false;
-        
-        if (Coords) {
-          polygon = new google.maps.Polygon({
-            paths: Coords
-            //strokeColor: '#FF0000',
-            //strokeOpacity: 0.8,
-            //strokeWeight: 2,
-            //draggable: true,
-            //fillColor: '#FF0000',
-            //fillOpacity: 0.35
-          });
-          polygon.setMap(map);
-        }
-        
-        return polygon;
-      },
-
-      showPoly: function(overviewPath, map) {
-        var overviewPathGeo = [];
-          
-        for (var i = 0; i < overviewPath.length; i++) {
-          overviewPathGeo[i] = [];
-          for (var z = 0; z < overviewPath[i].length; z++) {
-            overviewPathGeo[i].push([overviewPath[i][z].lng(), overviewPath[i][z].lat()]);
-          }
-        }
-
-        var distance = Settings.safeRadius / 500 / 111.12,
-        geoInput = {
-          type: "MultiLineString",
-          coordinates: overviewPathGeo
-          };
-        var geoReader = new jsts.io.GeoJSONReader(),
-            geoWriter = new jsts.io.GeoJSONWriter();
-        var geometry = geoReader.read(geoInput).buffer(distance, 2);
-        var polygon = geoWriter.write(geometry);
-
-        var oLanLng = [],
-            oCoordinates = polygon.coordinates[0];
-        
-        for (i = 0; i < oCoordinates.length; i++) {
-          var oItem = oCoordinates[i];
-          
-          oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
-        }
-        
-        var polygone = new google.maps.Polygon({
-          paths: oLanLng,
-          //strokeWeight: 0,
-          map: map
-        });
-        
-        return polygone;
-        
       }
       
   };

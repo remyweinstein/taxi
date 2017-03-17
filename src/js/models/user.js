@@ -97,8 +97,12 @@ define(['Dom'], function(Dom) {
           if (!self.avatar) {
             self.avatar = default_avatar;
           }
-
-          Dom.sel('.menu__desc_avatar').src = self.avatar;
+          
+          var img = Dom.sel('.menu__desc_avatar');
+          
+          img.src = self.avatar;
+          img.alt = self.name;
+          
         /*
         }
         */

@@ -1,4 +1,4 @@
-/* global map, User, google, MyOrder, SafeWin, default_vehicle, driver_icon, Event, MyOffer, MapElements, Conn */
+/* global User, Maps, SafeWin, Event, MyOffer, Conn */
 
 define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], function (Dom, Dates, HideForms, Destinations, GetPositions, Lists) {
   

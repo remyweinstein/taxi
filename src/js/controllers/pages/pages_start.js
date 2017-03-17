@@ -1,4 +1,4 @@
-/* global Event, MayLoading, Conn, currentHash, lastURL */
+/* global Event, MayLoading, Conn, currentHash, lastURL, Maps */
 
 define(['Dom'], function (Dom) {
 
@@ -7,8 +7,14 @@ define(['Dom'], function (Dom) {
     
     if (!MayLoading) {
       Dom.startLoading();
-      var text = !Conn.is_connect ? "Подключаемся к серверу..." : "Определяем ваше местоположение...";
+      var text = "Определяем ваше местоположение...";
       
+      if (Maps.loading){
+        text = "Загружаем карты...";
+      } else if (!Conn.is_connect) {
+        text = "Подключаемся к серверу...";
+      }
+
       Dom.sel('.start_logo_state__text').innerHTML = text;
       
     } else {

@@ -1,4 +1,4 @@
-/* global User, google, map, SafeWin, driver_icon, Event, MapElements, MyOffer, Conn, MyOrder, Maps */
+/* global User, SafeWin, Event, MapElements, MyOffer, Conn, MyOrder, Maps */
 
 define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations'],
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations) {
@@ -52,7 +52,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       for (var i = 0; i < ords.toAddresses.length; i++) {
         var _wp = ords.toLocations[i].split(",");
         waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-        Maps.addMarker(_wp[0], _wp[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+        Maps.addMarker(_wp[0], _wp[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
           function (mark) {
             Maps.addInfoForMarker(ords.times[i] + 'мин.', true, mark);
             MapElements.points.push(mark);
@@ -60,11 +60,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       }
     }
 
-    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
       function (mark) {
         MapElements.marker_from = mark;
       });
-    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
       function (mark) {
         MapElements.marker_to = mark;
       });
@@ -149,15 +149,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     Dom.sel('[data-view="distance_to_car"]').innerHTML = ords.agent.distance.toFixed(1);
     Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
     Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
+    
     if (!MapElements.marker_client) {
-      MapElements.marker_client = new google.maps.Marker({
-        position: new google.maps.LatLng(loc[0], loc[1]),
-        map: map,
-        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
-        title: 'Клиент'
-      });
+      MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Клиент', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',  [10,10], function(){});
     } else {
-      MapElements.marker_client.setPosition(new google.maps.LatLng(loc[0], loc[1]));
+      Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
     }
   }
 
@@ -229,7 +225,6 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     Maps.mapOn();
     initMap();
     MyOffer.id = localStorage.getItem('_active_offer_id');
-    SafeWin.map = map;
     SafeWin.overviewPath = [];
     Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
     GetPositions.my();

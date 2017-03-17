@@ -15,8 +15,9 @@ define(['Dom', 'Dates'], function (Dom, Dates) {
   }
   
   function cbUpdateProfile() {
-    Dom.historyBack();
     Conn.clearCb('cbUpdateProfile');
+    User.getData();
+    Dom.historyBack();
   }
   
   function addEvents() {

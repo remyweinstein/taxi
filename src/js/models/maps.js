@@ -1,13 +1,18 @@
-/* global google, User, safe_zone_polygons, cost_of_km, MyOrder, MyOffer, ymaps, SafeWin, MapGoogle, MapYandex, map */
+/* global User, safe_zone_polygons, ymaps, MapGoogle, MapYandex, google, Settings */
 
-define(['MapsRoutes'], function(MapsRoutes) {
+define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
 
   var clMaps = function () {
     var self = this;
+
+    function stopLoading() {
+      self.loading = false;
+    }
     
     this.currentMapProvider = null;
     this.currentModel = null;
     this.map = null;
+    this.loading = true;
 
     this.start = function () {
       if (!localStorage.getItem('_map_provider')) {
@@ -15,6 +20,7 @@ define(['MapsRoutes'], function(MapsRoutes) {
       } else {
         self.setCurrentModel(localStorage.getItem('_map_provider'));
       }
+      ymaps.ready(stopLoading);
     },
 
     this.setCurrentModel = function (val) {
@@ -33,9 +39,6 @@ define(['MapsRoutes'], function(MapsRoutes) {
 
     this.init = function() {
       self.currentModel.init();
-      console.log('self.map = ');
-      console.log(self.map);
-      
     };
 
     this.mapOff = function () {
@@ -43,7 +46,7 @@ define(['MapsRoutes'], function(MapsRoutes) {
 
       for (var i = 0; i < safe_zone_polygons.length; i++) {
         if (self.currentMapProvider === "google") {
-          safe_zone_polygons[i].setMap(null);
+          self.removeElement(safe_zone_polygons[i]);
         } else if (self.currentMapProvider === "yandex") {
           self.map.geoObjects.remove(safe_zone_polygons[i]);
         }
@@ -52,20 +55,19 @@ define(['MapsRoutes'], function(MapsRoutes) {
 
     this.mapOn = function (disable_safe_zone) {
       document.getElementById('map_canvas').classList.remove("hidden");
-      
-      console.log('self.map = ');
-      console.log(self.map);
 
       if (self.currentMapProvider === "google") {
         google.maps.event.trigger(self.map, 'resize');
       } else if (self.currentMapProvider === "yandex") {
-        self.map.container.fitToViewport();
+        if (self.map) {
+          self.map.container.fitToViewport();
+        }
       }
 
       if (disable_safe_zone) {
         for (var i = 0; i < safe_zone_polygons.length; i++) {
           if (self.currentMapProvider === "google") {
-            safe_zone_polygons[i].setMap(SafeWin.map);
+            self.removeElement(safe_zone_polygons[i]);
           } else if (self.currentMapProvider === "yandex") {
             self.map.geoObjects.add(safe_zone_polygons[i]);
           }
@@ -95,19 +97,8 @@ define(['MapsRoutes'], function(MapsRoutes) {
       return self.currentModel.point2LatLng(x, y);
     };
 
-    this.getStreetFromGoogle = function (results) {
-      var obj = results[0].address_components, key, address;
-
-      for(key in obj) {
-        if(obj[key].types[0] === "street_number") {
-          address = obj[key].long_name;
-        }
-        if(obj[key].types[0] === "route") {
-          address = obj[key].long_name + ',' + address;
-        }
-      }
-
-      return address;
+    this.getStreetFromCoords = function (result) {
+      return self.currentModel.getStreetFromCoords(result);
     };
 
     this.addressToLatLng = function (address, success) {
@@ -132,12 +123,12 @@ define(['MapsRoutes'], function(MapsRoutes) {
       self.currentModel.insertHtml(how, el);
     };
 
-    this.addEvent = function (event, callback) {
-      return self.currentModel.addEvent(event, callback);
+    this.addEvent = function (el, event, callback) {
+      return self.currentModel.addEvent(el, event, callback);
     };
       
-    this.addMarker = function (lat, lon, title, icon, callback) {
-      return self.currentModel.addMarker(lat, lon, title, icon, callback);
+    this.addMarker = function (lat, lon, title, icon, iSize, callback) {
+      return self.currentModel.addMarker(lat, lon, title, icon, iSize, callback);
     };
     
     this.addInfoForMarker = function (text, open, marker) {
@@ -147,6 +138,96 @@ define(['MapsRoutes'], function(MapsRoutes) {
     this.markerSetPosition = function (lat, lng, marker) {
       self.currentModel.markerSetPosition(lat, lng, marker);
     };
+    
+    this.removeElement = function (el) {
+      self.currentModel.removeElement(el);
+    };
+    
+    this.geocoder = function (lat, lng, callback) {
+      self.currentModel.geocoder(lat, lng, callback);
+    };
+    
+    this.removeEvent = function (handler) {
+      self.currentModel.removeEvent(handler);
+    };
+    
+    this.searchPlaces = function (text, radius, callback) {
+      self.currentModel.searchPlaces(User.city + ' ' + text, radius, callback);
+    };
+    
+    this.searchStreet = function (text, radius, callback) {
+      self.currentModel.searchStreet(User.city + ' ' + text, radius, callback);
+    };
+    
+    this.getLocationClick = function (event) {
+      return self.currentModel.getLocationClick(event);
+    };
+    
+    this.drawPoly = function(Coords) {
+      var polygon = false;
+
+      if (Coords) {
+        polygon = self.currentModel.drawPoly(Coords);
+        self.removeElement(polygon);
+      }
+
+      return polygon;
+    };
+    
+    this.newPolygon = function (coords) {
+      return self.currentModel.newPolygon(coords);
+    };
+    
+    this.getCenterPolygon = function (poly) {
+      return self.currentModel.getCenterPolygon(poly);
+    };
+    
+    this.getDistance = function (point1, point2) {
+      return self.currentModel.getDistance(point1, point2);
+    };
+
+    this.showPoly = function(overviewPath) {
+      var overviewPathGeo = [];
+
+      for (var i = 0; i < overviewPath.length; i++) {
+        overviewPathGeo[i] = [];
+        for (var z = 0; z < overviewPath[i].length; z++) {
+          overviewPathGeo[i].push([overviewPath[i][z].lng(), overviewPath[i][z].lat()]);
+        }
+      }
+
+      var distance = Settings.safeRadius / 500 / 111.12,
+      geoInput = {
+        type: "MultiLineString",
+        coordinates: overviewPathGeo
+        };
+      var geoReader = new jsts.io.GeoJSONReader(),
+          geoWriter = new jsts.io.GeoJSONWriter();
+      var geometry = geoReader.read(geoInput).buffer(distance, 2);
+      var polygon = geoWriter.write(geometry);
+
+      var oLanLng = [],
+          oCoordinates = polygon.coordinates[0];
+
+      for (i = 0; i < oCoordinates.length; i++) {
+        var oItem = oCoordinates[i];
+
+        oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
+      }
+
+      var polygone = new google.maps.Polygon({
+        paths: oLanLng,
+        //strokeWeight: 0,
+        map: self.map
+      });
+
+      return polygone;
+    };
+    
+    this.getMarkerCoords = function (el) {
+      return self.currentModel.getMarkerCoords(el);
+    };
+
 
   };
 

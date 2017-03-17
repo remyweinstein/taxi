@@ -117,14 +117,11 @@ var menus_arr = [];
                            {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
   var content,
-      map, marker, geocoder,
-      
       lastURL = '',
-
       MayLoading = false,
   
       safe_zone_polygons = [],
-
+      
       User, Car, Conn, Event, Settings, MyOrder, MyOffer, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
@@ -135,7 +132,6 @@ var menus_arr = [];
       cost_of_km = 25,
   
       global_order_id,
-      
       timerMyPos,
       timerCheckLoading;
 

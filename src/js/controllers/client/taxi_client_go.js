@@ -1,4 +1,4 @@
-/* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, MyOffer */
+/* global User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, Maps */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
@@ -38,7 +38,6 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
           toLoc = ords.toLocation,
           loc = agnt.location.split(','),
           lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
-          VLatLng = new google.maps.LatLng(loc[0], loc[1]),
           incar_but = Dom.sel('button[data-click="client-incar"]'),
           but = Dom.sel('[data-click="client-came"]'),
           field_distance_to_car = Dom.sel('[data-view="distance_to_car"]'),
@@ -107,18 +106,18 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
           var _to = ords.toLocationes[i].split(",");
 
           waypoints.push({location: new google.maps.LatLng(_to[0], _to[1]), stopover: true});
-          Maps.addMarker(_to[0], _to[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
+          Maps.addMarker(_to[0], _to[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
             function (mark) {
               Maps.addInfoForMarker(ords.toTimes[i] + 'мин.', true, mark);
               MapElements.points.push(mark);
             });
         }
       }
-      Maps.addMarker(fromCoords[0], fromCoords[1], MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
+      Maps.addMarker(fromCoords[0], fromCoords[1], MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
         function (mark) {
           MapElements.marker_from = mark;
         });
-      Maps.addMarker(toCoords[0], toCoords[1], MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
+      Maps.addMarker(toCoords[0], toCoords[1], MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
         function (mark) {
           MapElements.marker_to = mark;
         });
@@ -150,14 +149,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
         }
       }        
       if (!MapElements.marker_client) {          
-        MapElements.marker_client = new google.maps.Marker({
-          position: VLatLng,
-          map: map,
-          icon: driver_icon,
-          title: 'Водитель'
-        });
+        MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Водитель', [32,32], driver_icon, function(){});
       } else {
-        MapElements.marker_client.setPosition(new google.maps.LatLng(loc[0], loc[1]));
+        Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
       }
     }
   }

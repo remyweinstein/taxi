@@ -1,4 +1,4 @@
-/* global safe_zone_polygons, Zones, Settings */
+/* global safe_zone_polygons, Zones, Settings, Maps */
 
 define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, Geo, Funcs, Multirange) {
   
@@ -81,7 +81,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
             Zones.inactive(id);
             list_active_zone.splice(arr_id, 1);
             
-            safe_zone_polygons[arr_id].setMap(null);
+            Maps.removeElement(safe_zone_polygons[arr_id]);
             safe_zone_polygons.splice(arr_id, 1);
             
             if (list_active_zone.length < 1 && isActiveRunZone) {
@@ -93,7 +93,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
             if (id !== "") {
               list_active_zone.push(id);
               if (isActiveRunZone) {
-                safe_zone_polygons.push(Geo.drawPoly(Zones.list[(list_active_zone.length - 1)].polygon, SafeWin.map));
+                safe_zone_polygons.push(Maps.drawPoly(Zones.list[(list_active_zone.length - 1)].polygon, Maps.map));
                 Zones.active(id);
               } else {
                 a = true;
@@ -134,8 +134,6 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       list_active_zone = active.split(',');
     }
     
-    
-    
     if (!enable) { // IF THIS CLICK
       if (Dom.toggle(el, 'active')) {
         clearPolygonZones();
@@ -147,7 +145,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
         }
       }
     } else { // IF THIS FROM THE OUTSIDE
-        runZone(el);
+      runZone(el);
     }
     
     function drawPolygon() {
@@ -156,7 +154,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
         var arr_id = Funcs.findIdArray(Zones.list, list_active_zone[i]);
         
         Zones.active(list_active_zone[i]);
-        safe_zone_polygons[i] = Geo.drawPoly(Zones.list[arr_id].polygon, SafeWin.map);
+        safe_zone_polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon, Maps.map);
       }  
     }
     
@@ -169,7 +167,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       localStorage.removeItem('_enable_safe_zone');
       if (safe_zone_polygons) {
         for (i = 0; i < safe_zone_polygons.length; i++) {
-          safe_zone_polygons[i].setMap(null);
+          Maps.removeElement(safe_zone_polygons[i]);
         }
         safe_zone_polygons = [];
       }
@@ -195,14 +193,14 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
   function disableZoneForRoute() {
     Dom.sel('[data-click=runRoute]').classList.remove('active');
     if (safety_route) {
-      safety_route.setMap(null);
+      Maps.removeElement(safety_route);
     }
     localStorage.removeItem('_enable_safe_route');
   }
   
   function enableZoneForRoute () {
     localStorage.setItem('_enable_safe_route', Settings.safeRadius);
-    safety_route = Geo.showPoly(SafeWin.overviewPath, SafeWin.map);
+    safety_route = Maps.showPoly(SafeWin.overviewPath);
     
     var path = safety_route.getPath();
     
@@ -222,8 +220,6 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
   }
   
   var SafeWin = {
-    map: null,
-    
     overviewPath: [],
     
     initial: function () {

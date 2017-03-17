@@ -1,3 +1,5 @@
+/* global Maps */
+
 define(function() {
 
   var clMapElements = function () {
@@ -20,41 +22,41 @@ define(function() {
       var i;
             
       if (self.route) {
-        self.route.setMap(null);
+        Maps.removeElement(self.route);
       }
       if (self.marker_b) {
-        self.marker_b.setMap(null);
+        Maps.removeElement(self.marker_b);
       }
       if (self.marker_a) {
-        self.marker_a.setMap(null);
+        Maps.removeElement(self.marker_a);
       }
       if (self.marker_from) {
-        self.marker_from.setMap(null);
+        Maps.removeElement(self.marker_from);
       }
       if (self.marker_to) {
-        self.marker_to.setMap(null);
+        Maps.removeElement(self.marker_to);
       }
       if (self.marker_client) {
-        self.marker_client.setMap(null);
+        Maps.removeElement(self.marker_client);
       }
       for (i = 0; i < self.routes.length; i++) {
-        self.routes[i].setMap(null);
+        Maps.removeElement(self.routes[i]);
       }
       for (i = 0; i < self.markers.length; i++) {
-        self.markers[i].setMap(null);
+        Maps.removeElement(self.markers[i]);
       }
       for (i = 0; i < self.points.length; i++) {
-        self.points[i].setMap(null);
+        Maps.removeElement(self.points[i]);
       }
       if (self.marker_mine) {
-        self.marker_mine.setMap(null);
+        Maps.removeElement(self.marker_mine);
       }
       for (i = 0; i < self.markers_driver_pos.length; i++) {
-        self.markers_driver_pos[i].marker.setMap(null);
+        Maps.removeElement(self.markers_driver_pos[i].marker);
       }
       for (i = 0; i < self.driver_marker.length; i++) {
         if (self.driver_marker[i]) { 
-          self.driver_marker[i].setMap(null);
+          Maps.removeElement(self.driver_marker[i]);
         }
       }
       

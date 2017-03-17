@@ -1,4 +1,4 @@
-/* global User, map, google, Car, average_speed, Event, MapElements, Conn, Maps */
+/* global User, Car, average_speed, Event, MapElements, Conn, Maps, MyOrder */
 
 define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Modal, HideForms) {
 
@@ -8,64 +8,67 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
   
   function cbGetOrderById(response) {
     var ords = response.result.order;
+    
+    if (ords) {
+      MyOrder.setModel(response);
+      order_id = ords.id;
+      fromAddress = ords.fromAddress;
+      toAddress = ords.toAddress;
+      fromCoords = ords.fromLocation.split(",");
+      toCoords = ords.toLocation.split(",");
+      price = Math.round(ords.price);
+      name_client = ords.agent.name || User.default_name;
+      photo_client = ords.agent.photo || User.default_avatar;
+      distanse = (ords.length / 1000).toFixed(1);
+      duration = ords.duration;
+      for (var y = 0; y < ords.bids.length; y++) {
+        var agid = ords.bids[y].agentId;
 
-    order_id = ords.id;
-    fromAddress = ords.fromAddress;
-    toAddress = ords.toAddress;
-    fromCoords = ords.fromLocation.split(",");
-    toCoords = ords.toLocation.split(",");
-    price = Math.round(ords.price);
-    name_client = ords.agent.name || User.default_name;
-    photo_client = ords.agent.photo || User.default_avatar;
-    distanse = (ords.length / 1000).toFixed(1);
-    duration = ords.duration;
-    for (var y = 0; y < ords.bids.length; y++) {
-      var agid = ords.bids[y].agentId;
-
-      if (agid === User.id) {
-        active_bid = true;
-        break;
+        if (agid === User.id) {
+          active_bid = true;
+          break;
+        }
       }
-    }
-    ag_distanse = ords.agent.distance.toFixed(1);
-    travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
+      ag_distanse = ords.agent.distance.toFixed(1);
+      travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
 
-    if (travelTime < 5) {
-      travelTime = 5;
-    } else {
-      travelTime = 5 * Math.ceil( travelTime / 5 );
-    }
-    waypoints = [];
-    points = [];
-    name_points = [];
-
-    if (ords.points) {
-      for (var i = 0; i < ords.points.length; i++) {
-        var _wp = ords.points[i].location.split(",");
-
-        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
-        name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-        Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png',
-          function (mark) {
-            Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
-            MapElements.points.push(mark);
-          });
+      if (travelTime < 5) {
+        travelTime = 5;
+      } else {
+        travelTime = 5 * Math.ceil( travelTime / 5 );
       }
+      waypoints = [];
+      points = [];
+      name_points = [];
+
+      if (ords.points) {
+        for (var i = 0; i < ords.points.length; i++) {
+          var _wp = ords.points[i].location.split(",");
+
+          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
+          Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
+            function (mark) {
+              Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
+              MapElements.points.push(mark);
+            });
+        }
+      }
+
+      Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
+        function (mark) {
+          MapElements.marker_to = mark;
+        });
+      Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
+        function (mark) {
+          MapElements.marker_from = mark;
+        });
+
+      setRoute();
+      Maps.drawRoute('order', false, function(){});
+      HideForms.init();
+      Conn.clearCb('cbGetOrderById');
     }
-
-    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png',
-      function (mark) {
-        MapElements.marker_to = mark;
-      });
-    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png',
-      function (mark) {
-        MapElements.marker_from = mark;
-      });
-
-    setRoute();
-    Maps.drawRoute('order', false, function(){});
-    HideForms.init();
-    Conn.clearCb('cbGetOrderById');
   }
   
   function initMap() {
@@ -233,17 +236,17 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
   
   function stop() {
     if (marker_from) {
-      marker_from.setMap(null);
+      Maps.removeElement(marker_from);
     }
     if (marker_to) {
-      marker_to.setMap(null);
+      Maps.removeElement(marker_to);
     }
     if (route) {
-      route.setMap(null);
+      Maps.removeElement(route);
     }
     if (points) {
       for (var i = 0; i < points.length; i++) {
-        points[i].setMap(null);
+        Maps.removeElement(points[i]);
       }
     }
   }

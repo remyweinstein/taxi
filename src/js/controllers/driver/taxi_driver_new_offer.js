@@ -1,4 +1,4 @@
-/* global map, User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MyOffer */
+/* global User, Event, Maps */
 
 define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (Destinations, GetPositions, HideForms, Modal) {
 

@@ -1,4 +1,4 @@
-/* global google, map, driver_icon, men_icon, User, MapElements, MyOrder, MyOffer, default_vehicle, SafeWin, Conn, Maps */
+/* global driver_icon, men_icon, User, MapElements, default_vehicle, Conn, Maps */
 
 define(['Car'], function (Car) {
   var radiusSearch = 0.5;
@@ -60,20 +60,15 @@ define(['Car'], function (Car) {
       });
 
     }
-    console.log('zoomer = ');
-    console.log(zoomer);
+
     return zoomer;
   }
+  
   function get_my_pos() {
     if (MapElements.marker_mine) {
-      MapElements.marker_mine.setPosition(new google.maps.LatLng(User.lat, User.lng));
+      Maps.markerSetPosition(User.lat, User.lng, MapElements.marker_mine);
     } else {
-      MapElements.marker_mine = new google.maps.Marker({
-        position: new google.maps.LatLng(User.lat, User.lng),
-        map: Maps.map,
-        icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',
-        title: 'Я здесь!'
-      });
+      MapElements.marker_mine = Maps.addMarker(User.lat, User.lng, 'Я здесь', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
     }
   }
 
@@ -117,15 +112,14 @@ define(['Car'], function (Car) {
 
         loc = agnts[i].location.split(',');
 
-        //marker = 
-        Maps.addMarker(loc[0], loc[1], agnts[i].name, icon, function (mark) {
+        Maps.addMarker(loc[0], loc[1], agnts[i].name, icon, [32,32], function (mark) {
           Maps.addInfoForMarker(info, false, mark);
           new_markers.push({'id': agnts[i].id, 'marker': mark});
         });
       } else {
         if (MapElements.markers_driver_pos[i]) {
           loc = agnts[i].location.split(',');
-          markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[i].marker);
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[i].marker);
           new_markers.push({'id': agnts[i].id, 'marker': MapElements.markers_driver_pos[i].marker});
         }
       }
@@ -144,7 +138,7 @@ define(['Car'], function (Car) {
       }
     }
     for (i = 0; i < result.length; i++) {
-      result[i].marker.setMap(null);
+      Maps.removeElement(result[i].marker);
     }
     MapElements.markers_driver_pos = [];
     MapElements.markers_driver_pos = new_markers;

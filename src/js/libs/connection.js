@@ -1,4 +1,4 @@
-/* global User, Zones, MyOffer, MyOrder, Conn */
+/* global User, Zones, MyOffer, MyOrder, Conn, Funcs */
 /*
 
  type = taxi
@@ -9,7 +9,7 @@
  * @param {type} Uries
  * @returns {connectionL#5.clConn}
  */
-define(['Uries'], function(Uries) {
+define(['Uries', 'Funcs'], function(Uries, Funcs) {
   var timerReconnectionWebSocket,
       socket,
       global_id = null;
@@ -119,7 +119,10 @@ define(['Uries'], function(Uries) {
   }
   
   function startGetOrders(type) {
+    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {};
+    
     params.filter = {};
+    params = Funcs.extendObj(filters, params);
     params.filter.type = type;
     params.filter.fromCity = User.city;
     Conn.sendMessage("get-orders", params);
@@ -129,8 +132,11 @@ define(['Uries'], function(Uries) {
     Conn.sendMessage("stop-get-orders");
   }
 
-  function startGetOffers(add_filter) {
+  function startGetOffers() {
+    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {};
+    
     params.filter = {};
+    params = Funcs.extendObj(filters, params);
     params.filter.type = "taxi";
     params.filter.fromCity = User.city;
     Conn.sendMessage("get-offers", params);
