@@ -54,6 +54,9 @@
         //-moz-transition: bottom 0.5s ease-out 0.25s;
         //-o-transition: bottom 0.5s ease-out 0.25s;
         //transition: bottom 0.5s ease-out 0.25s;
+        .form-order-city__wrap {
+            width: 35%;
+        }
     }
     &__field{
         width: 100%;
@@ -99,11 +102,18 @@
         width:90%;
         border-bottom: 1px solid grey;
         display: inline-block;
+        &__typeoftransport {
+            font-size: 0.75em;
+        }
         &_two_thirds {
             width:70%;
             border-bottom: 1px solid grey;
             display: inline-block;
         }
+    }
+    &__wrap_short3{
+        @extend .form-order-city__wrap;
+        width:25%;
     }
     &__label{
         width: 10%;

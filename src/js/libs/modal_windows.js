@@ -2,7 +2,7 @@
 
 define(['Dom'], function(Dom) {
   
-  var block = 'content',
+  var block = 'dynamic',
       layer,
       cur_win;
     
@@ -46,7 +46,69 @@ define(['Dom'], function(Dom) {
   function clearLayer() {
     layer.parentNode.removeChild(layer);
   }
-
+  
+  function Clock() {
+    var currentdate = new Date(),
+        hour = currentdate.getHours(),
+        min = currentdate.getMinutes(),
+        newDiv = document.createElement('div');
+      
+    hour = hour < 10 ? '0' + hour : hour;
+    min = min < 10 ? '0' + min : min;
+          
+    newDiv.innerHTML =  '<div class="clock">' + 
+                          '<span class="clock__hour">' + 
+                            '<span class="clock__hour__value">' + hour + '</span>' + 
+                            '<span data-click="hour-up" class="clock__hour__up"></span>' + 
+                            '<span data-click="hour-down" class="clock__hour__down"></span>' + 
+                          '</span>' + 
+                          '<span>:</span>' + 
+                          '<span class="clock__min">' + 
+                            '<span class="clock__min__value">' + min + '</span>' + 
+                            '<span data-click="min-up" class="clock__min__up"></span>' + 
+                            '<span data-click="min-down" class="clock__min__down"></span>' + 
+                          '</span>' + 
+                        '</div>';
+    
+    return newDiv;
+  }
+  
+  function hourUp() {
+    Dom.sel('.clock__hour__value').innerHTML = checkHours(parseInt(Dom.sel('.clock__hour__value').innerHTML) + 1);
+    return;
+  }
+  
+  function hourDown() {
+    Dom.sel('.clock__hour__value').innerHTML = checkHours(parseInt(Dom.sel('.clock__hour__value').innerHTML) - 1);
+    return;
+  }
+  
+  function minUp() {
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(parseInt(Dom.sel('.clock__min__value').innerHTML) + 1);
+    return;
+  }
+  
+  function minDown() {
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(parseInt(Dom.sel('.clock__min__value').innerHTML) - 1);
+    return;
+  }
+  
+  function checkMinutes(value) {
+    value = value > 59 ? 0 : value;
+    value = value < 0 ? 59 : value;
+    value = value < 10 ? '0' + value : value;
+    
+    return value;
+  }
+  
+  function checkHours(value) {
+    value = value > 23 ? 0 : value;
+    value = value < 0 ? 23 : value;
+    value = value < 10 ? '0' + value : value;
+    
+    return value;
+  }
+  
   function Calendar(year, month) {
     var Dlast = new Date(year, month + 1, 0).getDate(),
         D = new Date(year, month, Dlast),
@@ -88,6 +150,7 @@ define(['Dom'], function(Dom) {
     }
     
     Dom.sel('.calendar tbody').innerHTML = calendar;
+    
     Dom.sel('.calendar thead td:nth-child(2)').innerHTML = months[D.getMonth()] + ' ' + D.getFullYear();
     Dom.sel('.calendar thead td:nth-child(2)').dataset.month = D.getMonth();
     Dom.sel('.calendar thead td:nth-child(2)').dataset.year = D.getFullYear();
@@ -117,6 +180,26 @@ define(['Dom'], function(Dom) {
             
             break;
           }
+          
+          if (target.dataset.click === 'hour-up') {
+            hourUp();
+            break;
+          }
+          
+          if (target.dataset.click === 'hour-down') {
+            hourDown();
+            break;
+          }
+          
+          if (target.dataset.click === 'min-up') {
+            minUp();
+            break;
+          }
+          
+          if (target.dataset.click === 'min-down') {
+            minDown();
+            break;
+          }
         }
 
         if (target) {
@@ -133,13 +216,17 @@ define(['Dom'], function(Dom) {
   var ModalWindow = {
     calendar: function (callback) {
                 this.show('<table class="calendar">' +
-                          '<thead>' +
-                            '<tr><td><<td colspan="5"><td>>' +
-                            '<tr><td>Пн<td>Вт<td>Ср<td>Чт<td>Пт<td>Сб<td>Вс' +
-                          '<tbody>' +
-                        '</table>', function (datetime) {
-                                      callback(datetime);
-                                    });
+                            '<thead>' +
+                              '<tr><td><<td colspan="5"><td>>' +
+                              '<tr><td>Пн<td>Вт<td>Ср<td>Чт<td>Пт<td>Сб<td>Вс' +
+                            '<tbody>' +
+                          '</table>' +
+                          '<div style="position:relative;top:-1em;">' +
+                            '<button data-getvalue="datetime" class="button_short--green">Сохранить</button>' +
+                          '</div>', function (datetime) {
+                                        callback(datetime);
+                                      });
+                Dom.sel('.calendar').parentNode.insertBefore(Clock(), null);
                 addEvents();
                 Calendar(new Date().getFullYear(), new Date().getMonth());
                 Dom.sel('.calendar thead tr:nth-child(1) td:nth-child(1)').onclick = function () {
@@ -148,6 +235,43 @@ define(['Dom'], function(Dom) {
                 Dom.sel('.calendar thead tr:nth-child(1) td:nth-child(3)').onclick = function () {
                   Calendar(Dom.sel('.calendar thead td:nth-child(2)').dataset.year, parseFloat(Dom.sel('.calendar thead td:nth-child(2)').dataset.month)+1);
                 };
+    },
+    checkPin: function (callback) {
+                this.show('<h4>Введите PIN</h4>' +
+                          '<div class="pin_window">' +
+                            '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="pin"/>' +
+                          '</div>' +
+                          '<div style="position:relative;">' +
+                            '<button data-click="check-pin" class="button_short--green">Отправить</button>' +
+                          '</div>', function (response) {
+                                        callback(response);
+                                      });
+    },
+    createPin: function (callback) {
+                this.show('<h4>Новый PIN</h4>' +
+                          '<div class="pin_window">' +
+                            '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="new_pin"/>' +
+                          '</div>' +
+                          '<div style="position:relative;">' +
+                            '<button data-click="create-pin" class="button_short--green">Сохранить</button>' +
+                          '</div>', function (response) {
+                                        callback(response);
+                                      });
+    },
+    changePin: function (callback) {
+                this.show('<h4>Новый PIN</h4>' +
+                          '<div class="pin_window">' +
+                            '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="old_pin"/>' +
+                          '</div>' +
+                          '<h4>Старый PIN</h4>' +
+                          '<div class="pin_window">' +
+                            '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="new_pin"/>' +
+                          '</div>' +
+                          '<div style="position:relative;">' +
+                            '<button data-click="change-pin" class="button_short--green">Сохранить</button>' +
+                          '</div>', function (response) {
+                                        callback(response);
+                                      });
     },
     show: function (content, callback) {
                   layer = showLayer();
@@ -169,7 +293,34 @@ define(['Dom'], function(Dom) {
                         callback(_el.dataset.response);
                         close();
                       }
-
+                      
+                      if (target.dataset.click === "check-pin") {
+                        callback({pin:Dom.sel('input[name="pin"]').value});
+                        close();
+                      }
+                      
+                      if (target.dataset.click === "change-pin") {
+                        callback({newPin:Dom.sel('input[name="new_pin"]').value, oldPin:Dom.sel('input[name="old_pin"]').value});
+                        close();
+                      }
+                      
+                      if (target.dataset.click === "create-pin") {
+                        callback({newPin:Dom.sel('input[name="new_pin"]').value});
+                        close();
+                      }
+                      
+                      if (target.dataset.getvalue === "datetime") {
+                        var min = Dom.sel('.clock__min__value').innerHTML,
+                            hour = Dom.sel('.clock__hour__value').innerHTML,
+                            day = Dom.sel('.today').innerHTML,
+                            month = parseInt(Dom.sel('.calendar thead td:nth-child(2)').dataset.month) + 1,
+                            year = Dom.sel('.calendar thead td:nth-child(2)').dataset.year;
+                          
+                        month = parseInt(month) < 10 ? '0' + month : month;
+                        callback(year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':00');
+                        close();
+                      }
+                      
                       if (target.dataset.getvalue === "select") {
                         _el = target;
 

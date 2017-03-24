@@ -1,74 +1,58 @@
-/* global Event, Settings */
+/* global Event, Settings, Maps, SafeWin */
 
 define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   
   function addEvents() {
     Event.click = function (event) {
-      var target = event.target, el;
+      var target = event.target,
+          el,
+          _key;
 
       while (target !== this) {
         if (target.dataset.click === "number") {
           el = target;
-          var _key = el.dataset.key;
+          _key = el.dataset.key;
           
           Modal.show('<input type="text" name="val" value="' + eval("Settings." + _key) + '" />' + 
                      '<button class="button_rounded--green" data-getvalue="val">Сохранить</button>', 
             function (response) {
               eval('Settings.' + _key + ' = ' + response);
-              var str = eval('Settings.' + _key);
-              if (str === 0) {
-                str = 'Выключено';
-              }
-              el.querySelectorAll('span')[0].innerHTML = str;
+              el.querySelectorAll('span')[0].innerHTML = response === 0 ? 'Выключено' : response;
             });
 
         }
         
         if (target.dataset.click === "link") {
-          el = target;
-          
-          window.location.hash = el.dataset.link;
+          window.location.hash = target.dataset.link;
         }
 
         if (target.dataset.click === "select") {
           el = target;
-          var _key = el.dataset.key, 
-              val;
+          _key = el.dataset.key;
           
           Modal.show('<button class="button_rounded--green" data-getvalue=select data-value=google>Google</button>' + 
                      '<button class="button_rounded--green" data-getvalue=select data-value=yandex>Yandex</button>', 
             function (response) {
-              if (response === "yandex") {
-                val = "yandex";
-              } else {
-                val = "google";
-              }
-              Maps.setCurrentModel(val);
-              eval('Settings.' + _key + ' = "' + val + '"');
+              Maps.setCurrentModel(response);
+              eval('Settings.' + _key + ' = "' + response + '"');
               Maps.init();
-              var str = val;
+              SafeWin.reinit();
+              var str = response;
               el.querySelectorAll('span')[0].innerHTML = str;
             });
         }
         
         if (target.dataset.click === "boolean") {
           el = target;
-          var _key = el.dataset.key, val;
+          _key = el.dataset.key;
           
           Modal.show('<button class="button_rounded--green" data-getvalue=boolean data-value=true>Включить</button>' + 
                      '<button class="button_rounded--grey" data-getvalue=boolean data-value=false>Выключить</button>', 
             function (response) {
-              val = false;
+              var val = response === "true" ? true : false;
               
-              if (response === "true") {
-                val = true;
-              }
               eval('Settings.' + _key + ' = ' + val);
-              var str = 'Выключено';
-              if (val) {
-                str = 'Включено';
-              }
-              el.querySelectorAll('span')[0].innerHTML = str;
+              el.querySelectorAll('span')[0].innerHTML = val ? 'Включено' : 'Выключено';
             });
         }
 
@@ -79,6 +63,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
         }
       }
     };
+    
     content.addEventListener('click', Event.click);
   }
   
@@ -87,26 +72,31 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   }
   
   function start() {
-    var _el_settings = Dom.sel('.settings');
-    var _obj = Settings;
-    var _innerText = '';
+    var _el_settings = Dom.sel('.settings'),
+        _obj = Settings,
+        _innerText = '';
 
     for (var key in _obj) {
       var _ins, _click, _res;
+      
       if (typeof _obj[key] !== "function" && key !== "label" && key !== "type") {
         if (Settings.type[key]) {
+          
           if (Settings.type[key] === "select") {
             _ins = ' <span>' + _obj[key] + '</span>';
             _click = ' data-click="' + Settings.type[key]  + '"';
           }
+          
           if (Settings.type[key] === "boolean") {
             _res = 'Выключено';
+            
             if (_obj[key]) {
               _res = 'Включено';
             }
             _ins = ' <span>' + _res + '</span>';
             _click = ' data-click="' + Settings.type[key]  + '"';
           }
+          
           if (Settings.type[key] === "number") {
             _res = 'Выключено';
             
@@ -116,11 +106,13 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
             _ins = ' <span>' + _res + '</span>';
             _click = ' data-click="' + Settings.type[key]  + '"';
           }
+          
           if (Settings.type[key] === "link") {
             _ins = ' <span></span>';
             _click = ' data-click="' + Settings.type[key]  + '" data-link="' + _obj[key] + '"';
           }
         }
+        
         _innerText += '<p data-key="' + key + '"' + _click + '>' + Settings.label[key] + _ins + '</p>';
       }
     }

@@ -115,6 +115,7 @@
                         <option value="Москва">Москва</option>
                     </select>
                 </p>
+                <p class="pincode"></p>
                 <p><button class="button_rounded--green">Сохранить</button></p>
             </form>
         </template>
@@ -162,7 +163,7 @@
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
                   <div data-tab-content="1" data-map="enable" class="tabs_content">
-                    <form action="/" method="POST" data-hide-form="enable" data-controller="taxi_client_city" data-submit="taxy_client_city" onsubmit="return false;" class="form-order-city">
+                    <div class="form-order-city">
                         <div class="form-order-city__field order-city-from">
                             <i class="icon-right-circled form-order-city__label"></i>
                             <span class="form-order-city__wrap">
@@ -188,10 +189,18 @@
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
                                 <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
+                                    <option value="auto">Легковой</option>
+                                    <option value="moto">Мотоцикл</option>
+                                    <option value="microbus">Микроавтобус</option>
+                                    <option value="truck">Грузовик</option>
+                                    <option value="bus">Автобус</option>
+                                </select>
                             </div>
-                            <button class="button_rounded--green" data-click="order-taxi">Заказать</button>
+                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
                         </div>
-                    </form>
+                    </div>
                   </div>
                   <div data-tab-content="2" class="tabs_content">
                     <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
@@ -247,9 +256,24 @@
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
                         <div class="wait-order-approve__route-info">
                             <div class="wait-order-approve__route-info__route">
-                                <div></div>
-                                <div>-</div>
-                                <div></div>
+                                <div data-click="change-address" data-route="from"></div>
+                                <div class="form-order-city__field order-city-from">
+                                    <i class="icon-right-circled form-order-city__label"></i>
+                                    <span class="form-order-city__wrap">
+                                        <input id="autocomplete" class="adress_from" type="text" data-click="choose_address" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                                        <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                                    </span>
+                                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                                </div>
+                                <div data-click="change-address" data-route="to"></div>
+                                <div class="form-order-city__field order-city-to">
+                                    <i class="icon-left-circled form-order-city__label"></i>
+                                    <span class="form-order-city__wrap">
+                                        <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                        <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                                    </span>
+                                    <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                                </div>
                             </div>
                             <div class="wait-order-approve__route-info__price"></div>
                             <div class="wait-order-approve__route-info__cancel"></div>
@@ -277,63 +301,56 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказать</li>
-                    <li data-tab="2">Свободное авто</li>
-                    <li data-tab="3">Мои заказы</li>
+                    <li data-tab="2">Мои заказы</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
-                    <form action="" method="POST" class="form-order-city">
+                <div data-tab-content="1" data-map="enable" class="tabs_content">
+                    <div class="form-order-city">
                         <div class="form-order-city__field order-city-from">
                             <i class="icon-right-circled form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input class="adress_from" type="text" name="from" value="" placeholder="Откуда"/></span>
+                            <span class="form-order-city__wrap">
+                                <input id="autocomplete" class="adress_from" type="text" data-click="choose_address" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                                <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
-                        <div class="form-order-city__field">
+                        <div class="form-order-city__field order-city-to">
                             <i class="icon-left-circled form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="from" value="" placeholder="Куда"/></span>
-                        </div>
-                        <div class="form-order-city__field">
-                            <i class="icon-rouble form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="from" value="" placeholder="Стоимость"/></span>
+                            <span class="form-order-city__wrap">
+                                <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
                         <div class="form-order-city__field">
                             <i class="icon-commerical-building form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="from" value="" placeholder="Примечание"/></span>
+                            <span class="form-order-city__wrap_short3"><input type="text" name="volume" value="" placeholder="Объем, м3"/></span>
+                            <span class="form-order-city__wrap_short3"><input type="text" name="weight" value="" placeholder="Вес, кг"/></span>
+                            <span class="form-order-city__wrap_short3"><input type="text" name="loaders" value="" placeholder="Грузчики"/></span>
                         </div>
-                        <div class="gBlock gBlock--float">
-                            <button class="button_rounded--green">Заказать грузовое авто</button>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
                         </div>
-                    </form>
+                        <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
+                            <div class="form-order-city__field">
+                                <i class="icon-rouble form-order-city__label"></i>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
+                                    <option value="truck">Грузовик</option>
+                                    <option value="microbus">Микроавтобус</option>
+                                </select>
+                            </div>
+                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                        </div>
+                    </div>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
-                <ul class="list-extended">
-                    <li>
-                        <div class="list-extended__personal">
-                            <img src="../../assets/images/no_avatar.png" alt="" />
-                        </div>
-                        <div class="list-extended__route">
-                            <div class="list-extended__route_name">Борис</div>
-                            <div class="list-extended__route_time">12:45</div>
-                            <div class="list-extended__route_info">Грузоперевозки по городу</div>
-                            <div class="list-extended__route_sum">500</div>
-                        </div>
-                        <div class="list-extended__phone">
-                            <a href="#"><i class="icon-phone-circled"></i></a>
-                        </div>
-                    </li>
-                </ul>
-                </div>
-                <div data-tab-content="3" class="tabs_content">
-                <ul class="myorders">
-                    <li>
-                        <p class="myorders__item__time">Вчера, 23:19</p>
-                        <p class="myorders__item__from">Ленина, 57</p>
-                        <p class="myorders__item__to">Карла Маркса 108</p>
-                        <p class="myorders__item__summa">150</p>
-                        <p class="myorders__item__info">Рано утром</p>
-                    </li>
-                </ul>
+                    <ul data-controller="cargo_client_my_orders" class="myorders"></ul>
                 </div>
               </div>
             </div>
@@ -348,42 +365,44 @@
             </nav>
             <div class="tabs__wrapper" data-controller="taxi_client_intercity">
               <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
-                    <form action="" method="POST" data-submit="client_order_intercity" class="form-order-city">
-                        <div class="form-order-city__label_field">
-                        ОТКУДА
+                <div data-tab-content="1" data-map="enable" class="tabs_content">
+                    <div class="form-order-city">
+                        <div class="form-order-city__field order-city-from">
+                            <i class="icon-right-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap">
+                                <input id="autocomplete" class="adress_from" type="text" data-click="choose_address" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                                <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
-                        <div class="form-order-city__field">
-                            <i class="icon-commerical-building form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="city_from" value="Хабаровск" placeholder=""/></span>
-                        </div>
-                        <div class="form-order-city__field">
+                        <div class="form-order-city__field order-city-to">
                             <i class="icon-left-circled form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="adress_from" value="" placeholder="Адрес"/></span>
-                        </div>
-                        <div class="form-order-city__label_field">
-                        КУДА
-                        </div>
-                        <div class="form-order-city__field">
-                            <i class="icon-commerical-building form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="city_to" value="" placeholder="Город, куда направляетесь"/></span>
-                        </div>
-                        <div class="form-order-city__field">
-                            <i class="icon-left-circled form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="adress_to" value="" placeholder="Адрес"/></span>
-                        </div>
-                        <div class="form-order-city__field">
-                            <i class="icon-rouble form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Стоимость"/></span>
+                            <span class="form-order-city__wrap">
+                                <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
                         <div class="form-order-city__field">
                             <i class="icon-commerical-building form-order-city__label"></i>
-                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Примечания"/></span>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
                         </div>
-                        <div class="gBlock gBlock--float">
-                            <button class="button_rounded--green">Заказать</button>
+                        <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
+                            <div class="form-order-city__field">
+                                <i class="icon-rouble form-order-city__label"></i>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
+                                    <option value="auto">Легковой</option>
+                                    <option value="moto">Мотоцикл</option>
+                                    <option value="microbus">Микроавтобус</option>
+                                    <option value="bus">Автобус</option>
+                                </select>
+                            </div>
+                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
                         </div>
-                    </form>     
+                    </div>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
                     <ul class="list-extended">
@@ -510,7 +529,7 @@
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
                 <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
-                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
                     <div class="list-orders__result">Найдено <span></span> заявок</div>
                     <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
@@ -549,7 +568,7 @@
                         <span class="form-order-city__wrap_two_thirds"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
                         <button data-click="date_offer" class="button_short--green">Время</button>
                     </div>
-                    <button class="button_rounded--green" data-click="order-taxi">Предложить</button>
+                    <button class="button_rounded--green" data-click="save-order">Предложить</button>
                 </div>
             </form>
         </template>
@@ -620,6 +639,7 @@
                             <div class="wait-order-approve__route-info__route">
                                 <div></div>
                                 <div>-</div>
+                                <div></div>
                                 <div></div>
                             </div>
                             <div class="wait-order-approve__route-info__price"></div>
@@ -769,70 +789,19 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Свободное авто</li>
-                    <li data-tab="3">Мои заказы</li>
+                    <li data-tab="2">Мои предложения</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
               <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Борис</div>
-                                <div class="list-extended__route_time">12:45</div>
-                                <div class="list-extended__route_from">Ленина, 57</div>
-                                <div class="list-extended__route_to">Карла Марска, 190</div>
-                                <div class="list-extended__route_sum">100</div>
-                                <div class="list-extended__route_info">Телевизор</div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Владимир</div>
-                                <div class="list-extended__route_time">17:13</div>
-                                <div class="list-extended__route_from">Гамарника, 13</div>
-                                <div class="list-extended__route_to">Павленко 22</div>
-                                <div class="list-extended__route_sum">300</div>
-                                <div class="list-extended__route_info">Перевезти диван</div>
-                            </div>
-                        </li>
-                    </ul>
+                <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Петр</div>
-                                <div class="list-extended__route_time">2 октября,16:17</div>
-                                <div class="list-extended__route_info">Грузоперевозки по городу и району</div>
-                                <div class="list-extended__route_sum">500</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div data-tab-content="3" class="tabs_content">
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Александр</div>
-                                <div class="list-extended__route_time">2 ноября,19:35</div>
-                                <div class="list-extended__route_from">Индустриальная 1Б</div>
-                                <div class="list-extended__route_to">Краснодарская, 70</div>
-                                <div class="list-extended__route_sum">500</div>
-                                <div class="list-extended__route_info">Перевозка металлической трубы 6 метров</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
                 </div>
               </div>
             </div>

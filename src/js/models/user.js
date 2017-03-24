@@ -30,6 +30,7 @@ define(['Dom'], function(Dom) {
     this.id = getId();
     this.lat = null;
     this.lng = null;
+    this.hasPin = false;
     this.city = null;
     this.country = null;
     this.is_auth = false;
@@ -48,7 +49,7 @@ define(['Dom'], function(Dom) {
       self.city = localStorage.getItem('_my_city');
       self.id   = localStorage.getItem('_my_id');
       self.lat  = localStorage.getItem('_my_pos_lat');
-      self.lng  = localStorage.getItem('_my_pos_lon');    
+      self.lng  = localStorage.getItem('_my_pos_lon');
 
       if ( localStorage.getItem('_is_auth') === "true" ) {
         self.is_auth = true;
@@ -89,6 +90,7 @@ define(['Dom'], function(Dom) {
         self.phone = prfl.phone;
         self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
         self.avatar = prfl.photo ? prfl.photo : default_avatar;
+        self.hasPin = prfl.hasPin;
 
         if (Dom.selAll('.jq_my_name').length) {
           Dom.sel('.jq_my_name').innerHTML = self.name;

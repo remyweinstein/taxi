@@ -1,7 +1,8 @@
 /* global User, Event, Car, MyOffer, Conn */
 
 define(['ModalWindows', 'Lists'], function (Modal, Lists) {
-  var old_filters = localStorage.getItem('_filters_active');
+  var old_filters,
+      old_sortes;
   
   function cbMyOffers(response) {
     if (!response.error) {
@@ -11,13 +12,24 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   }
   
   function cbGetOrders(response) {
-    var filters = localStorage.getItem('_filters_active');
+    var stopStartOrders = function () {
+          Conn.request('stopGetOrders');
+          Conn.clearCb('cbGetOrders');
+          Conn.request('startGetOrders', '', cbGetOrders);
+        },
+        filters = localStorage.getItem('_filters_active'),
+        sortes = localStorage.getItem('_actives_sort');
     
     if (filters !== old_filters) {
-      Conn.request('stopGetOrders');
-      Conn.clearCb('cbGetOrders');
-      Conn.request('startGetOrders', '', cbGetOrders);
+      stopStartOrders();
       old_filters = filters;
+
+      return;
+    }
+
+    if (sortes !== old_sortes) {
+      stopStartOrders();
+      old_sortes = sortes;
 
       return;
     }
@@ -27,6 +39,7 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
     }
     
     old_filters = filters;
+    old_sortes = sortes;
   }
   
   function addEvents() {
@@ -60,25 +73,35 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
             Lists.getOfferByID(target.dataset.id);
             return;
           }
+          
           if (target.dataset.click === "open-order") {
             el = target;
             localStorage.setItem('_open_order_id', el.dataset.id);
             window.location.hash = "#driver_order";
           }
+          
           if (target.dataset.click === "open-offer") {
             id = target.dataset.id;
             localStorage.setItem('_open_offer_id', id);
             Lists.getOfferByID(id);
           }
+          
           if (target.dataset.click === "fav-orders") {
             Lists.filterToggleFav(target);
           }
+          
           if (target.dataset.click === "filter-orders") {
             Lists.filterShowWindow(target);
           }
+          
           if (target.dataset.click === "sort-orders") {
             Lists.filterSortWindow(target);
           }
+          
+          if (target.dataset.click === "automat-orders") {
+            Lists.enableAutomat(target, true);
+          }
+
             // Click taxi_bid
           if (target.dataset.click === "taxi_bid") {
             el = target;
@@ -153,6 +176,8 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   }
   
   function start() {
+    old_filters = localStorage.getItem('_filters_active');
+    old_sortes = localStorage.getItem('_actives_sort');
     Lists.filtersStart();
     Conn.request('requestMyOffers', '', cbMyOffers);
     Conn.request('startGetOrders', '', cbGetOrders);

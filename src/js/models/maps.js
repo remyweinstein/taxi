@@ -1,4 +1,4 @@
-/* global User, safe_zone_polygons, ymaps, MapGoogle, MapYandex, google, Settings */
+/* global User, ymaps, MapGoogle, MapYandex, google, Settings */
 
 define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
 
@@ -36,6 +36,10 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
     this.drawRoute = function (type, back, callback) {
       MapsRoutes.drawRoute(type, back, callback);
     };
+    
+    this.renderRoute = function (waypoints, type, Model, callback) {
+      self.currentModel.renderRoute(waypoints, type, Model, callback);
+    };
 
     this.init = function() {
       self.currentModel.init();
@@ -43,17 +47,9 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
 
     this.mapOff = function () {
       document.getElementById('map_canvas').classList.add("hidden");
-
-      for (var i = 0; i < safe_zone_polygons.length; i++) {
-        if (self.currentMapProvider === "google") {
-          self.removeElement(safe_zone_polygons[i]);
-        } else if (self.currentMapProvider === "yandex") {
-          self.map.geoObjects.remove(safe_zone_polygons[i]);
-        }
-      }
     };
 
-    this.mapOn = function (disable_safe_zone) {
+    this.mapOn = function () {
       document.getElementById('map_canvas').classList.remove("hidden");
 
       if (self.currentMapProvider === "google") {
@@ -61,16 +57,6 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       } else if (self.currentMapProvider === "yandex") {
         if (self.map) {
           self.map.container.fitToViewport();
-        }
-      }
-
-      if (disable_safe_zone) {
-        for (var i = 0; i < safe_zone_polygons.length; i++) {
-          if (self.currentMapProvider === "google") {
-            self.removeElement(safe_zone_polygons[i]);
-          } else if (self.currentMapProvider === "yandex") {
-            self.map.geoObjects.add(safe_zone_polygons[i]);
-          }
         }
       }
     };
@@ -122,13 +108,29 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
     this.insertHtml = function (how, el) {
       self.currentModel.insertHtml(how, el);
     };
-
+    
+    this.convertWayPointsForRoutes = function (lat, lng) {
+      return self.currentModel.convertWayPointsForRoutes(lat, lng);
+    };
+    
     this.addEvent = function (el, event, callback) {
       return self.currentModel.addEvent(el, event, callback);
+    };
+    
+    this.addZoomEvent = function (callback) {
+      return self.currentModel.addZoomEvent(callback);
+    };
+    
+    this.addEventDrag = function (el, callback) {
+      return self.currentModel.addEventDrag(el, callback);
     };
       
     this.addMarker = function (lat, lon, title, icon, iSize, callback) {
       return self.currentModel.addMarker(lat, lon, title, icon, iSize, callback);
+    };
+    
+    this.addMarkerDrag = function (lat, lon, title, icon, iSize, callback) {
+      return self.currentModel.addMarkerDrag(lat, lon, title, icon, iSize, callback);
     };
     
     this.addInfoForMarker = function (text, open, marker) {
@@ -176,6 +178,14 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
     
     this.newPolygon = function (coords) {
       return self.currentModel.newPolygon(coords);
+    };
+    
+    this.addElOnMap = function (el) {
+      this.currentModel.addElOnMap(el);
+    };
+    
+    this.addBearingPoligonOnMap = function (el) {
+      this.currentModel.addBearingPoligonOnMap(el);
     };
     
     this.getCenterPolygon = function (poly) {

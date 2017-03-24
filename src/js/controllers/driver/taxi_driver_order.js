@@ -4,7 +4,7 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
-      name_client, photo_client, travelTime;
+      name_client, photo_client, travelTime, agIndexes, cargo_info = '';
   
   function cbGetOrderById(response) {
     var ords = response.result.order;
@@ -21,6 +21,20 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
       photo_client = ords.agent.photo || User.default_avatar;
       distanse = (ords.length / 1000).toFixed(1);
       duration = ords.duration;
+      agIndexes = parseObj(getAgentIndexes(ords.agent));
+      if (ords.weight) {
+        cargo_info += ' Вес: ' + ords.weight;
+      }
+
+      if (ords.volume) {
+        cargo_info += ' Объем: ' + ords.volume;
+      }
+
+      if (ords.stevedores) {
+        cargo_info += ' Грузчики: ' + ords.stevedores;
+      }
+
+      
       for (var y = 0; y < ords.bids.length; y++) {
         var agid = ords.bids[y].agentId;
 
@@ -45,7 +59,7 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
         for (var i = 0; i < ords.points.length; i++) {
           var _wp = ords.points[i].location.split(",");
 
-          waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+          waypoints.push(Maps.convertWayPointsForRoutes(_wp[0], _wp[1]));
           name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
           Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
             function (mark) {
@@ -75,6 +89,20 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
   }
+  
+  function getAgentIndexes(agent) {
+    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+  }
+  
+  function parseObj(obj) {
+    var content = '';
+    
+    for (var key in obj) {
+      content += '<p>' + key + ': ' + obj[key] + '</p>';
+    }
+    
+    return content;
+  }
 
   function setRoute() {
     var _active_bid = active_bid ? ' active' : '',
@@ -95,6 +123,7 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
     
     el_route.children[0].innerHTML = fromAddress;
     el_route.children[2].innerHTML = toAddress;
+    el_route.children[3].innerHTML = cargo_info;
     
     for (var i = 0; i < name_points.length; i++) {
       _addrPoints += '<p>' + name_points[i].address + ', ' + name_points[i].time + ' мин.</p>';
@@ -120,6 +149,8 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
                         '<div>' +
                           name_client +
                         '</div>' +
+                        '<div>Индексы:</div>' +
+                        '<div>' + agIndexes + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve"></div>' +
                     '</div>';

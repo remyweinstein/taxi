@@ -1,4 +1,4 @@
-/* global map, ymaps, User, SafeWin, Maps */
+/* global map, ymaps, User, SafeWin, Maps, MapElements, cost_of_km */
 
 define(['Dom'], function(Dom) {
   function objCoordsToArray (obj) {
@@ -51,6 +51,45 @@ define(['Dom'], function(Dom) {
   var clYandex = function () {
     var self = this;
 
+    this.renderRoute = function (waypoints, type, Model, callback) {
+      var str = waypoints ? waypoints.join(',') : "",
+          _addr_from = Model.fromCoords.split(","),
+          _addr_to = Model.toCoords.split(",");
+
+      if (str !== "") {
+        waypoints = JSON.parse(waypoints.join(','));
+      } 
+      ymaps.route([
+        { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
+        waypoints,
+        { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
+      ]).then(function (route) {
+          route.getPaths().options.set({
+            hasBalloon: false,
+            strokeStyle: '',
+            strokeWidth: 5,
+            opacity: 0.7
+          });
+
+          Maps.map.geoObjects.add(route.getPaths());
+          MapElements.routes.push(route);
+
+          Model.duration = Math.round(route.getLength() / 60);
+          Model.length = Math.round(route.getLength());
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+          recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+
+          callback(recommended_cost);
+          if (type === "order") {
+            MyOrder = Model;
+          } else {
+            MyOffer = Model;
+          }
+
+        });
+
+    };
+    
     this.init = function () {
       ymaps.ready(init);
 
@@ -81,10 +120,26 @@ define(['Dom'], function(Dom) {
       document.getElementById('map_canvas').insertAdjacentHTML(how, el);
     };
     
-    this.addEvent = function (el, event, callback) {
-      return el.events.group().add(event, callback);
+    this.convertWayPointsForRoutes = function (lat, lng) {
+      return '{"type":"wayPoint","point":[' + lat + ',' + lng + ']}';
     };
     
+    this.addZoomEvent = function (callback) {
+      return self.addEvent(Maps.map, 'boundschange', callback);
+    };
+    
+    this.addEvent = function (handler, event, callback) {
+      return handler.events.group().add(event, callback);
+    };
+    
+    this.addEventDrag = function (handler, callback) {
+      var event = handler.events.group().add('dragend', function () {
+        callback(handler.geometry.getCoordinates());
+      });
+      
+      return event;
+    };
+
     this.point2LatLng = function (x, y) {
       var projection = Maps.map.options.get('projection'),
           coords = projection.fromGlobalPixels(Maps.map.converter.pageToGlobal([x, y]), Maps.map.getZoom());
@@ -106,6 +161,21 @@ define(['Dom'], function(Dom) {
       return marker;
     };
     
+    this.addMarkerDrag = function (lat, lng, title, icon, iSize, callback) {
+      var marker =  new ymaps.Placemark([lat, lng], {
+        hintContent: title
+      }, {
+        iconLayout: 'default#image',
+        iconImageHref: icon,
+        iconImageSize: iSize,
+        draggable: true
+      });
+      Maps.map.geoObjects.add(marker);
+      callback(marker);
+      
+      return marker;
+    };
+    
     this.addInfoForMarker = function (text, open, marker) {
       if (text && text !== "") {
         marker.properties.set({
@@ -119,8 +189,8 @@ define(['Dom'], function(Dom) {
     };
 
     this.removeElement = function (el) {
-      //Maps.map.geoObjects.remove(el);
-      Maps.map.geoObjects.removeAll();
+      Maps.map.geoObjects.remove(el);
+      //Maps.map.geoObjects.removeAll();
     };
     
     this.geocoder = function (lat, lng, callback) {
@@ -132,7 +202,9 @@ define(['Dom'], function(Dom) {
     };
     
     this.removeEvent = function (handler) {
-      handler.removeAll();
+      if (handler) {
+        handler.removeAll();
+      }
     };
     
     this.getLocationClick = function (event) {
@@ -140,31 +212,29 @@ define(['Dom'], function(Dom) {
     };
     
     this.drawPoly = function (Coords) {
-      return  new ymaps.GeoObject({
-                geometry: {
-                  type: "Polygon",
-                  coordinates: Coords,
-                  fillRule: "nonZero"
-                }
-              }, {
-                fillColor: '#00FF00',
-                strokeColor: '#0000FF',
-                opacity: 0.5,
-                strokeWidth: 5,
-                strokeStyle: 'shortdash'
-              });
+      var poly =  new ymaps.Polygon([
+                    objCoordsToArray(Coords)
+                  ],{
+                      fillColor: '#00FF0088',
+                      strokeWidth: 5
+                  });
+      
+      return poly;
     };
     
-    this.newPolygon = function (coords) {
-      var poly =  new ymaps.GeoObject({
-                    geometry: {
-                      type: "Polygon",
-                      coordinates: objCoordsToArray(coords)
-                    }
-                  });
+    this.newPolygon = function () {
+      var poly =  new ymaps.Polygon();
                   
-      Maps.map.geoObjects.add(poly);
+      //Maps.map.geoObjects.add(poly);
       return poly;
+    };
+    
+    this.addElOnMap = function (el) {
+      Maps.map.geoObjects.add(el);
+    };
+    
+    this.addBearingPoligonOnMap = function (el) {
+      Maps.map.geoObjects.add(el);
     };
     
     this.getCenterPolygon = function (poly) {
@@ -172,9 +242,7 @@ define(['Dom'], function(Dom) {
     };
     
     this.getDistance = function (point1, point2) {
-      return ymaps.formatter.distance(
-            ymaps.coordSystem.geo.getDistance(objToCoords(point1), objToCoords(point2))
-        );
+      return ymaps.coordSystem.geo.getDistance(objToCoords(point1), objToCoords(point2));
     };
 
     this.searchPlaces = function (text, radius, callback) {
@@ -191,7 +259,7 @@ define(['Dom'], function(Dom) {
         for (var i = 0; i < lenght_res; i++) {
           var geoObj = res.geoObjects.get(i),
               coords = geoObj.geometry.getCoordinates();
-          
+              
           ans[i]         = {};
           ans[i].lat     = coords[0];
           ans[i].lng     = coords[1];

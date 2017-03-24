@@ -26,3 +26,31 @@
       color: #fff;
     }
 }
+.clock {
+    &__hour, &__min{
+        position: relative;
+        cursor: pointer;
+    }
+    &__hour__up, &__min__up {
+        position: absolute;
+        top: -0.75em;
+        left: 25%;
+        content: "";
+	width: 0;
+	height: 0;
+	border-left: 0.3em solid transparent;
+	border-right: 0.3em solid transparent;
+	border-bottom: 0.6em solid $active;
+    }  
+    &__hour__down, &__min__down {
+        position: absolute;
+        bottom: -0.75em;
+        left: 25%;
+        content: "";
+	width: 0;
+	height: 0;
+	border-left: 0.3em solid transparent;
+	border-right: 0.3em solid transparent;
+	border-top: 0.6em solid $active;
+    }
+}

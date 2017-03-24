@@ -24,7 +24,6 @@ define(['Dom'], function (Dom) {
     }
 
     function callback(results) {
-      console.log(results);
       if (results) {
         for (var i = 0; i < results.length; i++) {
           innText += '<p data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
@@ -78,9 +77,7 @@ define(['Dom'], function (Dom) {
 
     if (model === "offer") {
       MyOffer = Model;
-    }
-    
-    if (model === "order") {
+    } else {
       MyOrder = Model;
     }
     
@@ -95,9 +92,7 @@ define(['Dom'], function (Dom) {
     
     if (model === "offer") {
       Model = MyOffer;
-    }
-    
-    if (model === "order") {
+    } else {
       Model = MyOrder;
     }
   

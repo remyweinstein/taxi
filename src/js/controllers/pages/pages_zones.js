@@ -9,7 +9,9 @@ define(['Dom'], function (Dom) {
           while (target !== this) {
             if (target) {
               if (target.dataset.click === 'edit-zone') {
-                localStorage.setItem('_edit_zone', target.dataset.id);
+                if (target.dataset.id) {
+                  localStorage.setItem('_edit_zone', target.dataset.id);
+                }
                 window.location.hash = '#edit_zone';
                 
                 return;

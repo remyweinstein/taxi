@@ -1,4 +1,4 @@
-/* global User */
+/* global User, MayLoading */
 
 define(['User', 
         'Car', 
@@ -43,6 +43,15 @@ define(['User',
             clGoogle, 
             clYandex) {
 
+  var timerCheckMayLoading;
+  
+  function checkMayLoading() {
+    if (MayLoading) {
+      clearInterval(timerCheckMayLoading);
+      App.afterLoading();
+    }
+  }
+
   var App =  {
     
     start: function () {
@@ -82,11 +91,14 @@ define(['User',
       Settings.getSettings();
       User.getData();
       Geo.init();
-      Zones.get();        
-
       MainMenu.init();
-      InputFilters.init();
       Maps.init();
+      InputFilters.init();
+      timerCheckMayLoading = setInterval(checkMayLoading, 250);
+    },
+    
+    afterLoading: function () {
+      Zones.get();
     },
 
     init: function () {

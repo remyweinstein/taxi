@@ -1,9 +1,90 @@
-/* global google, map, SafeWin, User, Maps */
+/* global google, SafeWin, User, Maps, MapElements, cost_of_km */
 
 define(['Dom'], function(Dom) {
   var clGoogle = function () {
     var self = this;
     
+    this.renderRoute = function (waypoints, type, Model, callback) {
+      var directionsService = new google.maps.DirectionsService(),
+          _addr_from = Model.fromCoords.split(","),
+          _addr_to = Model.toCoords.split(",");
+
+      var request = {
+        origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+        destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+        waypoints: waypoints,
+        provideRouteAlternatives: false,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
+
+      var requestBackTrip = {
+        destination: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+        origin: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+        waypoints: waypoints,
+        provideRouteAlternatives: true,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
+
+      SafeWin.overviewPath = [];
+      directionsService.route(request, function(response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+          var routes_dist = response.routes[0].legs,
+              dura = 0, dist = 0,
+              i;
+
+          for (i = 0; i < routes_dist.length; i++) {
+            dura += routes_dist[i].duration.value;
+            dist += routes_dist[i].distance.value;
+          }
+
+          Model.duration = Math.round(dura / 60);
+          Model.length = dist;
+          recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+          recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+
+          for (i = 0; i < response.routes.length; i++) {
+            MapElements.routes.push(new google.maps.DirectionsRenderer({
+              map: Maps.map,
+              suppressMarkers: true,
+              directions: response,
+              routeIndex: i
+            }));
+          }
+          
+          for (i = 0; i < response.routes.length; i++) {
+            var temp = response.routes[i].overview_path;
+
+            SafeWin.overviewPath.push(temp);
+          }
+          
+          directionsService.route(requestBackTrip, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {            
+              for (i = 0; i < response.routes.length; i++) {
+                MapElements.routes.push(new google.maps.DirectionsRenderer({
+                  map: Maps.map,
+                  suppressMarkers: true,
+                  directions: response,
+                  routeIndex: i
+                }));
+              }
+              for (i = 0; i < response.routes.length; i++) {
+                var temp = response.routes[i].overview_path;
+
+                SafeWin.overviewPath.push(temp);
+              }
+              callback(recommended_cost);
+              if (type === "order") {
+                MyOrder = Model;
+              } else {
+                MyOffer = Model;
+              }
+            }
+          });
+
+        }
+      });
+    };
+      
     this.init = function () {
       var MyLatLng = new google.maps.LatLng(User.lat, User.lng),
           mapCanvas = document.getElementById('map_canvas'),
@@ -35,10 +116,26 @@ define(['Dom'], function(Dom) {
       Maps.map.getDiv().insertAdjacentHTML(how, el);
     };
     
+    this.convertWayPointsForRoutes = function (lat, lng) {
+      return {location: new google.maps.LatLng(lat, lng), stopover: true};
+    };
+    
+    this.addZoomEvent = function (callback) {
+      return self.addEvent(Maps.map, 'zoom_changed', callback);
+    };
+    
     this.addEvent = function (el, event, callback) {
       return google.maps.event.addListener(el, event, callback);
     };
     
+    this.addEventDrag = function (el, callback) {
+      var event = google.maps.event.addListener(el, 'dragend', function (marker) {
+        callback([marker.latLng.lat(), marker.latLng.lng()]);
+      });
+      
+      return event;
+    };
+          
     this.point2LatLng = function (x, y) {
       var topRight = Maps.map.getProjection().fromLatLngToPoint(Maps.map.getBounds().getNorthEast()),
           bottomLeft = Maps.map.getProjection().fromLatLngToPoint(Maps.map.getBounds().getSouthWest()),
@@ -52,6 +149,21 @@ define(['Dom'], function(Dom) {
       var marker = new google.maps.Marker({
         position: new google.maps.LatLng(lat, lng),
         //animation: google.maps.Animation.DROP,
+        icon: icon,
+        title: title,
+        map: Maps.map
+      });
+      
+      callback(marker);
+
+      return marker;
+    };
+
+    this.addMarkerDrag = function (lat, lng, title, icon, iSize, callback) {
+      var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(lat, lng),
+        //animation: google.maps.Animation.DROP,
+        draggable: true,
         icon: icon,
         title: title,
         map: Maps.map
@@ -83,7 +195,9 @@ define(['Dom'], function(Dom) {
     };
     
     this.removeElement = function (el) {
-      el.setMap(null);
+      if (el) {
+        el.setMap(null);
+      }
     };
     
     this.geocoder = function (lat, lng, callback) {
@@ -122,7 +236,7 @@ define(['Dom'], function(Dom) {
     };
     
     this.drawPoly = function (Coords) {
-      return new google.maps.Polygon({
+      var poly = new google.maps.Polygon({
                paths: Coords
                //strokeColor: '#FF0000',
                //strokeOpacity: 0.8,
@@ -131,26 +245,62 @@ define(['Dom'], function(Dom) {
                //fillColor: '#FF0000',
                //fillOpacity: 0.35
              });
+      
+      return poly;
     };
     
-    this.newPolygon = function (coords) {
-      return new google.maps.Polygon({
-               paths: coords
-               //strokeColor: '#FF0000',
-               //strokeOpacity: 0.8,
-               //strokeWeight: 2,
-               //draggable: true,
-               //fillColor: '#FF0000',
-               //fillOpacity: 0.35
-             });
+    this.newPolygon = function () {
+      return new google.maps.Polygon({});
+    };
+    
+    this.addElOnMap = function (el) {
+      el.setMap(Maps.map);
+    };
+    
+    this.addBearingPoligonOnMap = function (el) {
+      
     };
     
     this.getCenterPolygon = function (poly) {
-      return poly.getCenter();
+      var lowx,
+          highx,
+          lowy,
+          highy,
+          lats = [],
+          lngs = [],
+          vertices = poly.getPath();
+
+      for(var i=0; i<vertices.length; i++) {
+        lngs.push(vertices.getAt(i).lng());
+        lats.push(vertices.getAt(i).lat());
+      }
+
+      lats.sort();
+      lngs.sort();
+      lowx = lats[0];
+      highx = lats[vertices.length - 1];
+      lowy = lngs[0];
+      highy = lngs[vertices.length - 1];
+      center_x = lowx + ((highx-lowx) / 2);
+      center_y = lowy + ((highy - lowy) / 2);
+
+      return (new google.maps.LatLng(center_x, center_y));
     };
 
-    this.getDistance = function (point1, point2) {
-      return google.maps.geometry.spherical.computeHeading(point1, point2);
+    this.getDistance = function (p1, p2) {
+      var rad = function(x) {
+            return x * Math.PI / 180;
+          },
+          R = 6378137,
+          dLat = rad(p2.lat - p1.lat),
+          dLong = rad(p2.lng - p1.lng),
+          a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(rad(p1.lat)) * Math.cos(rad(p2.lat)) *
+            Math.sin(dLong / 2) * Math.sin(dLong / 2),
+          c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)),
+          d = R * c;
+    
+      return d;
     };
 
     this.searchPlaces = function (text, radius, callback) {
@@ -205,7 +355,13 @@ define(['Dom'], function(Dom) {
     };
     
     this.getMarkerCoords = function (el) {
-      return el.getPosition();
+      var pos = el.getPosition(),
+          coords = {};
+      
+      coords.lat = pos.lat();
+      coords.lng = pos.lng();
+      
+      return coords;
     };
 
     

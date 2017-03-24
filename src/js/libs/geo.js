@@ -1,4 +1,4 @@
-/* global User, Settings, Conn, Maps */
+/* global User, Settings, Conn, Maps, google */
 
 define(function () {
 

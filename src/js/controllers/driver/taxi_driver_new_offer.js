@@ -35,9 +35,11 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
           }
           
           if (target.dataset.click === 'date_offer') {
-            Modal.calendar(function () {
-                                      
-                                    });
+            Modal.calendar( function (datetime) {
+                              Destinations.addStartTimeOffer(datetime);
+                            });
+
+            break;
           }
           
           if (target.dataset.click === 'clean-field') {
@@ -46,7 +48,7 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
             break;
           }
           
-          if (target.dataset.click === 'order-taxi') {
+          if (target.dataset.click === 'save-order') {
             localStorage.setItem('_active_model', 'offer');
             Destinations.saveOffer();
 

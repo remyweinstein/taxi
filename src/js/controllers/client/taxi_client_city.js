@@ -1,7 +1,7 @@
 /* global User, MyOrder, Event, Conn, Maps */
 
-define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
-  function (Dom, HideForms, GetPositions, Lists, Destinations) {
+define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindows'],
+  function (Dom, HideForms, GetPositions, Lists, Destinations, Modal) {
     var content = Dom.sel('.content'), 
         global_el, 
         eventOnChangeZoom,
@@ -69,14 +69,17 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
               global_el = target;
               Conn.addFavorites(target.dataset.id, cbAfterAddFav);
             }
+            
             if (target.dataset.click === "deltofav") {
               global_el = target;
               Conn.deleteFavorites(target.dataset.id, cbAfterDeleteFav);
             }
+            
             if (target.dataset.click === "addtoblack") {
               global_el = target;
               Conn.addBlackList(target.dataset.id, cbAfterAddBlackList);
             }
+            
             if (target.dataset.click === "deltoblack") {
               global_el = target;
               Conn.deleteBlackList(target.dataset.id, cbAfterDeleteBlackList);
@@ -91,12 +94,14 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
               localStorage.setItem('_active_model', 'order');
               window.location.hash = '#client_choose_address';
             }
+            
             if (target.dataset.click === 'choice_location') {
               localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
               localStorage.setItem('_active_model', 'order');
               window.location.hash = '#client_choice_location_map';
               break;
             }
+            
             // = Form add new point order =
             if (target.dataset.click === 'field_add') {
               var just_add = Dom.selAll('.icon-record').length;
@@ -110,19 +115,31 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
               }
               break;
             }
+            
+            if (target.dataset.click === 'date_order') {
+              Modal.calendar( function (datetime) {
+                                Destinations.addStartTimeOrder(datetime);
+                              });
+
+              break;
+            }
+
             if (target.dataset.click === 'clean-field') {
               Destinations.cleanFieldOrder(target.dataset.field);
               break;
             }
+            
             if (target.dataset.click === 'field_add_time') {
               Destinations.addTimeOrder(target.dataset.id);
               break;
             }
+            
               // = Form delete point order =
             if (target.dataset.click === 'field_delete') {
               Destinations.deleteField(target);
               break;
             }
+            
             //  =============== EVENTS FOR MENU MY ORDERS ================
               // = Menu my Orders Item =
             if (target.dataset.click === 'myorders_item_menu') {
@@ -137,18 +154,28 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
 
               return;
             }
+            
+            if (target.dataset.click === "save-order") {
+              localStorage.setItem('_active_model', 'order');
+              Destinations.saveOrder();
+
+              return;
+            }
+          
               // = Menu my Orders Item DELETE order =
             if (target.dataset.click === 'myorders_item_menu_delete') {
               Lists.deleteOrder(target);
 
               return;
             }
+            
               // = Menu my Orders Item GO order =
             if (target.dataset.click === 'myorders_item_menu_go') {
               Lists.getOrderByID(target.dataset.id);
 
               return;
             }
+            
             //  =============== EVENTS FOR LIST OF OFFERS ================
             if (target.dataset.click === "open-offer") {
               el = target;
@@ -156,30 +183,41 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
               localStorage.setItem('_open_offer_id', el.dataset.id);
               window.location.hash = "#client_offer";
             }
+            
             if (target.dataset.click === "taxi_bid") {
-              var id_offer = target.dataset.id;
+              var data = {};
+              
+              data.id = target.dataset.id;
               
               if (Dom.toggle(target, 'active')) {
-                Conn.request('disagreeOffer',id_offer);
+                Conn.request('disagreeOffer', data);
               } else {
-                Conn.request('agreeOffer', id_offer);
+                Conn.request('agreeOffer', data);
               }
             }
+            
             if (target.dataset.click === "open-offer") {
               var id = target.dataset.id;
 
               localStorage.setItem('_open_offer_id', id);
-              Lists.getByID(id, 'clDriverOffer');
+              //Lists.getByID(id, 'clDriverOffer');
             }
+            
             //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============
             if (target.dataset.click === "fav-orders") {
               Lists.filterToggleFav(target);
             }
+            
             if (target.dataset.click === "filter-orders") {
               Lists.filterShowWindow(target);
             }
+            
             if (target.dataset.click === "sort-orders") {
               Lists.filterSortWindow(target);
+            }
+            
+            if (target.dataset.click === "automat-orders") {
+              Lists.enableAutomat(target, false);
             }
           }
 
@@ -190,22 +228,8 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations'],
           }
         }
       };
+      
       content.addEventListener('click', Event.click);
-
-      Event.submit = function (event) {
-        var target = event.target;
-
-        while (target !== this) {
-          if (target.dataset.submit === "taxy_client_city") {
-            localStorage.setItem('_active_model', 'order');
-            Destinations.saveOrder();
-
-            return;
-          }
-          target = target.parentNode;
-        }
-      };
-      content.addEventListener('submit', Event.submit);
     }
 
     function stop() {

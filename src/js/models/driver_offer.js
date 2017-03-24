@@ -19,6 +19,7 @@ define(function() {
     this.fromCoords = null;
     this.toCoords = null;
     this.duration = 0;
+    this.start = null;
     this.toCoordses = [];
     this.fromFullAddress = null;
     this.toFullAddress = null;
@@ -50,6 +51,7 @@ define(function() {
       self.toCoords = ord.toLocation;
       //self.duration = ord.duration;
       //self.distance = ord.distance;
+      self.start = ord.start;
       self.length = ord.length;
       self.fromFullAddress = "";
       self.toFullAddress = "";
@@ -107,6 +109,7 @@ define(function() {
       data.price = self.price;
       data.comment = self.comment;
       data.type = 'taxi';
+      data.start = self.start;
       //data.duration = self.duration;
       //data.minibus = 0;
       //data.babyChair = 0;

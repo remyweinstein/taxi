@@ -10,56 +10,26 @@ define(['Car'], function (Car) {
   }
   
   function init() {
-    var zoomer;
-    
-    if (Maps.currentMapProvider === "google") {
-      zoomer = Maps.map.addListener('zoom_changed', function () {
-        var zoom = Maps.map.getZoom();
-
-        if (zoom <= 12) {
-          radiusSearch = 10;
-        } else if (zoom === 13) {
-          radiusSearch = 3;
-        } else if (zoom === 14) {
-          radiusSearch = 2;
-        } else if (zoom === 15) {
-          radiusSearch = 1;
-        } else if (zoom === 16) {
-          radiusSearch = 0.5;
-        } else if (zoom > 16) {
-          radiusSearch = 0.1;
-        }
-        Conn.request('stopGetAgents');
-        Conn.request('startGetAgents', radiusSearch, cbGetAgents);
-      });
-    } else if (Maps.currentMapProvider === "yandex") {
-      zoomer = Maps.map.events.group();
-        
-      zoomer.add('boundschange', function (e) {
-        var zoom = e.get('newZoom');
-
-        if (zoom <= 12) {
-          radiusSearch = 10;
-        } else if (zoom === 13) {
-          radiusSearch = 3;
-        } else if (zoom === 14) {
-          radiusSearch = 2;
-        } else if (zoom === 15) {
-          radiusSearch = 1;
-        } else if (zoom === 16) {
-          radiusSearch = 0.5;
-        } else if (zoom > 16) {
-          radiusSearch = 0.1;
-        }
-        Conn.request('stopGetAgents');
-        Conn.request('startGetAgents', radiusSearch, cbGetAgents);
-      });
-      
-      zoomer.add('click', function (e) {
-        console.log('i click');
-      });
-
-    }
+    var zoomer = Maps.addZoomEvent(function () {
+          var zoom = Maps.map.getZoom();
+          
+          if (zoom <= 12) {
+            radiusSearch = 10;
+          } else if (zoom === 13) {
+            radiusSearch = 3;
+          } else if (zoom === 14) {
+            radiusSearch = 2;
+          } else if (zoom === 15) {
+            radiusSearch = 1;
+          } else if (zoom === 16) {
+            radiusSearch = 0.5;
+          } else if (zoom > 16) {
+            radiusSearch = 0.1;
+          }
+          
+          Conn.request('stopGetAgents');
+          Conn.request('startGetAgents', radiusSearch, cbGetAgents);
+        });
 
     return zoomer;
   }

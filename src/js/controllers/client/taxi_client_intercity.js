@@ -1,3 +1,5 @@
+/* global Maps */
+
 define(function () {
   
   function stop() {
@@ -5,7 +7,7 @@ define(function () {
   }
   
   function start() {
-    
+    Maps.mapOn();
   }
   
   return {

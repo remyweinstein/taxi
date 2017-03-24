@@ -3,23 +3,43 @@
 define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, clDriverOrders, Popup) {
   var Orders = [],
       add_filter = '',
-      arr_filters = {};
-      
+      arr_filters = {},
+      global_bid;
+  
+  function cbApproveOffer2() {
+    Conn.clearCb('cbApproveOffer2');
+    MyOrder.bid_id = global_bid;
+    localStorage.setItem('_current_id_bid', MyOrder.bid_id);
+    localStorage.setItem('_active_order_id', MyOrder.id);
+    localStorage.setItem('_current_id_order', MyOrder.id);
+    window.location.hash = "#client_go";
+  }
+  
   function cbGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
         bids = response.result.offers,
-        innText = '';
+        innText = '',
+        automat_client_approve = localStorage.getItem('_automat_client_approve');
       
     el.innerHTML = "";
+    
     if (!bids || bids === "undefined") {
       bids = response.result.orders;
     }
 
     if (bids) {
+      if (bids.length > 0 && automat_client_approve) {
+        Lists.clear();
+        global_bid = bids[0].id;
+        Conn.request('approveOffer', bids[0].id, cbApproveOffer2);
+        return;
+      }
+      
       for (var i = 0; i < bids.length; i++) {
         var photo = bids[i].agent.photo || User.avatar,
             vehicle = bids[i].agent.vehicle || default_vehicle,
-            loc = bids[i].agent.location;
+            loc = bids[i].agent.location,
+            agIndex = parseObj(getAgentIndexes(bids[i].agent));
 
         loc = loc.split(',');
         
@@ -30,6 +50,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         }
 
         var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
+        
         innText +=  '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__distance">' +
                         'Растояние до водителя, <span>' + dist + ' км</span>' +
@@ -39,6 +60,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
                           '<img src="' + photo + '" alt="" />' +
                         '</div>' +
                         '<div>' + bids[i].agent.name + '</div>' +
+                        '<div>Индексы:</div>' +
+                        '<div>' + agIndex + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__car">' +
                         '<div>' +
@@ -63,6 +86,20 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
     el.innerHTML = innText;
   }
   
+  function getAgentIndexes(agent) {
+    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+  }
+  
+  function parseObj(obj) {
+    var content = '';
+    
+    for (var key in obj) {
+      content += '<p>' + key + ': ' + obj[key] + '</p>';
+    }
+    
+    return content;
+  }
+  
   function filterToggleFav(el) {
     if (Dom.toggle(el, 'active')) {
       delete arr_filters.filter.favorite;
@@ -74,6 +111,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         arr_filters.filter.favorite = 1;
       }
     }
+    
     add_filter = get_add_filter_string();
   }
   
@@ -114,28 +152,28 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function render_list(type, response) {
-    var add_type, 
-        ords, 
-        order_canceled, 
-        order_finished, 
+    var ords = type==='order' ? response.orders : response.offers,
+        order_canceled,
+        order_finished,
         order_finishedClient,
         order_finishedDriver,
-        tempOrder = Orders;
-
-    if (type === 'order') {
-      ords = response.orders;
-    } else {
-      ords = response.offers;
-    }
+        tempOrder = Orders,
+        orders_result = Dom.sel('.list-orders__result span'),
+        automat_driver = type==='order' ? localStorage.getItem('_automat_driver_orders') : false,
+        automat_client = type==='order' ? false : localStorage.getItem('_automat_client_offers');
 
     Orders = [];
     
     if (ords) {
+      if (automat_driver) {
+        
+      }
+      
       for (var i = 0; i < ords.length;) {
-        var ordId = ords[i].id;
-        var same_el = tempOrder.filter(function(ord) {
-          return ord.id === ordId;
-        });
+        var ordId = ords[i].id,
+            same_el = tempOrder.filter(function(ord) {
+              return ord.id === ordId;
+            });
         
         if (type === 'order') {
           order_canceled = ords[i].canceled;
@@ -167,18 +205,11 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           if (temp_order.agentBidId === temp_order.bidId) {
             localStorage.setItem('_current_id_bid', temp_order.bidId);
             localStorage.setItem('_current_id_order', temp_order.id);
-            if (type === 'order') {
-              //window.location.hash = '#driver_go';
-            } else {
-              //window.location.hash = "#client_go";
-            }
           }
           i++;
         });
       }
     }
-
-    var orders_result = Dom.sel('.list-orders__result span');
 
     if (orders_result) {
       orders_result.innerHTML = Orders.length;
@@ -210,7 +241,21 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           var price_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '',
               price_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="price_plus"></i>' : '',
               time_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="time_minus"></i>' : '',
-              time_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '';
+              time_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '',
+              ideika = Orders[key].order_in_offer || Orders[key].id,
+              cargo_info = '';
+          
+          if (Orders[key].weight) {
+            cargo_info += '<div class="list-orders_route_info">Вес: ' + Orders[key].weight + '</div>';
+          }
+
+          if (Orders[key].volume) {
+            cargo_info += '<div class="list-orders_route_info">Объем: ' + Orders[key].volume + '</div>';
+          }
+
+          if (Orders[key].stevedores) {
+            cargo_info += '<div class="list-orders_route_info">Грузчики: ' + Orders[key].stevedores + '</div>';
+          }
 
           show('LI', '<div class="list-orders_route">' +
                        '<div data-click="open-' + type + '" data-id="' + Orders[key].id + '">' +
@@ -224,6 +269,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
                         '<div class="list-orders_route_additional">' +
                           Orders[key].comment +
                         '</div>' +
+                        cargo_info +
                         '<div class="list-orders_route_info">' +
                           'До адреса: ' + Orders[key].distance + ' км' +
                         '</div>' +
@@ -249,7 +295,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
                            Orders[key].name + '<br/>' + Orders[key].created +
                       '</div>' +
                       '<div class="list-orders_phone">' +
-                        '<i data-click="taxi_bid" data-id="' + Orders[key].id + '" class="icon-ok-circled' + active_bid + '"></i>' +
+                        '<i data-click="taxi_bid" data-id="' + ideika + '" class="icon-ok-circled' + active_bid + '"></i>' +
                       '</div>',
                     listOrders);
         }
@@ -331,7 +377,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function onstartAddFilters() {
-    var saved_filters = localStorage.getItem('_filters_active');
+    var saved_filters = localStorage.getItem('_filters_active'),
+        saved_sort = localStorage.getItem('_actives_sort');
     
     add_filter = '';
     
@@ -460,8 +507,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function getValueForPopupFilters() {
-    var saved_filters = localStorage.getItem('_filters_active');
-    var response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
+    var saved_filters = localStorage.getItem('_filters_active'),
+        response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
     
     if (saved_filters) {
       arr_filters = JSON.parse(saved_filters);
@@ -499,6 +546,22 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         add_filter = get_add_filter_string();
       }
     }); 
+  }
+  
+  function enableAutomatDriver(el) {
+    if (Dom.toggle(el, 'active')) {
+      localStorage.removeItem('_automat_driver_orders');
+    } else {
+      localStorage.setItem('_automat_driver_orders', true);
+    }
+  }
+  
+  function enableAutomatClient(el) {
+    if (Dom.toggle(el, 'active')) {
+      localStorage.removeItem('_automat_client_offers');
+    } else {
+      localStorage.setItem('_automat_client_offers', true);
+    }
   }
   
   function filterShowWindow(el) {
@@ -589,10 +652,15 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
     filterShowWindow: function (el) {
       filterShowWindow(el);
     },
+    enableAutomat: function (el, isDriver) {
+      if (isDriver) {
+        enableAutomatDriver(el);
+      } else {
+        enableAutomatClient(el);
+      }
+    },
     filterConvertToString: function () {
-      var filter = get_add_filter_string();
-      
-      return filter;
+      return get_add_filter_string();
     },
     filtersStart: function () {
       onstartAddFilters();
@@ -607,6 +675,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       if (model === "clClientOrder") {
         Model = MyOrder;
       }
+      
+      return Model;
     },
     setModel: function (model) {
       if (model === "clDriverOffer") {

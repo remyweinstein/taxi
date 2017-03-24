@@ -1,20 +1,37 @@
-/* global User, google, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, Maps */
+/* global User, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, Maps, Zones */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
     
   var show_route = false,
       fromCoords, toCoords, fromAddress, toAddress, waypoints,
-      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time;
+      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time,
+      isFollow = localStorage.getItem('_follow_order'),
+      color_follow = isFollow ? 'green' : 'red',
+      inCar = false;
 
   function cbFinishOrder() {
+    var active_zones = localStorage.getItem('_enable_safe_zone');
+    
+    color_follow = isFollow ? 'green' : 'red';
     localStorage.setItem('_rating_order', MyOrder.id);
-    localStorage.removeItem('_enable_safe_zone');
+    
+    if (active_zones) {
+      var list_active_zone = active_zones.split(',');
+      
+      for (var i = 0; i < list_active_zone.length; i++) {
+        Zones.inactive(list_active_zone[i]);
+      }
+      SafeWin.clearPolygonZones();
+      localStorage.removeItem('_enable_safe_zone');
+    }
     localStorage.removeItem('_enable_safe_route');
+    localStorage.removeItem('_follow_order');
     window.location.hash = '#client_drivers_rating';
   }
   
   function cbCancelOrder() {
+    localStorage.removeItem('_follow_order');
     window.location.hash = '#client_city';
   }
 
@@ -28,18 +45,26 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
         alert('К сожалению, заказ не найден.');
         window.location.hash = '#client_city';
       }
+      
+      if (ords.inCar) {
+        inCar = true;
+        color_follow = 'grey';
+      }
+      
+      color_follow = isFollow ? 'green' : color_follow;
 
       if (ords.finished) {
         cbFinishOrder();
       }
 
-      var offer = ords.bids[0].offer,
+      var but,
+          offer = ords.bids[0].offer,
           agnt = offer.agent,
           toLoc = ords.toLocation,
           loc = agnt.location.split(','),
           lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
           incar_but = Dom.sel('button[data-click="client-incar"]'),
-          but = Dom.sel('[data-click="client-came"]'),
+          but_came = Dom.sel('[data-click="client-came"]'),
           field_distance_to_car = Dom.sel('[data-view="distance_to_car"]'),
           field_while_car = Dom.sel('[data-view="while_car"]'),
           field_duration = Dom.sel('[data-view="duration"]');
@@ -47,6 +72,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
       if (ords.id) {
         MyOrder.id = ords.id;
       }
+      
       dr_model = agnt.brand + ' ' + agnt.model;
       dr_name = agnt.name;
       dr_color = agnt.color;
@@ -73,9 +99,11 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
           }
         }
       }
+      
       if (ords.arrived) {
         dr_time = 'На месте';
       }
+      
       dr_photo = agnt.photo || User.avatar;
       dr_vehicle = agnt.vehicle || default_vehicle;
       fromCoords = ords.fromLocation.split(",");
@@ -91,21 +119,25 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
       MyOrder.fromAddress = ords.fromAddress;
       MyOrder.toAddress = ords.toAddress;
       MyOrder.times = ords.toTimes;
+      
       if (field_distance_to_car) {
         field_distance_to_car.innerHTML = dr_distanse;
       }
+      
       if (field_while_car) {
         field_while_car.innerHTML = dr_time;
       }
+      
       if (field_duration) {
         field_duration.innerHTML = duration_time;
       }
+      
       waypoints = [];
       if (ords.toAddresses) {
         for (var i = 0; i < ords.toAddresses.length; i++) {
           var _to = ords.toLocationes[i].split(",");
 
-          waypoints.push({location: new google.maps.LatLng(_to[0], _to[1]), stopover: true});
+          waypoints.push(Maps.convertWayPointsForRoutes(_to[0], _to[1]));
           Maps.addMarker(_to[0], _to[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
             function (mark) {
               Maps.addInfoForMarker(ords.toTimes[i] + 'мин.', true, mark);
@@ -121,35 +153,52 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
         function (mark) {
           MapElements.marker_to = mark;
         });
+        
       if (!show_route) {
         setRoute();
       }
+      
       if (ords.arrived) {
         if (incar_but) {
           incar_but.disabled = false;
+          if (!isFollow) {
+            var el = Dom.sel('button[data-click="follow-order"]');
+            
+            el.classList.remove('button_rounded--red');
+            el.classList.add('button_rounded--grey');
+          }
         }
       }
+      
       toLoc = toLoc.split(',');
       var dist = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]);
 
-      if (dist < 1) {
-        if (but) {
-          but.disabled = false;
+      if (but_came) {
+        if(isFollow) {
+          but_came.disabled = false;
+        } else {
+          if (dist < 1) {
+            but_came.disabled = false;
+          }
         }
       }
+      
       if (ords.canceledByDriver || ords.canceledByClient) {
         stop();
         localStorage.removeItem('_active_order_id');
         alert('К сожалению, заказ отменен.');
         window.location.hash = '#client_city';
       }
+      
       if (ords.inCar) {
         if (incar_but) {
-          incar_but.parentNode.innerHTML = '<button data-click="client-came" class="button_wide--green" disabled>Приехали</button>';
+          var disabla = isFollow ? '' : ' disabled';
+          incar_but.parentNode.innerHTML = '<button data-click="client-came" class="button_wide--green"' + disabla + '>Приехали</button>';
         }
-      }        
-      if (!MapElements.marker_client) {          
-        MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Водитель', [32,32], driver_icon, function(){});
+      }    
+
+      if (!MapElements.marker_client) {
+        MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(){});
       } else {
         Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
       }
@@ -170,7 +219,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
     el_route.children[0].innerHTML = fromAddress;
     el_route.children[2].innerHTML = toAddress;
     el_price.innerHTML = price + ' руб.';
-    el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
+    el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
+                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать</button>';
     el.innerHTML = '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__distance">' +
                         'Автомобиль:<br/>' +
@@ -203,19 +253,52 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
-      
+
       while (target !== this) {
         if (target.dataset.click === "client-came") {
           Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+          break;
         }
+        
         if (target.dataset.click === 'client-incar') {
-          console.log('try click client-incar');
+          var el = Dom.sel('button[data-click="follow-order"]');
+          
+          el.classList.remove('button_rounded--red');
+          el.classList.add('button_rounded--grey');
           Conn.request('inCarClient', MyOrder.id);
+          break;
         }
+        
+        if (target.dataset.click === 'follow-order') {
+          var el = target,
+              stat = el.classList[0],
+              status = stat.replace("button_rounded--", "");
+          
+          if (status === "red") {
+            alert('Вы еще ничего не передали, нажмите "В машине"');
+            break;
+          }
+          
+          if (isFollow) {
+            el.classList.remove('button_rounded--green');
+            el.classList.add('button_rounded--grey');
+            isFollow = false;
+            localStorage.removeItem('_follow_order');
+          } else {
+            el.classList.add('button_rounded--green');
+            el.classList.remove('button_rounded--grey');
+            isFollow = true;
+            localStorage.setItem('_follow_order', true);
+          }
+          
+          break;
+        }
+        
         if (target.dataset.click === 'cancel-order') {
           if (confirm('Отменить заказ?')) {
             Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
           }
+          break;
         }
         
         if (target) {
@@ -225,6 +308,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
         }
       }
     };
+    
     content.addEventListener('click', Event.click);
   }
   
@@ -237,6 +321,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
   }
   
   function start() {
+    isFollow = localStorage.getItem('_follow_order');
     Maps.mapOn();
     initMap();
     SafeWin.overviewPath = [];

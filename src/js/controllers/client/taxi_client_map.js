@@ -39,6 +39,21 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
           Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
         }
         
+        if (target && target.dataset.click === "automat") {
+          var elem = Dom.sel('button[data-click="automat"]');
+          
+          global_el = target;
+          if (localStorage.getItem('_automat_client_approve')) {
+            localStorage.removeItem('_automat_client_approve');
+            elem.classList.remove('button_rounded--green');
+            elem.classList.add('button_rounded--grey');
+          } else {
+            localStorage.setItem('_automat_client_approve', true);
+            elem.classList.remove('button_rounded--grey');
+            elem.classList.add('button_rounded--green');
+          }
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -46,6 +61,7 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
         }
       }
     };
+    
     content.addEventListener('click', Event.click);
   }
   
@@ -62,7 +78,8 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
     if (MyOrder.id > 0) {
       var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
-          el_routes = Dom.selAll('.wait-order-approve__route-info__route');
+          el_routes = Dom.selAll('.wait-order-approve__route-info__route'),
+          color_automat = localStorage.getItem('_automat_client_approve') ? 'green' : 'grey';
       
       Maps.mapOn();
       SafeWin.overviewPath = [];
@@ -83,7 +100,8 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
         }
       }
       el_price.innerHTML = Math.round(MyOrder.price) + ' руб';
-      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';        
+      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>' + 
+                            '<button data-click="automat" class="button_rounded--' + color_automat + '">Автомат</button>';
       HideForms.init();
       Lists.getBidsDriver();
     } else {

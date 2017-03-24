@@ -11,6 +11,8 @@ define(function() {
     this.marker_a = null;
     this.marker_from = null;
     this.marker_to = null;
+    this.marker_from_2 = null;
+    this.marker_to_2 = null;
     this.points = [];
     this.markers = [];
     this.markers_driver_pos = [];
@@ -35,6 +37,12 @@ define(function() {
       }
       if (self.marker_to) {
         Maps.removeElement(self.marker_to);
+      }
+      if (self.marker_from_2) {
+        Maps.removeElement(self.marker_from_2);
+      }
+      if (self.marker_to_2) {
+        Maps.removeElement(self.marker_to_2);
       }
       if (self.marker_client) {
         Maps.removeElement(self.marker_client);
@@ -68,6 +76,8 @@ define(function() {
       self.marker_a = null;
       self.marker_from = null;
       self.marker_to = null;
+      self.marker_from_2 = null;
+      self.marker_to_2 = null;
       self.marker_mine = null;
       self.points = [];
       self.markers_driver_pos = [];

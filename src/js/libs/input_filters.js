@@ -11,6 +11,18 @@ define(['Dom'], function(Dom) {
       
       return;
     }
+    
+    function count_digits(e, target) {
+      var count = parseInt(target.dataset.count_digits),
+          value = target.value;
+        
+      if (value) {
+        if (value.length > (count-1)) {
+          e.preventDefault();
+        }
+      }
+
+    }
 
     function only_date(e, target) {
       var text = target.value;
@@ -58,11 +70,15 @@ define(['Dom'], function(Dom) {
     init: function() {
             Dom.sel('.content').addEventListener('keypress', function(e) {
               var target = e.target;
-              
+
               while (target !== this) {
                     // = Input Filtering ONLY DIGITS =
                 if (target.dataset.keypress === 'input_only_digits') {
                   only_digits(e);
+                }
+                    // = Input Filtering COUNT DIGITS =
+                if (target.dataset.count_digits !== '') {
+                  count_digits(e, target);
                 }
                     // = Input Filtering ONLY DATE =
                 if (target.dataset.keypress === 'input_only_date') {

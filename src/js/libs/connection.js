@@ -119,10 +119,12 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   }
   
   function startGetOrders(type) {
-    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {};
+    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {},
+        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {};
     
     params.filter = {};
     params = Funcs.extendObj(filters, params);
+    params = Funcs.extendObj(orders, params);
     params.filter.type = type;
     params.filter.fromCity = User.city;
     Conn.sendMessage("get-orders", params);
@@ -133,10 +135,12 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   }
 
   function startGetOffers() {
-    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {};
+    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {},
+        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {};
     
     params.filter = {};
     params = Funcs.extendObj(filters, params);
+    params = Funcs.extendObj(orders, params);
     params.filter.type = "taxi";
     params.filter.fromCity = User.city;
     Conn.sendMessage("get-offers", params);
@@ -157,14 +161,21 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
     Conn.sendMessage("delete-offer", params);
   }
 
-  function agreeOffer(id) {
+  function agreeOffer(data) {
     params.order = {};
-    params.order.offer = id;
+    params.order.offer = data.id;    
+    params.order.fromAddress = data.fromAddress;
+    params.order.fromLocation = data.fromCoords;
+    params.order.toAddress = data.toAddress;
+    params.order.toLocation = data.toCoords;
+    params.order.price = data.price;
+
     Conn.sendMessage("post-order", params);
   }
 
-  function disagreeOffer(id) {
-    params.offerId = id;
+  function disagreeOffer(data) {
+    //params.offerId = id;
+    params.orderId = data.id;
     Conn.sendMessage("delete-order", params);
   }
 
@@ -199,6 +210,13 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
     Conn.sendMessage("get-orders", params);
   }
   
+  function requestMyCargoOrders() {
+    params.filter = {};
+    params.filter.type = "trucking";
+    params.filter.my = 1;
+    Conn.sendMessage("get-orders", params);
+  }
+  
   function approveOffer(id) {
     params.offerId = id;
     Conn.sendMessage("approve-offer", params);
@@ -214,6 +232,17 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
     params.filter.type = "taxi";
     params.filter.my = 1;
     Conn.sendMessage("get-offers", params);
+  }
+  
+  function requestMyCargoOffers() {
+    params.filter = {};
+    params.filter.type = "trucking";
+    params.filter.my = 1;
+    Conn.sendMessage("get-offers", params);
+  }
+  
+  function requestSos() {
+    Conn.sendMessage("sos");
   }
   
   function startOffersByOrder(id) {
@@ -250,7 +279,17 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   function requestProfile() {
     Conn.sendMessage("get-profile");
   }
-
+  
+  function checkPin(pin) {
+    params.pin = pin;
+    Conn.sendMessage("check-pin", params);
+  }
+  
+  function changePin(data) {
+    params = data;
+    Conn.sendMessage("post-profile", params);
+  }
+  
   function requestZones() {
     Conn.sendMessage("get-zones");
   }
@@ -437,6 +476,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
         case "startGetOrders":
           startGetOrders('taxi');
           break;
+        case "startGetOrdersCargo":
+          startGetOrders('trucking');
+          break;
         case "startGetIntercityOrders":
           startGetOrders('isIntercity');
           break;
@@ -491,17 +533,32 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
         case "requestMyOrders":
           requestMyOrders();
           break;
+        case "requestMyCargoOrders":
+          requestMyCargoOrders();
+          break;
         case "requestMyOffers":
           requestMyOffers();
           break;
+        case "requestMyCargoOffers":
+          requestMyCargoOffers();
+          break;
         case "startGetAgents":
           startGetAgents(data);
+          break;
+        case "requestSos":
+          requestSos();
           break;
         case "stopGetAgents":
           stopGetAgents();
           break;
         case "requestProfile":
           requestProfile();
+          break;
+        case "checkPin":
+          checkPin(data);
+          break;
+        case "changePin":
+          changePin(data);
           break;
         case "requestZones":
           requestZones();

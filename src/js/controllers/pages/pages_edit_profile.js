@@ -1,11 +1,12 @@
 /* global Event, User, Conn */
 
-define(['Dom', 'Dates'], function (Dom, Dates) {
+define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   
   function cbFillFields(response) {
     var sex = response.result.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
         city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
-
+    
+    Dom.sel('.pincode').innerHTML = response.result.profile.hasPin ? '<span data-click="change-pin">Сменить PIN</span>' : '<span data-click="create-pin">Установить PIN</span>';
     Dom.sel('input[name="myname"]').value = User.name || response.result.profile.name;
     Dom.sel('input[name="dob"]').value = response.result.profile.birthday ? Dates.dateFromBase(response.result.profile.birthday) : '';
     sex.selected = true;
@@ -27,6 +28,30 @@ define(['Dom', 'Dates'], function (Dom, Dates) {
       while (target !== this) {
         if (target.dataset.click === 'clear_photo') {
           Conn.request('deletePhoto');
+        }
+        
+        if (target.dataset.click === "change-pin") {
+          Modal.changePin(function(response) {
+            var data = {};
+            
+            data.profile = {};
+            data.profile.pin = response.newPin;
+            data.pin = response.oldPin;
+            Conn.request('changePin', data);
+          });
+            
+        }
+
+        if (target.dataset.click === "create-pin") {
+          Modal.createPin(function(response) {
+            var data = {};
+            
+            data.profile = {};
+            data.profile.pin = response.newPin;
+            Conn.request('changePin', data);
+            Dom.sel('.pincode').innerHTML = '<span data-click="change-pin">Сменить PIN</span>';
+            User.hasPin = true;
+          });
         }
 
         if (target) {

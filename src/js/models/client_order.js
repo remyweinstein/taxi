@@ -22,15 +22,16 @@ define(function() {
         window.location.hash = '#client_map';
       }      
     }
-    this.setModel = function (response) {
-      var ord = response.result.order;
+    this.setModel = function (response, offer) {
+      var ord = !offer ? response.result.order : response.result.offer;
+      
 
       if(ord.bidId && ord.bidId > 0) {
         self.bid_id = ord.bidId;
       } else {
         self.bid_id = null;
       }
-      
+      self.type = ord.type;
       self.id = ord.id;
       self.fromAddress = ord.fromAddress;
       self.toAddress = ord.toAddress;
@@ -38,6 +39,10 @@ define(function() {
       self.toCoords = ord.toLocation;
       self.duration = ord.duration;
       self.length = ord.length;
+      self.start = ord.start;
+      self.weight = ord.weight;
+      self.volume = ord.volume;
+      self.stevedores = ord.stevedores;
       self.fromFullAddress = "";
       self.toFullAddress = "";
       self.time0 = 0;
@@ -47,13 +52,15 @@ define(function() {
       self.toFullAddresses = [];
       self.times = [];
       self.cities = [];
-      if (ord.points.length > 0) {
-        for (var i = 0; i < ord.points.length; i++) {
-          self.toAddresses[i] = ord.points[i].address || "";
-          self.toCoordses[i] = ord.points[i].location || "";
-          self.toFullAddresses[i] = ord.points[i].fullAddress || "";
-          self.times[i] = ord.points[i].stopTime || "";
-          self.cities[i] = ord.points[i].city || "";
+      if (ord.points) {
+        if (ord.points.length > 0) {
+          for (var i = 0; i < ord.points.length; i++) {
+            self.toAddresses[i] = ord.points[i].address || "";
+            self.toCoordses[i] = ord.points[i].location || "";
+            self.toFullAddresses[i] = ord.points[i].fullAddress || "";
+            self.times[i] = ord.points[i].stopTime || "";
+            self.cities[i] = ord.points[i].city || "";
+          }
         }
       }
       self.fromCity  = ord.fromCity;
@@ -66,12 +73,17 @@ define(function() {
     
     this.id = null;
     this.bid_id = null;
+    this.type = null;
     this.fromAddress = null;
     this.toAddress = null;
     this.toAddresses = [];
     this.fromCoords = null;
     this.toCoords = null;
     this.duration = 0;
+    this.start = null;
+    this.weight = null;
+    this.volume = null;
+    this.stevedores = null;
     this.toCoordses = [];
     this.fromFullAddress = null;
     this.toFullAddress = null;
@@ -89,13 +101,17 @@ define(function() {
     this.clear = function () {
       self.id = null;
       self.bid_id = null;
-
+      self.type = null;
       self.fromAddress = null;
       self.toAddress = null;
       self.toAddresses = [];
       self.fromCoords = null;
       self.toCoords = null;
       self.duration = 0;
+      self.start = null;
+      self.weight = null;
+      self.volume = null;
+      self.stevedores = null;
       self.toCoordses = [];
       self.fromFullAddress = null;
       self.toFullAddress = null;
@@ -124,18 +140,23 @@ define(function() {
       data.toAddress = self.toAddress;
       data.toLocation = self.toCoords;
       data.duration = self.duration;
+      data.start = self.start;
       //data.isIntercity = 0;
       data.price = self.price;
       data.comment = self.comment;
+      data.weight = self.weight;
+      data.volume = self.volume;
+      data.stevedores = self.stevedores;
       data.minibus = 0;
       data.babyChair = 0;
-      data.type = 'taxi';
+      data.type = self.type;
       data.length = self.length;
 
       if (self.toAddresses) {
         if (self.toAddresses.length > 0) {
+          data.points = [{}];
           for (var i = 0; i < self.toAddresses.length; i++) {
-            var time = self.times[i] ? self.times[i] : 0;
+            var time = self.times[i] || 0;
 
             data.points[i].address = self.toAddresses[i];
             data.points[i].location = self.toCoordses[i];

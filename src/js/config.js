@@ -119,8 +119,6 @@ var menus_arr = [];
   var content,
       lastURL = '',
       MayLoading = false,
-  
-      safe_zone_polygons = [],
       
       User, Car, Conn, Event, Settings, MyOrder, MyOffer, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
 

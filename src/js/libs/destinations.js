@@ -6,10 +6,10 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
   function AddNewZaezd(just_add) {
     var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
-      addr = Model.toAddresses[just_add] || "",
-      el = Dom.sel('.order-city-to'),
-      new_field = document.createElement('div'),
-      parentDiv = el.parentNode;
+        addr = Model.toAddresses[just_add] || "",
+        el = Dom.sel('.order-city-to'),
+        new_field = document.createElement('div'),
+        parentDiv = el.parentNode;
 
     new_field.className += 'form-order-city__field order-city-to_z';
     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' +
@@ -41,20 +41,21 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     }
   }
 
-  function SaveOrderOffer(type) {
-    var _price = Dom.sel('[name="cost"]').value;
-
-    if (type === "order") {
-      Model = MyOrder;
-    } else {
-      Model = MyOffer;
-    }
+  function SaveOrderOffer(type, typeOf) {
+    var _price = Dom.sel('[name="cost"]').value,
+        weight = Dom.sel('input[name="weight"]'),
+        volume = Dom.sel('input[name="volume"]'),
+        stevedores = Dom.sel('input[name="loaders"]');
+    
+    Model = type==="order" ? MyOrder : MyOffer;
+    Model.stevedores = stevedores ? stevedores.value : null;
+    Model.volume = volume ? volume.value : null;
+    Model.weight = weight ? weight.value : null;
     //event.preventDefault();
-    Dom.sel('[data-click="order-taxi"]').disabled = true;
-
+    Dom.sel('[data-click="save-order"]').disabled = true;
+    Model.type = typeOf || 'taxi';
     Model.price = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
-
     Model.save(MapElements.points);
   }
 
@@ -90,6 +91,14 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     Destinations.init();
 
   }
+  
+  function addStartTime (datetime, model) {
+    if (model === "order") {
+      MyOrder.start = datetime;
+    } else {
+      MyOffer.start = datetime;
+    }
+  }
 
   function addTime(id, type) {
     if (type === "order") {
@@ -105,8 +114,8 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>',
       function (response) {
         eval("Model.times[" + id + "] = " + response);
-        clear();
-        init();
+        Destinations.clear();
+        init(type);
         if (type === "order") {
           MyOrder = Model;
         } else {
@@ -132,7 +141,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     reloadPoints(Model);
 
     var from_value = Dom.selAll('input[name="from"]')[0].value,
-      to_value = Dom.selAll('input[name="to"]')[0].value;
+        to_value = Dom.selAll('input[name="to"]')[0].value;
 
     if (from_value !== '' && to_value === '') {
       var _addr_from = Model.fromCoords.split(",");
@@ -195,6 +204,10 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     saveOrder: function () {
       SaveOrderOffer('order');
     },
+    
+    saveOrderCargo: function () {
+      SaveOrderOffer('order', 'trucking');
+    },
 
     saveOffer: function () {
       SaveOrderOffer('offer');
@@ -210,6 +223,14 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
     addTimeOrder: function (id) {
       addTime(id, 'order');
+    },
+    
+    addStartTimeOffer: function (datetime) {
+      addStartTime(datetime, 'offer');
+    },
+
+    addStartTimeOrder: function (datetime) {
+      addStartTime(datetime, 'order');
     },
 
     deleteField: function (target) {

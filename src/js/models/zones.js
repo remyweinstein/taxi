@@ -1,9 +1,7 @@
 /* global User, SafeWin, Conn, Zones */
 
 define(['Funcs'], function(Funcs) {
-  var current_zone_id,
-      base_zone_id,
-      new_polygon,
+  var new_polygon,
       new_note,
       new_name;
   
@@ -20,26 +18,26 @@ define(['Funcs'], function(Funcs) {
   }
   
   function cbUpdateZone() {
-    Zones.list[current_zone_id].name = new_name;
-    Zones.list[current_zone_id].note = new_note;
-    Zones.list[current_zone_id].polygon = new_polygon;
+    Zones.list[Zones.current_zone_id].name = new_name;
+    Zones.list[Zones.current_zone_id].note = new_note;
+    Zones.list[Zones.current_zone_id].polygon = new_polygon;
     win_reload();
     Conn.clearCb('cbUpdateZone');
   }
  
   function cbDeleteZone() {
-    Zones.list.splice(current_zone_id, 1);
+    Zones.list.splice(Zones.current_zone_id, 1);
     win_reload();
     Conn.clearCb('cbDeleteZone');
   }
   
   function cbActiveZone() {
-    Zones.list[current_zone_id].isActive = true;
+    Zones.list[Zones.current_zone_id].isActive = true;
     Conn.clearCb('cbActiveZone');
   }
   
   function cbInactiveZone() {
-    Zones.list[current_zone_id].isActive = false;
+    Zones.list[Zones.current_zone_id].isActive = false;
     Conn.clearCb('cbInactiveZone');
   }
   
@@ -56,6 +54,7 @@ define(['Funcs'], function(Funcs) {
     var self = this;
   
     this.list = [];
+    this.current_zone_id;
     
     this.initSafeWin = function (response) {
       var active = [];
@@ -93,7 +92,7 @@ define(['Funcs'], function(Funcs) {
       data.name = name || 'Зона ' + self.list.length;
       data.note = note || '';
       
-      new_polygon = JSON.stringify(polygon);
+      new_polygon = polygon;//JSON.stringify(polygon);
       new_note = data.note;
       new_name = data.name;
       Conn.request('addZones', data, cbAddZones);
@@ -107,7 +106,7 @@ define(['Funcs'], function(Funcs) {
       data.note = note || '';
       data.id = id;
       
-      new_polygon = JSON.stringify(polygon);
+      new_polygon = polygon;//JSON.stringify(polygon);
       new_note = data.note;
       new_name = data.name;
 
@@ -116,13 +115,13 @@ define(['Funcs'], function(Funcs) {
     
     this.remove = function(id) {
       if (id) {
-        current_zone_id = Funcs.findIdArray(self.list, id);
+        self.current_zone_id = Funcs.findIdArray(self.list, id);
         Conn.request('deleteZones', id, cbDeleteZone);
       }
     };  
     
     this.active = function(id) {
-      current_zone_id = Funcs.findIdArray(self.list, id);
+      self.current_zone_id = Funcs.findIdArray(self.list, id);
       var data = {};
       
       data.isActive = 1;
@@ -135,7 +134,7 @@ define(['Funcs'], function(Funcs) {
       
       data.isActive = 0;
       data.id = id;
-      current_zone_id = Funcs.findIdArray(self.list, id);
+      self.current_zone_id = Funcs.findIdArray(self.list, id);
       Conn.request('addZones', data, cbInactiveZone);
 
     };

@@ -1,9 +1,12 @@
-/* global safe_zone_polygons, Zones, Settings, Maps */
+/* global safe_zone_polygons, Zones, Settings, Maps, Conn, User */
 
-define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, Geo, Funcs, Multirange) {
+define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, Hammer, Funcs, Multirange, Modal) {
   
   var s_route_to_Zone = [],
-      safety_route, safe_win, safe_win_wrap;
+      safety_route, 
+      safe_win, 
+      list_active_zone,
+      safe_zone_polygons = [];
   
   function swipeRight() {
     var safe_win = Dom.sel('.safety-window');
@@ -12,7 +15,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     safe_win.classList.remove('safety-window--opened');
     safe_win.classList.add('safety-window--closed');
     //safe_win.removeEventListener('tap', swipeRight);
-        
+
     Dom.sel('[data-click="openSafe"]').addEventListener('click', swipeDown);
   }
   
@@ -35,7 +38,8 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     while (target !== this) {
       if (target) {
         if (target.dataset.click === "runSos") {
-          alert('Включен режим SOS');
+          Conn.request('requestSos');
+          alert('Сигнал SOS отправлен');
         }
       }
 
@@ -47,6 +51,25 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     window.location.hash = '#edit_zone';
   }
   
+  function drawPolygon(ids) {
+    clearPolygonZones(ids);
+    for (var i = 0; i < ids.length; i++) {
+      var arr_id = Funcs.findIdArray(Zones.list, ids[i]);
+      
+      safe_zone_polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon);
+      Maps.addElOnMap(safe_zone_polygons[i]);
+    }  
+  }
+
+  function clearPolygonZones() {
+    if (safe_zone_polygons) {
+      for (var i = 0; i < safe_zone_polygons.length; i++) {
+        Maps.removeElement(safe_zone_polygons[i]);
+      }
+      safe_zone_polygons = [];
+    }
+  }
+  
   function selectZone(event) {
     var target = event.target;
 
@@ -54,57 +77,38 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       if (target) {
         
         if (target.dataset.click === "zone") {
-          var a = false,
-              el = target,
+          var el = target,
               id = el.dataset.id,
               but_run_zone = Dom.sel('[data-click="runZone"]'),
               isActiveRunZone = but_run_zone.classList.contains('active'),
               arr = but_run_zone.dataset.active,
-              list_active_zone = [],
               arr_id = false;
-          
-          if (arr !== "") {
-            if (arr.indexOf(',') > -1) {
-              list_active_zone = arr.split(',');
-            } else {
-              list_active_zone.push(arr);
-            }
-          }
 
+          list_active_zone = arr !== "" ? arr.split(',') : [];
+            
+          if (isActiveRunZone) {
+            return;
+          }
+          
           for (var i = 0; i < list_active_zone.length; i++) {
             if (list_active_zone[i] === id) {
               arr_id = i;
+              break;
             }
           }
 
           if (Dom.toggle(el, 'active-bg')) {
-            Zones.inactive(id);
             list_active_zone.splice(arr_id, 1);
-            
             Maps.removeElement(safe_zone_polygons[arr_id]);
-            safe_zone_polygons.splice(arr_id, 1);
-            
-            if (list_active_zone.length < 1 && isActiveRunZone) {
-              localStorage.removeItem('_enable_safe_zone');
-              Dom.toggle(but_run_zone, 'active');
-            }
-            
+            safe_zone_polygons.splice(arr_id, 1);            
           } else {
             if (id !== "") {
               list_active_zone.push(id);
-              if (isActiveRunZone) {
-                safe_zone_polygons.push(Maps.drawPoly(Zones.list[(list_active_zone.length - 1)].polygon, Maps.map));
-                Zones.active(id);
-              } else {
-                a = true;
-              }
+              drawPolygon(list_active_zone);
             }
           }
           
           but_run_zone.dataset.active = list_active_zone.join(',');
-          if (a) {
-            runZone(but_run_zone, true);
-          }
         }
         
         if (target.dataset.click === "add_to_zones") {
@@ -120,7 +124,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     }
   }
   
-  function runZone(event, enable) {
+  function runZone(event) {
     var el = event.target;
     
     if (!el) {
@@ -128,48 +132,38 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     }
     
     var active = el.dataset.active,
-        list_active_zone = [];
+        disableZones = function () {
+          for (var i = 0; i < list_active_zone.length; i++) {
+            Zones.inactive(list_active_zone[i]);
+          }
+          localStorage.removeItem('_enable_safe_zone');
+        },
+        cbCheckPin = function (response) {
+          if (!response.error) {
+            disableZones();
+            Dom.toggle(el, 'active');
+          }
+          Conn.clearCb('cbCheckPin');
+        };
+    
+    list_active_zone = [];
 
     if (active !== "") {
       list_active_zone = active.split(',');
-    }
-    
-    if (!enable) { // IF THIS CLICK
       if (Dom.toggle(el, 'active')) {
-        clearPolygonZones();
-      } else {
-        if (active !== "") {
-          drawPolygon();
+        if (!User.hasPin) {
+          disableZones();
         } else {
           Dom.toggle(el, 'active');
+          Modal.checkPin(function(response) {
+            Conn.request('checkPin', response.pin, cbCheckPin);
+          });
         }
-      }
-    } else { // IF THIS FROM THE OUTSIDE
-      runZone(el);
-    }
-    
-    function drawPolygon() {
-      localStorage.setItem('_enable_safe_zone', active);
-      for (var i = 0; i < list_active_zone.length; i++) {
-        var arr_id = Funcs.findIdArray(Zones.list, list_active_zone[i]);
-        
-        Zones.active(list_active_zone[i]);
-        safe_zone_polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon, Maps.map);
-      }  
-    }
-    
-    function clearPolygonZones() {
-      var i;
-      
-      for (i = 0; i < list_active_zone.length; i++) {
-        Zones.inactive(list_active_zone[i]);
-      }
-      localStorage.removeItem('_enable_safe_zone');
-      if (safe_zone_polygons) {
-        for (i = 0; i < safe_zone_polygons.length; i++) {
-          Maps.removeElement(safe_zone_polygons[i]);
+      } else {
+        for (var i = 0; i < list_active_zone.length; i++) {
+          Zones.active(list_active_zone[i]);
         }
-        safe_zone_polygons = [];
+        localStorage.setItem('_enable_safe_zone', active);
       }
     }
   }
@@ -257,13 +251,12 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
           }
         }
         
+        drawPolygon(arr_active);
         runZone(button_zone);
       }
 
       if (enable_safe_route) {
-        var button_route = Dom.sel('[data-click="runRoute"]');
-
-        runRoute(button_route);
+        runRoute(Dom.sel('[data-click="runRoute"]'));
       }
       
       safe_win.addEventListener('swiperight', swipeRight);
@@ -280,9 +273,6 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
     },
     
     render: function() {
-      
-      safe_win_wrap = Dom.selAll('.safety-window')[0];
-      
       var wrap = document.createElement('div'),
           zones = '<span><button class="button_short--green" data-click="new_zone">Новая</button></span>';
 
@@ -306,7 +296,7 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
                           '</form>' + 
                           '<div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>' + 
                         '</div>';
-      safe_win_wrap.appendChild(wrap);
+      Dom.selAll('.safety-window')[0].appendChild(wrap);
       
       return;
     },
@@ -321,36 +311,32 @@ define(['Dom', 'hammer', 'Geo', 'Funcs', 'Multirange'], function (Dom, Hammer, G
       }
 
       for (i = 0; i < Zones.list.length; i++) {
-        var active_bg = '';
-        if (Zones.list[i].isActive) {
-          active_bg = ' active-bg';
-        }
-        var span = document.createElement('span');
-            span.innerHTML = '<button class="button_short--grey' + active_bg + '" data-click="zone" data-id="' + Zones.list[i].id + '">' + (i + 1) + '</button>';
-
+        var active_bg = Zones.list[i].isActive ? ' active-bg' : '',
+            span = document.createElement('span');
+          
+        span.innerHTML = '<button class="button_short--grey' + active_bg + '" data-click="zone" data-id="' + Zones.list[i].id + '">' + (i + 1) + '</button>';
         list.appendChild(span);
       }
     },
     
+    reinit: function() {
+      this.clear();
+      this.initial();
+    },
+    
     clear: function() {
       safe_win = Dom.sel('.safety-window');
-      
       Multirange.clear(Dom.sel('.safety-window'));
-      
       safe_win.removeEventListener('swiperight', swipeRight);
       //safe_win.removeEventListener('tap', swipeRight);
       safe_win.removeEventListener('press', longPress);
-      safe_win.removeEventListener('click', selectZone);
-      
+      safe_win.removeEventListener('click', selectZone);      
       Dom.sel('[data-click="openSafe"]').removeEventListener('click', swipeDown);
-      
       Dom.sel('[data-click="runZone"]').removeEventListener('click', runZone);
       Dom.sel('[data-click="runRoute"]').removeEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').removeEventListener('change', onInputRange);
-      
-      //safe_win_wrap = Dom.selAll('.safety-window__wrap')[0];
-      //safe_win_wrap.innerHTML = '';
+      safe_win.innerHTML = '';
     }
 
   };

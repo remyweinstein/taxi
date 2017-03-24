@@ -1,10 +1,16 @@
 define(['Dom', 'Multirange'], function(Dom, Multirange) {
-  
-  var actives_sort = '';
-  var actives_filter = {filter:{price:{min:0,max:0},distance:{min:0,max:0},length:{min:0,max:0},stops:{min:0,max:0}}};
-  var layer;
-  var cur_win;
-  var block = 'content';
+  /*
+   * 
+
+orderBy[price]=1 - DESC
+orderBy[price]=0 - ASC
+   * 
+   */
+  var actives_sort = {orderBy:{price:1}},
+      actives_filter = {filter:{price:{min:0,max:0},distance:{min:0,max:0},length:{min:0,max:0},stops:{min:0,max:0}}},
+      layer,
+      cur_win,
+      block = 'content';
 
   function showLayer() {
     var el = Dom.sel('.' + block),
@@ -44,13 +50,14 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
       max = parseInt(first.value);
       min = parseInt(second.value);
     }
+    
     if (max === 0 && min === 0) {
       intext = '';
     } else {
       intext = min + ' - ' + max;
     }
+    
     this.parentNode.querySelector('span').innerHTML = intext;
-
   }
 
   function onInputRange() {
@@ -62,6 +69,7 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
     } else {
       intext = val;
     }
+    
     this.parentNode.querySelector('span').innerHTML = intext;
   }
   
@@ -70,9 +78,8 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
         inputs = document.querySelectorAll("input[type=range][multiple]:not(.multirange)");
 
     for (var i = 0; i < inputs.length; i++) {
-      var temp_el = win.querySelector("input[type=range][name=" + inputs[i].name + "][multiple]:not(.multirange)").value;
-
-      var temp = temp_el.split(',');
+      var temp_el = win.querySelector("input[type=range][name=" + inputs[i].name + "][multiple]:not(.multirange)").value,
+          temp = temp_el.split(',');
 
       switch(inputs[i].name) {
         case 'price':
@@ -136,7 +143,6 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
 
 
   var PopupWindow = {
-    
     show: function (el, content, callback) {
                   var new_field = document.createElement('div'),
                       parentDiv = el.parentNode,
@@ -151,10 +157,18 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                   //new_field.style.display = 'block';
                   new_field.style.top = '0';
                   
-                  var buts = new_field.querySelectorAll('[data-sort]');
+                  var buts = new_field.querySelectorAll('[data-sort]'),
+                      keyka,
+                      valeyka;
                   
+                  for (var key in actives_sort.orderBy) {
+                    keyka = key;
+                    valeyka = actives_sort.orderBy[key];
+                  }
+
                   for (i = 0; i < buts.length; i++) {
-                    if (buts[i].dataset.sort === actives_sort.sort && buts[i].dataset.r === actives_sort.r) {
+                    console.log(buts[i].dataset.sort, '=', keyka, '&&', buts[i].dataset.r, '=', valeyka);
+                    if (buts[i].dataset.sort === keyka && parseInt(buts[i].dataset.r) === valeyka) {
                       buts[i].classList.add('active');
                     }
                   }
@@ -200,15 +214,16 @@ define(['Dom', 'Multirange'], function(Dom, Multirange) {
                           _el = target;
                           
                           if (Dom.toggle(_el, 'active')) {
-                            actives_sort = '';
+                            actives_sort = {orderBy:{price:1}};
                             for (var i = 0; i < buts.length; i++) {
                               buts[i].classList.remove('active');
                             }
                           } else {
-                            actives_sort = {sort: _el.dataset.sort, r: _el.dataset.r};
+                            actives_sort = JSON.parse('{"orderBy":{"' + _el.dataset.sort + '":' + _el.dataset.r + '}}');
                           }
                           
                           Multirange.clear(Dom.sel('.popup-window'));
+                          localStorage.setItem('_actives_sort', JSON.stringify(actives_sort));
                           callback(actives_sort);
                           close();
                         }

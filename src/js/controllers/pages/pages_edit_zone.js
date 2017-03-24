@@ -1,16 +1,15 @@
-/* global Zones, google, map, User, Event, Maps, MapElements */
+/* global Zones, User, Event, Maps, MapElements */
 
-define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
+define(['Dom', 'Funcs'], function (Dom, Funcs) {
 
-  var polygon = new google.maps.Polygon({}),
+  var polygon,
       points = [],
       markers = [],
       id_edit_zone,
-      bounds = new google.maps.LatLngBounds(),
-      eventOnClickMarkers,
-      eventOnClickPolygon = false,
-      eventOnClickMap,
-      eventOnDragEndMarker;
+      eventOnClickMarker = null,
+      eventOnClickPolygon = null,
+      eventOnClickMap = null,
+      eventOnDragEndMarker = null;
       
   function addEvents() {
     Event.click = function (event) {
@@ -22,13 +21,14 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
                 var Coords = [];
                 
                 for (var i = 0; i < points.length; i++) {
-                  Coords.push({lat:points[i].lat0, lng:points[i].lng0});
+                  Coords.push({lat:points[i].lat, lng:points[i].lng});
                 }
+                
                 if (Coords.length < 3) {
                   alert('Ну это же не полигон совсем, точки три хотя бы сделайте');
                 } else {
-                  var note = Dom.sel('input[name="note_edit_zone"]').value;
-                  var name = Dom.sel('input[name="name_edit_zone"]').value;
+                  var note = Dom.sel('input[name="note_edit_zone"]').value,
+                      name = Dom.sel('input[name="name_edit_zone"]').value;
                   
                   if (id_edit_zone) {
                     Zones.edit(id_edit_zone, Coords, note, name);
@@ -57,9 +57,14 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     if (eventOnClickPolygon) {
       Maps.removeEvent(eventOnClickPolygon);
     }
-    Maps.removeElement(polygon);
+    
+    if (polygon) {
+      Maps.removeElement(polygon);
+      polygon = null;
+    }
 
     polygon = Maps.drawPoly(points);
+    Maps.addElOnMap(polygon);
     eventOnClickPolygon = Maps.addEvent(polygon, 'click', addMarker);
   }
 
@@ -72,11 +77,15 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
       LatLng = Maps.getLocationClick(e);
     }
     
-    var marker = Maps.addMarker(LatLng[0], LatLng[1], '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
+    var marker = Maps.addMarkerDrag(LatLng[0], LatLng[1], '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
     
-    if (markers.length > 1) { // default 2
+    if (markers.length > 2) { // default 2
       findStartPoint(LatLng[0], LatLng[1], function (v) {
-        markers.splice(v, 0, marker);
+        if (markers.length === (v + 1)) {
+          markers.push(marker);
+        } else {
+          markers.splice(v + 1, 0, marker);
+        }
       });
     } else {
       markers.push(marker);
@@ -87,51 +96,52 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
   }
 
   function pDistance(x, y, x1, y1, x2, y2) {
-    var xx, yy,
-        A = x - x1,
-        B = y - y1,
-        C = x2 - x1,
-        D = y2 - y1,
-        dot = A * C + B * D,
-        len_sq = C * C + D * D,
-        param = -1;
-
-    if (len_sq !== 0) {
-      param = dot / len_sq;
+    function sqr(x) { 
+        return x * x;
     }
 
-    if (param < 0) {
-      xx = x1;
-      yy = y1;
-    } else if (param > 1) {
-      xx = x2;
-      yy = y2;
-    } else {
-      xx = x1 + param * C;
-      yy = y1 + param * D;
+    function dist2(v, w) { 
+        return sqr(v.x - w.x) + sqr(v.y - w.y);
     }
 
-    var dx = x - xx,
-        dy = y - yy;
+    function distToSegmentSquared(p, v, w) {
+      var l2 = dist2(v, w);
 
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function findStartPoint(lng, lat, callback) {
-    var distA = 10000000000000000000,
-        y = 0, 
-        dist;
-
-    for (var i = 0; i < markers.length; i++) {
-      if (i === (markers.length - 1)) {
-        dist = pDistance(lng, lat, markers[0].lng, markers[0].lat, markers[i].lng, markers[i].lat);
-      } else {
-        dist = pDistance(lng, lat, markers[i + 1].lng, markers[i + 1].lat, markers[i].lng, markers[i].lat);
+      if (l2 === 0) {
+        return dist2(p, v);
       }
 
-      if (distA > dist) {
+      var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+
+      if (t < 0) {
+        return dist2(p, v);
+      }
+      
+      if (t > 1) {
+        return dist2(p, w);
+      }
+
+      return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+    }
+
+    return Math.sqrt(distToSegmentSquared({x: x*10000, y: y*10000}, {x: x1*10000, y: y1*10000 }, {x: x2*10000, y: y2*10000 }));
+  }
+
+  function findStartPoint(lat, lng, callback) {
+    var distA = 1000000000000000,
+        y = points.length - 1, 
+        dist;
+
+    for (var i = 0; i < points.length; i++) {
+      if ((i + 1) === points.length) {
+        dist = pDistance(lat, lng, points[0].lat, points[0].lng, points[i].lat, points[i].lng);
+      } else {
+        dist = pDistance(lat, lng, points[i].lat, points[i].lng, points[i + 1].lat, points[i + 1].lng);
+      }
+      
+      if (parseFloat(dist) < parseFloat(distA)) {
         distA = dist;
-        y = i + 1;
+        y = i;
       }
     }
 
@@ -139,54 +149,49 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
   }
   
   function bindMarkerEvents(marker) {
-    eventOnClickMap = Maps.addEvent(marker, 'click', function () {
+    eventOnClickMarker = Maps.addEvent(marker, 'click', function () {
       removeMarker(marker);
     });
     
-    eventOnDragEndMarker = Maps.addEvent(marker, 'dragend', function (point) {
-      Maps.markerSetPosition(point.latLng.lat(), point.latLng.lng(), marker);
-      marker.lat = point.latLng.lat();
-      marker.lng = point.latLng.lng();
+    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
+      Maps.markerSetPosition(point[0], point[1], marker);
+      marker.lat = point[0];
+      marker.lng = point[1];
       showPoly();
     });
   }
 
   function removeMarker(marker) {
     for (var i = 0; i < markers.length; i++) {
-      if (google.maps.geometry.spherical.computeDistanceBetween(
-        marker.getPosition(), markers[i].getPosition()) < 0.1) {
-          Maps.removeElement(markers[i]);
-          markers.splice(i, 1);
-        }
+      if (Maps.getDistance(Maps.getMarkerCoords(marker), Maps.getMarkerCoords(markers[i])) < 0.1) {
+        Maps.removeElement(markers[i]);
+        markers.splice(i, 1);
+      }
     }
+    
     showPoly();
   }
     
   function showPoly() {
-    var bounds,
+    var bounds = null,
         bearing = [],
         i;
-
     points = [];
 
     for (i = 0; i < markers.length; i++) {
-      var coords = Maps.getMarkerCoords(markers[i]);
-      
-      points.push(coords);
+      points.push(Maps.getMarkerCoords(markers[i]));
     }
     
-    bounds = Maps.newPolygon(points);
-
+    bounds = Maps.drawPoly(points);
+    Maps.addElOnMap(bounds);
+    
     for (i = 0; i < points.length; i++) {
-      if (google.maps.geometry) {
-        bearing = Maps.getDistance(Maps.getCenterPolygon(bounds), points[i]);
-        points[i].bearing = bearing;
-        markers[i].bearing = bearing;
-        points[i].lat0 = markers[i].lat;
-        points[i].lng0 = markers[i].lng;
-      }
+      bearing = Maps.getDistance(Maps.getCenterPolygon(bounds), points[i]);
+      points[i].bearing = bearing;
+      markers[i].bearing = bearing;
     }
-
+    
+    Maps.removeElement(bounds);
     drawPoly();
   }
 
@@ -197,7 +202,7 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     Maps.setZoom(12);
 
     MapElements.marker_mine = Maps.addMarker(User.lat, User.lng, 'Я здесь!', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
-    eventOnClickMarkers = Maps.addEvent(Maps.map, 'click', addMarker);
+    eventOnClickMap = Maps.addEvent(Maps.map, 'click', addMarker);
   }
   
   function fillName() {
@@ -206,35 +211,26 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
         i;
     
     if (id_edit_zone) {
-      var arr_id = Funcs.findIdArray(Zones.list, id_edit_zone);
+      var arr_id = Funcs.findIdArray(Zones.list, id_edit_zone),
+          polies = Zones.list[arr_id].polygon;
       
       name = Zones.list[arr_id].name;
       note = Zones.list[arr_id].note;
       
-      for (i = 0; i < Zones.list[arr_id].polygon.length; i++) {
-        var lat = Zones.list[arr_id].polygon[i].lat,
-            lng = Zones.list[arr_id].polygon[i].lng,
-            marker = Maps.addMarker(lat, lng, '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
+      for (i = 0; i < polies.length; i++) {
+        var marker = Maps.addMarkerDrag(polies[i].lat, polies[i].lng, '', '//maps.google.com/mapfiles/kml/paddle/red-circle.png', [32,32], function(){});
         
         markers.push(marker);
         bindMarkerEvents(marker);
       }
       
       points = [];
-      clearBounds();
       
       for (i = 0; i < markers.length; i++) {
-        points.push(markers[i].getPosition());
-        bounds.extend(markers[i].getPosition());
-      }
-      
-      for (i = 0; i < points.length; i++) {
-        points[i].lat0 = markers[i].lat;
-        points[i].lng0 = markers[i].lng;
+        points.push(Maps.getMarkerCoords(markers[i]));
       }
       
       drawPoly();
-      Maps.map.fitBounds(bounds);
       
     } else {
       name = 'Зона ' + (Zones.list.length + 1);
@@ -246,29 +242,29 @@ define(['Dom', 'Geo', 'Funcs'], function (Dom, Geo, Funcs) {
     return;
   }
   
-  function clearBounds() {
-    bounds = new google.maps.LatLngBounds();
-  }
-  
   function stop() {
+    Maps.removeEvent(eventOnClickPolygon);
+    Maps.removeEvent(eventOnClickMap);
+    Maps.removeEvent(eventOnDragEndMarker);
+    Maps.removeEvent(eventOnClickMarker);
     Maps.removeElement(polygon);
     
     for (var i = 0; i < markers.length; i++) {
       Maps.removeElement(markers[i]);
     }
-    
-    Maps.removeEvent(eventOnClickMarkers);
-    Maps.removeEvent(eventOnClickPolygon);
-    Maps.removeEvent(eventOnClickMap);
-    
-    polygon = new google.maps.Polygon({});
+        
+    polygon = null;
     markers = [];
     points = [];
+    eventOnClickMarker = null;
+    eventOnClickPolygon = null;
+    eventOnClickMap = null;
+    eventOnDragEndMarker = null;
     localStorage.removeItem('_edit_zone');
   }
   
   function start() {
-    Maps.mapOn(false);
+    Maps.mapOn();
     initMap();
     fillName();
     addEvents();

@@ -41,11 +41,9 @@ define(['Dom'], function(Dom) {
             pos_style = elems[y].style.position;
 
         if (parseInt(i + 1) !== parseInt(tab) && (position === 'fixed' || pos_style === 'fixed')) {
-          console.log('find fixed');
           elems[y].style.position = "static";
         }
         if (parseInt(i + 1) === parseInt(tab) && pos_style === 'static') {
-          console.log('find static');
           elems[y].style.position = "fixed";
         }
       }

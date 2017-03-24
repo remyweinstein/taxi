@@ -4,7 +4,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
-      waypoints, price, name_client, photo_client, first_time = true;
+      waypoints, price, name_client, photo_client, first_time = true, agIndexes;
   
   function cbOnFinish() { 
     localStorage.setItem('_rating_offer', MyOffer.id);
@@ -13,6 +13,20 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     localStorage.removeItem('_active_offer_id');
     Conn.clearCb('cbOnFinish');
     window.location.hash = '#driver_clients_rating';
+  }
+
+  function getAgentIndexes(agent) {
+    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+  }
+  
+  function parseObj(obj) {
+    var content = '';
+    
+    for (var key in obj) {
+      content += '<p>' + key + ': ' + obj[key] + '</p>';
+    }
+    
+    return content;
   }
 
   function startOffer(response) {
@@ -27,7 +41,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     var ords = response.orders[0];
     
     if (!ords) {
-      //localStorage.removeItem('_active_offer_id');
+      localStorage.removeItem('_active_offer_id');
       window.location.hash = '#driver_city';
     }
     order_id = ords.id;
@@ -46,12 +60,14 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     MyOffer.fromAddress = ords.fromAddress;
     MyOffer.toAddress = ords.toAddress;
     MyOffer.times = ords.toTimes;
+    agIndexes = parseObj(getAgentIndexes(ords.agent));
     waypoints = [];
 
     if (ords.toAddresses) {
       for (var i = 0; i < ords.toAddresses.length; i++) {
         var _wp = ords.toLocations[i].split(",");
-        waypoints.push({location: new google.maps.LatLng(_wp[0], _wp[1]), stopover:true});
+        
+        waypoints.push(Maps.convertWayPointsForRoutes(_wp[0], _wp[1]));
         Maps.addMarker(_wp[0], _wp[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
           function (mark) {
             Maps.addInfoForMarker(ords.times[i] + 'мин.', true, mark);
@@ -206,6 +222,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
                          '<div>' +
                            name_client +
                          '</div>' +
+                        '<div>' + agIndexes + '</div>' +
                        '</div>' +
                      '</div>';
 
@@ -217,11 +234,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     Conn.request('stopOrdersByOffer');
     Conn.clearCb('cbGetOrdersByOffer');
     Chat.exit();
+    first_time = true;
   }
   
   function start() {
-    console.log('first_time = ' + first_time);
-
     Maps.mapOn();
     initMap();
     MyOffer.id = localStorage.getItem('_active_offer_id');

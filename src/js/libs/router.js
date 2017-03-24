@@ -25,7 +25,7 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
                 {hash:'#client_drivers_rating', template:'TaxiClientDriversRating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
-                {hash:'#client_offer', template:'TaxiClientOffer', controller:'ctrlTaxiClientOffer', title:'Предложение водителя', menu:'client', pageType: ''},
+                {hash:'#client_offer', template:'TaxiClientOffer', controller:'ctrlTaxiClientOffer', title:'Предложение', menu:'client', pageType: ''},
                 {hash:'#driver_help', template:'TaxiDriverHelp', controller:'ctrlTaxiDriverHelp', title:'Помощь водителю', menu:'driver', pageType: ''},
                 {hash:'#driver_new_offer', template:'TaxiDriverNewOffer', controller:'ctrlTaxiDriverNewOffer', title:'Новое предложение', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_my_offer', template:'TaxiDriverOffer', controller:'ctrlTaxiDriverOffer', title:'Мое предложение', menu:'driver', pageType: 'back-arrow'},
