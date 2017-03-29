@@ -56,7 +56,7 @@
         <div class="loading"></div>
         <template id="PageStart">
             <div class="start_logo">
-                Tech Agent
+                <img src="assets/images/start_logo.jpg" alt="Tech Agent"/>
             </div>
             <div class="start_logo_state">
                 <p class="start_logo_state__text"></p>
@@ -367,6 +367,12 @@
               <div class="tabs__viewport">
                 <div data-tab-content="1" data-map="enable" class="tabs_content">
                     <div class="form-order-city">
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка..."/>
+                                <div class="form-order-city__hint"></div>
+                            </span>
+                        </div>
                         <div class="form-order-city__field order-city-from">
                             <i class="icon-right-circled form-order-city__label"></i>
                             <span class="form-order-city__wrap">
@@ -374,6 +380,12 @@
                                 <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                             </span>
                             <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."/>
+                                <div class="form-order-city__hint"></div>
+                            </span>
                         </div>
                         <div class="form-order-city__field order-city-to">
                             <i class="icon-left-circled form-order-city__label"></i>
@@ -520,6 +532,48 @@
             <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
         <template id="TaxiDriverCity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Мои предложения</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+              </div>
+            </div>
+        </template>
+        <template id="TaxiDriverIntercity">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Мои предложения</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content" id="1">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-controller="taxi_driver_intercity_list_orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+              </div>    
+            </div>    
+        </template>
+        <template id="TaxiDriverCargo">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
@@ -714,96 +768,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </template>
-        <template id="TaxiDriverIntercity">
-            <nav class="tabs">
-                <ul>
-                    <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Свободное авто</li>
-                    <li data-tab="3">Мои заказы</li>
-                </ul>
-            </nav>
-            <div class="tabs__wrapper" data-controller="taxi_driver_intercity">
-              <div class="tabs__viewport">
-                <div data-tabcontent="1" data-tab-content="1" class="tabs_content" id="1">
-                    <div class="filter-intercity">
-                        <p>
-                            <i class="icon-building"></i>
-                            <input type="text" data-keyup="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
-                        </p>
-                        <p>
-                            <i class="icon-building"></i>
-                            <input type="text" data-keyup="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
-                        </p>
-                    </div>
-                    <ul class="list-extended" data-controller="taxi_driver_intercity_list_orders" data-model="list-orders"></ul>
-                </div>
-                <div data-tabcontent="2" data-tab-content="2" class="tabs_content">
-                    <div class="filter-intercity">
-                        <p>
-                            <i class="icon-building"></i>
-                            <input type="text" class="filter_intercity_from" name="filter_intercity_from" value="Хабаровск" />
-                        </p>
-                        <p>
-                            <i class="icon-building"></i>
-                            <input type="text" class="filter_intercity_to" name="filter_intercity_to" value="" placeholder="Город, куда направляетесь" />
-                        </p>
-                    </div>
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Петр</div>
-                                <div class="list-extended__route_time">2 октября,16:17</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Магадан</div>
-                                <div class="list-extended__route_sum">7000</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div data-tabcontent="3" data-tab-content="3" class="tabs_content">
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Василий</div>
-                                <div class="list-extended__route_time">2 ноября,19:35</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Лесозадск</div>
-                                <div class="list-extended__route_sum">1000</div>
-                                <div class="list-extended__route_info">Один русский)</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>    
-              </div>    
-            </div>    
-        </template>
-        <template id="TaxiDriverCargo">
-            <nav class="tabs">
-                <ul>
-                    <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои предложения</li>
-                </ul>
-            </nav>
-            <div class="tabs__wrapper">
-              <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
-                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
-                    <div class="list-orders__result">Найдено <span></span> заявок</div>
-                    <ul class="list-orders" data-model="list-orders"></ul>
-                </div>
-                <div data-tab-content="2" class="tabs_content">
-                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
-                    <ul class="list-orders" data-model="list-offers"></ul>
-                </div>
-              </div>
             </div>
         </template>
         <template id="TaxiDriverMyAccount">

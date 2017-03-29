@@ -8,6 +8,9 @@
     font-size: 2em;
     margin-top: 2em;
     animation: rollIn 1.5s infinite alternate;
+    img {
+        max-width: 60%;
+    }
 }
 
 .start_logo_state {

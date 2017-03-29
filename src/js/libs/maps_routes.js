@@ -1,12 +1,11 @@
-/* global SafeWin, MapElements, Maps, cost_of_km, MyOrder, MyOffer */
+/* global SafeWin, MapElements, Maps, cost_of_km */
 
 define(function() {
 
   var MapsRoutes = {
 
-    drawRoute: function(type, back, callback) {
+    drawRoute: function(Model, back, callback) {
       var _addr_from, _addr_to,
-          Model = type==="order" ? MyOrder : MyOffer,
           waypoints = [];
 
       if (!Model.fromCoords || !Model.toCoords) {
@@ -40,7 +39,7 @@ define(function() {
         }
       }
       
-    Maps.renderRoute(waypoints, type, Model, function (price) {
+    Maps.renderRoute(waypoints, function (price) {
       callback(price);
     });
     

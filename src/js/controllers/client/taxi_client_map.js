@@ -1,9 +1,9 @@
-/* global User, MyOrder, SafeWin, Event, Conn, Maps */
+/* global User, SafeWin, Event, Conn, Maps */
 
-define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], 
-  function (Dom, Dates, HideForms, Destinations, GetPositions, Lists) {
+define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'Storage', 'ClientOrder'], 
+function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clClientOrder) {
   
-  var global_el;
+  var global_el, MyOrder;
   
   function cbApproveOffer() {
     Conn.clearCb('cbApproveOffer');
@@ -21,7 +21,7 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute('order', true, function(){});
+    Maps.drawRoute(MyOrder, true, function(){});
   }
   
   function addEvents() {
@@ -66,15 +66,19 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'],
   }
   
   function stop() {
-    MyOrder.clear();
     Destinations.clear();
     GetPositions.clear();
     Lists.clear();
     Conn.clearCb('cbGetBids');
-    localStorage.removeItem('_active_model');
+    Storage.removeActiveTypeModelTaxi();
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
+    MyOrder = new clClientOrder();
+    MyOrder.activateCurrent();
+    Lists.init(MyOrder);
+
     if (MyOrder.id > 0) {
       var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),

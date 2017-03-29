@@ -126,6 +126,19 @@
         cursor: pointer;
         position: absolute;
     }
+    &__hint{
+        position: absolute;
+        display: none;
+        background-color: white;
+        z-index: 100;
+        padding-right: 1em;
+        p{
+            font-size: 0.75em;
+            cursor: pointer;
+            padding: 0 1em;
+            margin: 0;
+        }
+    }
 }
 .top-index{
     position: absolute;

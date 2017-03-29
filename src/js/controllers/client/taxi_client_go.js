@@ -1,14 +1,15 @@
-/* global User, SafeWin, Event, MyOrder, default_vehicle, driver_icon, MapElements, Conn, Maps, Zones */
+/* global User, SafeWin, Event, default_vehicle, driver_icon, MapElements, Conn, Maps, Zones */
 
-define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations'], 
-function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
+define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage'], 
+function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
     
   var show_route = false,
       fromCoords, toCoords, fromAddress, toAddress, waypoints,
       price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time,
       isFollow = localStorage.getItem('_follow_order'),
       color_follow = isFollow ? 'green' : 'red',
-      inCar = false;
+      inCar = false,
+      MyOrder;
 
   function cbFinishOrder() {
     var active_zones = localStorage.getItem('_enable_safe_zone');
@@ -244,7 +245,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
                         '</div>' +
                       '</div>' +
                     '</div>';
-    Maps.drawRoute('order', true, function () {
+    Maps.drawRoute(MyOrder, true, function () {
       addEvents();
     });
     show_route = true;
@@ -318,9 +319,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations) {
     Conn.clearCb('cbGetOrderById');
     Conn.request('stopGetOrder');
     Chat.exit();
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
+    MyOrder = new clClientOrder();
+    MyOrder.activateCurrent();
     isFollow = localStorage.getItem('_follow_order');
     Maps.mapOn();
     initMap();

@@ -1,6 +1,8 @@
-/* global User, Maps, SafeWin, Event, MyOffer, Conn */
+/* global User, Maps, SafeWin, Event, Conn */
 
-define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], function (Dom, Dates, HideForms, Destinations, GetPositions, Lists) {
+define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'Storage'], 
+function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
+  var MyOffer;
   
   function cbOnApproveOrder() {
     localStorage.setItem('_current_id_order', MyOffer.id);
@@ -49,12 +51,11 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists'], f
     Destinations.clear();
     GetPositions.clear();
     Lists.clear();
-    
-    localStorage.removeItem('_active_model');
+    Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {
-        
+    //Storage.getActiveTypeTaxi();
     if (MyOffer.id > 0) {
       if (localStorage.getItem('_active_offer_id') > 0) {
         window.location.hash = '#driver_go';

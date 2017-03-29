@@ -1,10 +1,21 @@
-/* global google, SafeWin, User, Maps, MapElements, cost_of_km */
+/* global google, SafeWin, User, Maps, MapElements, cost_of_km, Conn */
 
-define(['Dom'], function(Dom) {
+define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
   var clGoogle = function () {
     var self = this;
     
-    this.renderRoute = function (waypoints, type, Model, callback) {
+    this.renderRoute = function (waypoints, callback) {
+      var Model,
+          model = Storage.getActiveTypeModelTaxi();
+
+      if (model === "offer") {
+        Model = new clDriverOffer();
+      } else if (model === "order") {
+        Model = new clClientOrder();
+      }
+
+      Model.activateCurrent();
+      
       var directionsService = new google.maps.DirectionsService(),
           _addr_from = Model.fromCoords.split(","),
           _addr_to = Model.toCoords.split(",");
@@ -72,12 +83,8 @@ define(['Dom'], function(Dom) {
 
                 SafeWin.overviewPath.push(temp);
               }
+              Storage.lullModel(Model);
               callback(recommended_cost);
-              if (type === "order") {
-                MyOrder = Model;
-              } else {
-                MyOffer = Model;
-              }
             }
           });
 
@@ -213,7 +220,7 @@ define(['Dom'], function(Dom) {
     };
     
     this.getStreetFromCoords = function (result) {
-      var obj = result[0].address_components, key, address;
+      var obj = result[0].address_components, key, address, city;
 
       for(key in obj) {
         if(obj[key].types[0] === "street_number") {
@@ -222,9 +229,12 @@ define(['Dom'], function(Dom) {
         if(obj[key].types[0] === "route") {
           address = obj[key].long_name + ',' + address;
         }
+        if(obj[key].types[0] === "locality") {
+          city = obj[key].long_name;
+        }
       }
 
-      return address;
+      return {"address":address,"city":city};
     };
     
     this.removeEvent = function (handler) {
@@ -303,55 +313,106 @@ define(['Dom'], function(Dom) {
       return d;
     };
 
-    this.searchPlaces = function (text, radius, callback) {
-      var MyLatLng  = new google.maps.LatLng(User.lat, User.lng),
-          service   = new google.maps.places.PlacesService(Maps.map),
-          request   = {
-            location: MyLatLng,
-            radius: radius
-          };
+    this.searchPlaces = function (text, radius, city, callback) {
+      var service   = new google.maps.places.PlacesService(Maps.map);
 
-      service.nearbySearch(request, function (response) {
-        var results = [];
-        
-        if (response) {
-          for (var i = 0; i < response.length; i++) {
-            results[i]         = {};
-            results[i].address = response[i].vicinity;
-            results[i].lat     = response[i].geometry.location.lat();
-            results[i].lng     = response[i].geometry.location.lng();
-            results[i].name    = response[i].name;
+      if (city !== User.city) {
+        Conn.request('searchCity', city, cbSearchCity);
+
+        function cbSearchCity(results) {
+          var cities = results.result.city;
+
+          if (cities) {            
+            Conn.clearCb('cbSearchCity');
+            var loc = cities[0].location;
+            loc = loc.split(',');
+            var request   = {
+              location: new google.maps.LatLng(loc[0], loc[1]),
+              radius: radius
+            };
+
+            getSearch(request);
           }
         }
         
-        callback(results);
-      });
+      } else {
+        var request   = {
+          location: new google.maps.LatLng(User.lat, User.lng),
+          radius: radius
+        };
+
+        getSearch(request);
+      }
+      
+      function getSearch(request) {
+        service.nearbySearch(request, function (response) {
+          var results = [];
+
+          if (response) {
+            for (var i = 0; i < response.length; i++) {
+              results[i]         = {};
+              results[i].address = response[i].vicinity;
+              results[i].lat     = response[i].geometry.location.lat();
+              results[i].lng     = response[i].geometry.location.lng();
+              results[i].name    = response[i].name;
+              results[i].city    = city;
+            }
+          }
+
+          callback(results);
+        });
+      }
     };
     
-    this.searchStreet = function (text, radius, callback) {
-      var MyLatLng  = new google.maps.LatLng(User.lat, User.lng),
-          service   = new google.maps.places.PlacesService(Maps.map),
-          request = {
-            location: MyLatLng,
-            radius: radius,
-            query: text
-          };
+    this.searchStreet = function (text, radius, city, callback) {
+      var service   = new google.maps.places.PlacesService(Maps.map);
       
-      service.textSearch(request, function (response) {
-        var results = [];
-        
-        if (response) {
-          for (var i = 0; i < response.length; i++) {
-            results[i]         = {};
-            results[i].address = response[i].formatted_address;
-            results[i].lat     = response[i].geometry.location.lat();
-            results[i].lng     = response[i].geometry.location.lng();
-            results[i].name    = response[i].name;
+      if (city !== User.city) {
+        Conn.request('searchCity', city, cbSearchCity);
+
+        function cbSearchCity(results) {
+          var cities = results.result.city;
+
+          if (cities) {            
+            Conn.clearCb('cbSearchCity');
+            var loc = cities[0].location;
+            loc = loc.split(',');
+            var request   = {
+              location: new google.maps.LatLng(loc[0], loc[1]),
+              radius: radius
+            };
+
+            getSearch(request);
           }
         }
+        
+      } else {
+        var request   = {
+          location: new google.maps.LatLng(User.lat, User.lng),
+          radius: radius
+        };
 
-        callback(results);
-      });
+        getSearch(request);
+      }
+      
+      function getSearch(request) {
+        service.textSearch(request, function (response) {
+          var results = [];
+
+          if (response) {
+            for (var i = 0; i < response.length; i++) {
+              results[i]         = {};
+              results[i].address = response[i].formatted_address;
+              results[i].lat     = response[i].geometry.location.lat();
+              results[i].lng     = response[i].geometry.location.lng();
+              results[i].name    = response[i].name;
+              results[i].city    = city;
+            }
+          }
+
+          callback(results);
+        });
+      }
     };
     
     this.getMarkerCoords = function (el) {

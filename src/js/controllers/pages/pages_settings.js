@@ -8,7 +8,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           el,
           _key;
 
-      while (target !== this) {
+      while (target !== this && target) {
         if (target.dataset.click === "number") {
           el = target;
           _key = el.dataset.key;

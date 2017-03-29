@@ -33,12 +33,12 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       }
     },
 
-    this.drawRoute = function (type, back, callback) {
-      MapsRoutes.drawRoute(type, back, callback);
+    this.drawRoute = function (Model, back, callback) {
+      MapsRoutes.drawRoute(Model, back, callback);
     };
     
-    this.renderRoute = function (waypoints, type, Model, callback) {
-      self.currentModel.renderRoute(waypoints, type, Model, callback);
+    this.renderRoute = function (waypoints, callback) {
+      self.currentModel.renderRoute(waypoints, callback);
     };
 
     this.init = function() {
@@ -153,12 +153,12 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       self.currentModel.removeEvent(handler);
     };
     
-    this.searchPlaces = function (text, radius, callback) {
-      self.currentModel.searchPlaces(User.city + ' ' + text, radius, callback);
+    this.searchPlaces = function (text, radius, city, callback) {
+      self.currentModel.searchPlaces(city + ' ' + text, radius, city, callback);
     };
     
-    this.searchStreet = function (text, radius, callback) {
-      self.currentModel.searchStreet(User.city + ' ' + text, radius, callback);
+    this.searchStreet = function (text, radius, city, callback) {
+      self.currentModel.searchStreet(city + ' ' + text, radius, city, callback);
     };
     
     this.getLocationClick = function (event) {

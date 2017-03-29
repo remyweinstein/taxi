@@ -1,6 +1,7 @@
-/* global MyOffer, MyOrder, MapElements, Maps */
+/* global MapElements, Maps, User */
 
-define(['Dom', 'ModalWindows'], function (Dom, Modal) {
+define(['Dom', 'ModalWindows', 'Storage'], 
+function (Dom, Modal, Storage) {
 
   var Model, price, comment;
 
@@ -47,7 +48,6 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
         volume = Dom.sel('input[name="volume"]'),
         stevedores = Dom.sel('input[name="loaders"]');
     
-    Model = type==="order" ? MyOrder : MyOffer;
     Model.stevedores = stevedores ? stevedores.value : null;
     Model.volume = volume ? volume.value : null;
     Model.weight = weight ? weight.value : null;
@@ -56,16 +56,14 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     Model.type = typeOf || 'taxi';
     Model.price = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
+    if (Model.type === "intercity") {
+      Model.fromCity = '';
+    } 
     Model.save(MapElements.points);
+    Storage.lullModel(Model);
   }
 
   function cleanField(_field, type) {
-    if (type === "order") {
-      Model = MyOrder;
-    } else {
-      Model = MyOffer;
-    }
-
     if (_field === "from") {
       Model.fromAddress = "";
       Model.fromCity = "";
@@ -81,31 +79,16 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     }
 
     Dom.selAll('.adress_' + _field)[0].value = "";
-
-    if (type === "order") {
-      MyOrder = Model;
-    } else {
-      MyOffer = Model;
-    }
     Destinations.clear();
     Destinations.init();
-
+    Storage.lullModel(Model);
   }
   
-  function addStartTime (datetime, model) {
-    if (model === "order") {
-      MyOrder.start = datetime;
-    } else {
-      MyOffer.start = datetime;
-    }
+  function addStartTime (datetime) {
+    Model.start = datetime;
   }
 
-  function addTime(id, type) {
-    if (type === "order") {
-      Model = MyOrder;
-    } else {
-      Model = MyOffer;
-    }
+  function addTime(id) {
     Modal.show('<p><button class="button_rounded--green" data-response="0">Без задержки</button></p>' +
       '<p><button class="button_rounded--green" data-response="5">5 мин</button></p>' +
       '<p><button class="button_rounded--green" data-response="10">10 мин</button></p>' +
@@ -115,21 +98,13 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
       function (response) {
         eval("Model.times[" + id + "] = " + response);
         Destinations.clear();
-        init(type);
-        if (type === "order") {
-          MyOrder = Model;
-        } else {
-          MyOffer = Model;
-        }
+        init(Model);
+        Storage.lullModel(Model);
       });
   }
 
-  function init(type) {
-    if (type === 'order') {
-      Model = MyOrder;
-    } else {
-      Model = MyOffer;
-    }
+  function init(model) {
+    Model = model;
     price = Dom.sel('[name="cost"]').value;
     comment = Dom.sel('[name="description"]').value;
     price.value = Model.price;
@@ -137,6 +112,13 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
     Dom.selAll('input[name="from"]')[0].value = Model.fromAddress;
     Dom.selAll('input[name="to"]')[0].value = Model.toAddress;
+    
+    if (Dom.sel('input[name="city_from"]')) {
+      Dom.sel('input[name="city_from"]').value = Model.fromCity || User.city;
+      Dom.sel('input[name="city_from"]').dataset.location = Model.fromCityLocation || User.lat + ',' + User.lng;
+      Dom.sel('input[name="city_to"]').value = Model.toCity || User.city;
+      Dom.sel('input[name="city_from"]').dataset.location = Model.toCityLocation || User.lat + ',' + User.lng;
+    }
 
     reloadPoints(Model);
 
@@ -156,13 +138,9 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     }
 
     if (from_value !== '' && to_value !== '') {
-      Maps.drawRoute(type, false, function (recomended) {
+      Maps.drawRoute(Model, false, function (recomended) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recomended + ' руб.';
-        if (type === 'order') {
-          MyOrder.recommended_cost = recomended;
-        } else {
-          MyOffer.recommended_cost = recomended;
-        }
+        Model.recommended_cost = recomended;
       });
 
     }
@@ -170,31 +148,8 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
   var Destinations = {
 
-    initOrder: function () {
-      init('order');
-    },
-
-    initOffer: function () {
-      init('offer');
-    },
-
-    setModel: function (model) {
-      if (model === "clDriverOffer") {
-        MyOffer = Model;
-      }
-      if (model === "clClientOrder") {
-        MyOrder = Model;
-      }
-
-    },
-
-    getModel: function (model) {
-      if (model === "clDriverOffer") {
-        Model = MyOffer;
-      }
-      if (model === "clClientOrder") {
-        Model = MyOrder;
-      }
+    init: function (model) {
+      init(model);
     },
 
     clear: function () {
@@ -203,6 +158,10 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
 
     saveOrder: function () {
       SaveOrderOffer('order');
+    },
+    
+    saveOrderIntercity: function () {
+      SaveOrderOffer('order', 'intercity');
     },
     
     saveOrderCargo: function () {
@@ -234,9 +193,8 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
     },
 
     deleteField: function (target) {
-      var be_dead = target.parentNode;
-
-      var id = target.dataset.id;
+      var be_dead = target.parentNode,
+          id = target.dataset.id;
 
       Model.toAddresses.splice(id, 1);
       Model.toCoordses.splice(id, 1);

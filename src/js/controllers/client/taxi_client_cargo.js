@@ -1,9 +1,11 @@
 /* global User, Maps, Conn, Event */
 
-define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows'], function (Dom, GetPositions, Destinations, Lists, HideForms, Modal) {
+define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder'], 
+function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder) {
   var content = Dom.sel('.content'),
       eventOnChangeZoom,
-      global_el;
+      global_el,
+      MyOrder;
 
   function cbGetMyCargoOrder(response) {
     if (!response.error) {
@@ -45,7 +47,6 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
         if (target) {
           
           if (target.dataset.click === "save-order") {
-            localStorage.setItem('_active_model', 'order');
             Destinations.saveOrderCargo();
 
             return;
@@ -59,13 +60,12 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
 
             localStorage.setItem('_address_temp', el.name);
             localStorage.setItem('_address_string_temp', el.value);
-            localStorage.setItem('_active_model', 'order');
+            localStorage.setItem('_active_city', User.city);
             window.location.hash = '#client_choose_address';
           }
 
           if (target.dataset.click === 'choice_location') {
             localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-            localStorage.setItem('_active_model', 'order');
             window.location.hash = '#client_choice_location_map';
             break;
           }
@@ -119,13 +119,6 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
             } else {
               menu.style.display = 'none';
             }
-
-            return;
-          }
-
-          if (target.dataset.click === "save-order") {
-            localStorage.setItem('_active_model', 'order');
-            Destinations.saveOrder();
 
             return;
           }
@@ -194,23 +187,29 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
   }
   
   function stop() {
-      Lists.clear();
-      GetPositions.clear();
-      Destinations.clear();
-      Maps.removeEvent(eventOnChangeZoom);
+    Lists.clear();
+    GetPositions.clear();
+    Destinations.clear();
+    Maps.removeEvent(eventOnChangeZoom);
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
-      Maps.mapOn();
-      eventOnChangeZoom = GetPositions.drivers();
-      GetPositions.my();
-      initMap();
-      // ===== Draw New Order =====
-      Destinations.initOrder();
-      // ===== Draw My Orders =====
-      Conn.request('requestMyCargoOrders', '', cbGetMyCargoOrder);
-      HideForms.init();
-      addEvents();
+    Storage.setActiveTypeModelTaxi('order');
+    Storage.setActiveTypeTaxi('trucking');
+    MyOrder = new clClientOrder();
+    MyOrder.activateCargo();
+    Lists.init(MyOrder);
+    Maps.mapOn();
+    eventOnChangeZoom = GetPositions.drivers();
+    GetPositions.my();
+    initMap();
+    // ===== Draw New Order =====
+    Destinations.init(MyOrder);
+    // ===== Draw My Orders =====
+    Conn.request('requestMyCargoOrders', '', cbGetMyCargoOrder);
+    HideForms.init();
+    addEvents();
   }
   
   return {

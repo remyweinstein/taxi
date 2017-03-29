@@ -3,7 +3,6 @@
 define(['User', 
         'Car', 
         'Conn',
-        'ClientOrder', 
         'Events', 
         'Settings', 
         'Geo', 
@@ -16,7 +15,6 @@ define(['User',
         'domReady', 
         'SafeWin', 
         'Zones', 
-        'DriverOffer',
         'MapElements',
         'Maps',
         'Google', 
@@ -24,7 +22,6 @@ define(['User',
   function (clUser, 
             clCar, 
             clConn,
-            clClientOrder, 
             clEvents, 
             clSettings, 
             Geo, 
@@ -37,7 +34,6 @@ define(['User',
             domReady, 
             clSafeWin, 
             clZones, 
-            clDriverOffer,
             clMapElements,
             clMaps,
             clGoogle, 
@@ -68,8 +64,6 @@ define(['User',
         Maps        = new clMaps();
         MapGoogle   = new clGoogle();
         MapYandex   = new clYandex();
-        MyOrder     = new clClientOrder();
-        MyOffer     = new clDriverOffer();
         Zones       = new clZones();
         Settings    = new clSettings();
         

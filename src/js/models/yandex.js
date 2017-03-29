@@ -1,6 +1,6 @@
 /* global map, ymaps, User, SafeWin, Maps, MapElements, cost_of_km */
 
-define(['Dom'], function(Dom) {
+define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
   function objCoordsToArray (obj) {
     var newArr = [];
     
@@ -41,7 +41,6 @@ define(['Dom'], function(Dom) {
       
       obj.lat = arr[i][0];
       obj.lng = arr[i][1];
-      
       newObj.push(obj);
     }
     
@@ -51,19 +50,38 @@ define(['Dom'], function(Dom) {
   var clYandex = function () {
     var self = this;
 
-    this.renderRoute = function (waypoints, type, Model, callback) {
+    this.renderRoute = function (waypoints, callback) {
+      var Model,
+          model = Storage.getActiveTypeModelTaxi();
+
+      if (model === "offer") {
+        Model = new clDriverOffer();
+      } else if (model === "order") {
+        Model = new clClientOrder();
+      }
+
+      Model.activateCurrent();
+
       var str = waypoints ? waypoints.join(',') : "",
           _addr_from = Model.fromCoords.split(","),
-          _addr_to = Model.toCoords.split(",");
+          _addr_to = Model.toCoords.split(","),
+          points = [];
 
       if (str !== "") {
         waypoints = JSON.parse(waypoints.join(','));
-      } 
-      ymaps.route([
-        { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
-        waypoints,
-        { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
-      ]).then(function (route) {
+        points = [
+          { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
+          waypoints,
+          { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
+        ];
+      } else {
+        points = [
+          { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
+          { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
+        ];
+      }
+      
+      ymaps.route(points).then(function (route) {
           route.getPaths().options.set({
             hasBalloon: false,
             strokeStyle: '',
@@ -78,14 +96,8 @@ define(['Dom'], function(Dom) {
           Model.length = Math.round(route.getLength());
           var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
-
+          Storage.lullModel(Model);
           callback(recommended_cost);
-          if (type === "order") {
-            MyOrder = Model;
-          } else {
-            MyOffer = Model;
-          }
-
         });
 
     };
@@ -245,10 +257,10 @@ define(['Dom'], function(Dom) {
       return ymaps.coordSystem.geo.getDistance(objToCoords(point1), objToCoords(point2));
     };
 
-    this.searchPlaces = function (text, radius, callback) {
+    this.searchPlaces = function (text, radius, city, callback) {
       var ans = [];
       
-      ymaps.geocode('', {results: 10}).then(function (res) {
+      ymaps.geocode(city, {results: 10}).then(function (res) {
         var found      = res.metaData.geocoder.found,
             lenght_res = found > 0 ? res.metaData.geocoder.results : 0;
             
@@ -258,20 +270,22 @@ define(['Dom'], function(Dom) {
 
         for (var i = 0; i < lenght_res; i++) {
           var geoObj = res.geoObjects.get(i),
-              coords = geoObj.geometry.getCoordinates();
+              coords = geoObj.geometry.getCoordinates(),
+              all = res.geoObjects.get(0).properties.getAll();
               
           ans[i]         = {};
           ans[i].lat     = coords[0];
           ans[i].lng     = coords[1];
-          ans[i].name    = geoObj.properties.get('name');
-          ans[i].address = geoObj.properties.get('text');          
+          ans[i].name    = all.name;
+          ans[i].address = all.text;
+          ans[i].city    = city;
         }
 
         callback(ans);
       });
     };
     
-    this.searchStreet = function (text, radius, callback) {
+    this.searchStreet = function (text, radius, city, callback) {
       var ans = [];
       
       ymaps.geocode(text, {results: 10}).then(function (res) {
@@ -284,13 +298,15 @@ define(['Dom'], function(Dom) {
 
         for (var i = 0; i < lenght_res; i++) {
           var geoObj = res.geoObjects.get(i),
-              coords = geoObj.geometry.getCoordinates();
+              coords = geoObj.geometry.getCoordinates(),
+              all = res.geoObjects.get(0).properties.getAll();
           
           ans[i]         = {};
           ans[i].lat     = coords[0];
           ans[i].lng     = coords[1];
-          ans[i].name    = geoObj.properties.get('name');
-          ans[i].address = geoObj.properties.get('text');          
+          ans[i].name    = all.name;
+          ans[i].address = all.text;
+          ans[i].city = city;
         }
 
         callback(ans);

@@ -1,7 +1,7 @@
-/* global MyOrder, User, Event, Maps, MapGoogle */
+/* global User, Event, Maps, MapGoogle */
 
-define(['Dom'], function (Dom) {
-  var model, Model, dragEvent, center_marker;
+define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage, clDriverOffer, clClientOrder) {
+  var Model, dragEvent, center_marker;
   
   function initMap() {
     var x = User.lat, y = User.lng, zoom = 18,
@@ -78,17 +78,23 @@ define(['Dom'], function (Dom) {
             var _address = MapGoogle.getStreetFromCoords(results);
 
             if (_route === "from") {
-              Model.fromAddress = _address;
+              Model.fromAddress = _address.address;
+              if (Storage.getActiveTypeTaxi() === 'intercity') {
+                Model.fromCity = _address.city;
+              }
             }
 
             if (_route === "to") {
-              Model.toAddress = _address;
+              Model.toAddress = _address.address;
+              if (Storage.getActiveTypeTaxi() === 'intercity') {
+                Model.toCity = _address.city;
+              }
             }
 
             var substr = _route.substring(0, 7);
             if (substr === "to_plus") {
               var _index = _route.replace("to_plus", "");
-              Model.toAddresses[_index] = _address;
+              Model.toAddresses[_index] = _address.address;
             }
 
             Dom.historyBack();
@@ -113,30 +119,24 @@ define(['Dom'], function (Dom) {
     var center_marker = Dom.sel('.centerMarker');
     
     center_marker.parentNode.removeChild(center_marker);
-    model = localStorage.getItem('_active_model');
-    
     Maps.removeEvent(dragEvent);
     dragEvent = null;
-    
-    if (model === "offer") {
-      MyOffer = Model;
-    } else if (model === "order") {
-      MyOrder = Model;
-    }
-    
-    localStorage.removeItem('_active_model');
+    Storage.lullModel(Model);
+    Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {
+    var model = Storage.getActiveTypeModelTaxi();
+    
     dragEvent = null;
-    model = localStorage.getItem('_active_model');
     
     if (model === "offer") {
-      Model = MyOffer;
+      Model = new clDriverOffer();
     } else if (model === "order") {
-      Model = MyOrder;
+      Model = new clClientOrder();
     }
     
+    Model.activateCurrent();
     Maps.mapOn();
     addEvents();
     initMap();

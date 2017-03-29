@@ -1,7 +1,9 @@
 /* global User, Event, Maps */
 
-define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (Destinations, GetPositions, HideForms, Modal) {
-
+define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows', 'Storage', 'DriverOffer'], 
+function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) {
+  var MyOffer, type;
+  
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(15);
@@ -22,13 +24,13 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
 
             localStorage.setItem('_address_temp', el.name);
             localStorage.setItem('_address_string_temp', el.value);
-            localStorage.setItem('_active_model', 'offer');
+            Storage.setActiveTypeModelTaxi('offer');
             window.location.hash = '#client_choose_address';
           }
           
           if (target.dataset.click === 'choice_location') {
             localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-            localStorage.setItem('_active_model', 'offer');
+            Storage.setActiveTypeModelTaxi('offer');
             window.location.hash = '#client_choice_location_map';
 
             break;
@@ -49,7 +51,7 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
           }
           
           if (target.dataset.click === 'save-order') {
-            localStorage.setItem('_active_model', 'offer');
+            Storage.setActiveTypeModelTaxi('offer');
             Destinations.saveOffer();
 
             break;
@@ -75,7 +77,10 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
   
   function start() {
     var current_bid_id = localStorage.getItem('_current_id_bid');
-    
+
+    type = Storage.getActiveTypeTaxi();
+    MyOffer = new clDriverOffer();
+    MyOffer.activateCurrent();
     Maps.mapOn();
     
     if (current_bid_id) {
@@ -84,7 +89,7 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows'], function (
     
     GetPositions.my();
     initMap();
-    Destinations.initOffer();
+    Destinations.init(MyOffer);
     HideForms.init();
     addEvents();
   }

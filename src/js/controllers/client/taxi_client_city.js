@@ -1,9 +1,10 @@
-/* global User, MyOrder, Event, Conn, Maps */
+/* global User, Event, Conn, Maps */
 
-define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindows'],
-  function (Dom, HideForms, GetPositions, Lists, Destinations, Modal) {
+define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindows', 'ClientOrder', 'Storage'],
+  function (Dom, HideForms, GetPositions, Lists, Destinations, Modal, clClientOrder, Storage) {
     var content = Dom.sel('.content'), 
-        global_el, 
+        global_el,
+        MyOrder,
         eventOnChangeZoom,
         old_filters = localStorage.getItem('_filters_active');
     
@@ -91,13 +92,14 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
 
               localStorage.setItem('_address_temp', el.name);
               localStorage.setItem('_address_string_temp', el.value);
-              localStorage.setItem('_active_model', 'order');
+              Storage.setActiveTypeModelTaxi('order');
+              localStorage.setItem('_active_city', User.city);
               window.location.hash = '#client_choose_address';
             }
             
             if (target.dataset.click === 'choice_location') {
               localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-              localStorage.setItem('_active_model', 'order');
+              Storage.setActiveTypeModelTaxi('order');
               window.location.hash = '#client_choice_location_map';
               break;
             }
@@ -156,7 +158,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             }
             
             if (target.dataset.click === "save-order") {
-              localStorage.setItem('_active_model', 'order');
+              Storage.setActiveTypeModelTaxi('order');
               Destinations.saveOrder();
 
               return;
@@ -239,15 +241,21 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
       Conn.clearCb('cbGetOffers');
       Conn.request('stopGetOffers');
       Maps.removeEvent(eventOnChangeZoom);
+      Storage.lullModel(MyOrder);
     }
 
     function start() {
+      Storage.setActiveTypeModelTaxi('order');
+      Storage.setActiveTypeTaxi('taxi');
+      MyOrder = new clClientOrder();
+      MyOrder.activateCity();
+      Lists.init(MyOrder);
       Maps.mapOn();
       eventOnChangeZoom = GetPositions.drivers();
       GetPositions.my();
       initMap();
       // ===== Draw New Order =====
-      Destinations.initOrder();
+      Destinations.init(MyOrder);
       // = Draw Offers of Drivers =
       Lists.filtersStart();
       Conn.request('startGetOffers', '', cbGetOffers);

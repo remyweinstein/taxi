@@ -1,10 +1,11 @@
-/* global User, SafeWin, Event, MapElements, MyOffer, Conn, MyOrder, Maps */
+/* global User, SafeWin, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations'],
-  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations) {
+define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage'],
+  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
-      waypoints, price, name_client, photo_client, first_time = true, agIndexes;
+      waypoints, price, name_client, photo_client, first_time = true, agIndexes,
+      MyOrder, MyOffer;
   
   function cbOnFinish() { 
     localStorage.setItem('_rating_offer', MyOffer.id);
@@ -235,9 +236,15 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     Conn.clearCb('cbGetOrdersByOffer');
     Chat.exit();
     first_time = true;
+    Storage.lullModel(MyOrder);
+    Storage.lullModel(MyOffer);
   }
   
   function start() {
+    MyOrder = new clClientOrder();
+    MyOrder.activateCurrent();
+    MyOffer = new clDriverOffer();
+    MyOffer.activateCurrent();
     Maps.mapOn();
     initMap();
     MyOffer.id = localStorage.getItem('_active_offer_id');

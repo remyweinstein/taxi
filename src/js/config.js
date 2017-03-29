@@ -43,6 +43,7 @@ requirejs.config({
     "Router" :        "libs/router",
     "Stars" :         "libs/stars",
     "SafeWin" :       "libs/safe_win",
+    "Storage" :       "libs/storage",
     "Tabs" :          "libs/tabs",
     
     "ctrlPageEditProfile" :     "controllers/pages/pages_edit_profile",
@@ -120,7 +121,7 @@ var menus_arr = [];
       lastURL = '',
       MayLoading = false,
       
-      User, Car, Conn, Event, Settings, MyOrder, MyOffer, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
+      User, Car, Conn, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',

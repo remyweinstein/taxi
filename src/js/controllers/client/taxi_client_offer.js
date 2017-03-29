@@ -1,10 +1,11 @@
-/* global User, average_speed, Event, MapElements, Conn, Maps, MyOrder */
+/* global User, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'HideForms'], function (Dom, HideForms) {
+define(['Dom', 'HideForms', 'Storage'], function (Dom, HideForms, Storage) {
 
   var active_bid = false, route, marker_to, marker_from, points = [],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
-      name_client, photo_client, travelTime, agIndexes;
+      name_client, photo_client, travelTime, agIndexes,
+      MyOrder;
   
   function cbChangeState(response) {
     MyOrder.id = response.result.id;
@@ -170,7 +171,7 @@ define(['Dom', 'HideForms'], function (Dom, HideForms) {
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve"></div>' +
                     '</div>';
-    Maps.drawRoute('order', false, function(){});
+    Maps.drawRoute(MyOrder, false, function(){});
   }
 
   function addEvents() {
@@ -211,12 +212,12 @@ define(['Dom', 'HideForms'], function (Dom, HideForms) {
 
           localStorage.setItem('_address_temp', el.name);
           localStorage.setItem('_address_string_temp', el.value);
-          localStorage.setItem('_active_model', 'order');
+          Storage.setActiveTypeModelTaxi('order');
           window.location.hash = '#client_choose_address';
         }
         if (target.dataset.click === 'choice_location') {
           localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-          localStorage.setItem('_active_model', 'order');
+          Storage.setActiveTypeModelTaxi('order');
           window.location.hash = '#client_choice_location_map';
           break;
         }
@@ -263,22 +264,29 @@ define(['Dom', 'HideForms'], function (Dom, HideForms) {
     if (marker_from) {
       Maps.removeElement(marker_from);
     }
+    
     if (marker_to) {
       Maps.removeElement(marker_to);
     }
+    
     if (route) {
       Maps.removeElement(route);
     }
+    
     if (points) {
       for (var i = 0; i < points.length; i++) {
         Maps.removeElement(points[i]);
       }
     }
+    
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
     var _id = localStorage.getItem('_open_offer_id');
     
+    MyOrder = new clClientOrder();
+    MyOrder.activateCurrent();
     Maps.mapOn();
     initMap();
     Conn.request('getOfferById', _id, cbGetOfferById);

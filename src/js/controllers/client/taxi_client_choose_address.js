@@ -1,14 +1,15 @@
-/* global MyOrder, Maps */
+/* global Maps, User */
 
-define(['Dom'], function (Dom) {
+define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage, clDriverOffer, clClientOrder) {
   
-  var _timer, Model, model;
+  var _timer, Model, city;
     
   function onchange() {
     var list_results = Dom.sel('.choice-location__results-search'),
         input = Dom.sel('input[name="enter-address"]'),
         query = input.value,
-        innText = '';
+        innText = '',
+        currentCity = Storage.getActiveTypeTaxi() === "intercity" ? city : User.city;
     
     list_results.innerHTML = "";
     clearTimeout(_timer);    
@@ -16,17 +17,17 @@ define(['Dom'], function (Dom) {
     if (query !== "") {
       _timer = setTimeout(startSearch, 1000);
     } else {
-      Maps.searchPlaces('', 500, callback);
+      Maps.searchPlaces('', 500, currentCity, callback);
     }
 
     function startSearch() {
-      Maps.searchStreet(query, 5000, callback);
+      Maps.searchStreet(query, 5000, currentCity, callback);
     }
 
     function callback(results) {
       if (results) {
         for (var i = 0; i < results.length; i++) {
-          innText += '<p data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
+          innText += '<p data-city="' + results[i].city + '" data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
         }
         list_results.innerHTML = innText;
       }
@@ -45,11 +46,13 @@ define(['Dom'], function (Dom) {
           if (_route === "from") {
             Model.fromAddress = target.children[0].innerHTML;
             Model.fromCoords = target.dataset.latlng;
+            Model.fromCity = target.dataset.city;
           }
 
           if (_route === "to") {
             Model.toAddress = target.children[0].innerHTML;
             Model.toCoords = target.dataset.latlng;
+            Model.toCity = target.dataset.city;
           }
 
           var substr = _route.substring(0, 7);
@@ -73,29 +76,24 @@ define(['Dom'], function (Dom) {
   }
   
   function stop() {
-    model = localStorage.getItem('_active_model');
-
-    if (model === "offer") {
-      MyOffer = Model;
-    } else {
-      MyOrder = Model;
-    }
-    
-    localStorage.removeItem('_active_model');
+    Storage.lullModel(Model);
+    Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {
     var input = Dom.sel('input[name="enter-address"]'),
-        event;
-
-    model = localStorage.getItem('_active_model');
+        event,
+        model = Storage.getActiveTypeModelTaxi();
+      
+    city = localStorage.getItem('_active_city');
     
     if (model === "offer") {
-      Model = MyOffer;
-    } else {
-      Model = MyOrder;
+      Model = new clDriverOffer();
+    } else if (model === "order") {
+      Model = new clClientOrder();
     }
-  
+    
+    Model.activateCurrent();
     input.value = localStorage.getItem('_address_string_temp');
     input.addEventListener('input', onchange);
     input.addEventListener('touchstart', function() {

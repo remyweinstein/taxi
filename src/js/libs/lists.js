@@ -1,17 +1,18 @@
-/* global User, default_vehicle, driver_icon, MapElements, Conn, MyOrder, MyOffer, Maps */
+/* global User, default_vehicle, driver_icon, MapElements, Conn, Maps */
 
 define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, clDriverOrders, Popup) {
   var Orders = [],
       add_filter = '',
       arr_filters = {},
-      global_bid;
+      global_bid,
+      Model;
   
   function cbApproveOffer2() {
     Conn.clearCb('cbApproveOffer2');
-    MyOrder.bid_id = global_bid;
-    localStorage.setItem('_current_id_bid', MyOrder.bid_id);
-    localStorage.setItem('_active_order_id', MyOrder.id);
-    localStorage.setItem('_current_id_order', MyOrder.id);
+    Model.bid_id = global_bid;
+    localStorage.setItem('_current_id_bid', Model.bid_id);
+    localStorage.setItem('_active_order_id', Model.id);
+    localStorage.setItem('_current_id_order', Model.id);
     window.location.hash = "#client_go";
   }
   
@@ -499,8 +500,12 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
                     listOffers);
         }
       }
-
-      if (arrOffers.length < 1) {
+      
+      if (arrOffers){
+        if (arrOffers.length < 1) {
+          show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
+        }
+      } else {
         show('DIV', '<div class="list-orders_norecords">Нет предложений</div>', listOffers);
       }
     }
@@ -607,7 +612,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         filter[type]=Эконом
         filter[fromCity]=Хабаровск
         filter[agentId]=254
-        filter[isIntercity]=1
+        filter[type]=1
         filter[phone]=1
         filter[email]=1
       */
@@ -615,11 +620,11 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function get_bid_drivers () {
-    Conn.request('startOffersByOrder', MyOrder.id, cbGetBids);
+    Conn.request('startOffersByOrder', Model.id, cbGetBids);
   }
   
   function get_bid_clients () {
-    Conn.request('startOrdersByOffer', MyOffer.id, cbGetBids);
+    Conn.request('startOrdersByOffer', Model.id, cbGetBids);
   }
   
   var Lists = {
@@ -628,8 +633,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetBids');
     },
-    start: function () {
-      
+    init: function (model) {
+      Model = model;
     },
     getBidsDriver: function () {
       get_bid_drivers();
@@ -638,10 +643,10 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       get_bid_clients(); //было по таймеру
     },
     getOfferByID: function (id) {
-      MyOffer.getByID(id);
+      Model.getByID(id);
     },
     getOrderByID: function (id) {
-      MyOrder.getByID(id);
+      Model.getByID(id);
     },
     filterToggleFav: function (el) {
       filterToggleFav(el);
@@ -667,24 +672,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
     },
     deleteOrder: function (target) {
       deleteOrder(target);
-    },
-    getModel: function (model) {
-      if (model === "clDriverOffer") {
-        Model = MyOffer;
-      }
-      if (model === "clClientOrder") {
-        Model = MyOrder;
-      }
-      
-      return Model;
-    },
-    setModel: function (model) {
-      if (model === "clDriverOffer") {
-        MyOffer = Model;
-      }
-      if (model === "clClientOrder") {
-        MyOrder = Model;
-      }
     },
     priceMinus: function (el) {
       priceMinus(el);

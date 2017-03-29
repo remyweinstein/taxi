@@ -1,8 +1,8 @@
-/* global User, Zones, MyOffer, MyOrder, Conn, Funcs */
+/* global User, Zones, Conn, Funcs */
 /*
 
  type = taxi
- type = isIntercity
+ type = intercity
  type = trucking
  type = tourism
 
@@ -63,6 +63,11 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   function getOfferById(id) {
     params.offerId = id;
     Conn.sendMessage("get-offer", params);
+  }
+  
+  function searchCity(city) {
+    params.city = city;
+    Conn.sendMessage("get-city", params);
   }
   
   function requestFavorites() {
@@ -213,6 +218,13 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   function requestMyCargoOrders() {
     params.filter = {};
     params.filter.type = "trucking";
+    params.filter.my = 1;
+    Conn.sendMessage("get-orders", params);
+  }
+  
+  function requestMyIntercityOrders() {
+    params.filter = {};
+    params.filter.type = "intercity";
     params.filter.my = 1;
     Conn.sendMessage("get-orders", params);
   }
@@ -398,6 +410,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
       }
 
       switch (func) {
+        case "searchCity":
+          searchCity(data);
+          break;
         case "requestFavorites":
           requestFavorites();
           break;
@@ -480,7 +495,7 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
           startGetOrders('trucking');
           break;
         case "startGetIntercityOrders":
-          startGetOrders('isIntercity');
+          startGetOrders('intercity');
           break;
         case "stopGetOrders":
           stopGetOrders();
@@ -532,6 +547,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
           break;
         case "requestMyOrders":
           requestMyOrders();
+          break;
+        case "requestMyIntercityOrders":
+          requestMyIntercityOrders();
           break;
         case "requestMyCargoOrders":
           requestMyCargoOrders();

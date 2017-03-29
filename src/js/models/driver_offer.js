@@ -1,13 +1,7 @@
-/* global User, Conn, MyOffer */
+/* global User, Conn */
 
-define(function() {
+define(['Storage'], function(Storage) {
   
-  function cbCreateOffer(response) {
-    MyOffer.id = response.result.id;
-    window.location.hash = '#driver_city';
-    Conn.clearCb('cbCreateOffer');
-  }
-
   var clDriverOffer = function () {
     var self = this;
 
@@ -29,10 +23,18 @@ define(function() {
     this.length = 0;
     this.recommended_cost = null;
     this.fromCity  = null;
+    this.fromCityLocation = null;
     this.toCity = null;
+    this.toCityLocation = null;
     this.distance = 0;
     this.price = 0;
     this.comment = null;
+    
+    function cbCreateOffer(response) {
+      self.id = response.result.id;
+      Conn.clearCb('cbCreateOffer');
+      window.location.hash = '#driver_city';
+    }
     
     function cbgetOfferById(response) {
       var ord = response.result.offer;
@@ -74,7 +76,9 @@ define(function() {
         }
       }
       self.fromCity  = ord.fromCity;
+      self.fromCityLocation = ord.fromCityLocation;
       self.toCity = ord.toCity;
+      self.toCityLocation = ord.toCityLocation;
       self.price = ord.price;
       self.comment = ord.comment;
       Conn.clearCb('cbgetOfferById');
@@ -92,6 +96,65 @@ define(function() {
       window.location.hash = '#driver_my_offer';
     }
     
+    
+    function parse(type) {
+      var myOffer = Storage.getTaxiOrderModel(type);
+      
+      if (myOffer) {
+        var ord = JSON.parse(myOffer);
+        
+        self.fromCity = ord.fromCity;
+        self.fromCityLocation = ord.fromCityLocation;
+        self.fromAddress = ord.fromAddress;
+        self.fromLocation = ord.fromLocation;
+        self.toCity = ord.toCity;
+        self.toCityLocation = ord.toCityLocation;
+        self.toAddress = ord.toAddress;
+        self.toLocation = ord.toLocation;
+        self.price = ord.price;
+        self.comment = ord.comment;
+        self.type = ord.type;
+        self.start = ord.start;
+      }
+    }
+    
+    function lull(type) {
+      Storage.getTaxiOrderModel(type, self);
+      //self.clear();
+    }
+    
+    this.activateCurrent = function () {
+      parse(Storage.getActiveTypeTaxi());
+    };
+    
+    this.lullCurrent = function () {
+      lull(Storage.getActiveTypeTaxi());
+    };
+    
+    this.activateCity = function () {
+      parse('taxi');
+    };
+    
+    this.lullCity = function () {
+      lull('taxi');
+    };
+    
+    this.activateInterCity = function () {
+      parse('intercity');
+    };
+    
+    this.lullInterCity = function () {
+      lull('intercity');
+    };
+    
+    this.activateCargo = function () {
+      parse('trucking');
+    };
+    
+    this.lullCargo = function () {
+      lull('trucking');
+    };
+    
     this.clear = function () {
       self = null;
     };
@@ -101,9 +164,11 @@ define(function() {
       var data = {};
 
       data.fromCity = User.city;
+      //data.fromCityLocation = self.fromCityLocation;
       data.fromAddress = self.fromAddress;
       data.fromLocation = self.fromCoords;
       data.toCity = User.city;
+      //data.toCityLocation = self.toCityLocation;
       data.toAddress = self.toAddress;
       data.toLocation = self.toCoords;
       data.price = self.price;

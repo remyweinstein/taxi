@@ -1,10 +1,11 @@
-/* global User, Car, average_speed, Event, MapElements, Conn, Maps, MyOrder */
+/* global User, Car, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Modal, HideForms) {
+define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage'], function (Dom, Dates, Modal, HideForms, Storage) {
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
-      name_client, photo_client, travelTime, agIndexes, cargo_info = '';
+      name_client, photo_client, travelTime, agIndexes, cargo_info = '',
+      MyOrder;
   
   function cbGetOrderById(response) {
     var ords = response.result.order;
@@ -269,22 +270,29 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms'], function (Dom, Dates, Moda
     if (marker_from) {
       Maps.removeElement(marker_from);
     }
+    
     if (marker_to) {
       Maps.removeElement(marker_to);
     }
+    
     if (route) {
       Maps.removeElement(route);
     }
+    
     if (points) {
       for (var i = 0; i < points.length; i++) {
         Maps.removeElement(points[i]);
       }
     }
+    
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
     var _id = localStorage.getItem('_open_order_id');
     
+    MyOrder = new clClientOrder();
+    MyOrder.activateCurrent();
     Maps.mapOn();
     initMap();
     Conn.request('getOrderById', _id, cbGetOrderById);

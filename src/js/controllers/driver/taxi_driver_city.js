@@ -1,6 +1,6 @@
-/* global User, Event, Car, MyOffer, Conn */
+/* global User, Event, Car, Conn */
 
-define(['ModalWindows', 'Lists'], function (Modal, Lists) {
+define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
   var old_filters,
       old_sortes;
   
@@ -176,6 +176,8 @@ define(['ModalWindows', 'Lists'], function (Modal, Lists) {
   }
   
   function start() {
+    Storage.setActiveTypeModelTaxi('offer');
+    Storage.setActiveTypeTaxi('taxi');
     old_filters = localStorage.getItem('_filters_active');
     old_sortes = localStorage.getItem('_actives_sort');
     Lists.filtersStart();
