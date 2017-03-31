@@ -6,7 +6,8 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
       eventOnChangeZoom,
       global_el,
       MyOrder,
-      _timer;
+      _timer,
+      old_filters = Storage.getActiveFilters();
 
   function cbGetMyIntercityOrder(response) {
     if (!response.error) {
@@ -34,6 +35,25 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
   }
 
+  function cbGetOffers(response) {
+    var filters = Storage.getActiveFilters();
+
+    if (filters !== old_filters) {
+      Conn.request('stopGetOffers');
+      Conn.clearCb('cbGetOffers');
+      Conn.request('startGetOffers', '', cbGetOffers);
+      old_filters = filters;
+
+      return;
+    }
+
+    if (!response.error) {
+      Lists.allOffers(response.result);
+    }
+
+    old_filters = filters;
+  }
+    
   function onchange(el) {
     var list_results = el.srcElement.parentNode.querySelector('.form-order-city__hint'),
         input = el.srcElement,
@@ -108,16 +128,14 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           //  ============= EVENTS FOR DESTINATION FIELDS ============== 
           if (target.dataset.click === 'choose_address') {
             el = target;
-
-            localStorage.setItem('_address_temp', el.name);
-            localStorage.setItem('_address_string_temp', el.value);
+            Storage.setTemporaryRoute(el.name);
+            Storage.setTemporaryAddress(el.value);
             Storage.setActiveTypeModelTaxi('order');
-            localStorage.setItem('_active_city', Dom.sel('input[name="city_' + el.name + '"]').value);
             window.location.hash = '#client_choose_address';
           }
 
           if (target.dataset.click === 'choice_location') {
-            localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+            Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             Storage.setActiveTypeModelTaxi('order');
             window.location.hash = '#client_choice_location_map';
             break;
@@ -237,19 +255,42 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     };
 
     content.addEventListener('click', Event.click);
+    
+    Event.input = function (event) {
+      var target = event.target;
+
+      while (target !== this) {
+        if (target) {
+          if (target.name === "city_from" || target.name === "city_to") {
+            onchange(target);
+          }
+        }
+
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
+      }
+    };
+    
+    content.addEventListener('input', Event.input);
   }
   
   function stop() {
-      Lists.clear();
-      GetPositions.clear();
-      Destinations.clear();
-      Maps.removeEvent(eventOnChangeZoom);
-      Storage.lullModel(MyOrder);
+    Lists.clear();
+    GetPositions.clear();
+    Destinations.clear();
+    Maps.removeEvent(eventOnChangeZoom);
+    Conn.clearCb('cbGetOffers');
+    Conn.request('stopGetOffers');
+    Storage.lullModel(MyOrder);
   }
   
   function start() {
     Storage.setActiveTypeModelTaxi('order');
     Storage.setActiveTypeTaxi('intercity');
+    Storage.setActiveTypeFilters('offers');
     MyOrder = new clClientOrder();
     MyOrder.activateInterCity();
     Lists.init(MyOrder);
@@ -257,18 +298,15 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     eventOnChangeZoom = GetPositions.drivers();
     GetPositions.my();
     initMap();
+    // = Draw Offers of Drivers =
+    Lists.filtersStart();
+    Conn.request('startGetOffers', '', cbGetOffers);
     // ===== Draw New Order =====
     Destinations.init(MyOrder);
     // ===== Draw My Orders =====
     Conn.request('requestMyIntercityOrders', '', cbGetMyIntercityOrder);
     HideForms.init();
     addEvents();
-    
-    var inputCityFrom = Dom.sel('input[name="city_from"]'),
-        inputCityto = Dom.sel('input[name="city_to"]');
-      
-    inputCityFrom.addEventListener('input', onchange);
-    inputCityto.addEventListener('input', onchange);
   }
   
   return {

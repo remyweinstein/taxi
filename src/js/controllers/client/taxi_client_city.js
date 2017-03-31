@@ -6,7 +6,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
         global_el,
         MyOrder,
         eventOnChangeZoom,
-        old_filters = localStorage.getItem('_filters_active');
+        old_filters = Storage.getActiveFilters();
     
     function cbAfterAddFav() {
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
@@ -27,7 +27,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
     }
     
     function cbGetOffers(response) {
-      var filters = localStorage.getItem('_filters_active');
+      var filters = Storage.getActiveFilters();
 
       if (filters !== old_filters) {
         Conn.request('stopGetOffers');
@@ -89,16 +89,14 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             //  ============= EVENTS FOR DESTINATION FIELDS ============== 
             if (target.dataset.click === 'choose_address') {
               el = target;
-
-              localStorage.setItem('_address_temp', el.name);
-              localStorage.setItem('_address_string_temp', el.value);
+              Storage.setTemporaryRoute(el.name);
+              Storage.setTemporaryAddress(el.value);
               Storage.setActiveTypeModelTaxi('order');
-              localStorage.setItem('_active_city', User.city);
               window.location.hash = '#client_choose_address';
             }
             
             if (target.dataset.click === 'choice_location') {
-              localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+              Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
               Storage.setActiveTypeModelTaxi('order');
               window.location.hash = '#client_choice_location_map';
               break;
@@ -119,7 +117,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             }
             
             if (target.dataset.click === 'date_order') {
-              Modal.calendar( function (datetime) {
+              Modal.calendar(function (datetime) {
                                 Destinations.addStartTimeOrder(datetime);
                               });
 
@@ -247,6 +245,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
     function start() {
       Storage.setActiveTypeModelTaxi('order');
       Storage.setActiveTypeTaxi('taxi');
+      Storage.setActiveTypeFilters('offers');
       MyOrder = new clClientOrder();
       MyOrder.activateCity();
       Lists.init(MyOrder);

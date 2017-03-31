@@ -1,7 +1,7 @@
 /* global User, Conn, Event, Car */
 
 define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
-  var old_filters,
+  var old_filters = Storage.getActiveFilters(),
       old_sortes;
 
   function cbMyOffers(response) {
@@ -12,12 +12,7 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
   }
   
   function cbGetOrders(response) {
-    var stopStartOrders = function () {
-          Conn.request('stopGetOrders');
-          Conn.clearCb('cbGetOrders');
-          Conn.request('startGetOrders', '', cbGetOrders);
-        },
-        filters = localStorage.getItem('_filters_active'),
+    var filters = Storage.getActiveFilters(),
         sortes = localStorage.getItem('_actives_sort');
     
     if (filters !== old_filters) {
@@ -35,11 +30,17 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
     }
     
     if (!response.error) {
-      Lists.allOrders(response.result);
+      Lists.allOrdersIntercity(response.result);
     }
     
     old_filters = filters;
     old_sortes = sortes;
+    
+    function stopStartOrders() {
+      Conn.request('stopGetOrders');
+      Conn.clearCb('cbGetOrders');
+      Conn.request('startGetOrders', '', cbGetOrders);
+    }
   }
 
   function addEvents() {
@@ -175,11 +176,12 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
   function start() {
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('intercity');
-    old_filters = localStorage.getItem('_filters_active');
+    Storage.setActiveTypeFilters('orders');
+    old_filters = Storage.getActiveFilters();
     old_sortes = localStorage.getItem('_actives_sort');
     Lists.filtersStart();
     Conn.request('startGetIntercityOrders', '', cbGetOrders);
-    Conn.request('requestMyIntercityOrders', '', cbMyOffers);
+    Conn.request('requestMyIntercityOffers', '', cbMyOffers);
     Conn.request('stopGetOffers');
     addEvents();
   }

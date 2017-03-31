@@ -4,9 +4,46 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   
   function cbFillFields(response) {
     var sex = response.result.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
-        city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]');
+        city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]'),
+        listOfSocials =[],
+        prof = response.result.profile;
     
+    if (!prof.hasVkontakte) {
+      listOfSocials.push("vkontakte");
+    }
+    if (!prof.hasOdnoklassniki) {
+      listOfSocials.push("odnoklassniki");
+    }
+    if (!prof.hasMailru) {
+      listOfSocials.push("mailru");
+    }
+    if (!prof.hasFacebook) {
+      listOfSocials.push("facebook");
+    }
+    if (!prof.hasTwitter) {
+      listOfSocials.push("twitter");
+    }
+    if (!prof.hasGoogle) {
+      listOfSocials.push("google");
+    }
+    if (!prof.hasYandex) {
+      listOfSocials.push("yandex");
+    }
+    if (!prof.hasGoogleplus) {
+     listOfSocials.push("googleplus");
+    }
+    if (!prof.hasInstagram) {
+      listOfSocials.push("instagram");
+    }
+    if (!prof.hasYoutube) {
+      listOfSocials.push("youtube");
+    }
+    if (!prof.hasWargaming) {
+      listOfSocials.push("wargaming");
+    }
+
     Dom.sel('.pincode').innerHTML = response.result.profile.hasPin ? '<span data-click="change-pin">Сменить PIN</span>' : '<span data-click="create-pin">Установить PIN</span>';
+    Dom.sel('.social_network').innerHTML += '<div id="uLogin" data-ulogin="callback=reciveUlogin;display=small;fields=;providers=' + listOfSocials.join(',') + ';hidden=;redirect_uri=;mobilebuttons=0;"></div>';
     Dom.sel('input[name="myname"]').value = User.name || response.result.profile.name;
     Dom.sel('input[name="dob"]').value = response.result.profile.birthday ? Dates.dateFromBase(response.result.profile.birthday) : '';
     sex.selected = true;

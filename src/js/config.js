@@ -23,7 +23,6 @@ requirejs.config({
     "Yandex" :        "models/yandex",
 		"Zones" :         "models/zones",
     
-    "Address" :       "libs/address",
     "Chat" :          "libs/chat",
     "Conn" :          "libs/connection",
     "Dates" :         "libs/dates",
@@ -36,7 +35,6 @@ requirejs.config({
     "InputFilters" :  "libs/input_filters",
     "Lists" :         "libs/lists",
     "MainMenu" :      "libs/menu",
-    "MapsRoutes" :    "libs/maps_routes",
 		"ModalWindows" :  "libs/modal_windows",
 		"Multirange" :    "libs/multirange",
 		"PopupWindows" :  "libs/popup_windows",
@@ -133,7 +131,13 @@ var menus_arr = [];
       global_order_id,
       timerMyPos,
       timerCheckLoading;
-
+    
+  function reciveUlogin(token) {
+    //define(['Uries'], function(Uries) {
+      //Conn.request('ulogin', {'token':token,'host':Uries.server_uri});
+    //});
+    Conn.request('ulogin', {'ulogin':token,'host':'indriver.ru'});
+  }
 
 require(['App'], function (App) {  
   App.start();

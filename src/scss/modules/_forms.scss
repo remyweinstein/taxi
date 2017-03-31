@@ -149,7 +149,11 @@
     color: $active;
 }
 .form-edit-profile{
-    
+    .social_network{
+        div{
+            display: inline-block;
+        }
+    }
 }
 .form-edit-auto{
     input, select{

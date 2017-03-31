@@ -9,7 +9,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
         input = Dom.sel('input[name="enter-address"]'),
         query = input.value,
         innText = '',
-        currentCity = Storage.getActiveTypeTaxi() === "intercity" ? city : User.city;
+        currentCity = city || User.city;
     
     list_results.innerHTML = "";
     clearTimeout(_timer);    
@@ -41,8 +41,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
 
       while (target !== this) {
         if (target.tagName === 'P') {
-          var _route = localStorage.getItem('_address_temp');
-
+          var _route = Storage.getTemporaryRoute();
           if (_route === "from") {
             Model.fromAddress = target.children[0].innerHTML;
             Model.fromCoords = target.dataset.latlng;
@@ -56,6 +55,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
           }
 
           var substr = _route.substring(0, 7);
+          
           if (substr === "to_plus") {
             var _index = _route.replace("to_plus", "");
 
@@ -77,7 +77,9 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
   
   function stop() {
     Storage.lullModel(Model);
-    Storage.removeActiveTypeModelTaxi();
+    Storage.removeTemporaryAddress();
+    Storage.removeTemporaryRoute();
+    //Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {
@@ -85,8 +87,6 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
         event,
         model = Storage.getActiveTypeModelTaxi();
       
-    city = localStorage.getItem('_active_city');
-    
     if (model === "offer") {
       Model = new clDriverOffer();
     } else if (model === "order") {
@@ -94,7 +94,8 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     }
     
     Model.activateCurrent();
-    input.value = localStorage.getItem('_address_string_temp');
+    city = Storage.getTemporaryRoute()==="from" ? Model.fromCity : Model.toCity;
+    input.value = Storage.getTemporaryAddress();
     input.addEventListener('input', onchange);
     input.addEventListener('touchstart', function() {
       this.focus();

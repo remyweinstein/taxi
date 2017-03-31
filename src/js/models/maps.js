@@ -1,6 +1,6 @@
-/* global User, ymaps, MapGoogle, MapYandex, google, Settings */
+/* global User, ymaps, MapGoogle, MapYandex, google, Settings, MapElements */
 
-define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
+define(['jsts'], function(jsts) {
 
   var clMaps = function () {
     var self = this;
@@ -20,12 +20,14 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       } else {
         self.setCurrentModel(localStorage.getItem('_map_provider'));
       }
+      
       ymaps.ready(stopLoading);
     },
 
     this.setCurrentModel = function (val) {
       localStorage.setItem('_map_provider', val);
       self.currentMapProvider = val;
+      
       if (val === 'google') {
         self.currentModel = MapGoogle;
       } else if (val === 'yandex') {
@@ -34,7 +36,43 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
     },
 
     this.drawRoute = function (Model, back, callback) {
-      MapsRoutes.drawRoute(Model, back, callback);
+      var _addr_from, _addr_to,
+          waypoints = [];
+
+      if (!Model.fromCoords || !Model.toCoords) {
+        return;
+      }
+      
+      _addr_from = Model.fromCoords.split(",");
+      _addr_to = Model.toCoords.split(",");
+      MapElements.marker_b = null;
+      MapElements.marker_a = null;
+      MapElements.marker_from = self.addMarker(_addr_from[0], _addr_from[1], Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32], function(){});
+      MapElements.marker_to = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32], function(){});
+
+      if (Model.toAddresses) {
+        for (var i = 0; i < Model.toAddresses.length; i++) {
+          if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
+            var _wp = Model.toCoordses[i].split(","),
+                time = "";
+            
+            waypoints.push(self.convertWayPointsForRoutes(_wp[0], _wp[1]));
+            
+            if (Model.times[i]) {
+              time = Model.times[i] + ' мин.';
+            }
+            
+            self.addMarker(_wp[0], _wp[1], Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32], function(mark){
+              self.addInfoForMarker(time, true, mark);
+              MapElements.points.push(mark);
+            });
+          }
+        }
+      }
+      
+      self.renderRoute(waypoints, function (price) {
+        callback(price);
+      });      
     };
     
     this.renderRoute = function (waypoints, callback) {
@@ -65,6 +103,7 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       var map_block = document.getElementById('map_canvas');
 
       parent.insertBefore(map_block, parent.children[0]);
+      
       if (self.currentMapProvider === "yandex") {
         //this.init();
       }
@@ -74,6 +113,7 @@ define(['MapsRoutes', 'jsts'], function(MapsRoutes, jsts) {
       var map_block = document.getElementById('map_canvas');
       
       document.querySelector('main.content').appendChild(map_block);
+      
       if (self.currentMapProvider === "yandex") {
         //this.init();
       }

@@ -68,7 +68,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           points = [];
 
       if (str !== "") {
-        waypoints = JSON.parse(waypoints.join(','));
+        waypoints = JSON.parse(waypoints);
         points = [
           { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
           waypoints,
@@ -82,15 +82,17 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
       }
       
       ymaps.route(points).then(function (route) {
-          route.getPaths().options.set({
+          var routa = route.getPaths();
+          
+          routa.options.set({
             hasBalloon: false,
             strokeStyle: '',
             strokeWidth: 5,
             opacity: 0.7
           });
 
-          Maps.map.geoObjects.add(route.getPaths());
-          MapElements.routes.push(route);
+          Maps.map.geoObjects.add(routa);
+          MapElements.routes.push(routa);
 
           Model.duration = Math.round(route.getLength() / 60);
           Model.length = Math.round(route.getLength());
@@ -286,9 +288,10 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
     };
     
     this.searchStreet = function (text, radius, city, callback) {
-      var ans = [];
-      
-      ymaps.geocode(text, {results: 10}).then(function (res) {
+      var ans = [],
+          query = city ? city + ' ' + text : text;
+        
+      ymaps.geocode(query, {results: 10}).then(function (res) {
         var found      = res.metaData.geocoder.found,
             lenght_res = found > 0 ? res.metaData.geocoder.results : 0;
             

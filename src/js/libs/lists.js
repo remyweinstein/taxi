@@ -1,6 +1,6 @@
 /* global User, default_vehicle, driver_icon, MapElements, Conn, Maps */
 
-define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, clDriverOrders, Popup) {
+define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dates, Dom, clDriverOrders, Popup, Storage) {
   var Orders = [],
       add_filter = '',
       arr_filters = {},
@@ -152,16 +152,16 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
     return add_fil;
   }
   
-  function render_list(type, response) {
-    var ords = type==='order' ? response.orders : response.offers,
+  function render_list(order, response, type) {
+    var ords = order==='order' ? response.orders : response.offers,
         order_canceled,
         order_finished,
         order_finishedClient,
         order_finishedDriver,
         tempOrder = Orders,
         orders_result = Dom.sel('.list-orders__result span'),
-        automat_driver = type==='order' ? localStorage.getItem('_automat_driver_orders') : false,
-        automat_client = type==='order' ? false : localStorage.getItem('_automat_client_offers');
+        automat_driver = order==='order' ? localStorage.getItem('_automat_driver_orders') : false,
+        automat_client = order==='order' ? false : localStorage.getItem('_automat_client_offers');
 
     Orders = [];
     
@@ -176,7 +176,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
               return ord.id === ordId;
             });
         
-        if (type === 'order') {
+        if (order === 'order') {
           order_canceled = ords[i].canceled;
           order_finished = ords[i].finished;
           order_finishedDriver = ords[i].finishedByDriver;
@@ -194,7 +194,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           Orders.push(temp_order);
           if(ords[i].bids && ords[i].bids.length > 0) {
             if (ords[i].bids[0].approved && !order_finished && !order_canceled && !order_finishedDriver && !order_finishedClient) {
-              if (type === 'order') {
+              if (order === 'order') {
                 localStorage.setItem('_active_offer_id', ords[i].bids[0].offerId);
                 window.location.hash = '#driver_go';
               } else {
@@ -216,10 +216,10 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       orders_result.innerHTML = Orders.length;
     }
 
-    fillOrders(type);
+    fillOrders(order, type);
   }
   
-  function fillOrders(type) {
+  function fillOrders(order, type) {
     var listOrders = Dom.sel('[data-model=list-orders]');
 
     if (listOrders) {
@@ -231,7 +231,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
             key <= 4294967294) {
 
           var active_bid = Orders[key].active_bid ? ' active' : '', 
-              zaezdy = '';
+              zaezdy = '',
+              fromCity = '', toCity = '';
 
           if (Orders[key].stops > 0) {
             zaezdy = '<div class="list-orders_route_to">' +
@@ -257,15 +258,20 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           if (Orders[key].stevedores) {
             cargo_info += '<div class="list-orders_route_info">Грузчики: ' + Orders[key].stevedores + '</div>';
           }
+          
+          if (type === "intercity") {
+            fromCity = Orders[key].fromCity + ', ';
+            toCity = Orders[key].toCity + ', ';
+          }
 
           show('LI', '<div class="list-orders_route">' +
-                       '<div data-click="open-' + type + '" data-id="' + Orders[key].id + '">' +
+                       '<div data-click="open-' + order + '" data-id="' + Orders[key].id + '">' +
                         '<div class="list-orders_route_from">' +
-                           Orders[key].fromAddress +
+                           fromCity + Orders[key].fromAddress +
                         '</div>' +
                            zaezdy +
                         '<div class="list-orders_route_to">' +
-                           Orders[key].toAddress +
+                           toCity + Orders[key].toAddress +
                         '</div>' +
                         '<div class="list-orders_route_additional">' +
                           Orders[key].comment +
@@ -316,12 +322,14 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function render_list_my_order(response) {
-        var toAppend = Dom.sel('.myorders');
+        var toAppend = Dom.sel('.myorders'),
+            ords = response.orders,
+            zaezdy;
+        
         if (toAppend) {
           toAppend.innerHTML = '';
         }
-        var ords = response.orders;
-
+        
         for (var i = 0; i < ords.length; i++) {
           var goto, del;
 
@@ -330,7 +338,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
             del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
           }
 
-          var zaezdy = "";
+          zaezdy = "";
           if (ords[i].points) {
             for (var y = 0; y < ords[i].points.length; y++) {
                 zaezdy += '<p class="myorders__item__to' + (y + 1) + '">' +
@@ -372,13 +380,12 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
           
           node.classList.add('myorders__item');
           node.innerHTML = a;
-
           to.appendChild(node);
         }
   }
   
   function onstartAddFilters() {
-    var saved_filters = localStorage.getItem('_filters_active'),
+    var saved_filters = Storage.getActiveFilters(),
         saved_sort = localStorage.getItem('_actives_sort');
     
     add_filter = '';
@@ -442,13 +449,14 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function render_list_my_offer(response) {
-    var Offer = {};
-    var listOffers = Dom.sel('[data-model=list-offers]');
+    var Offer = {},
+        listOffers = Dom.sel('[data-model=list-offers]');
 
-    if (listOffers) {      
+    if (listOffers) {
       Offer.myOffers = response.offers;
 
       var arrOffers = Offer.myOffers;
+      
       listOffers.innerHTML = '';
 
       for (var key in arrOffers) {
@@ -457,7 +465,9 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
             key <= 4294967294) {
 
           var zaezdy = '',
-              goto = '', del;
+              goto = '', del,
+              fromCity = '',
+              toCity = '';
 
           if (!arrOffers[key].comeout) {
             //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
@@ -470,26 +480,29 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
                       '</div>';
           }
 
+          
+          if (Storage.getActiveTypeTaxi() === "intercity") {
+            fromCity = arrOffers[key].fromCity + ', ';
+            toCity = arrOffers[key].toCity + ', ';
+          }
+          
           show('LI', '<div class="list-orders_route">' +
                        '<div data-click="open-offer" data-id="' + arrOffers[key].id + '">' +
                           '<div class="list-orders_route_to">' +
                             arrOffers[key].created +
                           '</div>' +
                           '<div class="list-orders_route_from">' +
-                            arrOffers[key].fromAddress +
+                            fromCity + arrOffers[key].fromAddress +
                           '</div>' +
                           zaezdy +
                           '<div class="list-orders_route_to">' +
-                            arrOffers[key].toAddress +
+                            toCity + arrOffers[key].toAddress +
+                          '</div>' +
+                          '<div class="list-orders_route_to">' +
+                            'Отправление ' + arrOffers[key].start +
                           '</div>' +
                           '<div class="list-orders_route_additional">' +
                             arrOffers[key].comment +
-                          '</div>' +
-                          '<div class="list-orders_route_info">' +
-                            'Длина маршрута: ' + Math.round(arrOffers[key].length / 1000, 2) + ' км' +
-                          '</div>' +
-                          '<div class="list-orders_route_info">' +
-                            'Время по маршруту: ' + Dates.minToHours(arrOffers[key].duration) +
                           '</div>' +
                         '</div>' +
                       '</div>' +
@@ -512,7 +525,7 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function getValueForPopupFilters() {
-    var saved_filters = localStorage.getItem('_filters_active'),
+    var saved_filters = Storage.getActiveFilters(),
         response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
     
     if (saved_filters) {
@@ -525,8 +538,9 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
   }
   
   function deleteOrder(target) {
-    Conn.request('deleteOrderById', target.dataset.id);
     var item = target.parentNode.parentNode.parentNode;
+    
+    Conn.request('deleteOrderById', target.dataset.id);
     item.style.display = 'none';
   }
   
@@ -633,30 +647,39 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetBids');
     },
+    
     init: function (model) {
       Model = model;
     },
+    
     getBidsDriver: function () {
       get_bid_drivers();
     },
+    
     getBidsClient: function () {
       get_bid_clients(); //было по таймеру
     },
+    
     getOfferByID: function (id) {
       Model.getByID(id);
     },
+    
     getOrderByID: function (id) {
       Model.getByID(id);
     },
+    
     filterToggleFav: function (el) {
       filterToggleFav(el);
     },
+    
     filterSortWindow: function (el) {
       filterSortWindow(el);
     },
+    
     filterShowWindow: function (el) {
       filterShowWindow(el);
     },
+    
     enableAutomat: function (el, isDriver) {
       if (isDriver) {
         enableAutomatDriver(el);
@@ -664,36 +687,51 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows'], function(Dates, Dom, cl
         enableAutomatClient(el);
       }
     },
+    
     filterConvertToString: function () {
       return get_add_filter_string();
     },
+    
     filtersStart: function () {
       onstartAddFilters();
     },
+    
     deleteOrder: function (target) {
       deleteOrder(target);
     },
+    
     priceMinus: function (el) {
       priceMinus(el);
     },
+    
     pricePlus: function (el) {
       pricePlus(el);
     },
+    
     timeMinus: function (el) {
       timeMinus(el);
     },
+    
     timePlus: function (el) {
       timePlus(el);
     },
+    
     myOffers: function (response) {
       render_list_my_offer(response);
     },
+    
     myOrders: function (response) {
       render_list_my_order(response);
     },
+    
     allOrders: function (response) {
       render_list('order', response);
     },
+    
+    allOrdersIntercity: function (response) {
+      render_list('order', response, 'intercity');
+    },
+    
     allOffers: function (response) {
       render_list('offer', response);
     }

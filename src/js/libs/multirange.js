@@ -81,7 +81,7 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
   }
 
   function moveShariki(el, delta) {
-    if (el.dataset.name) {
+    if (el && el.dataset.name) {
       var max_left = el.parentNode.offsetWidth - el.offsetWidth;
 
       if (el.classList.contains('active')) {
@@ -98,11 +98,13 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
   }
 
   function handleStart(el) {
-    el.classList.add('active');
+    if (el) {
+      el.classList.add('active');
+    }
   }
 
   function handleEnd(el) {
-    if (el.classList) {
+    if (el && el.classList) {
       if (el === "document") {
         //e.target.classList.remove('active');
       } else {

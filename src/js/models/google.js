@@ -322,7 +322,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
         function cbSearchCity(results) {
           var cities = results.result.city;
 
-          if (cities) {            
+          if (cities[0]) {            
             Conn.clearCb('cbSearchCity');
             var loc = cities[0].location;
             loc = loc.split(',');
@@ -371,23 +371,29 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
         Conn.request('searchCity', city, cbSearchCity);
 
         function cbSearchCity(results) {
-          var cities = results.result.city;
+          if (results.result) {
+            var cities = results.result.city;
 
-          if (cities) {            
-            Conn.clearCb('cbSearchCity');
-            var loc = cities[0].location;
-            loc = loc.split(',');
-            var request   = {
-              location: new google.maps.LatLng(loc[0], loc[1]),
-              radius: radius
-            };
+            if (cities[0]) {
+              var loc = cities[0].location;
 
-            getSearch(request);
+              Conn.clearCb('cbSearchCity');            
+              loc = loc.split(',');
+
+              var request = {
+                query: text,
+                location: new google.maps.LatLng(loc[0], loc[1]),
+                radius: radius
+              };
+
+              getSearch(request);
+            }
           }
         }
         
       } else {
         var request   = {
+          query: text,
           location: new google.maps.LatLng(User.lat, User.lng),
           radius: radius
         };

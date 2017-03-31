@@ -57,15 +57,13 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           //  ============= EVENTS FOR DESTINATION FIELDS ============== 
           if (target.dataset.click === 'choose_address') {
             el = target;
-
-            localStorage.setItem('_address_temp', el.name);
-            localStorage.setItem('_address_string_temp', el.value);
-            localStorage.setItem('_active_city', User.city);
+            Storage.setTemporaryAddress(el.value);
+            Storage.setTemporaryRoute(el.name);
             window.location.hash = '#client_choose_address';
           }
 
           if (target.dataset.click === 'choice_location') {
-            localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+            Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             window.location.hash = '#client_choice_location_map';
             break;
           }
@@ -197,6 +195,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   function start() {
     Storage.setActiveTypeModelTaxi('order');
     Storage.setActiveTypeTaxi('trucking');
+    Storage.setActiveTypeFilters('offers');
     MyOrder = new clClientOrder();
     MyOrder.activateCargo();
     Lists.init(MyOrder);

@@ -209,14 +209,13 @@ define(['Dom', 'HideForms', 'Storage'], function (Dom, HideForms, Storage) {
         //  ============= EVENTS FOR DESTINATION FIELDS ============== 
         if (target.dataset.click === 'choose_address') {
           el = target;
-
-          localStorage.setItem('_address_temp', el.name);
-          localStorage.setItem('_address_string_temp', el.value);
+          Storage.setTemporaryRoute(el.name);
+          Storage.setTemporaryAddress(el.value);
           Storage.setActiveTypeModelTaxi('order');
           window.location.hash = '#client_choose_address';
         }
         if (target.dataset.click === 'choice_location') {
-          localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+          Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
           Storage.setActiveTypeModelTaxi('order');
           window.location.hash = '#client_choice_location_map';
           break;

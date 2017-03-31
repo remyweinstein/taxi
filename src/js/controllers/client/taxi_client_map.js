@@ -70,7 +70,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
     GetPositions.clear();
     Lists.clear();
     Conn.clearCb('cbGetBids');
-    Storage.removeActiveTypeModelTaxi();
+    //Storage.removeActiveTypeModelTaxi();
     Storage.lullModel(MyOrder);
   }
   

@@ -1,4 +1,4 @@
-define(['Dom', 'Multirange'], function(Dom, Multirange) {
+define(['Dom', 'Multirange', 'Storage'], function(Dom, Multirange, Storage) {
   /*
    * 
 
@@ -19,7 +19,6 @@ orderBy[price]=0 - ASC
     
     new_field.className += 'grey-layer';
     parentDiv.insertBefore(new_field, el);
-
     new_field.addEventListener('click', function() {
       close();
     });
@@ -167,38 +166,46 @@ orderBy[price]=0 - ASC
                   }
 
                   for (i = 0; i < buts.length; i++) {
-                    console.log(buts[i].dataset.sort, '=', keyka, '&&', buts[i].dataset.r, '=', valeyka);
                     if (buts[i].dataset.sort === keyka && parseInt(buts[i].dataset.r) === valeyka) {
                       buts[i].classList.add('active');
                     }
                   }
                   
                   var inputs = new_field.querySelectorAll('input');
-                  if (localStorage.getItem('_filters_active')) {
-                    actives_filter = JSON.parse(localStorage.getItem('_filters_active'));
+                  
+                  if (Storage.getActiveFilters()) {
+                    actives_filter = JSON.parse(Storage.getActiveFilters());
                   }
+                  
                   for (i = 0; i < inputs.length; i++) {
                     if (actives_filter.filter.distance.max !== "0" && inputs[i].name === "distance_max") {
                       inputs[i].value = actives_filter.filter.distance.max;
                     }
+                    
                     if (actives_filter.filter.distance.min !== "0" && inputs[i].name === "distance_min") {
                       inputs[i].value = actives_filter.filter.distance.min;
                     }
+                    
                     if (actives_filter.filter.length.max !== "0" && inputs[i].name === "length_max") {
                       inputs[i].value = actives_filter.filter.length.max;
                     }
+                    
                     if (actives_filter.filter.length.min !== "0" && inputs[i].name === "length_min") {
                       inputs[i].value = actives_filter.filter.length.min;
                     }
+                    
                     if (actives_filter.filter.price.max !== "0" && inputs[i].name === "price_max") {
                       inputs[i].value = actives_filter.filter.price.max;
                     }
+                    
                     if (actives_filter.filter.price.min !== "0" && inputs[i].name === "price_min") {
                       inputs[i].value = actives_filter.filter.price.min;
                     }
+                    
                     if (actives_filter.filter.stops.min !== "0" && inputs[i].name === "stops_min") {
                       inputs[i].value = actives_filter.filter.stops.min;
                     }
+                    
                     if (actives_filter.filter.stops.max !== "0" && inputs[i].name === "stops_max") {
                       inputs[i].value = actives_filter.filter.stops.max;
                     }
@@ -231,20 +238,16 @@ orderBy[price]=0 - ASC
                         actives_filter = {filter:{price:{},distance:{},length:{},stops:{}}};
                         
                         if (target.dataset.click === "clearfilters") {
-                          
                           actives_filter = clearValuesFilterArray();
-                          localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
-
+                          Storage.setActiveFilters(JSON.stringify(actives_filter));
                           callback(actives_filter);
                           Multirange.reinit(Dom.sel('.popup-window'));
                           //close();
                         }
                         
                         if (target.dataset.click === "getfilters") {
-                          
                           actives_filter = changeValuesFilterArray();
-                          localStorage.setItem('_filters_active', JSON.stringify(actives_filter));
-
+                          Storage.setActiveFilters(JSON.stringify(actives_filter));
                           callback(actives_filter);
                           close();
                         }

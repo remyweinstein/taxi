@@ -8,7 +8,7 @@ function (Dom, Modal, Storage) {
   function AddNewZaezd(just_add) {
     var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
         addr = Model.toAddresses[just_add] || "",
-        el = Dom.sel('.order-city-to'),
+        el = Storage.getActiveTypeTaxi()==="intercity" ? Dom.sel('.order-Namecity-from') : Dom.sel('.order-city-to'),
         new_field = document.createElement('div'),
         parentDiv = el.parentNode;
 
@@ -35,6 +35,7 @@ function (Dom, Modal, Storage) {
     for (i = 0; i < rem_old_stops.length; i++) {
       rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
     }
+    
     if (Model.toAddresses) {
       for (i = 0; i < Model.toAddresses.length; i++) {
         AddNewZaezd(i);
@@ -56,31 +57,28 @@ function (Dom, Modal, Storage) {
     Model.type = typeOf || 'taxi';
     Model.price = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
-    if (Model.type === "intercity") {
-      Model.fromCity = '';
-    } 
     Model.save(MapElements.points);
     Storage.lullModel(Model);
   }
 
   function cleanField(_field, type) {
     if (_field === "from") {
-      Model.fromAddress = "";
-      Model.fromCity = "";
-      Model.fromCoords = "";
-      Model.fromFullAddress = "";
+      Model.fromAddress = null;
+      Model.fromCity = null;
+      Model.fromCoords = null;
+      Model.fromFullAddress = null;
     }
 
     if (_field === "to") {
-      Model.toAddress = "";
-      Model.toCity = "";
-      Model.toCoords = "";
-      Model.toFullAddress = "";
+      Model.toAddress = null;
+      Model.toCity = null;
+      Model.toCoords = null;
+      Model.toFullAddress = null;
     }
 
     Dom.selAll('.adress_' + _field)[0].value = "";
     Destinations.clear();
-    Destinations.init();
+    init(Model);
     Storage.lullModel(Model);
   }
   
@@ -109,7 +107,6 @@ function (Dom, Modal, Storage) {
     comment = Dom.sel('[name="description"]').value;
     price.value = Model.price;
     comment.value = Model.comment;
-
     Dom.selAll('input[name="from"]')[0].value = Model.fromAddress;
     Dom.selAll('input[name="to"]')[0].value = Model.toAddress;
     
@@ -118,6 +115,8 @@ function (Dom, Modal, Storage) {
       Dom.sel('input[name="city_from"]').dataset.location = Model.fromCityLocation || User.lat + ',' + User.lng;
       Dom.sel('input[name="city_to"]').value = Model.toCity || User.city;
       Dom.sel('input[name="city_from"]').dataset.location = Model.toCityLocation || User.lat + ',' + User.lng;
+      Dom.sel('input[name="seats"]').value = Model.seats;
+      Dom.sel('input[name="bags"]').value = Model.bags;
     }
 
     reloadPoints(Model);
@@ -142,7 +141,6 @@ function (Dom, Modal, Storage) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recomended + ' руб.';
         Model.recommended_cost = recomended;
       });
-
     }
   }
 
@@ -172,6 +170,14 @@ function (Dom, Modal, Storage) {
       SaveOrderOffer('offer');
     },
 
+    saveOfferCargo: function () {
+      SaveOrderOffer('offer', 'trucking');
+    },
+    
+    saveOfferIntercity: function () {
+      SaveOrderOffer('offer', 'intercity');
+    },
+    
     addNewInterpoint: function (add) {
       AddNewZaezd(add);
     },
@@ -199,11 +205,8 @@ function (Dom, Modal, Storage) {
       Model.toAddresses.splice(id, 1);
       Model.toCoordses.splice(id, 1);
       Model.times.splice(id, 1);
-
       be_dead.parentNode.removeChild(be_dead);
-
       reloadPoints(Model);
-
     },
 
     cleanFieldOrder: function (_field) {

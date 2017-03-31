@@ -6,7 +6,9 @@ define(['Dates'], function(Dates) {
     var self = this;
 
     this.fromAddress = null;
+    this.fromCity = null;
     this.toAddress = null;
+    this.toCity = null;
     this.toAddresses = [];
     this.totimes = [];
     this.toLocations = [];
@@ -36,6 +38,8 @@ define(['Dates'], function(Dates) {
         for (var i = 0; i < order.points.length; i++) {
           self.toAddresses.push(order.points[i].address);
           self.toLocations.push(order.points[i].location);
+          //self.fromCities.push(order.points[i].city);
+          //self.fromCities.push(order.points[i].city);
           self.totimes.push(order.points[i].stopTime);  
         }
       }
@@ -61,7 +65,9 @@ define(['Dates'], function(Dates) {
       self.photo = order.agent.photo || User.default_avatar;
       self.bidId = order.bidId;
       self.fromAddress = order.fromAddress;
+      self.fromCity = order.fromCity;
       self.toAddress = order.toAddress;
+      self.toCity = order.toCity;
       self.comment = order.comment;
 
       if (order.bids) {

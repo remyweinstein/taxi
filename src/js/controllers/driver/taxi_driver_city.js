@@ -17,7 +17,7 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
           Conn.clearCb('cbGetOrders');
           Conn.request('startGetOrders', '', cbGetOrders);
         },
-        filters = localStorage.getItem('_filters_active'),
+        filters = Storage.getActiveFilters(),
         sortes = localStorage.getItem('_actives_sort');
     
     if (filters !== old_filters) {
@@ -178,7 +178,8 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
   function start() {
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('taxi');
-    old_filters = localStorage.getItem('_filters_active');
+    Storage.setActiveTypeFilters('orders');
+    old_filters = Storage.getActiveFilters();
     old_sortes = localStorage.getItem('_actives_sort');
     Lists.filtersStart();
     Conn.request('requestMyOffers', '', cbMyOffers);

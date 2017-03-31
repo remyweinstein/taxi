@@ -51,7 +51,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
     Destinations.clear();
     GetPositions.clear();
     Lists.clear();
-    Storage.removeActiveTypeModelTaxi();
+    //Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {
@@ -60,6 +60,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
       if (localStorage.getItem('_active_offer_id') > 0) {
         window.location.hash = '#driver_go';
       }
+      
       var _count_waypoint = MyOffer.toAddresses.length,
           el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
@@ -68,9 +69,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
       Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();
-      
       GetPositions.my();
-      
       el_routes[0].children[0].innerHTML = MyOffer.fromAddress;
       el_routes[0].children[2].innerHTML = MyOffer.toAddress;
       el_routes[0].children[3].innerHTML = 'В пути: ' + 
@@ -86,10 +85,8 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
 
       el_price.innerHTML = Math.round(MyOffer.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
-        
       HideForms.init();
       Lists.getBidsClient();
-
     } else {
       window.location.hash = "#driver_city";
     }

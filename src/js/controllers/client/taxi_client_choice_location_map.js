@@ -5,7 +5,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
   
   function initMap() {
     var x = User.lat, y = User.lng, zoom = 18,
-        _route = localStorage.getItem('_address_temp'),
+        _route = Storage.getTemporaryRoute(),
         _temp_coords = "",
         event = 'dragend';
     
@@ -37,8 +37,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     });
     
     function setNewCoord() {
-      var coords = Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34));
-      localStorage.setItem('_choice_coords', coords);
+      Storage.setTemporaryCoords(Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34)));
     }
   }
     
@@ -49,8 +48,8 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
       while (target !== this) {
             // = I choose location =
         if (target.dataset.click === 'i_choice_location') {
-          var _route = localStorage.getItem('_address_temp'),
-              latl = localStorage.getItem('_choice_coords');
+          var _route = Storage.getTemporaryRoute(),
+              latl = Storage.getTemporaryCoords();
           
           latl = latl.replace("(", "");
           latl = latl.replace(")", "");
@@ -122,7 +121,9 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     Maps.removeEvent(dragEvent);
     dragEvent = null;
     Storage.lullModel(Model);
-    Storage.removeActiveTypeModelTaxi();
+    Storage.removeTemporaryRoute();
+    Storage.removeTemporaryCoords();
+    //Storage.removeActiveTypeModelTaxi();
   }
   
   function start() {

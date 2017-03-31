@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="assets/css/main.css?id=20170202" type="text/css" rel="stylesheet" />
-        
+        <script src="//ulogin.ru/js/ulogin.js"></script>
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
@@ -116,6 +116,7 @@
                     </select>
                 </p>
                 <p class="pincode"></p>
+                <p class="social_network"><span style="display:block">Подтвердите соц сеть</span></p>
                 <p><button class="button_rounded--green">Сохранить</button></p>
             </form>
         </template>
@@ -326,9 +327,11 @@
                             <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
                         <div class="form-order-city__field">
-                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <i class="icon-box form-order-city__label"></i>
                             <span class="form-order-city__wrap_short3"><input type="text" name="volume" value="" placeholder="Объем, м3"/></span>
+                            <i class="icon-balance-scale form-order-city__label"></i>
                             <span class="form-order-city__wrap_short3"><input type="text" name="weight" value="" placeholder="Вес, кг"/></span>
+                            <i class="icon-hand-peace-o form-order-city__label"></i>
                             <span class="form-order-city__wrap_short3"><input type="text" name="loaders" value="" placeholder="Грузчики"/></span>
                         </div>
                         <div class="form-order-city__field">
@@ -381,7 +384,7 @@
                             </span>
                             <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                         </div>
-                        <div class="form-order-city__field">
+                        <div class="form-order-city__field order-Namecity-from">
                             <i class="icon-commerical-building form-order-city__label"></i>
                             <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."/>
                                 <div class="form-order-city__hint"></div>
@@ -395,6 +398,16 @@
                             </span>
                             <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
                             <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-accessibility form-order-city__label"></i>
+                            <span class="form-order-city__wrap_short3">
+                                <input type="text" name="seats" value="1" placeholder="">
+                            </span>
+                            <i class="icon-shopping-bag form-order-city__label"></i>
+                            <span class="form-order-city__wrap_short3">
+                                <input type="text" name="bags" value="3" placeholder="">
+                            </span>
                         </div>
                         <div class="form-order-city__field">
                             <i class="icon-commerical-building form-order-city__label"></i>
@@ -417,39 +430,9 @@
                     </div>
                 </div>
                 <div data-tab-content="2" class="tabs_content">
-                    <ul class="list-extended">
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Борис</div>
-                                <div class="list-extended__route_time">12:45</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Владивосток</div>
-                                <div class="list-extended__route_sum">100 руб.</div>
-                                <div class="list-extended__route_info">Два места</div>
-                            </div>
-                            <div class="list-extended__phone">
-                                <a href="#"><i class="icon-phone-circled"></i></a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="list-extended__personal">
-                                <img src="../../assets/images/no_avatar.png" alt="" />
-                            </div>
-                            <div class="list-extended__route">
-                                <div class="list-extended__route_name">Гульнара</div>
-                                <div class="list-extended__route_time">16:37</div>
-                                <div class="list-extended__route_from">Хабаровск</div>
-                                <div class="list-extended__route_to">Благовещенск</div>
-                                <div class="list-extended__route_info">Два места</div>
-                            </div>
-                            <div class="list-extended__phone">
-                                <a href="#"><i class="icon-phone-circled"></i></a>
-                            </div>
-                        </li>
-                    </ul>
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
                 <div data-tab-content="3" class="tabs_content">
                     <ul class="myorders"></ul>

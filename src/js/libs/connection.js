@@ -9,7 +9,7 @@
  * @param {type} Uries
  * @returns {connectionL#5.clConn}
  */
-define(['Uries', 'Funcs'], function(Uries, Funcs) {
+define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   var timerReconnectionWebSocket,
       socket,
       global_id = null;
@@ -124,9 +124,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   }
   
   function startGetOrders(type) {
-    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {},
+    var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
         orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {};
-    
+
     params.filter = {};
     params = Funcs.extendObj(filters, params);
     params = Funcs.extendObj(orders, params);
@@ -139,15 +139,18 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
     Conn.sendMessage("stop-get-orders");
   }
 
-  function startGetOffers() {
-    var filters = localStorage.getItem('_filters_active') ? JSON.parse(localStorage.getItem('_filters_active')) : {},
-        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {};
+  function startGetOffers(type) {
+    var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {},
+        typer = type || "taxi";
     
     params.filter = {};
     params = Funcs.extendObj(filters, params);
     params = Funcs.extendObj(orders, params);
-    params.filter.type = "taxi";
-    params.filter.fromCity = User.city;
+    params.filter.type = typer;
+    //if (type !== "intercity") {
+      params.filter.fromCity = User.city;
+    //}
     Conn.sendMessage("get-offers", params);
   }
 
@@ -249,6 +252,13 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
   function requestMyCargoOffers() {
     params.filter = {};
     params.filter.type = "trucking";
+    params.filter.my = 1;
+    Conn.sendMessage("get-offers", params);
+  }
+  
+  function requestMyIntercityOffers() {
+    params.filter = {};
+    params.filter.type = "intercity";
     params.filter.my = 1;
     Conn.sendMessage("get-offers", params);
   }
@@ -365,6 +375,11 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
     Conn.sendMessage("post-zone", params);
   }
   
+  function ulogin(data) {
+    params = data;
+    Conn.sendMessage("ulogin", params);
+  }
+  
   var clConn = function () {
     var self = this;
     
@@ -410,6 +425,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
       }
 
       switch (func) {
+        case "ulogin":
+          ulogin(data);
+          break;
         case "searchCity":
           searchCity(data);
           break;
@@ -559,6 +577,9 @@ define(['Uries', 'Funcs'], function(Uries, Funcs) {
           break;
         case "requestMyCargoOffers":
           requestMyCargoOffers();
+          break;
+        case "requestMyIntercityOffers":
+          requestMyIntercityOffers();
           break;
         case "startGetAgents":
           startGetAgents(data);

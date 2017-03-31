@@ -1,12 +1,47 @@
-/* global User, Event, Maps */
+/* global User, Event, Maps, Conn */
 
-define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows', 'Storage', 'DriverOffer'], 
-function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) {
-  var MyOffer, type;
+define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows', 'Storage', 'DriverOffer', 'Dom'], 
+function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, Dom) {
+  var MyOffer,
+      _timer;
   
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(15);
+  }
+  
+  function onchange(el) {
+    var list_results = el.parentNode.querySelector('.form-order-city__hint'),
+        input   = el,
+        query   = input.value,
+        route   = input.dataset.route,
+        innText = '';
+    
+    list_results.style.display = 'none';
+    list_results.innerHTML = "";
+    clearTimeout(_timer);    
+
+    if (query !== "") {
+      _timer = setTimeout(startSearch, 1000);
+    }
+
+    function startSearch() {
+      Conn.request('searchCity', query, cbSearchCity);
+    }
+
+    function cbSearchCity(results) {
+      var cities = results.result.city;
+      
+      if (cities) {
+        for (var i = 0; i < cities.length; i++) {
+          innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
+        }
+        
+        list_results.innerHTML     = innText;
+        list_results.style.display = 'block';
+      }
+      Conn.clearCb('cbSearchCity');
+    }
   }
   
   function addEvents() {
@@ -15,21 +50,38 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) 
       var target = event.target;
       
       while (target !== this) {
-          
         if (target) {
-          
+          var el;
         //  ============= EVENTS FOR DESTINATION FIELDS ============== 
           if (target.dataset.click === 'choose_address') {
-            var el = target;
+            el = target;
 
-            localStorage.setItem('_address_temp', el.name);
-            localStorage.setItem('_address_string_temp', el.value);
+            Storage.setTemporaryRoute(el.name);
+            Storage.setTemporaryAddress(el.value);
             Storage.setActiveTypeModelTaxi('offer');
             window.location.hash = '#client_choose_address';
           }
           
+          if (target.dataset.click === "add_hint_city") {
+            var parent, route;
+
+            el                          = target;
+            el.parentNode.style.display = 'none';
+            parent                      = el.parentNode.parentNode.querySelector('input');
+            parent.value                = el.innerHTML;
+            route                       = parent.dataset.route;
+            
+            if (route === "from") {
+              MyOffer.fromCity         = el.innerHTML;
+              MyOffer.fromCityLocation = el.dataset.latlng;
+            } else {
+              MyOffer.toCity         = el.innerHTML;
+              MyOffer.toCityLocation = el.dataset.latlng;
+            }
+          }
+
           if (target.dataset.click === 'choice_location') {
-            localStorage.setItem('_address_temp', target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
+            Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             Storage.setActiveTypeModelTaxi('offer');
             window.location.hash = '#client_choice_location_map';
 
@@ -40,7 +92,6 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) 
             Modal.calendar( function (datetime) {
                               Destinations.addStartTimeOffer(datetime);
                             });
-
             break;
           }
           
@@ -51,8 +102,15 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) 
           }
           
           if (target.dataset.click === 'save-order') {
-            Storage.setActiveTypeModelTaxi('offer');
-            Destinations.saveOffer();
+            var typer = Storage.getActiveTypeTaxi();
+            
+            if (typer === "intercity") {
+              Destinations.saveOfferIntercity();
+            } else if (typer === "trucking") {
+              Destinations.saveOfferCargo();
+            } else if (typer === "taxi") {
+              Destinations.saveOffer();
+            }
 
             break;
           }
@@ -68,25 +126,74 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer) 
     
     content.addEventListener('click', Event.click);
 
+    Event.input = function (event) {
+      var target = event.target;
+
+      while (target !== this) {
+        if (target) {
+          if (target.name === "city_from" || target.name === "city_to") {
+            onchange(target);
+          }
+        }
+
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
+      }
+    };
+    
+    content.addEventListener('input', Event.input);
+  }
+  
+  function addInterCity() {
+    var innerCityFrom  = document.createElement('div'),
+        innerCityTo    = document.createElement('div'),
+        innerPlaces    = document.createElement('div'),
+        elFrom         = Dom.sel('.order-city-from'),
+        elTo           = Dom.sel('.order-city-to'),
+        elForm         = Dom.sel('.form-order-city'),
+        elFormChildren = Dom.sel('input[name="description"]').parentNode.parentNode;
+    
+    innerCityFrom.className += 'form-order-city__field';
+    innerCityTo.className   += 'form-order-city__field';
+    innerPlaces.className   += 'form-order-city__field';
+    
+    innerCityFrom.innerHTML  = '<i class="icon-commerical-building form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка...">' +
+                                  '<div class="form-order-city__hint"></div>' +
+                               '</span>';
+    innerCityTo.innerHTML    = '<i class="icon-commerical-building form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка...">' +
+                                  '<div class="form-order-city__hint"></div>' +
+                               '</span>';
+    innerPlaces.innerHTML    = '<i class="icon-accessibility form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap_short3"><input type="text" name="seats" value="1" placeholder=""></span>' + 
+                               '<i class="icon-shopping-bag form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>';
+
+
+    elForm.insertBefore(innerCityFrom, elFrom);
+    elForm.insertBefore(innerCityTo, elTo);
+    elForm.insertBefore(innerPlaces, elFormChildren);
   }
   
   function stop() {
     GetPositions.clear();
     Destinations.clear();
+    Storage.lullModel(MyOffer);
   }
   
   function start() {
-    var current_bid_id = localStorage.getItem('_current_id_bid');
-
-    type = Storage.getActiveTypeTaxi();
+    if (Storage.getActiveTypeTaxi() === "intercity") {
+      addInterCity();
+    }
+    
+    Storage.setActiveTypeModelTaxi('offer');
     MyOffer = new clDriverOffer();
     MyOffer.activateCurrent();
     Maps.mapOn();
-    
-    if (current_bid_id) {
-      //Lists.getOrderByID(localStorage.getItem('_current_id_order'));
-    }
-    
     GetPositions.my();
     initMap();
     Destinations.init(MyOffer);
