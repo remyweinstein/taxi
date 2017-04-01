@@ -1,6 +1,6 @@
 /* global User, Car, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage'], function (Dom, Dates, Modal, HideForms, Storage) {
+define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder'], function (Dom, Dates, Modal, HideForms, Storage, clClientOrder) {
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,

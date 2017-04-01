@@ -119,7 +119,7 @@ var menus_arr = [];
       lastURL = '',
       MayLoading = false,
       
-      User, Car, Conn, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
+      User, Car, Conn = false, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
@@ -130,15 +130,24 @@ var menus_arr = [];
   
       global_order_id,
       timerMyPos,
-      timerCheckLoading;
+      timerCheckLoading,
+      
+      timerWhenLoadConn = false,
+      tempTokenUlogin;
     
-  function reciveUlogin(token) {
-    //define(['Uries'], function(Uries) {
-      //Conn.request('ulogin', {'token':token,'host':Uries.server_uri});
-    //});
-    Conn.request('ulogin', {'ulogin':token,'host':'indriver.ru'});
+  function reciveUlogin(tokena) {
+    var token = tokena || tempTokenUlogin;
+    
+    tempTokenUlogin = token;
+    
+    if (Conn) {
+      Conn.request('ulogin', {'ulogin':token,'host':'indriver.ru'});
+      clearInterval(timerWhenLoadConn);
+    } else {
+      timerWhenLoadConn = !timerWhenLoadConn ? setInterval(reciveUlogin, 250) : false;
+    }
   }
 
-require(['App'], function (App) {  
+require(['App'], function (App) {
   App.start();
 });

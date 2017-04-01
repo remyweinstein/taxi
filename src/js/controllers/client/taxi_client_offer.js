@@ -1,6 +1,6 @@
 /* global User, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'HideForms', 'Storage'], function (Dom, HideForms, Storage) {
+define(['Dom', 'HideForms', 'Storage', 'ClientOrder'], function (Dom, HideForms, Storage, clClientOrder) {
 
   var active_bid = false, route, marker_to, marker_from, points = [],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
