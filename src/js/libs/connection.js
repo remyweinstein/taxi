@@ -125,7 +125,7 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   
   function startGetOrders(type) {
     var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
-        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {};
+        orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
 
     params.filter = {};
     params = Funcs.extendObj(filters, params);
@@ -141,8 +141,8 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
 
   function startGetOffers(type) {
     var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
-        orders = localStorage.getItem('_actives_sort') ? JSON.parse(localStorage.getItem('_actives_sort')) : {},
-        typer = type || "taxi";
+        orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {},
+        typer   = type || "taxi";
     
     params.filter = {};
     params = Funcs.extendObj(filters, params);

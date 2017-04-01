@@ -6,7 +6,8 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
         global_el,
         MyOrder,
         eventOnChangeZoom,
-        old_filters = Storage.getActiveFilters();
+        old_filters = Storage.getActiveFilters(),
+        old_sorts   = Storage.getActiveSortFilters();
     
     function cbAfterAddFav() {
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
@@ -27,13 +28,15 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
     }
     
     function cbGetOffers(response) {
-      var filters = Storage.getActiveFilters();
+      var filters = Storage.getActiveFilters(),
+          sorts   = Storage.getActiveSortFilters();
 
-      if (filters !== old_filters) {
+      if (filters !== old_filters || old_sorts !== sorts) {
         Conn.request('stopGetOffers');
         Conn.clearCb('cbGetOffers');
         Conn.request('startGetOffers', '', cbGetOffers);
         old_filters = filters;
+        old_sorts   = sorts;
 
         return;
       }

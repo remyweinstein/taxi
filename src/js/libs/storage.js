@@ -93,6 +93,18 @@ define(function() {
       localStorage.removeItem('_filters_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters());
     },
     
+    setActiveSortFilters: function (value) {
+      localStorage.setItem('_filters_sort_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters(), value);
+    },
+  
+    getActiveSortFilters: function () {
+      return localStorage.getItem('_filters_sort_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters());
+    },
+  
+    removeActiveSortFilters: function () {
+      localStorage.removeItem('_filters_sort_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters());
+    },
+    
     setActiveTypeFilters: function (value) {
       localStorage.setItem('_filters_active_type', value);
     },

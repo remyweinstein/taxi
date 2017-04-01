@@ -13,22 +13,16 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
   
   function cbGetOrders(response) {
     var filters = Storage.getActiveFilters(),
-        sortes = localStorage.getItem('_actives_sort');
+        sortes  = Storage.getActiveSortFilters();
     
-    if (filters !== old_filters) {
+    if (filters !== old_filters || sortes !== old_sortes) {
       stopStartOrders();
       old_filters = filters;
-
-      return;
-    }
-
-    if (sortes !== old_sortes) {
-      stopStartOrders();
       old_sortes = sortes;
 
       return;
     }
-    
+
     if (!response.error) {
       Lists.allOrdersIntercity(response.result);
     }
@@ -178,7 +172,7 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
     Storage.setActiveTypeTaxi('intercity');
     Storage.setActiveTypeFilters('orders');
     old_filters = Storage.getActiveFilters();
-    old_sortes = localStorage.getItem('_actives_sort');
+    old_sortes  = Storage.getActiveSortFilters();
     Lists.filtersStart();
     Conn.request('startGetIntercityOrders', '', cbGetOrders);
     Conn.request('requestMyIntercityOffers', '', cbMyOffers);

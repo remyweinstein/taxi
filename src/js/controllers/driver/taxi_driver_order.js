@@ -1,6 +1,7 @@
 /* global User, Car, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder'], function (Dom, Dates, Modal, HideForms, Storage, clClientOrder) {
+define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'], 
+function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
 
   var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
@@ -267,24 +268,7 @@ define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder'], 
   }
   
   function stop() {
-    if (marker_from) {
-      Maps.removeElement(marker_from);
-    }
-    
-    if (marker_to) {
-      Maps.removeElement(marker_to);
-    }
-    
-    if (route) {
-      Maps.removeElement(route);
-    }
-    
-    if (points) {
-      for (var i = 0; i < points.length; i++) {
-        Maps.removeElement(points[i]);
-      }
-    }
-    
+    Destinations.clear();
     Storage.lullModel(MyOrder);
   }
   

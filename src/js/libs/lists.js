@@ -1,8 +1,8 @@
 /* global User, default_vehicle, driver_icon, MapElements, Conn, Maps */
 
-define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dates, Dom, clDriverOrders, Popup, Storage) {
+define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], 
+function(Dates, Dom, clDriverOrders, Popup, Storage) {
   var Orders = [],
-      add_filter = '',
       arr_filters = {},
       global_bid,
       Model;
@@ -112,44 +112,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
         arr_filters.filter.favorite = 1;
       }
     }
-    
-    add_filter = get_add_filter_string();
-  }
-  
-  function get_add_filter_string() {
-    var add_fil = '',
-        arr = arr_filters.filter,
-        arrA, keyA;
-    
-    for (var key in arr) {
-      if (arr[key] instanceof Object) {
-        arrA = arr[key];
-        for (keyA in arrA) {
-          if (!(arrA[keyA] instanceof Object)) {
-            add_fil += '&filter[' + key + '][' + keyA + ']=' + arrA[keyA];
-          }
-        }
-      } else {
-        add_fil += '&filter[' + key + ']=' + arr[key];
-      }
-    }
-    
-    arr = arr_filters.orderBy;
-    
-    for (key in arr) {
-      if (arr[key] instanceof Object) {
-        arrA = arr[key];
-        for (keyA in arrA) {
-          if (!(arrA[keyA] instanceof Object)) {
-            add_fil += '&orderBy[' + key + '][' + keyA + ']=' + arrA[keyA];
-          }
-        }
-      } else {
-        add_fil += '&orderBy[' + key + ']=' + arr[key];
-      }
-    }
-    
-    return add_fil;
   }
   
   function render_list(order, response, type) {
@@ -386,13 +348,12 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
   
   function onstartAddFilters() {
     var saved_filters = Storage.getActiveFilters(),
-        saved_sort = localStorage.getItem('_actives_sort');
+        saved_sort = Storage.getActiveSortFilters();
     
     add_filter = '';
     
     if (saved_filters) {
       arr_filters = JSON.parse(saved_filters);
-      add_filter = get_add_filter_string();
     }
   }
   
@@ -524,13 +485,24 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
     }
   }
   
+  function getValueForPopupFiltersSort() {
+    var saved_sorts = Storage.getActiveSortFilters(),
+        response = {orderBy:{created:0}};
+    
+    if (saved_sorts) {
+      arr_filters = JSON.parse(saved_sorts);
+      response = arr_filters.orderBy;
+    }
+    
+    return response;
+  }
+  
   function getValueForPopupFilters() {
     var saved_filters = Storage.getActiveFilters(),
         response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
     
     if (saved_filters) {
       arr_filters = JSON.parse(saved_filters);
-      add_filter = get_add_filter_string();
       response = arr_filters.filter;
     }
     
@@ -545,6 +517,8 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
   }
   
   function filterSortWindow(el) {
+    var resp = getValueForPopupFiltersSort();
+    
     Popup.show(el,'Сортировать по <br/><br/>' +
                   '<span data-num="0" data-sort="created" data-r="1">Дате <i class="icon-down-circle"></i></span>' +
                   '<span data-num="1" data-sort="created" data-r="0">Дате <i class="icon-up-circle"></i></span>' +
@@ -562,7 +536,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
       if (response !== "") {
         arr_filters.orderBy = {};
         eval('arr_filters.orderBy.' + response.sort + ' = ' + response.r + ';');
-        add_filter = get_add_filter_string();
       }
     }); 
   }
@@ -618,7 +591,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
       }
 
       arr_filters.filter = response.filter;
-      add_filter = get_add_filter_string();
 
       /*
         filter[created][min]
@@ -686,10 +658,6 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], function(Dat
       } else {
         enableAutomatClient(el);
       }
-    },
-    
-    filterConvertToString: function () {
-      return get_add_filter_string();
     },
     
     filtersStart: function () {

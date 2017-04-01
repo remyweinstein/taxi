@@ -18,22 +18,16 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
           Conn.request('startGetOrders', '', cbGetOrders);
         },
         filters = Storage.getActiveFilters(),
-        sortes = localStorage.getItem('_actives_sort');
+        sortes = Storage.getActiveSortFilters();
     
-    if (filters !== old_filters) {
+    if (filters !== old_filters || sortes !== old_sortes) {
       stopStartOrders();
       old_filters = filters;
-
-      return;
-    }
-
-    if (sortes !== old_sortes) {
-      stopStartOrders();
       old_sortes = sortes;
 
       return;
     }
-    
+
     if (!response.error) {
       Lists.allOrders(response.result);
     }
@@ -180,7 +174,7 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
     Storage.setActiveTypeTaxi('trucking');
     Storage.setActiveTypeFilters('orders');
     old_filters = Storage.getActiveFilters();
-    old_sortes = localStorage.getItem('_actives_sort');
+    old_sortes = Storage.getActiveSortFilters();
     Lists.filtersStart();
     Conn.request('requestMyCargoOffers', '', cbMyOffers);
     Conn.request('startGetOrdersCargo', '', cbGetOrders);

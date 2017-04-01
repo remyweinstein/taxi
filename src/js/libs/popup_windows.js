@@ -160,6 +160,10 @@ orderBy[price]=0 - ASC
                       keyka,
                       valeyka;
                   
+                  if (Storage.getActiveSortFilters()) {
+                    actives_sort = JSON.parse(Storage.getActiveSortFilters());
+                  }
+                  
                   for (var key in actives_sort.orderBy) {
                     keyka = key;
                     valeyka = actives_sort.orderBy[key];
@@ -221,7 +225,7 @@ orderBy[price]=0 - ASC
                           _el = target;
                           
                           if (Dom.toggle(_el, 'active')) {
-                            actives_sort = {orderBy:{price:1}};
+                            actives_sort = {orderBy:{created:0}};
                             for (var i = 0; i < buts.length; i++) {
                               buts[i].classList.remove('active');
                             }
@@ -230,7 +234,7 @@ orderBy[price]=0 - ASC
                           }
                           
                           Multirange.clear(Dom.sel('.popup-window'));
-                          localStorage.setItem('_actives_sort', JSON.stringify(actives_sort));
+                          Storage.setActiveSortFilters(JSON.stringify(actives_sort));
                           callback(actives_sort);
                           close();
                         }
