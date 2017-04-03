@@ -115,8 +115,20 @@ define(function() {
   
     removeActiveTypeFilters: function () {
       localStorage.removeItem('_filters_active_type');
-    }
+    },
     
+    setIdEditCar: function (id) {
+      localStorage.setItem('_edit_auto_id', id);
+    },
+
+    getIdEditCar: function () {
+      return localStorage.getItem('_edit_auto_id');
+    },
+    
+    removeIdEditCar: function () {
+      localStorage.removeItem('_edit_auto_id');
+    }
+
   };
   
 	return Storage;

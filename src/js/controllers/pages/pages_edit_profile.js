@@ -1,12 +1,14 @@
-/* global Event, User, Conn */
+/* global Event, User, Conn, uLogin */
 
 define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   
   function cbFillFields(response) {
-    var sex = response.result.profile.sex ? Dom.sel('select[name="sex"] option[value="1"]') : Dom.sel('select[name="sex"] option[value="0"]'),
+    var sex = response.result.profile.sex ? 1: 0,
         city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]'),
         listOfSocials =[],
         prof = response.result.profile;
+    
+    sex = Dom.sel('select[name="sex"] option[value="' + sex + '"]');
     
     if (!prof.hasVkontakte) {
       listOfSocials.push("vkontakte");
@@ -43,7 +45,12 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     }
 
     Dom.sel('.pincode').innerHTML = response.result.profile.hasPin ? '<span data-click="change-pin">Сменить PIN</span>' : '<span data-click="create-pin">Установить PIN</span>';
-    Dom.sel('.social_network').innerHTML += '<div id="uLogin" data-ulogin="callback=reciveUlogin;display=small;fields=;providers=' + listOfSocials.join(',') + ';hidden=;redirect_uri=;mobilebuttons=0;"></div>';
+    if (User.isAuth) {
+      Dom.sel('.social_network').innerHTML += '<span style="display:block">Подтвердите соцсеть</span>' +
+                                              '<div id="uLogin" data-ulogin="callback=reciveUlogin;display=small;fields=;providers=' + listOfSocials.join(',') + ';hidden=;redirect_uri=;mobilebuttons=0;">' +
+                                              '</div>';
+      uLogin.init();
+    }
     Dom.sel('input[name="myname"]').value = User.name || response.result.profile.name;
     Dom.sel('input[name="dob"]').value = response.result.profile.birthday ? Dates.dateFromBase(response.result.profile.birthday) : '';
     sex.selected = true;
@@ -62,7 +69,7 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     Event.click = function (event) {
       var target = event.target;
 
-      while (target !== this) {
+      while (target && target !== this) {
         if (target.dataset.click === 'clear_photo') {
           Conn.request('deletePhoto');
         }

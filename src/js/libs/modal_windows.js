@@ -8,8 +8,10 @@ define(['Dom'], function(Dom) {
     
   function close() {
     clearLayer();
-    cur_win.parentNode.removeChild(cur_win);
-    cur_win = null;
+    if (cur_win) {
+      cur_win.parentNode.removeChild(cur_win);
+      cur_win = null;
+    }
   }
 
   function moveCenter(el) {
@@ -44,7 +46,11 @@ define(['Dom'], function(Dom) {
   }
 
   function clearLayer() {
-    layer.parentNode.removeChild(layer);
+    //var layer = Dom.selAll('.grey-layer')[0];
+    //console.log('layer = ', layer);
+    if (layer && layer !== "undefined" && layer.parentNode) {
+      layer.parentNode.removeChild(layer);
+    }
   }
   
   function Clock() {
@@ -253,9 +259,10 @@ define(['Dom'], function(Dom) {
                             '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="new_pin"/>' +
                           '</div>' +
                           '<div style="position:relative;">' +
-                            '<button data-click="create-pin" class="button_short--green">Сохранить</button>' +
+                            '<button data-click="save-create-pin" class="button_short--green">Сохранить</button>' +
                           '</div>', function (response) {
                                         callback(response);
+                                        close();
                                       });
     },
     changePin: function (callback) {
@@ -268,13 +275,15 @@ define(['Dom'], function(Dom) {
                             '<input type="text" data-count_digits="4" data-keypress="input_only_digits" name="new_pin"/>' +
                           '</div>' +
                           '<div style="position:relative;">' +
-                            '<button data-click="change-pin" class="button_short--green">Сохранить</button>' +
+                            '<button data-click="save-change-pin" class="button_short--green">Сохранить</button>' +
                           '</div>', function (response) {
                                         callback(response);
+                                        close();
                                       });
     },
     show: function (content, callback) {
                   layer = showLayer();
+      console.log('draw layer', layer);
                   var el = Dom.sel('.' + block),
                       parentDiv = el.parentNode,
                       new_field = document.createElement('div');
@@ -299,12 +308,12 @@ define(['Dom'], function(Dom) {
                         close();
                       }
                       
-                      if (target.dataset.click === "change-pin") {
+                      if (target.dataset.click === "save-change-pin") {
                         callback({newPin:Dom.sel('input[name="new_pin"]').value, oldPin:Dom.sel('input[name="old_pin"]').value});
                         close();
                       }
                       
-                      if (target.dataset.click === "create-pin") {
+                      if (target.dataset.click === "save-create-pin") {
                         callback({newPin:Dom.sel('input[name="new_pin"]').value});
                         close();
                       }

@@ -81,7 +81,8 @@ requirejs.config({
     "ctrlTaxiDriverIntercity" :     "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverHelp" :          "controllers/driver/taxi_driver_help",
     "ctrlTaxiDriverClientsRating" : "controllers/driver/taxi_driver_clients_rating",
-    "ctrlTaxiDriverMyAuto" :        "controllers/driver/taxi_driver_my_auto"
+    "ctrlTaxiDriverMyAuto" :        "controllers/driver/taxi_driver_my_auto",
+    "ctrlTaxiDriverEditAuto" :        "controllers/driver/taxi_driver_edit_auto"
 	},
   shim: {
     "hammer" : {

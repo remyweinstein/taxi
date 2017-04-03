@@ -38,7 +38,8 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
                 {hash:'#driver_go', template:'TaxiDriverGo', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_order', template:'TaxiDriverOrder', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_intercity', template:'TaxiDriverIntercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
-                {hash:'#driver_my_auto', template:'TaxiDriverMyAuto', controller:'ctrlTaxiDriverMyAuto', title:'Мой авто', menu:'driver', pageType: 'back-arrow'}],
+                {hash:'#driver_my_auto', template:'TaxiDriverMyAuto', controller:'ctrlTaxiDriverMyAuto', title:'Мой гараж', menu:'driver', pageType: 'back-arrow'},
+                {hash:'#driver_edit_auto', template:'TaxiDriverEditAuto', controller:'ctrlTaxiDriverEditAuto', title:'Мой авто', menu:'', pageType: 'back-arrow'}],
       defaultRoute = '#start',
       currentHash = '';
 

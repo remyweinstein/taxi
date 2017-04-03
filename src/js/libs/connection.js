@@ -104,8 +104,8 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
   
   function updateAuto(data) {
-    params.profile = data;
-    Conn.sendMessage("post-profile", params);
+    params.car = data;
+    Conn.sendMessage("post-car", params);
   }
 
   function getProfile() {
@@ -367,7 +367,7 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
   
   function getAuto() {
-    Conn.sendMessage("get-auto");
+    Conn.sendMessage("get-cars");
   }
   
   function addZones(data) {

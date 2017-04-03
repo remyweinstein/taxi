@@ -116,7 +116,7 @@
                     </select>
                 </p>
                 <p class="pincode"></p>
-                <p class="social_network"><span style="display:block">Подтвердите соц сеть</span></p>
+                <p class="social_network"></p>
                 <p><button class="button_rounded--green">Сохранить</button></p>
             </form>
         </template>
@@ -373,7 +373,7 @@
                         <div class="form-order-city__field">
                             <i class="icon-commerical-building form-order-city__label"></i>
                             <span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка..."/>
-                                <div class="form-order-city__hint"></div>
+                                <span class="form-order-city__hint"></span>
                             </span>
                         </div>
                         <div class="form-order-city__field order-city-from">
@@ -387,7 +387,7 @@
                         <div class="form-order-city__field order-Namecity-from">
                             <i class="icon-commerical-building form-order-city__label"></i>
                             <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."/>
-                                <div class="form-order-city__hint"></div>
+                                <span class="form-order-city__hint"></span>
                             </span>
                         </div>
                         <div class="form-order-city__field order-city-to">
@@ -780,7 +780,7 @@
             </div>
             <p>Отзывы(0):</p>
         </template>
-        <template id="TaxiDriverMyAuto">
+        <template id="TaxiDriverEditAuto">
             <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
                 <p>
                     <label>Марка:
@@ -949,9 +949,11 @@
                 <p>
                     <label>Тип авто: 
                         <select name="type">
-                            <option value="Легковой">Легковой</option>
-                            <option value="Микроавтобус">Микроавтобус</option>
-                            <option value="Грузовик">Грузовик</option>
+                            <option value="auto">Легковой</option>
+                            <option value="moto">Мотоцикл</option>
+                            <option value="microbus">Микроавтобус</option>
+                            <option value="truck">Грузовик</option>
+                            <option value="bus">Автобус</option>
                         </select>
                     </label>
                 </p>
@@ -959,6 +961,10 @@
                     <button class="button_wide--yellow">Сохранить</button>
                 </p>
             </form>
+        </template>
+        <template id="TaxiDriverMyAuto">
+            <button data-click="add_new_auto" class="button_wide--green">Добавить транспорт</button>
+            <ul class="list-cars"></ul>
         </template>
     </body>
 </html>

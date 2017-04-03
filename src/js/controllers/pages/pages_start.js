@@ -28,7 +28,7 @@ define(['Dom'], function (Dom) {
   }
   
   function stop() {
-
+    
   }
   
   function start() {
