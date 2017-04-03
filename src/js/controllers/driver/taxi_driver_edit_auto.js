@@ -128,7 +128,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
     data.brand       = sel_brand.options[sel_brand.selectedIndex].text;
     data.model       = sel_model.options[sel_model.selectedIndex].text;
     data.conditioner = Dom.sel('input[name="conditioner"]:checked').value;
-    data.type        = sel_type.options[sel_type.selectedIndex].text;
+    data.type        = sel_type.options[sel_type.selectedIndex].value;
 
     Conn.request('updateAuto', data, cbUpdateAuto);
 
