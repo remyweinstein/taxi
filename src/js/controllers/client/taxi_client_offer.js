@@ -4,7 +4,7 @@ define(['Dom', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'],
 function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
   var active_bid = false, route, marker_to, marker_from, points = [],
-      fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
+      fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
       name_client, photo_client, travelTime, agIndexes,
       MyOrder;
   
@@ -17,17 +17,19 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     var ords = response.result.offer;
     
     //MyOrder.setModel(response, true);
-    order_id = ords.id;
-    fromAddress = ords.fromAddress;
-    toAddress = ords.toAddress;
-    fromCoords = ords.fromLocation.split(",");
-    toCoords = ords.toLocation.split(",");
-    price = Math.round(ords.price);
-    name_client = ords.agent.name || User.default_name;
+    order_id     = ords.id;
+    fromAddress  = ords.fromAddress;
+    fromCity     = ords.fromCity;
+    toAddress    = ords.toAddress;
+    toCity       = ords.toCity;
+    fromCoords   = ords.fromLocation.split(",");
+    toCoords     = ords.toLocation.split(",");
+    price        = Math.round(ords.price);
+    name_client  = ords.agent.name || User.default_name;
     photo_client = ords.agent.photo || User.default_avatar;
-    agIndexes = parseObj(getAgentIndexes(ords.agent));
-    //distanse = (ords.length / 1000).toFixed(1);
-    //duration = ords.duration;
+    agIndexes    = parseObj(getAgentIndexes(ords.agent));
+    //distanse     = (ords.length / 1000).toFixed(1);
+    //duration     = ords.duration;
     
     if (ords.bids) {
       var bid_num = -1;
@@ -38,15 +40,16 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
         }
       }
       if (bid_num > -1) {
-        active_bid = true;
-        MyOrder.price = ords.bids[bid_num].order.price;
-        price = MyOrder.price;
-        MyOrder.id = ords.bids[bid_num].order.id;
-        
+        active_bid          = true;
+        MyOrder.price       = ords.bids[bid_num].order.price;
+        price               = MyOrder.price;
+        MyOrder.id          = ords.bids[bid_num].order.id;
         MyOrder.fromAddress = ords.bids[bid_num].order.fromAddress;
-        MyOrder.fromCoords = ords.bids[bid_num].order.fromLocation;
-        MyOrder.toAddress = ords.bids[bid_num].order.toAddress;
-        MyOrder.toCoords = ords.bids[bid_num].order.toLocation;
+        MyOrder.fromCoords  = ords.bids[bid_num].order.fromLocation;
+        MyOrder.fromCity    = ords.bids[bid_num].order.fromCity;
+        MyOrder.toCity      = ords.bids[bid_num].order.toCity;
+        MyOrder.toAddress   = ords.bids[bid_num].order.toAddress;
+        MyOrder.toCoords    = ords.bids[bid_num].order.toLocation;
       }
     } else {
       if (MyOrder.price === 0) {
@@ -57,12 +60,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
       if (!MyOrder.fromAddress) {
         MyOrder.fromAddress = fromAddress;
-        MyOrder.fromCoords = ords.fromLocation;
+        MyOrder.fromCity    = fromCity;
+        MyOrder.fromCoords  = ords.fromLocation;
       }
 
       if (!MyOrder.toAddress) {
         MyOrder.toAddress = toAddress;
-        MyOrder.toCoords = ords.toLocation;
+        MyOrder.toCity    = toCity;
+        MyOrder.toCoords  = ords.toLocation;
       }
     }
     
@@ -77,15 +82,9 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     
     waypoints = [];
 
-    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32],
-      function (mark) {
-        MapElements.marker_to_2 = mark;
-      });
-    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32],
-      function (mark) {
-        MapElements.marker_from_2 = mark;
-      });
-      
+    MapElements.marker_to_2   = Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
+    MapElements.marker_from_2 = Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
+    /*      
     if (MyOrder.fromAddress) {
       var mfromCoords = MyOrder.fromCoords.split(",");
       
@@ -103,6 +102,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           MapElements.marker_from = mark;
         });
     }
+    */
 
     setRoute();
     HideForms.init();
@@ -110,14 +110,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function getAgentIndexes(agent) {
-    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
   }
   
   function parseObj(obj) {
     var content = '';
     
     for (var key in obj) {
-      content += '<p>' + key + ': ' + obj[key] + '</p>';
+      content += '<span><i class="icon-' + key + '"></i> ' + obj[key] + ' </span>';
     }
     
     return content;
@@ -134,20 +134,32 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
         price_plus  = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '',
         time_minus  = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '',
         time_plus   = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '',
-        add_button = '<i data-click="taxi_bid" class="font2 icon-ok-circled' + _active_bid + '"></i>',
-        intt = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
-        el_route = Dom.sel('.wait-order-approve__route-info__route'),
-        el_price = Dom.sel('.wait-order-approve__route-info__price'),
-        el = Dom.sel('.wait-bids-approve');
+        add_button  = '<i data-click="taxi_bid" class="font2 icon-ok-circled' + _active_bid + '"></i>',
+        intt        = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
+        el_route    = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price    = Dom.sel('.wait-order-approve__route-info__price'),
+        el          = Dom.sel('.wait-bids-approve'),
+        addCityFrom = '',
+        addCityTo   = '';
       
     if (intt) {
       intt.innerHTML = add_button;
     }
     
-    Dom.sel('div[data-route="from"]').innerHTML = fromAddress;
-    Dom.sel('div[data-route="to"]').innerHTML = toAddress;
-    Dom.sel('input.adress_from').value = MyOrder.fromAddress;
-    Dom.sel('input.adress_to').value = MyOrder.toAddress;
+    if (Storage.getActiveTypeTaxi() === "intercity") {
+      //addInterCity();
+      addCityFrom = fromCity + ', ',
+      addCityTo   = toCity + ', ';
+    }
+
+    if (Storage.getActiveTypeTaxi() === "trucking") {
+      addCargo();
+    }
+    
+    Dom.sel('div[data-route="from"]').innerHTML = addCityFrom + fromAddress;
+    Dom.sel('div[data-route="to"]').innerHTML   = addCityTo + toAddress;
+    Dom.sel('input.adress_from').value          = MyOrder.fromAddress;
+    Dom.sel('input.adress_to').value            = MyOrder.toAddress;
     
     /*
     for (var i = 0; i < name_points.length; i++) {
@@ -194,12 +206,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           } else {
             var data = {};
             
-            data.fromAddress = MyOrder.fromAddress;
+            data.fromAddress  = MyOrder.fromAddress;
             data.fromLocation = MyOrder.fromCoords;
-            data.toAddress = MyOrder.toAddress;
-            data.toLocation = MyOrder.toCoords;
-            data.price = MyOrder.price;
-            data.offer = order_id;
+            data.toAddress    = MyOrder.toAddress;
+            data.toLocation   = MyOrder.toCoords;
+            data.price        = MyOrder.price;
+            data.offer        = order_id;
             
             Conn.request('agreeOffer', data, cbChangeState);
             active_bid = true;
@@ -261,6 +273,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function stop() {
+    //GetPositions.clear();
     Destinations.clear();
     Storage.lullModel(MyOrder);
   }

@@ -15,6 +15,27 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
       Conn.clearCb('cbGetMyCargoOrder');
   }
 
+  function cbGetOffers(response) {
+    var filters = Storage.getActiveFilters(),
+        sorts   = Storage.getActiveSortFilters();
+
+    if (filters !== old_filters || old_sorts !== sorts) {
+      Conn.request('stopGetOffers');
+      Conn.clearCb('cbGetOffers');
+      Conn.request('startGetOffers', 'trucking', cbGetOffers);
+      old_filters = filters;
+      old_sorts   = sorts;
+
+      return;
+    }
+
+    if (!response.error) {
+      Lists.allOffers(response.result);
+    }
+
+    old_filters = filters;
+  }
+
   function cbAfterAddFav() {
     global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
     Conn.clearCb();
@@ -154,6 +175,28 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             global_el = target;
             Conn.deleteBlackList(target.dataset.id, cbAfterDeleteBlackList);
           }
+            //  =============== EVENTS FOR LIST OF OFFERS ================
+            if (target.dataset.click === "open-offer") {
+              el = target;
+              
+              Storage.setActiveTypeModelTaxi('offer');
+              Storage.setActiveTypeTaxi('trucking');
+              localStorage.setItem('_open_offer_id', el.dataset.id);
+              window.location.hash = "#client_offer";
+            }
+            
+            if (target.dataset.click === "taxi_bid") {
+              var data = {};
+              
+              data.id = target.dataset.id;
+              
+              if (Dom.toggle(target, 'active')) {
+                Conn.request('disagreeOffer', data);
+              } else {
+                Conn.request('agreeOffer', data);
+              }
+            }
+            
           //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============
           if (target.dataset.click === "fav-orders") {
             Lists.filterToggleFav(target);
@@ -205,6 +248,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     initMap();
     // ===== Draw New Order =====
     Destinations.init(MyOrder);
+      // = Draw Offers of Drivers =
+    Lists.filtersStart();
+    Conn.request('startGetOffers', '', cbGetOffers);
     // ===== Draw My Orders =====
     Conn.request('requestMyCargoOrders', '', cbGetMyCargoOrder);
     HideForms.init();

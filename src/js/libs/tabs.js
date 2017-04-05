@@ -75,7 +75,7 @@ define(['Dom'], function(Dom) {
       }
 
       tabs_viewport.style.width = (tab_count * window.innerWidth) + 'px';
-      tabs_wrapper.style.height = (window.innerHeight - outerHeight(header) - outerHeight(tab)) + 'px';
+      tabs_wrapper.style.height = (window.innerHeight - outerHeight(header) - outerHeight(tab) + 17) + 'px';
     }
   }
   

@@ -4,37 +4,37 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
   var clGoogle = function () {
     var self = this;
     
-    this.renderRoute = function (waypoints, callback) {
-      var Model,
-          model = Storage.getActiveTypeModelTaxi();
-
-      if (model === "offer") {
-        Model = new clDriverOffer();
-      } else if (model === "order") {
-        Model = new clClientOrder();
-      }
-
-      Model.activateCurrent();
-      
+    this.renderRoute = function (Model, callback) {
       var directionsService = new google.maps.DirectionsService(),
           _addr_from = Model.fromCoords.split(","),
-          _addr_to = Model.toCoords.split(",");
+          _addr_to = Model.toCoords.split(","),
+          waypoints = [];
+      
+      if (Model.toAddresses) {
+        for (var i = 0; i < Model.toAddresses.length; i++) {
+          var latlng = Model.toCoordses[i].split(',');
 
+          waypoints.push({
+            location: {lat: latlng[0], lng: latlng[1]}
+            //stopover: true
+          });
+        }
+      }
+      
       var request = {
-        origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
-        destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
-        waypoints: waypoints,
-        provideRouteAlternatives: false,
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
-      };
-
-      var requestBackTrip = {
-        destination: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
-        origin: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
-        waypoints: waypoints,
-        provideRouteAlternatives: true,
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
-      };
+            origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+            destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+            waypoints: waypoints,
+            provideRouteAlternatives: false,
+            travelMode: google.maps.DirectionsTravelMode.DRIVING
+          },
+          requestBackTrip = {
+            destination: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+            origin: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+            waypoints: waypoints,
+            provideRouteAlternatives: true,
+            travelMode: google.maps.DirectionsTravelMode.DRIVING
+          };
 
       SafeWin.overviewPath = [];
       directionsService.route(request, function(response, status) {

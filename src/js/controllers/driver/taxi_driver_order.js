@@ -93,14 +93,14 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function getAgentIndexes(agent) {
-    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
   }
   
   function parseObj(obj) {
     var content = '';
     
     for (var key in obj) {
-      content += '<p>' + key + ': ' + obj[key] + '</p>';
+      content += '<span><i class="icon-' + key + '"></i> ' + obj[key] + ' </span>';
     }
     
     return content;
@@ -151,7 +151,6 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
                         '<div>' +
                           name_client +
                         '</div>' +
-                        '<div>Индексы:</div>' +
                         '<div>' + agIndexes + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve"></div>' +
@@ -183,8 +182,8 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
                             window.location.hash = '#login';
                           }
                       });
-            } else if (!Car.brand || !Car.model || !Car.number) {
-              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>' +
+            } else if (Car.inGarage === 0) {
+              Modal.show('<p>Для совершения заказов необходимо добавить автомобиль</p>' +
                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
@@ -192,7 +191,16 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
                             window.location.hash = '#driver_my_auto';
                           }
                       });
-            } else {
+            } else if (!Car.id) {
+                Modal.show('<p>Для совершения заказов необходимо выбрать автомобиль из списка</p>' +
+                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+                        function (response) {
+                            if (response === "yes") {
+                              window.location.hash = '#driver_my_auto';
+                            }
+                        });
+              } else {
               Conn.request('agreeOrder', order_id);
               active_bid = true;
               setRoute();

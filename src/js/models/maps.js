@@ -1,4 +1,4 @@
-/* global User, ymaps, MapGoogle, MapYandex, google, Settings, MapElements */
+/* global User, ymaps, MapGoogle, MapYandex, google, Settings, MapElements, Conn */
 
 define(['jsts'], function(jsts) {
 
@@ -15,17 +15,11 @@ define(['jsts'], function(jsts) {
     this.loading = true;
 
     this.start = function () {
-      if (!localStorage.getItem('_map_provider')) {
-        self.setCurrentModel('google');
-      } else {
-        self.setCurrentModel(localStorage.getItem('_map_provider'));
-      }
-      
+      self.setCurrentModel(User.map);      
       ymaps.ready(stopLoading);
     },
 
     this.setCurrentModel = function (val) {
-      localStorage.setItem('_map_provider', val);
       self.currentMapProvider = val;
       
       if (val === 'google') {
@@ -36,8 +30,7 @@ define(['jsts'], function(jsts) {
     },
 
     this.drawRoute = function (Model, back, callback) {
-      var _addr_from, _addr_to,
-          waypoints = [];
+      var _addr_from, _addr_to;
 
       if (!Model.fromCoords || !Model.toCoords) {
         return;
@@ -54,13 +47,7 @@ define(['jsts'], function(jsts) {
         for (var i = 0; i < Model.toAddresses.length; i++) {
           if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
             var _wp = Model.toCoordses[i].split(","),
-                time = "";
-            
-            waypoints.push(self.convertWayPointsForRoutes(_wp[0], _wp[1]));
-            
-            if (Model.times[i]) {
-              time = Model.times[i] + ' мин.';
-            }
+                time = Model.times[i] ? Model.times[i] + ' мин.' : '';
             
             self.addMarker(_wp[0], _wp[1], Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32], function(mark){
               self.addInfoForMarker(time, true, mark);
@@ -70,13 +57,13 @@ define(['jsts'], function(jsts) {
         }
       }
       
-      self.renderRoute(waypoints, function (price) {
+      self.renderRoute(Model, function (price) {
         callback(price);
       });      
     };
     
-    this.renderRoute = function (waypoints, callback) {
-      self.currentModel.renderRoute(waypoints, callback);
+    this.renderRoute = function (Model, callback) {
+      self.currentModel.renderRoute(Model, callback);
     };
 
     this.init = function() {

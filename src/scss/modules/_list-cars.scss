@@ -3,5 +3,18 @@
    ======================= */
 
 .list-cars {
-    
+    li {
+        padding: 0 0.5em 1em 1em;
+        >div {
+            cursor: pointer;
+            display: inline-block;
+            >span {
+                display: block;
+                font-size: 0.75em;
+            }
+        }
+        div:last-child {
+            float: right;
+        }
+    }
 }

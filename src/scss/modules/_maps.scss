@@ -3,7 +3,7 @@
    ======================= */
 #map_canvas{
     position: absolute;
-    height: 100%;
+    height: 96.5%;
     margin-top: 1em;
     top: 2em;
     left: 0;
@@ -17,6 +17,9 @@
     &.hidden{
         left: -100%;
     }
+}
+.dynamic #map_canvas {
+    height: 98%;
 }
 .tabs_content #map_canvas{
     top: 0;

@@ -1,8 +1,10 @@
 /* global User, Conn, Event, Car */
 
-define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
+define(['Lists', 'Storage', 'ModalWindows', 'ClientOrder', 'DriverOffer'], 
+function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
   var old_filters = Storage.getActiveFilters(),
-      old_sortes;
+      old_sortes  = Storage.getActiveSortFilters(),
+      myOffer;
 
   function cbMyOffers(response) {
     if (!response.error) {
@@ -33,7 +35,7 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
     function stopStartOrders() {
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetOrders');
-      Conn.request('startGetOrders', '', cbGetOrders);
+      Conn.request('startGetIntercityOrders', '', cbGetOrders);
     }
   }
 
@@ -64,7 +66,9 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
         }
             // = Menu my Orders Item GO order =
         if (target.dataset.click === 'myorders_item_menu_go') {
-          Lists.getOfferByID(target.dataset.id);
+          Storage.setActiveTypeModelTaxi('offer');
+          Storage.setActiveTypeTaxi('intercity');
+          myOffer.getByID(target.dataset.id);
           return;
         }
 
@@ -77,7 +81,9 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
         if (target.dataset.click === "open-offer") {
           id = target.dataset.id;
           localStorage.setItem('_open_offer_id', id);
-          Lists.getOfferByID(id);
+          Storage.setActiveTypeModelTaxi('offer');
+          Storage.setActiveTypeTaxi('intercity');
+          myOffer.getByID(id);
         }
 
         if (target.dataset.click === "fav-orders") {
@@ -114,8 +120,8 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
                             window.location.hash = '#login';
                           }
                       });
-            } else if ((!Car.brand || !Car.model || !Car.number)) {
-              Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>' +
+            } else if (Car.inGarage === 0) {
+              Modal.show('<p>Для совершения заказов необходимо добавить автомобиль</p>' +
                         '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                         '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                       function (response) {
@@ -123,7 +129,16 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
                             window.location.hash = '#driver_my_auto';
                           }
                       });
-            } else {
+            } else if (!Car.id) {
+                Modal.show('<p>Для совершения заказов необходимо выбрать автомобиль из списка</p>' +
+                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+                        function (response) {
+                            if (response === "yes") {
+                              window.location.hash = '#driver_my_auto';
+                            }
+                        });
+              } else {
               var el_price = el.parentNode.parentNode.querySelectorAll('.list-orders_route_price span')[0],
                   el_time = el.parentNode.parentNode.querySelectorAll('.list-orders_route_time span')[0],
                   get_time = el_time.innerHTML,
@@ -168,6 +183,7 @@ define(['Lists', 'Storage', 'ModalWindows'], function (Lists, Storage, Modal) {
   }
   
   function start() {
+    myOffer = new clDriverOffer();
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('intercity');
     Storage.setActiveTypeFilters('orders');

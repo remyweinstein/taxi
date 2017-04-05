@@ -83,14 +83,20 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
       var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route'),
-          color_automat = localStorage.getItem('_automat_client_approve') ? 'green' : 'grey';
+          color_automat = localStorage.getItem('_automat_client_approve') ? 'green' : 'grey',
+          addCityFrom, addCityTo;
+        
+      if (Storage.getActiveTypeTaxi() === "intercity") {
+        addCityFrom = MyOrder.fromCity + ', ',
+        addCityTo = MyOrder.toCity + ', ';
+      }
       
       Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();      
       GetPositions.my();
-      el_routes[0].children[0].innerHTML = MyOrder.fromAddress;
-      el_routes[0].children[2].innerHTML = MyOrder.toAddress;
+      el_routes[0].children[0].innerHTML = addCityFrom + MyOrder.fromAddress;
+      el_routes[0].children[2].innerHTML = addCityTo + MyOrder.toAddress;
       el_routes[0].children[3].innerHTML = 'В пути: ' + 
                                             (MyOrder.length / 1000).toFixed(1) + 
                                             ' км / ' + 

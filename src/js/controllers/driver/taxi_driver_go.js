@@ -17,14 +17,14 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
 
   function getAgentIndexes(agent) {
-    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
   }
   
   function parseObj(obj) {
     var content = '';
     
     for (var key in obj) {
-      content += '<p>' + key + ': ' + obj[key] + '</p>';
+      content += '<span><i class="icon-' + key + '"></i> ' + obj[key] + ' </span>';
     }
     
     return content;
@@ -45,49 +45,28 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       localStorage.removeItem('_active_offer_id');
       window.location.hash = '#driver_city';
     }
-    order_id = ords.id;
-    MyOrder.id = ords.id;
-    fromAddress = ords.fromAddress;
-    toAddress = ords.toAddress;
-    fromCoords = ords.fromLocation.split(",");
-    toCoords = ords.toLocation.split(",");
-    price = Math.round(ords.price);
-    name_client = ords.agent.name || User.default_name;
-    photo_client = ords.agent.photo || User.default_avatar;
-    MyOffer.fromCoords = ords.fromLocation;
-    MyOffer.toCoords = ords.toLocation;
+    
+    order_id            = ords.id;
+    MyOrder.id          = ords.id;
+    fromAddress         = ords.fromAddress;
+    toAddress           = ords.toAddress;
+    fromCoords          = ords.fromLocation.split(",");
+    toCoords            = ords.toLocation.split(",");
+    price               = Math.round(ords.price);
+    name_client         = ords.agent.name || User.default_name;
+    photo_client        = ords.agent.photo || User.default_avatar;
+    MyOffer.fromCoords  = ords.fromLocation;
+    MyOffer.toCoords    = ords.toLocation;
     MyOffer.toAddresses = ords.toAddresses;
-    MyOffer.toCoordses = ords.toLocationes;
+    MyOffer.toCoordses  = ords.toLocationes;
     MyOffer.fromAddress = ords.fromAddress;
-    MyOffer.toAddress = ords.toAddress;
-    MyOffer.times = ords.toTimes;
-    agIndexes = parseObj(getAgentIndexes(ords.agent));
-    waypoints = [];
-
-    if (ords.toAddresses) {
-      for (var i = 0; i < ords.toAddresses.length; i++) {
-        var _wp = ords.toLocations[i].split(",");
-        
-        waypoints.push(Maps.convertWayPointsForRoutes(_wp[0], _wp[1]));
-        Maps.addMarker(_wp[0], _wp[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
-          function (mark) {
-            Maps.addInfoForMarker(ords.times[i] + 'мин.', true, mark);
-            MapElements.points.push(mark);
-          });
-      }
-    }
-
-    Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
-      function (mark) {
-        MapElements.marker_from = mark;
-      });
-    Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
-      function (mark) {
-        MapElements.marker_to = mark;
-      });
+    MyOffer.toAddress   = ords.toAddress;
+    MyOffer.times       = ords.toTimes;
+    agIndexes           = parseObj(getAgentIndexes(ords.agent));
 
     render();
-    Maps.drawRoute('offer', true, function(){});
+      console.log('MyOrder = ', MyOrder);
+    Maps.drawRoute(MyOrder, true, function(){});
     addEvents();
     HideForms.init();
   }
@@ -99,8 +78,8 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
 
   function cbGetOrdersByOffer(response) {
     if (first_time) {
-      startOffer(response.result);
       first_time = false;
+      startOffer(response.result);
     }
     
     if (response.result.orders.length === 0) {
@@ -111,14 +90,14 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       return;
     }
 
-    var ords = response.result.orders[0],
-        agnt = response.result.orders[0].agent,
-        radius = agnt.distance,
-        lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
-        toLoc = ords.toLocation.split(','),
+    var ords        = response.result.orders[0],
+        agnt        = response.result.orders[0].agent,
+        radius      = agnt.distance,
+        lost_diff   = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
+        toLoc       = ords.toLocation.split(','),
         arrived_but = Dom.sel('button[data-click="driver-arrived"]'),
-        loc = agnt.location,
-        dist = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
+        loc         = agnt.location,
+        dist        = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
         dr_time, but;
       
     if (lost_diff >= 0) {
@@ -203,13 +182,20 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
   
   function render() {
-    var el_route = Dom.sel('.wait-order-approve__route-info__route'),
-        el_price = Dom.sel('.wait-order-approve__route-info__price'),
+    var el_route  = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price  = Dom.sel('.wait-order-approve__route-info__price'),
         el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
-        el = Dom.sel('.wait-bids-approve');
-    
-    el_route.children[0].innerHTML = fromAddress;
-    el_route.children[2].innerHTML = toAddress;
+        el        = Dom.sel('.wait-bids-approve'),
+        addCityFrom,
+        addCityTo;
+
+      if (Storage.getActiveTypeTaxi() === "intercity") {
+        addCityFrom = MyOrder.fromCity + ', ',
+        addCityTo = MyOrder.toCity + ', ';
+      }
+      
+    el_route.children[0].innerHTML = addCityFrom + fromAddress;
+    el_route.children[2].innerHTML = addCityTo + toAddress;
     el_price.innerHTML = price + ' руб.';
     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
     el.innerHTML = '<div class="wait-bids-approve__item">' +

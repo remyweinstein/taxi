@@ -54,6 +54,9 @@ button:focus {
 .active {
     color: $active;
 }
+.inactive {
+    color: $inactive;
+}
 .active-bg {
     background-color: $active!important;
 }

@@ -103,11 +103,18 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
     Conn.sendMessage("post-profile", params);
   }
   
+  function setActiveAuto(data) {
+    params.car = {};
+    params.car.id = data;
+    params.car.isActive = 1;
+    Conn.sendMessage("post-car", params);
+  }
+  
   function updateAuto(data) {
     params.car = data;
     Conn.sendMessage("post-car", params);
   }
-
+  
   function getProfile() {
     Conn.sendMessage("get-profile");
   }
@@ -170,13 +177,13 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
 
   function agreeOffer(data) {
-    params.order = {};
-    params.order.offer = data.id;    
-    params.order.fromAddress = data.fromAddress;
+    params.order              = {};
+    params.order.offer        = data.id;    
+    params.order.fromAddress  = data.fromAddress;
     params.order.fromLocation = data.fromCoords;
-    params.order.toAddress = data.toAddress;
-    params.order.toLocation = data.toCoords;
-    params.order.price = data.price;
+    params.order.toAddress    = data.toAddress;
+    params.order.toLocation   = data.toCoords;
+    params.order.price        = data.price;
 
     Conn.sendMessage("post-order", params);
   }
@@ -212,23 +219,23 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
 
   function requestMyOrders() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "taxi";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-orders", params);
   }
   
   function requestMyCargoOrders() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "trucking";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-orders", params);
   }
   
   function requestMyIntercityOrders() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "intercity";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-orders", params);
   }
   
@@ -243,23 +250,23 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
 
   function requestMyOffers() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "taxi";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-offers", params);
   }
   
   function requestMyCargoOffers() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "trucking";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-offers", params);
   }
   
   function requestMyIntercityOffers() {
-    params.filter = {};
+    params.filter      = {};
     params.filter.type = "intercity";
-    params.filter.my = 1;
+    params.filter.my   = 1;
     Conn.sendMessage("get-offers", params);
   }
   
@@ -268,9 +275,9 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
   
   function startOffersByOrder(id) {
-    params.filter = {};
+    params.filter         = {};
     params.filter.orderId = id;
-    params.filter.type = "taxi";
+    //params.filter.type    = "taxi";
     Conn.sendMessage("get-offers", params);
   }
   
@@ -279,9 +286,9 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   }
   
   function startOrdersByOffer(id) {
-    params.filter = {};
+    params.filter         = {};
     params.filter.offerId = id;
-    params.filter.type = "taxi";
+    //params.filter.type    = "taxi";
     Conn.sendMessage("get-orders", params);
   }
   
@@ -475,6 +482,9 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
           break;
         case "updateAuto":
           updateAuto(data);
+          break;
+        case "setActiveAuto":
+          setActiveAuto(data);
           break;
         case "addZones":
           addZones(data);

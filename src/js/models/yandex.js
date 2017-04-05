@@ -50,25 +50,21 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
   var clYandex = function () {
     var self = this;
 
-    this.renderRoute = function (waypoints, callback) {
-      var Model,
-          model = Storage.getActiveTypeModelTaxi();
-
-      if (model === "offer") {
-        Model = new clDriverOffer();
-      } else if (model === "order") {
-        Model = new clClientOrder();
-      }
-
-      Model.activateCurrent();
-
-      var str = waypoints ? waypoints.join(',') : "",
-          _addr_from = Model.fromCoords.split(","),
+    this.renderRoute = function (Model, callback) {
+      var _addr_from = Model.fromCoords.split(","),
           _addr_to = Model.toCoords.split(","),
-          points = [];
+          points = [],
+          waypoints = [];
 
-      if (str !== "") {
-        waypoints = JSON.parse(waypoints);
+      if (Model.toAddresses.length > 0) {
+        for (var i = 0; i < Model.toAddresses; i++) {
+          var latlng = Model.toCoordses[i].split(',');
+          
+          waypoints.push({
+            type: 'viaPoint', 
+            point: [latlng[0], latlng[1]]
+          });
+        }
         points = [
           { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
           waypoints,
@@ -167,7 +163,8 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
       }, {
         iconLayout: 'default#image',
         iconImageHref: icon,
-        iconImageSize: iSize
+        iconImageSize: iSize,
+        iconImageOffset: [-16, -32]
       });
       Maps.map.geoObjects.add(marker);
       callback(marker);
@@ -182,6 +179,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
         iconLayout: 'default#image',
         iconImageHref: icon,
         iconImageSize: iSize,
+        iconImageOffset: [-16, -32],
         draggable: true
       });
       Maps.map.geoObjects.add(marker);

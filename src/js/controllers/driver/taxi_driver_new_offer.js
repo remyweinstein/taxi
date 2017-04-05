@@ -147,6 +147,21 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     content.addEventListener('input', Event.input);
   }
   
+  function addCargo() {
+    var innerAdditional = document.createElement('div'),
+        elForm          = Dom.sel('.form-order-city'),
+        elTo            = Dom.sel('.order-city-comment');
+    
+    innerAdditional.className += 'form-order-city__field';
+    innerAdditional.innerHTML = '<i class="icon-box form-order-city__label"></i>' +
+                                '<span class="form-order-city__wrap_short3"><input type="text" name="volume" value="" placeholder="Объем, м3"></span>' +
+                                '<i class="icon-balance-scale form-order-city__label"></i>' +
+                                '<span class="form-order-city__wrap_short3"><input type="text" name="weight" value="" placeholder="Вес, кг"></span>' +
+                                '<i class="icon-hand-peace-o form-order-city__label"></i>' +
+                                '<span class="form-order-city__wrap_short3"><input type="text" name="loaders" value="" placeholder="Грузчики"></span>';
+    elForm.insertBefore(innerAdditional, elTo);
+  }
+  
   function addInterCity() {
     var innerCityFrom  = document.createElement('div'),
         innerCityTo    = document.createElement('div'),
@@ -188,6 +203,10 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   function start() {
     if (Storage.getActiveTypeTaxi() === "intercity") {
       addInterCity();
+    }
+    
+    if (Storage.getActiveTypeTaxi() === "trucking") {
+      addCargo();
     }
     
     Storage.setActiveTypeModelTaxi('offer');

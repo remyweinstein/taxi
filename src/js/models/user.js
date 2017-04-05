@@ -1,4 +1,4 @@
-/* global lastURL, Car, User, Conn */
+/* global lastURL, Car, User, Conn, Maps, Settings */
 
 define(['Dom'], function(Dom) {
   var clUser = function () {
@@ -9,8 +9,11 @@ define(['Dom'], function(Dom) {
         self.token = null;
         self.initToken();
       } else {
-        self.setData(response.result);
         Conn.clearCb('cbgetProfileData');
+        self.setData(response.result);
+        Settings.getSettings();
+        Maps.start();
+        Maps.init();
       }
     }
     
@@ -23,24 +26,41 @@ define(['Dom'], function(Dom) {
     var default_avatar = 'assets/images/no_avatar.png';
     var default_name = 'Гость';
 
-    this.initialization_token = false;
-    this.default_avatar = default_avatar;
-    this.default_name = default_name;
-    this.token = getToken();
-    this.id = getId();
-    this.lat = null;
-    this.lng = null;
-    this.hasPin = false;
-    this.city = null;
-    this.country = null;
-    this.is_auth = false;
-    this.authToken = null;
-    this.name = null;
-    this.phone = null;
-    this.avatar = null;
-    this.birthday = null;
-    this.sex = null;
-
+    this.initialization_token      = false;
+    this.default_avatar            = default_avatar;
+    this.default_name              = default_name;
+    this.token                     = getToken();
+    this.id                        = getId();
+    this.lat                       = null;
+    this.lng                       = null;
+    this.hasPin                    = false;
+    this.city                      = null;
+    this.country                   = null;
+    this.is_auth                   = false;
+    this.authToken                 = null;
+    this.name                      = null;
+    this.phone                     = null;
+    this.avatar                    = null;
+    this.birthday                  = null;
+    this.sex                       = null;
+    this.hasVkontakte              = false;
+    this.hasOdnoklassniki          = false;
+    this.hasMailru                 = false;
+    this.hasFacebook               = false;
+    this.hasTwitter                = false;
+    this.hasGoogle                 = false;
+    this.hasYandex                 = false;
+    this.hasGoogleplus             = false;
+    this.hasInstagram              = false;
+    this.hasYoutube                = false;
+    this.hasWargaming              = false;
+    this.isAllowReciveSos          = false;
+    this.isAllowSendSos            = false;
+    this.isDisableZoneByPin        = false;
+    this.isActivateSosOnDisconnect = false;
+    this.map                       = null;
+    this.routeGuardZoneRadius      = null;
+      
     this.getInfo = function () {
       return "token = " + this.token + ", id =  " + this.id;
     };
@@ -65,7 +85,7 @@ define(['Dom'], function(Dom) {
     };
     
     this.setData = function (response) {
-      Car.setData(response);
+      Car.setData();
       /*
       if (lastURL === "#sms") {
         self.is_auth = false;
@@ -87,10 +107,27 @@ define(['Dom'], function(Dom) {
           localStorage.setItem('_my_city', self.city);
         }
 
-        self.phone = prfl.phone;
-        self.name = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
-        self.avatar = prfl.photo ? prfl.photo : default_avatar;
-        self.hasPin = prfl.hasPin;
+        self.phone                     = prfl.phone;
+        self.name                      = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
+        self.avatar                    = prfl.photo ? prfl.photo : default_avatar;
+        self.hasPin                    = prfl.hasPin;
+        self.hasVkontakte              = prfl.hasVkontakte;
+        self.hasOdnoklassniki          = prfl.hasOdnoklassniki;
+        self.hasMailru                 = prfl.hasMailru;
+        self.hasFacebook               = prfl.hasFacebook;
+        self.hasTwitter                = prfl.hasTwitter;
+        self.hasGoogle                 = prfl.hasGoogle;
+        self.hasYandex                 = prfl.hasYandex;
+        self.hasGoogleplus             = prfl.hasGoogleplus;
+        self.hasInstagram              = prfl.hasInstagram;
+        self.hasYoutube                = prfl.hasYoutube;
+        self.hasWargaming              = prfl.hasWargaming;
+        self.isAllowReciveSos          = prfl.isAllowReciveSos;
+        self.isAllowSendSos            = prfl.isAllowSendSos;
+        self.isDisableZoneByPin        = prfl.isDisableZoneByPin;
+        self.isActivateSosOnDisconnect = prfl.isActivateSosOnDisconnect;
+        self.map                       = prfl.map || 'google';
+        self.routeGuardZoneRadius      = prfl.routeGuardZoneRadius || 50;
 
         if (Dom.selAll('.jq_my_name').length) {
           Dom.sel('.jq_my_name').innerHTML = self.name;

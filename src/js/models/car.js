@@ -1,7 +1,29 @@
-/* global Conn */
+/* global Conn, Car */
 
 define(function() {
+  function cbGetAutos(response) {
+    var prfl = response.result.cars;
 
+    Conn.clearCb('cbGetAutos');
+    
+    for (var i = 0; i < prfl.length; i++) {
+      if (prfl[i].isActive) {
+        Car.id          = prfl[i].id;
+        Car.brand       = prfl[i].brand;
+        Car.model       = prfl[i].model;
+        Car.color       = prfl[i].color;
+        Car.number      = prfl[i].number;
+        Car.tonnage     = prfl[i].tonnage;
+        Car.type        = prfl[i].type;
+        Car.conditioner = prfl[i].conditioner;
+        Car.photo       = prfl[i].photo;
+        Car.type        = prfl[i].type;
+        Car.isActive    = prfl[i].isActive;
+        Car.inGarage    = prfl.length;
+      }
+    }
+  };
+  
   var clCar = function () {
     var self = this;
     
@@ -18,25 +40,14 @@ define(function() {
     this.photo       = null;
     this.type        = null;
     this.isActive    = false;
+    this.inGarage    = 0;
 
     this.getData = function () {
       
     };
     
-    this.setData = function (response) {
-      var prfl = response.profile;
-
-      self.id          = prfl.id;
-      self.brand       = prfl.brand;
-      self.model       = prfl.model;
-      self.color       = prfl.color;
-      self.number      = prfl.number;
-      self.tonnage     = prfl.tonnage;
-      self.type        = prfl.type;
-      self.conditioner = prfl.conditioner;
-      self.photo       = prfl.photo;
-      self.type        = prfl.type;
-      self.isActive    = prfl.isActive;
+    this.setData = function () {
+      Conn.request('getAuto', '', cbGetAutos);
     };
 
     

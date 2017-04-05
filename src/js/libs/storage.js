@@ -127,7 +127,20 @@ define(function() {
     
     removeIdEditCar: function () {
       localStorage.removeItem('_edit_auto_id');
+    },
+    
+    setCurrentMap: function (map) {
+      localStorage.setItem('_map_provider', map);
+    },
+
+    getCurrentMap: function () {
+      return localStorage.getItem('_map_provider');
+    },
+    
+    removeCurrentMap: function () {
+      localStorage.removeItem('_map_provider');
     }
+
 
   };
   

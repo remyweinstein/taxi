@@ -183,6 +183,8 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             if (target.dataset.click === "open-offer") {
               el = target;
               
+              Storage.setActiveTypeModelTaxi('offer');
+              Storage.setActiveTypeTaxi('taxi');
               localStorage.setItem('_open_offer_id', el.dataset.id);
               window.location.hash = "#client_offer";
             }
@@ -197,13 +199,6 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
               } else {
                 Conn.request('agreeOffer', data);
               }
-            }
-            
-            if (target.dataset.click === "open-offer") {
-              var id = target.dataset.id;
-
-              localStorage.setItem('_open_offer_id', id);
-              //Lists.getByID(id, 'clDriverOffer');
             }
             
             //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============

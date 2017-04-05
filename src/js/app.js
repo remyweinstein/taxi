@@ -67,7 +67,7 @@ define(['User',
         Zones       = new clZones();
         Settings    = new clSettings();
         
-        Maps.start();
+        //Maps.start();
         
         Router.start(App, function () {
           App.afterConnection();
@@ -82,11 +82,10 @@ define(['User',
     },
     
     afterConnection: function () {
-      Settings.getSettings();
       User.getData();
       Geo.init();
       MainMenu.init();
-      Maps.init();
+      //Maps.init();
       InputFilters.init();
       timerCheckMayLoading = setInterval(checkMayLoading, 250);
     },

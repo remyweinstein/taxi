@@ -61,7 +61,6 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<img src="' + photo + '" alt="" />' +
                         '</div>' +
                         '<div>' + bids[i].agent.name + '</div>' +
-                        '<div>Индексы:</div>' +
                         '<div>' + agIndex + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__car">' +
@@ -88,14 +87,14 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   }
   
   function getAgentIndexes(agent) {
-    return {'Точности':agent.accuracyIndex, 'Отмены':agent.cancelIndex, 'Успеха':agent.delayIndex, 'Задержек':agent.finishIndex};
+    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
   }
   
   function parseObj(obj) {
     var content = '';
     
     for (var key in obj) {
-      content += '<p>' + key + ': ' + obj[key] + '</p>';
+      content += '<span><i class="icon-' + key + '"></i> ' + obj[key] + ' </span>';
     }
     
     return content;
@@ -114,7 +113,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     }
   }
   
-  function render_list(order, response, type) {
+  function render_list(order, response) {
     var ords = order==='order' ? response.orders : response.offers,
         order_canceled,
         order_finished,
@@ -123,8 +122,9 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         tempOrder = Orders,
         orders_result = Dom.sel('.list-orders__result span'),
         automat_driver = order==='order' ? localStorage.getItem('_automat_driver_orders') : false,
-        automat_client = order==='order' ? false : localStorage.getItem('_automat_client_offers');
-
+        automat_client = order==='order' ? false : localStorage.getItem('_automat_client_offers'),
+        type = Storage.getActiveTypeTaxi();
+      
     Orders = [];
     
     if (ords) {
@@ -139,13 +139,13 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             });
         
         if (order === 'order') {
-          order_canceled = ords[i].canceled;
-          order_finished = ords[i].finished;
+          order_canceled       = ords[i].canceled;
+          order_finished       = ords[i].finished;
           order_finishedDriver = ords[i].finishedByDriver;
           order_finishedClient = ords[i].finishedByClient;
         } else if (ords[i].bids) {
-          order_canceled = ords[i].bids[0].order.canceled;
-          order_finished = ords[i].bids[0].order.finished;
+          order_canceled       = ords[i].bids[0].order.canceled;
+          order_finished       = ords[i].bids[0].order.finished;
           order_finishedDriver = ords[i].bids[0].finishedByDriver;
           order_finishedClient = ords[i].bids[0].finishedByClient;
         }
@@ -499,7 +499,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   
   function getValueForPopupFilters() {
     var saved_filters = Storage.getActiveFilters(),
-        response = {price:{min:0,max:5000},distance:{min:0,max:20},length:{min:0,max:100000},stops:{min:0,max:30}};
+        response = {price:{min:0,max:15000},distance:{min:0,max:20},length:{min:0,max:30000000},stops:{min:0,max:30}};
     
     if (saved_filters) {
       arr_filters = JSON.parse(saved_filters);
@@ -563,7 +563,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                   '<button class="button_rounded--grey" data-click="clearfilters">Сбросить</button>' +
                   'Цена' +
                   '<div class="popup-window__double-range">' +
-                    '<input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="5000" />' +
+                    '<input name="price" type="range" multiple value="' + resp.price.min + ',' + resp.price.max + '" min="0" max="15000" />' +
                   '</div>' +
                   'До клиента' +
                   '<div class="popup-window__double-range">' +
@@ -571,7 +571,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                   '</div>' +
                   'По маршруту' +
                   '<div class="popup-window__double-range">' +
-                    '<input name="length" type="range" multiple value="' + resp.length.min + ',' + resp.length.max + '" min="0" max="100000" />' +
+                    '<input name="length" type="range" multiple value="' + resp.length.min + ',' + resp.length.max + '" min="0" max="30000000" />' +
                   '</div>' +
                   'Остановок' +
                   '<div class="popup-window__double-range">' +

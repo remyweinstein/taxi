@@ -29,6 +29,9 @@
             div{
                 padding: 0.25em;
             }
+            &__additional{
+                
+            }
         }
         &__price{
             font-size: 1em;
@@ -89,6 +92,9 @@
             width: 25%;
             vertical-align: top;
             text-align: center;
+            div span {
+                display:block;
+            }
         }
         &__car{
             display: inline-block;

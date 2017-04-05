@@ -131,7 +131,6 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
     data.type        = sel_type.options[sel_type.selectedIndex].value;
 
     Conn.request('updateAuto', data, cbUpdateAuto);
-
   }
   
   function stop() {

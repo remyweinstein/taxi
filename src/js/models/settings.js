@@ -1,19 +1,21 @@
-define([], function() {
+/* global User */
+
+define(['Storage'], function(Storage) {
   
   var clSettings = function () {
     var self = this;
 
-    this.safeRadius;
-    this.newSafeZone;
-    this.disableSafeZoneByPIN;
-    this.distributionNearestAgents;
-    this.listTrustedContacts;
-    this.enableSosWithoutConn;
-    this.enableSosByKeyfob;
-    this.favoritesAgents;
-    this.myAuto;
-    this.myRating;
-    this.selectMapProvider;
+    this.safeRadius                = User.routeGuardZoneRadius;
+    this.newSafeZone               = null;
+    this.disableSafeZoneByPIN      = User.isDisableZoneByPin;
+    this.distributionNearestAgents = User.isAllowSendSos;
+    this.enableSosWithoutConn      = User.isActivateSosOnDisconnect;
+    this.listTrustedContacts       = null;
+    this.enableSosByKeyfob         = null;
+    this.favoritesAgents           = null;
+    this.myAuto                    = null;
+    this.myRating                  = null;
+    this.selectMapProvider         = User.map;
     
     this.label = [];
     this.type = [];
@@ -31,7 +33,7 @@ define([], function() {
       self.label.myAuto = 'Мой авто';
       self.type.myAuto = 'link';
       
-      self.safeRadius = 50;
+      self.safeRadius = User.routeGuardZoneRadius;
       self.label.safeRadius = 'Радиус зоны безопасности (м)';
       self.type.safeRadius = 'number';
       
@@ -39,11 +41,11 @@ define([], function() {
       self.label.newSafeZone = 'Зоны безопасности';
       self.type.newSafeZone = 'link';
       
-      self.disableSafeZoneByPIN = false;
+      self.disableSafeZoneByPIN = User.isDisableZoneByPin;
       self.label.disableSafeZoneByPIN = 'Выключать зону безопасности по ПИН коду';
       self.type.disableSafeZoneByPIN = 'boolean';
       
-      self.distributionNearestAgents = false;
+      self.distributionNearestAgents = User.isAllowSendSos;
       self.label.distributionNearestAgents = 'Рассылка ближайшим Агентам при SOS';
       self.type.distributionNearestAgents = 'boolean';
       
@@ -51,19 +53,15 @@ define([], function() {
       self.label.listTrustedContacts = 'Список контактов Безопасности';
       self.type.listTrustedContacts = 'link';
       
-      self.enableSosWithoutConn = 0;
+      self.enableSosWithoutConn = User.isActivateSosOnDisconnect;
       self.label.enableSosWithoutConn = 'Включить SOS при отсутствии связи';
-      self.type.enableSosWithoutConn = 'number';
+      self.type.enableSosWithoutConn = 'boolean';
       
       self.enableSosByKeyfob = false;
       self.label.enableSosByKeyfob = 'Включать SOS брелоком-кнопкой';
       self.type.enableSosByKeyfob = 'boolean';
       
-      if (!localStorage.getItem('_map_provider') || localStorage.getItem('_map_provider') === "" ) {
-        self.selectMapProvider = 'google';
-      } else {
-        self.selectMapProvider = localStorage.getItem('_map_provider');
-      }
+      self.selectMapProvider = User.map;
       self.label.selectMapProvider = 'Google, Yandex';
       self.type.selectMapProvider = 'select';
 

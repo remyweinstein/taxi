@@ -21,13 +21,20 @@ define(['Storage'], function(Storage) {
     this.toCity           = null;
     this.toCityLocation   = null;
     this.price            = 0;
+    this.weight           = null;
+    this.volume           = null;
+    this.stevedores       = null;
     this.seats            = 1;
     this.bags             = 0;
     
     function cbCreateOffer(response) {
+      var targetLink = Storage.getActiveTypeTaxi();
+      
+      targetLink = targetLink==="taxi" ? "city" : targetLink;
+      targetLink = targetLink==="trucking" ? "cargo" : targetLink;
       self.id = response.result.id;
       Conn.clearCb('cbCreateOffer');
-      window.location.hash = '#driver_city';
+      window.location.hash = '#driver_' + targetLink;
     }
     
     function cbgetOfferById(response) {
@@ -49,6 +56,9 @@ define(['Storage'], function(Storage) {
       self.toCityLocation   = ord.toCityLocation;
       self.price            = ord.price;
       self.comment          = ord.comment;
+      self.weight           = ord.weight;
+      self.volume           = ord.volume;
+      self.stevedores       = ord.stevedores;
       self.seats            = ord.seats;
       self.bags             = ord.bags;
       Conn.clearCb('cbgetOfferById');
@@ -62,17 +72,18 @@ define(['Storage'], function(Storage) {
           localStorage.setItem('_active_offer_id', self.id);
         }
       }
-
+      Storage.lullModel(self);
       window.location.hash = '#driver_my_offer';
     }
     
     
     function parse(type) {
       var myOffer = Storage.getTaxiOfferModel(type);
-      
+
       if (myOffer) {
         var ord = JSON.parse(myOffer);
         
+        self.id               = ord.id;
         self.fromCity         = ord.fromCity || User.city;
         self.fromCityLocation = ord.fromCityLocation;
         self.fromAddress      = ord.fromAddress;
@@ -85,6 +96,9 @@ define(['Storage'], function(Storage) {
         self.comment          = ord.comment;
         self.type             = ord.type;
         self.start            = ord.start;
+        self.weight           = ord.weight;
+        self.volume           = ord.volume;
+        self.stevedores       = ord.stevedores;
         self.seats            = ord.seats;
         self.bags             = ord.bags;
       }
@@ -142,6 +156,9 @@ define(['Storage'], function(Storage) {
       data.price        = self.price;
       data.comment      = self.comment;
       data.type         = self.type;
+      data.weight       = self.weight;
+      data.volume       = self.volume;
+      data.stevedores   = self.stevedores;
       data.seats        = self.seats;
       data.bags         = self.bags;
       data.start        = self.start;

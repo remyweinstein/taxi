@@ -1,7 +1,7 @@
 /* global User, Maps, SafeWin, Event, Conn */
 
-define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'Storage'], 
-function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
+define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'Storage', 'DriverOffer'], 
+function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clDriverOffer) {
   var MyOffer;
   
   function cbOnApproveOrder() {
@@ -20,6 +20,23 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
     Maps.drawRoute('offer', true, function(){});
+  }
+  
+  function addCargo() {
+    var additional_info = Dom.sel('div[data-block="additional_info"]'),
+        innerText = '<i class="icon-box form-order-city__label"></i><span>Объем ' + MyOffer.volume + 'м3</span>' +
+                    '<i class="icon-balance-scale form-order-city__label"></i><span>Вес ' + MyOffer.weight + 'кг</span>' +
+                    '<i class="icon-hand-peace-o form-order-city__label"></i><span>Грузчики: ' + MyOffer.stevedores + '</span>';
+
+    additional_info.innerHTML = innerText;
+  }
+  
+  function addInterCity() {
+    var additional_info = Dom.sel('div[data-block="additional_info"]'),
+        innerText = '<i class="icon-accessibility form-order-city__label"></i><span>Мест: ' + MyOffer.seats + '</span>' + 
+                    '<i class="icon-shopping-bag form-order-city__label"></i><span>Багаж: ' + MyOffer.bags + '</span>';
+    
+    additional_info.innerHTML = innerText;
   }
   
   function addEvents() {
@@ -56,13 +73,30 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
   
   function start() {
     //Storage.getActiveTypeTaxi();
+    MyOffer = new clDriverOffer();
+    MyOffer.activateCurrent();
+
     if (MyOffer.id > 0) {
+      var addCityFrom = '',
+          addCityTo = '';
+        
+      Lists.init(MyOffer);
+      
+      if (Storage.getActiveTypeTaxi() === "intercity") {
+        addInterCity();
+        addCityFrom = MyOffer.fromCity + ', ',
+        addCityTo = MyOffer.toCity + ', ';
+      }
+
+      if (Storage.getActiveTypeTaxi() === "trucking") {
+        addCargo();
+      }
+
       if (localStorage.getItem('_active_offer_id') > 0) {
         window.location.hash = '#driver_go';
       }
       
-      var _count_waypoint = MyOffer.toAddresses.length,
-          el_price = Dom.sel('.wait-order-approve__route-info__price'),
+      var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route');
       
@@ -70,25 +104,23 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage) {
       SafeWin.overviewPath = [];
       initMap();
       GetPositions.my();
-      el_routes[0].children[0].innerHTML = MyOffer.fromAddress;
-      el_routes[0].children[2].innerHTML = MyOffer.toAddress;
-      el_routes[0].children[3].innerHTML = 'В пути: ' + 
-                                           (MyOffer.length / 1000).toFixed(1) + 
-                                           ' км / ' + 
+      el_routes[0].children[0].innerHTML = addCityFrom + MyOffer.fromAddress;
+      el_routes[0].children[2].innerHTML = addCityTo + MyOffer.toAddress;
+      el_routes[0].children[3].innerHTML = 'В пути: ' +
+                                           (MyOffer.length / 1000).toFixed(1) +
+                                           ' км / ' +
                                            Dates.minToHours(MyOffer.duration);
-
-      if (_count_waypoint > 0) {
-        el_routes[0].children[1].innerHTML = 'Заездов ' + _count_waypoint;
-      } else {
-        el_routes[0].children[1].style.display = 'none';
-      }
 
       el_price.innerHTML = Math.round(MyOffer.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
       HideForms.init();
       Lists.getBidsClient();
     } else {
-      window.location.hash = "#driver_city";
+      var targetLink = Storage.getActiveTypeTaxi();
+      
+      targetLink = targetLink==="taxi" ? "city" : targetLink;
+      targetLink = targetLink==="trucking" ? "cargo" : targetLink;
+      window.location.hash = "#driver_" + targetLink;
     }
     
     addEvents();

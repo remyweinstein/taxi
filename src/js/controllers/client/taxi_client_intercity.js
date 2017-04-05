@@ -55,8 +55,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   }
     
   function onchange(el) {
-    var list_results = el.srcElement.parentNode.querySelector('.form-order-city__hint'),
-        input = el.srcElement,
+    var list_parent = el.srcElement ? el.srcElement.parentNode : el.parentNode,
+        list_results = list_parent.querySelector('.form-order-city__hint'),
+        input = el.srcElement || el,
         query = input.value,
         route = input.dataset.route,
         innText = '';
@@ -227,6 +228,28 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             global_el = target;
             Conn.deleteBlackList(target.dataset.id, cbAfterDeleteBlackList);
           }
+            //  =============== EVENTS FOR LIST OF OFFERS ================
+            if (target.dataset.click === "open-offer") {
+              el = target;
+              
+              Storage.setActiveTypeModelTaxi('offer');
+              Storage.setActiveTypeTaxi('intercity');
+              localStorage.setItem('_open_offer_id', el.dataset.id);
+              window.location.hash = "#client_offer";
+            }
+            
+            if (target.dataset.click === "taxi_bid") {
+              var data = {};
+              
+              data.id = target.dataset.id;
+              
+              if (Dom.toggle(target, 'active')) {
+                Conn.request('disagreeOffer', data);
+              } else {
+                Conn.request('agreeOffer', data);
+              }
+            }
+            
           //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============
           if (target.dataset.click === "fav-orders") {
             Lists.filterToggleFav(target);
@@ -300,7 +323,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     initMap();
     // = Draw Offers of Drivers =
     Lists.filtersStart();
-    Conn.request('startGetOffers', '', cbGetOffers);
+    Conn.request('startGetOffers', 'intercity', cbGetOffers);
     // ===== Draw New Order =====
     Destinations.init(MyOrder);
     // ===== Draw My Orders =====

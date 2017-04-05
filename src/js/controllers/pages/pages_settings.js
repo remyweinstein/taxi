@@ -1,4 +1,4 @@
-/* global Event, Settings, Maps, SafeWin */
+/* global Event, Settings, Maps, SafeWin, User, Conn */
 
 define(['Dom', 'ModalWindows'], function (Dom, Modal) {
   
@@ -16,7 +16,16 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           Modal.show('<input type="text" name="val" value="' + eval("Settings." + _key) + '" />' + 
                      '<button class="button_rounded--green" data-getvalue="val">Сохранить</button>', 
             function (response) {
+              var data= {};
+              
               eval('Settings.' + _key + ' = ' + response);
+              
+              if (_key === "safeRadius") {
+                User.routeGuardZoneRadius = response;
+                data.routeGuardZoneRadius = response;
+                Conn.request('updateProfile', data);
+              }
+              
               el.querySelectorAll('span')[0].innerHTML = response === 0 ? 'Выключено' : response;
             });
 
@@ -33,7 +42,12 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           Modal.show('<button class="button_rounded--green" data-getvalue=select data-value=google>Google</button>' + 
                      '<button class="button_rounded--green" data-getvalue=select data-value=yandex>Yandex</button>', 
             function (response) {
+              var data= {};
+              
               Maps.setCurrentModel(response);
+              data.map = response;
+              Conn.request('updateProfile', data);
+              User.map = response;
               eval('Settings.' + _key + ' = "' + response + '"');
               Maps.init();
               SafeWin.reinit();
@@ -49,9 +63,29 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           Modal.show('<button class="button_rounded--green" data-getvalue=boolean data-value=true>Включить</button>' + 
                      '<button class="button_rounded--grey" data-getvalue=boolean data-value=false>Выключить</button>', 
             function (response) {
-              var val = response === "true" ? true : false;
+              var val = response === "true" ? true : false,
+                  data = {};
               
               eval('Settings.' + _key + ' = ' + val);
+              
+              if (_key === "disableSafeZoneByPIN") {
+                User.isDisableZoneByPin = val;
+                data.isDisableZoneByPin = val;
+                Conn.request('updateProfile', data);
+              }
+              
+              if (_key === "distributionNearestAgents") {
+                User.isAllowSendSos = val;
+                data.isAllowSendSos = val;
+                Conn.request('updateProfile', data);
+              }
+              
+              if (_key === "enableSosWithoutConn") {
+                User.isActivateSosOnDisconnect = val;
+                data.isActivateSosOnDisconnect = val;
+                Conn.request('updateProfile', data);
+              }
+              
               el.querySelectorAll('span')[0].innerHTML = val ? 'Включено' : 'Выключено';
             });
         }

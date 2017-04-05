@@ -45,7 +45,7 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     }
 
     Dom.sel('.pincode').innerHTML = response.result.profile.hasPin ? '<span data-click="change-pin">Сменить PIN</span>' : '<span data-click="create-pin">Установить PIN</span>';
-    if (User.isAuth) {
+    if (User.is_auth) {
       Dom.sel('.social_network').innerHTML += '<span style="display:block">Подтвердите соцсеть</span>' +
                                               '<div id="uLogin" data-ulogin="callback=reciveUlogin;display=small;fields=;providers=' + listOfSocials.join(',') + ';hidden=;redirect_uri=;mobilebuttons=0;">' +
                                               '</div>';

@@ -3,12 +3,12 @@
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
     
-  var show_route = false,
-      fromCoords, toCoords, fromAddress, toAddress, waypoints,
-      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time,
-      isFollow = localStorage.getItem('_follow_order'),
+  var show_route   = false,
+      isFollow     = localStorage.getItem('_follow_order'),
       color_follow = isFollow ? 'green' : 'red',
-      inCar = false,
+      inCar        = false,
+      fromCoords, toCoords, fromAddress, toAddress,
+      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time,
       MyOrder;
 
   function cbFinishOrder() {
@@ -59,25 +59,25 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }
 
       var but,
-          offer = ords.bids[0].offer,
-          agnt = offer.agent,
-          toLoc = ords.toLocation,
-          loc = agnt.location.split(','),
-          lost_diff = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
-          incar_but = Dom.sel('button[data-click="client-incar"]'),
-          but_came = Dom.sel('[data-click="client-came"]'),
+          offer                 = ords.bids[0].offer,
+          agnt                  = offer.agent,
+          toLoc                 = ords.toLocation,
+          loc                   = agnt.location.split(','),
+          lost_diff             = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
+          incar_but             = Dom.sel('button[data-click="client-incar"]'),
+          but_came              = Dom.sel('[data-click="client-came"]'),
           field_distance_to_car = Dom.sel('[data-view="distance_to_car"]'),
-          field_while_car = Dom.sel('[data-view="while_car"]'),
-          field_duration = Dom.sel('[data-view="duration"]');
+          field_while_car       = Dom.sel('[data-view="while_car"]'),
+          field_duration        = Dom.sel('[data-view="duration"]');
 
       if (ords.id) {
         MyOrder.id = ords.id;
       }
       
-      dr_model = agnt.brand + ' ' + agnt.model;
-      dr_name = agnt.name;
-      dr_color = agnt.color;
-      dr_number = agnt.number;
+      dr_model    = agnt.brand + ' ' + agnt.model;
+      dr_name     = agnt.name;
+      dr_color    = agnt.color;
+      dr_number   = agnt.number;
       dr_distanse = ords.agent.distance.toFixed(1);
 
       if (lost_diff >= 0) {
@@ -105,21 +105,21 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         dr_time = 'На месте';
       }
       
-      dr_photo = agnt.photo || User.avatar;
-      dr_vehicle = agnt.vehicle || default_vehicle;
-      fromCoords = ords.fromLocation.split(",");
-      toCoords = ords.toLocation.split(",");
-      fromAddress = ords.fromAddress;
-      toAddress = ords.toAddress;
-      price = Math.round(ords.price);
-      duration_time = Dates.minToHours(ords.duration);
-      MyOrder.fromCoords = ords.fromLocation;
-      MyOrder.toCoords = ords.toLocation;
+      dr_photo            = agnt.photo || User.avatar;
+      dr_vehicle          = agnt.vehicle || default_vehicle;
+      fromCoords          = ords.fromLocation.split(",");
+      toCoords            = ords.toLocation.split(",");
+      fromAddress         = ords.fromAddress;
+      toAddress           = ords.toAddress;
+      price               = Math.round(ords.price);
+      duration_time       = Dates.minToHours(ords.duration);
+      MyOrder.fromCoords  = ords.fromLocation;
+      MyOrder.toCoords    = ords.toLocation;
       MyOrder.toAddresses = ords.toAddresses;
-      MyOrder.toCoordses = ords.toLocationes;
+      MyOrder.toCoordses  = ords.toLocationes;
       MyOrder.fromAddress = ords.fromAddress;
-      MyOrder.toAddress = ords.toAddress;
-      MyOrder.times = ords.toTimes;
+      MyOrder.toAddress   = ords.toAddress;
+      MyOrder.times       = ords.toTimes;
       
       if (field_distance_to_car) {
         field_distance_to_car.innerHTML = dr_distanse;
@@ -132,28 +132,6 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       if (field_duration) {
         field_duration.innerHTML = duration_time;
       }
-      
-      waypoints = [];
-      if (ords.toAddresses) {
-        for (var i = 0; i < ords.toAddresses.length; i++) {
-          var _to = ords.toLocationes[i].split(",");
-
-          waypoints.push(Maps.convertWayPointsForRoutes(_to[0], _to[1]));
-          Maps.addMarker(_to[0], _to[1], ords.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
-            function (mark) {
-              Maps.addInfoForMarker(ords.toTimes[i] + 'мин.', true, mark);
-              MapElements.points.push(mark);
-            });
-        }
-      }
-      Maps.addMarker(fromCoords[0], fromCoords[1], MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
-        function (mark) {
-          MapElements.marker_from = mark;
-        });
-      Maps.addMarker(toCoords[0], toCoords[1], MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
-        function (mark) {
-          MapElements.marker_to = mark;
-        });
         
       if (!show_route) {
         setRoute();
@@ -212,13 +190,20 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
 
   function setRoute() {
-    var el_route = Dom.sel('.wait-order-approve__route-info__route'),
-        el_price = Dom.sel('.wait-order-approve__route-info__price'),
+    var el_route  = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price  = Dom.sel('.wait-order-approve__route-info__price'),
         el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
-        el = Dom.sel('.wait-bids-approve');
+        el        = Dom.sel('.wait-bids-approve'),
+        addCityFrom,
+        addCityTo;
+
+      if (Storage.getActiveTypeTaxi() === "intercity") {
+        addCityFrom = MyOrder.fromCity + ', ',
+        addCityTo = MyOrder.toCity + ', ';
+      }
     
-    el_route.children[0].innerHTML = fromAddress;
-    el_route.children[2].innerHTML = toAddress;
+    el_route.children[0].innerHTML = addCityFrom + fromAddress;
+    el_route.children[2].innerHTML = addCityTo + toAddress;
     el_price.innerHTML = price + ' руб.';
     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
                           '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать</button>';

@@ -1,8 +1,9 @@
 /* global User, Event, Car, Conn */
 
-define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
+define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lists, Storage, clDriverOffer) {
   var old_filters,
-      old_sortes;
+      old_sortes,
+      myOffer;
   
   function cbMyOffers(response) {
     if (!response.error) {
@@ -77,7 +78,9 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
           if (target.dataset.click === "open-offer") {
             id = target.dataset.id;
             localStorage.setItem('_open_offer_id', id);
-            Lists.getOfferByID(id);
+            Storage.setActiveTypeModelTaxi('offer');
+            Storage.setActiveTypeTaxi('taxi');
+            myOffer.getByID(id);
           }
           
           if (target.dataset.click === "fav-orders") {
@@ -114,8 +117,17 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
                               window.location.hash = '#login';
                             }
                         });
-              } else if ((!Car.brand || !Car.model || !Car.number)) {
-                Modal.show('<p>Для совершения заказов необходимо заполнить информацию о автомобиле (Марка, модель, госномер)</p>' +
+              } else if (Car.inGarage === 0) {
+                Modal.show('<p>Для совершения заказов необходимо добавить автомобиль</p>' +
+                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+                        function (response) {
+                            if (response === "yes") {
+                              window.location.hash = '#driver_my_auto';
+                            }
+                        });
+              } else  if (!Car.id) {
+                Modal.show('<p>Для совершения заказов необходимо выбрать автомобиль из списка</p>' +
                           '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                           '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
@@ -170,6 +182,7 @@ define(['ModalWindows', 'Lists', 'Storage'], function (Modal, Lists, Storage) {
   }
   
   function start() {
+    myOffer = new clDriverOffer();
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('taxi');
     Storage.setActiveTypeFilters('orders');
