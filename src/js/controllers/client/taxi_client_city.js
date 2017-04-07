@@ -171,7 +171,12 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
 
               return;
             }
-            
+              // = Menu my Orders Item DELETE order =
+            if (target.dataset.click === 'myorders_item_menu_cancel') {
+              Lists.cancelOrder(target);
+
+              return;
+            }            
               // = Menu my Orders Item GO order =
             if (target.dataset.click === 'myorders_item_menu_go') {
               Lists.getOrderByID(target.dataset.id);

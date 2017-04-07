@@ -4,7 +4,7 @@ define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destination
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
     
   var show_route   = false,
-      isFollow     = localStorage.getItem('_follow_order'),
+      isFollow     = Storage.getFollowOrder(),
       color_follow = isFollow ? 'green' : 'red',
       inCar        = false,
       fromCoords, toCoords, fromAddress, toAddress,
@@ -12,7 +12,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       MyOrder;
 
   function cbFinishOrder() {
-    var active_zones = localStorage.getItem('_enable_safe_zone');
+    var active_zones = Storage.getActiveZones();
     
     color_follow = isFollow ? 'green' : 'red';
     localStorage.setItem('_rating_order', MyOrder.id);
@@ -23,28 +23,32 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       for (var i = 0; i < list_active_zone.length; i++) {
         Zones.inactive(list_active_zone[i]);
       }
+      
       SafeWin.clearPolygonZones();
-      localStorage.removeItem('_enable_safe_zone');
+      Storage.removeActiveZones();
     }
-    localStorage.removeItem('_enable_safe_route');
-    localStorage.removeItem('_follow_order');
+    
+    Storage.removeTripClient();
+    Storage.removeActiveRoute();
+    Storage.removeFollowOrder();
     window.location.hash = '#client_drivers_rating';
   }
   
   function cbCancelOrder() {
-    localStorage.removeItem('_follow_order');
+    Storage.removeFollowOrder();
+    Storage.removeTripClient();
     window.location.hash = '#client_city';
   }
 
   function cbGetOrderById(response) {
-    if (!response.error) {
-      var ords = response.result.order;
-
+    var ords = response.result.order;
+    
+    if (!response.error && ords.bids) {
       if (!ords) {
         stop();
-        localStorage.removeItem('_active_order_id');
-        alert('К сожалению, заказ не найден.');
+        Storage.removeTripClient();
         window.location.hash = '#client_city';
+        alert('К сожалению, заказ не найден.');
       }
       
       if (ords.inCar) {
@@ -164,9 +168,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       
       if (ords.canceledByDriver || ords.canceledByClient) {
         stop();
-        localStorage.removeItem('_active_order_id');
-        alert('К сожалению, заказ отменен.');
+        Storage.removeTripClient();
         window.location.hash = '#client_city';
+        alert('К сожалению, заказ отменен.');
       }
       
       if (ords.inCar) {
@@ -181,6 +185,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       } else {
         Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
       }
+    } else {
+      Storage.removeTripClient();
     }
   }
   
@@ -190,12 +196,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
 
   function setRoute() {
-    var el_route  = Dom.sel('.wait-order-approve__route-info__route'),
-        el_price  = Dom.sel('.wait-order-approve__route-info__price'),
-        el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
-        el        = Dom.sel('.wait-bids-approve'),
-        addCityFrom,
-        addCityTo;
+    var el_route    = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price    = Dom.sel('.wait-order-approve__route-info__price'),
+        el_cancel   = Dom.sel('.wait-order-approve__route-info__cancel'),
+        el          = Dom.sel('.wait-bids-approve'),
+        addCityFrom = '',
+        addCityTo   = '';
 
       if (Storage.getActiveTypeTaxi() === "intercity") {
         addCityFrom = MyOrder.fromCity + ', ',
@@ -204,32 +210,32 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     
     el_route.children[0].innerHTML = addCityFrom + fromAddress;
     el_route.children[2].innerHTML = addCityTo + toAddress;
-    el_price.innerHTML = price + ' руб.';
+    el_price.innerHTML  = price + ' руб.';
     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
                           '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать</button>';
-    el.innerHTML = '<div class="wait-bids-approve__item">' +
-                      '<div class="wait-bids-approve__item__distance">' +
-                        'Автомобиль:<br/>' +
-                        'Цвет: ' + dr_color + '<br/>' +
-                        'Рег.номер: ' + dr_number +
-                      '</div>' +
-                      '<div class="wait-bids-approve__item__car">' +
-                        '<div>' +
-                          '<img src="' + dr_vehicle + '" alt="" />' +
-                        '</div>' +
-                        '<div>' +
-                          dr_model +
-                        '</div>' +
-                      '</div>' +
-                      '<div class="wait-bids-approve__item__driver">' +
-                        '<div>' +
-                          '<img src="' + dr_photo + '" alt="" />' +
-                        '</div>' +
-                        '<div>' +
-                          dr_name +
-                        '</div>' +
-                      '</div>' +
-                    '</div>';
+    el.innerHTML        = '<div class="wait-bids-approve__item">' +
+                            '<div class="wait-bids-approve__item__distance">' +
+                              'Автомобиль:<br/>' +
+                              'Цвет: ' + dr_color + '<br/>' +
+                              'Рег.номер: ' + dr_number +
+                            '</div>' +
+                            '<div class="wait-bids-approve__item__car">' +
+                              '<div>' +
+                                '<img src="' + dr_vehicle + '" alt="" />' +
+                              '</div>' +
+                              '<div>' +
+                                dr_model +
+                              '</div>' +
+                            '</div>' +
+                            '<div class="wait-bids-approve__item__driver">' +
+                              '<div>' +
+                                '<img src="' + dr_photo + '" alt="" />' +
+                              '</div>' +
+                              '<div>' +
+                                dr_name +
+                              '</div>' +
+                            '</div>' +
+                          '</div>';
     Maps.drawRoute(MyOrder, true, function () {
       addEvents();
     });
@@ -269,12 +275,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
             el.classList.remove('button_rounded--green');
             el.classList.add('button_rounded--grey');
             isFollow = false;
-            localStorage.removeItem('_follow_order');
+            Storage.removeFollowOrder();
           } else {
             el.classList.add('button_rounded--green');
             el.classList.remove('button_rounded--grey');
             isFollow = true;
-            localStorage.setItem('_follow_order', true);
+            Storage.setFollowOrder();
           }
           
           break;
@@ -284,6 +290,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           if (confirm('Отменить заказ?')) {
             Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
           }
+          
           break;
         }
         
@@ -310,11 +317,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   function start() {
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();
-    isFollow = localStorage.getItem('_follow_order');
+    isFollow = Storage.getFollowOrder();
     Maps.mapOn();
     initMap();
     SafeWin.overviewPath = [];
-    MyOrder.id = localStorage.getItem('_active_order_id');
     GetPositions.my();
     //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
     Conn.request('getOrderById', MyOrder.id, cbGetOrderById);

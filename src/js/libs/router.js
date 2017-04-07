@@ -1,17 +1,19 @@
 /* global User, menus_arr, timerCheckLoading, Event, Conn, lastURL, Maps */
 
-define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForms) {
+define(['Dom', 'Chat', 'Tabs', 'HideForms', 'Redirect', 'Storage'], 
+function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
   
   var App, 
       old_controller,
-      routes = [{hash:'#edit_profile', template:'PageEditProfile', controller:'ctrlPageEditProfile', title:'Редактирование профиля', menu:'', pageType: 'back-arrow'},
+      routes = [{hash:'#edit_profile', template:'PageEditProfile', controller:'ctrlPageEditProfile', title:'Мой профиль', menu:'', pageType: 'back-arrow'},
                 {hash:'#start', template:'PageStart', controller:'ctrlPageStart', title:'Добро пожаловать', menu:'', pageType: ''},
                 {hash:'#login', template:'PageLogin', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
-                {hash:'#trusted_contacts', template:'PagesTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные контакты', menu:'', pageType: 'back-arrow'},
+                {hash:'#trusted_contacts', template:'PagesTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
+                {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
@@ -54,15 +56,20 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
       }
       MayLoading = false;
     }
+    
     if (!MayLoading) {
       window.location.hash = '#start';
     }
+    
+    Redirect.check(currentHash);
+
     if (window.location.hash !== currentHash) {
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (currentHash === currentRoute.hash) {
           old_controller = currentRoute;
         }
       }
+
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (window.location.hash === currentRoute.hash) {
           Dom.startLoading();
@@ -97,11 +104,13 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
 
     if (route.menu === "driver") {
       toggle.innerHTML = '<div class="header__toggle__button" data-click="toggleIsDriver"></div>';
-      var isd = localStorage.getItem('_is_driver');
+      var isd = Storage.getIsDriverMenu();
+      
       if (isd) {
         var but = Dom.sel('.header__toggle__button');
         Dom.toggle(but, 'active');
       }
+      
     } else {
       toggle.innerHTML = '';
     }
@@ -132,6 +141,7 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
     }
     
     var win_route = Dom.selAll('.safe_by_route')[0];
+    
     if (win_route) {
       if (route.hash === "#client_go" || route.hash === "#driver_go" || route.hash === "#client_map") {
         win_route.classList.remove('hidden');
@@ -162,9 +172,11 @@ define(['Dom', 'Chat', 'Tabs', 'HideForms'], function (Dom, Chat, Tabs, HideForm
     HideForms.clear();
     
     lastURL = currentHash;
+    
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);
     }
+    
     dynamic.classList.add('dynamic');
     dynamic.innerHTML = content;
     content_el.appendChild(dynamic);

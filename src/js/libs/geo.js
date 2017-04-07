@@ -1,6 +1,6 @@
 /* global User, Settings, Conn, Maps, google */
 
-define(function () {
+define(['Storage'], function (Storage) {
 
     var old_lat, old_lng;
 
@@ -13,9 +13,9 @@ define(function () {
       }
       
       var options = {
-        enableHighAccuracy: true,
-        maximumAge        : 0,
-        timeout           : 27000
+        enableHighAccuracy : true,
+        maximumAge         : 0,
+        timeout            : 27000
       };
       
       function success(position) {
@@ -26,10 +26,7 @@ define(function () {
         old_lng = User.lng;
         User.lat = latitude;
         User.lng = longitude;
-        
-        localStorage.setItem('_my_pos_lat', latitude);
-        localStorage.setItem('_my_pos_lon', longitude);
-        
+        User.save();
         Conn.request('updateUserLocation');
         
         if (!User.city) {
@@ -46,7 +43,6 @@ define(function () {
                     if(obj[key].types[0] === "locality") {
                       if (obj[key].long_name) {
                         User.city = obj[key].long_name;
-                        localStorage.setItem('_my_city', User.city);
                         var name = User.name || 'Гость',
                             data = new FormData();
                             data.append('city', User.city);
@@ -54,12 +50,13 @@ define(function () {
                             
                         MayLoading = true;
                         Conn.request('updateProfile', data);
-                        //App.init();
+                        User.save();
                       }
                     }
                     
                     if (obj[key].types[0] === "country") {
                       User.country = obj[key].long_name;
+                      User.save();
                     }
                   }
                   
@@ -68,7 +65,48 @@ define(function () {
         }
       }
       
-      function error() {}
+      function error(resp) {
+        var xhr = new XMLHttpRequest;
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+          
+              var position = {},
+                  str = xhr.responseText,
+                  xmlDoc;
+                  //ipinfo = JSON.parse(xhr.responseText);
+                  
+              str = str.replace('</table> -->', '');
+            
+              var first_find = str.indexOf('<table class="table table-striped">'),
+                  last_find = str.indexOf('</table>') + 8;
+              
+              str = str.substring(first_find, last_find);
+              
+              if (window.DOMParser) {
+                parser = new DOMParser();
+                xmlDoc = parser.parseFromString(str, "text/xml");
+              } else {
+                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async = false;
+                xmlDoc.loadXML(str);
+              }
+              
+              var location = xmlDoc.getElementsByTagName("tr")[3].childNodes[3].innerHTML,
+                  latLong = location.split(",");
+              
+              position.coords = {};
+              position.coords.latitude = latLong[0];
+              position.coords.longitude = latLong[1];
+              success(position);                
+            }
+        };
+        xhr.open("GET", "https://ipinfo.io", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');        
+        xhr.send();
+        
+        console.log('watchID = ', watchID, 'error: ', resp);
+      }
       
       //navigator.geolocation.getCurrentPosition(success, error);
       var watchID = navigator.geolocation.watchPosition(success, error, options);

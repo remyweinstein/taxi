@@ -1,15 +1,12 @@
 /* global Event, User, Conn, Car */
 
-define(['Dom'], function (Dom) {
+define(['Dom', 'Storage'], function (Dom, Storage) {
 
   function cbConfirmSms(response) {
-    localStorage.setItem('_my_token', response.result.token);
     User.token = response.result.token;
-    localStorage.setItem('_my_id', response.result.id);
-    User.id = response.result.id;
-    localStorage.setItem('_is_auth', 'true');              
+    User.id = response.result.id;             
     User.is_auth = true;
-    User.getData();
+    User.save();    
     window.location.hash = '#client_city';
     Conn.clearCb('cbConfirmSms');
   }
@@ -23,9 +20,9 @@ define(['Dom'], function (Dom) {
               var sms = Dom.selAll('input[name="sms"]')[0].value,
                   data= {};
               
-              User.authToken = localStorage.getItem('_auth_token');
               data.authToken = User.authToken;
               data.code = sms;
+              User.save();    
               Conn.request('confirmSms', data, cbConfirmSms);
 
               return;

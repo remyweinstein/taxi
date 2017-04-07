@@ -12,7 +12,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
       
       for (var i = 0; i < cars.length; i++) {
         var li = document.createElement('li'),
-            active = cars[i].isActive ? ' active' : ' inactive';
+            active = cars[i].isActive ? ' active' : '';
         
         li.innerHTML = '<div data-click="edit_auto" data-id="' + cars[i].id + '">' +
                           cars[i].brand + ' ' + cars[i].model +

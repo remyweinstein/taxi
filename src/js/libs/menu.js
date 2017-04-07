@@ -1,6 +1,6 @@
 /* global User, Conn */
 
-define(['Dom', 'hammer'], function (Dom, Hammer) {
+define(['Dom', 'hammer', 'Storage'], function (Dom, Hammer, Storage) {
     
   function swipeMenu(route) {
     var menu = Dom.sel('.menu'),
@@ -16,7 +16,7 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
       init: function() {
         var menu = Dom.sel('.menu'),
             content = Dom.sel('.content'),
-            isDriver = localStorage.getItem('_is_driver'),
+            isDriver = Storage.getIsDriverMenu(),
             but = Dom.sel('.header__toggle__button');
           
         if (isDriver) {
@@ -52,10 +52,10 @@ define(['Dom', 'hammer'], function (Dom, Hammer) {
 
               if (Dom.toggle(el, 'active')) {
                 data.isDriver = 0;
-                localStorage.removeItem('_is_driver');
+                Storage.removeIsDriverMenu();
               } else {
                 data.isDriver = 1;
-                localStorage.setItem('_is_driver', true);
+                Storage.setIsDriverMenu();
               }
               Conn.request('updateProfile', data);
             }

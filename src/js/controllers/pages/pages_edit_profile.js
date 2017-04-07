@@ -59,6 +59,13 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     Conn.clearCb('cbFillFields');
   }
   
+  function cbClearPhoto(result) {
+    Conn.clearCb('cbClearPhoto');
+    if (!result.error) {
+      Dom.sel('.avatar').src = User.default_avatar;
+    }
+  }
+  
   function cbUpdateProfile() {
     Conn.clearCb('cbUpdateProfile');
     User.getData();
@@ -71,7 +78,7 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
 
       while (target && target !== this) {
         if (target.dataset.click === 'clear_photo') {
-          Conn.request('deletePhoto');
+          Conn.request('deletePhoto', '', cbClearPhoto);
         }
         
         if (target.dataset.click === "change-pin") {

@@ -9,7 +9,7 @@
  * @param {type} Uries
  * @returns {connectionL#5.clConn}
  */
-define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
+define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, Notify) {
   var timerReconnectionWebSocket,
       socket,
       global_id = null;
@@ -29,6 +29,8 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
     var response = JSON.parse(data);
     
     viewLog(response);
+    Notify.listnerNotify(response);
+    
     if (response.error) {
       if (response.error[0] === "Token not found.") {
         if (!User.initialization_token) {
@@ -40,6 +42,7 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
         return;
       }
     }
+    
     for (var i = 0; i < Conn.callback.length; i++) {
       if (typeof Conn.callback[i] === 'function' && response.id === getFnName(Conn.callback[i])) {
         Conn.callback[i](response);
@@ -63,6 +66,44 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
   function getOfferById(id) {
     params.offerId = id;
     Conn.sendMessage("get-offer", params);
+  }
+  
+  function getNotifications() {
+    Conn.sendMessage("get-notifications");
+  }
+  
+  function readNotification(id) {
+    params.notificationId = id;
+    Conn.sendMessage("read-notification", params);
+  }
+  
+  function removeNotification(id) {
+    params.notificationId = id;
+    Conn.sendMessage("delete-notification", params);
+  }
+  
+  function inviteSosAgent(phone) {
+    params.agentPhone = phone;
+    Conn.sendMessage("invite-sos-agent", params);
+  }
+  
+  function acceptInviteSosAgent(id) {
+    params.notificationId = id;
+    Conn.sendMessage("accept-invite-sos-agent", params);
+  }
+  
+  function acceptInviteSosAgent(id) {
+    params.notificationId = id;
+    Conn.sendMessage("accept-invite-sos-agent", params);
+  }
+  
+  function removeSosAgent(id) {
+    params.agentId = id;
+    Conn.sendMessage("remove-sos-agent", params);
+  }
+  
+  function getSosAgents() {
+    Conn.sendMessage("get-sos-agents");
   }
   
   function searchCity(city) {
@@ -434,6 +475,27 @@ define(['Uries', 'Funcs', 'Storage'], function(Uries, Funcs, Storage) {
       switch (func) {
         case "ulogin":
           ulogin(data);
+          break;
+        case "getNotifications":
+          getNotifications();
+          break;
+        case "readNotification":
+          readNotification(data);
+          break;
+        case "inviteSosAgent":
+          inviteSosAgent(data);
+          break;
+        case "removeNotification":
+          removeNotification(data);
+          break;
+        case "acceptInviteSosAgent":
+          acceptInviteSosAgent(data);
+          break;
+        case "removeSosAgent":
+          removeSosAgent(data);
+          break;
+        case "getSosAgents":
+          getSosAgents();
           break;
         case "searchCity":
           searchCity(data);

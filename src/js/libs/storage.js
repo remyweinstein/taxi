@@ -17,6 +17,30 @@ define(function() {
       localStorage.removeItem('_active_taxi_type');
     },
     
+    setOpenNotify: function (id) {
+      localStorage.setItem('_id_open_notify', id);
+    },
+    
+    getOpenNotify: function () {
+      return localStorage.getItem('_id_open_notify');
+    },
+    
+    clearOpenNotify: function () {
+      localStorage.removeItem('_id_open_notify');
+    },
+    
+    setUser: function (Model) {
+      localStorage.setItem('_user', JSON.stringify(Model));
+    },
+    
+    getUser: function () {
+      return JSON.parse(localStorage.getItem('_user'));
+    },
+    
+    clearUser: function () {
+      localStorage.removeItem('_user');
+    },
+    
     getTaxiOrderModel: function (type) {
       return localStorage.getItem('_my_order_' + type);
     },
@@ -139,8 +163,115 @@ define(function() {
     
     removeCurrentMap: function () {
       localStorage.removeItem('_map_provider');
-    }
+    },
+    
+    setTripClient: function (id) {
+      localStorage.setItem('_redirect_trip_client', id);
+    },
 
+    getTripClient: function () {
+      return localStorage.getItem('_redirect_trip_client');
+    },
+    
+    removeTripClient: function () {
+      localStorage.removeItem('_redirect_trip_client');
+    },
+    
+    setTripDriver: function (id) {
+      localStorage.setItem('_redirect_trip_driver', id);
+    },
+
+    getTripDriver: function () {
+      return localStorage.getItem('_redirect_trip_driver');
+    },
+    
+    removeTripDriver: function () {
+      localStorage.removeItem('_redirect_trip_driver');
+    },
+
+    setFollowOrder: function () {
+      localStorage.setItem('_follow_order', true);
+    },
+
+    getFollowOrder: function () {
+      return localStorage.getItem('_follow_order');
+    },
+    
+    removeFollowOrder: function () {
+      localStorage.removeItem('_follow_order');
+    },
+
+    setClientAutomat: function () {
+      localStorage.setItem('_automat_client_approve', true);
+    },
+
+    getClientAutomat: function () {
+      return localStorage.getItem('_automat_client_approve');
+    },
+    
+    removeClientAutomat: function () {
+      localStorage.removeItem('_automat_client_approve');
+    },
+    
+    setDriverAutomat: function () {
+      localStorage.setItem('_automat_driver_orders', true);
+    },
+
+    getDriverAutomat: function () {
+      return localStorage.getItem('_automat_driver_orders');
+    },
+    
+    removeDriverAutomat: function () {
+      localStorage.removeItem('_automat_driver_orders');
+    },
+        
+    setClientOfferAutomat: function () {
+      localStorage.setItem('_automat_client_offers', true);
+    },
+
+    getClientOfferAutomat: function () {
+      return localStorage.getItem('_automat_client_offers');
+    },
+    
+    removeClientOfferAutomat: function () {
+      localStorage.removeItem('_automat_client_offers');
+    },
+    
+    setIsDriverMenu: function () {
+      localStorage.setItem('_is_driver_menu', true);
+    },
+
+    getIsDriverMenu: function () {
+      return localStorage.getItem('_is_driver_menu');
+    },
+    
+    removeIsDriverMenu: function () {
+      localStorage.removeItem('_is_driver_menu');
+    },
+    
+    setActiveZones: function (zones) {
+      localStorage.setItem('_enable_safe_zone', zones);
+    },
+
+    getActiveZones: function () {
+      return localStorage.getItem('_enable_safe_zone');
+    },
+    
+    removeActiveZones: function () {
+      localStorage.removeItem('_enable_safe_zone');
+    },
+    
+    setActiveRoute: function (route) {
+      localStorage.setItem('_enable_safe_route', route);
+    },
+
+    getActiveRoute: function () {
+      return localStorage.getItem('_enable_safe_route');
+    },
+    
+    removeActiveRoute: function () {
+      localStorage.removeItem('_enable_safe_route');
+    }
 
   };
   

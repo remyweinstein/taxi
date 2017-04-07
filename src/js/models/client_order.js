@@ -47,7 +47,6 @@ define(['Storage'], function(Storage) {
       Conn.clearCb('cbgetOrderById');
       
       if (self.bid_id) {
-        localStorage.setItem('_current_id_bid', self.bid_id);
         //window.location.hash = "#client_go";
       } else {
         window.location.hash = '#client_map';
@@ -213,6 +212,7 @@ define(['Storage'], function(Storage) {
           }
         }
       }
+      Storage.lullModel(self);
     };
     
     this.clear = function () {

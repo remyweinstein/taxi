@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html debug="true">
+<html>
+    <!--debug="true">-->
     <head>
         <title>Tech Agent</title>
         <meta charset="UTF-8">
@@ -9,7 +10,7 @@
         <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
-        <script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>
+        <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
     </head>
     <body>
         <div class="menu menu--closed">
@@ -91,6 +92,7 @@
             <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
         <template id="PagesTrustedContacts">
+            <p><button class="button_wide--green" data-click="invite-agent">Пригласить агента</button></p>
             <ul class="trusted-contacts"></ul>
         </template>
         <template id="PageEditProfile">
@@ -98,7 +100,7 @@
                 <p>
                     <img class="avatar" src="" alt="" />
                     <input type="file" name="ava_file" /><br/>
-                    <a href="#" data-click="clear_photo">удалить</a>
+                    <span data-click="clear_photo">удалить</span>
                 </p>
                 <p><input type="text" name="myname" value="" /></p>
                 <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>

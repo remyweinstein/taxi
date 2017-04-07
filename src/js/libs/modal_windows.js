@@ -281,41 +281,67 @@ define(['Dom'], function(Dom) {
                                         close();
                                       });
     },
+    enterPhone: function (callback) {
+                this.show('<h4>Введите номер телефона:</h4>' +
+                          '<div class="pin_window">' +
+                            '+7 <input type="text" data-keypress="input_only_digits" name="invite-agent-phone"/>' +
+                          '</div>' +
+                          '<div style="position:relative;">' +
+                            '<button data-click="invite-agent-send" class="button_short--green">Пригласить</button>' +
+                          '</div>', function (response) {
+                                        callback(response);
+                                        close();
+                                      });
+    },
     show: function (content, callback) {
-                  layer = showLayer();
-      console.log('draw layer', layer);
                   var el = Dom.sel('.' + block),
                       parentDiv = el.parentNode,
                       new_field = document.createElement('div');
                   
+                  layer = showLayer();
                   new_field.className += 'modal-window';
                   new_field.innerHTML = content;
                   parentDiv.insertBefore(new_field, el);
 
                   new_field.addEventListener('click', function(event) {
-                    var target = event.target, _el;
+                    var target = event.target;
 
                     while (target !== this) {
+                      
                       if (target.dataset.response) {
-                        _el = target;
-                        
-                        callback(_el.dataset.response);
+                        callback(target.dataset.response);
                         close();
+                        break;
+                      }
+                      
+                      if (target.dataset.click === "close") {
+                        callback(true);
+                        close();
+                        break;
+                      }
+                      
+                      if (target.dataset.click === "invite-agent-send") {
+                        callback(Dom.sel('input[name="invite-agent-phone"]').value);
+                        close();
+                        break;
                       }
                       
                       if (target.dataset.click === "check-pin") {
                         callback({pin:Dom.sel('input[name="pin"]').value});
                         close();
+                        break;
                       }
                       
                       if (target.dataset.click === "save-change-pin") {
                         callback({newPin:Dom.sel('input[name="new_pin"]').value, oldPin:Dom.sel('input[name="old_pin"]').value});
                         close();
+                        break;
                       }
                       
                       if (target.dataset.click === "save-create-pin") {
                         callback({newPin:Dom.sel('input[name="new_pin"]').value});
                         close();
+                        break;
                       }
                       
                       if (target.dataset.getvalue === "datetime") {
@@ -328,27 +354,25 @@ define(['Dom'], function(Dom) {
                         month = parseInt(month) < 10 ? '0' + month : month;
                         callback(year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':00');
                         close();
+                        break;
                       }
                       
                       if (target.dataset.getvalue === "select") {
-                        _el = target;
-
-                        callback(_el.dataset.value);
+                        callback(target.dataset.value);
                         close();
+                        break;
                       }
 
                       if (target.dataset.getvalue === "val") {
-                        _el = target;
-                        
-                        callback(_el.parentNode.querySelectorAll('[name="val"]')[0].value);
+                        callback(target.parentNode.querySelectorAll('[name="val"]')[0].value);
                         close();
+                        break;
                       }
 
                       if (target.dataset.getvalue === "boolean") {
-                        _el = target;
-
-                        callback(_el.dataset.value);
+                        callback(target.dataset.value);
                         close();
+                        break;
                       }
                         
                       target = target.parentNode;

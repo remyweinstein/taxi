@@ -3,5 +3,12 @@
    ======================= */
 
 .list-message {
-    
+    li {
+        padding: 0.25em 1em;
+        font-size: 0.8em;
+        cursor: pointer;
+        &.unread {
+            font-weight: bold;
+        }
+    }
 }

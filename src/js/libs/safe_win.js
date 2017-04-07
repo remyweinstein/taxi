@@ -1,6 +1,6 @@
 /* global safe_zone_polygons, Zones, Settings, Maps, Conn, User */
 
-define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, Hammer, Funcs, Multirange, Modal) {
+define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], function (Dom, Hammer, Funcs, Multirange, Modal, Storage) {
   
   var s_route_to_Zone = [],
       safety_route, 
@@ -136,7 +136,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, 
           for (var i = 0; i < list_active_zone.length; i++) {
             Zones.inactive(list_active_zone[i]);
           }
-          localStorage.removeItem('_enable_safe_zone');
+          Storage.removeActiveZones();
         },
         cbCheckPin = function (response) {
           if (!response.error) {
@@ -163,7 +163,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, 
         for (var i = 0; i < list_active_zone.length; i++) {
           Zones.active(list_active_zone[i]);
         }
-        localStorage.setItem('_enable_safe_zone', active);
+        Storage.setActiveZones(active);
       }
     }
   }
@@ -189,11 +189,11 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, 
     if (safety_route) {
       Maps.removeElement(safety_route);
     }
-    localStorage.removeItem('_enable_safe_route');
+    Storage.removeActiveRoute();
   }
   
   function enableZoneForRoute () {
-    localStorage.setItem('_enable_safe_route', Settings.safeRadius);
+    Storage.setActiveRoute(Settings.safeRadius);
     safety_route = Maps.showPoly(SafeWin.overviewPath);
     
     var path = safety_route.getPath();
@@ -217,7 +217,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, 
     overviewPath: [],
     
     initial: function () {
-      var enable_safe_route = localStorage.getItem('_enable_safe_route');
+      var enable_safe_route = Storage.getActiveRoute();
       
       safe_win = Dom.sel('.safety-window');
       safe_win.classList.add('safety-window--closed');
@@ -232,7 +232,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows'], function (Dom, 
       var hammer = new Hammer(safe_win, {domEvents: true, preventDefault: true}),
           longpress = new Hammer.Press({event: 'press', time: 3000}),
           tap = new Hammer.Tap({event: 'tap'}),
-          enable_safe_zone = localStorage.getItem('_enable_safe_zone');
+          enable_safe_zone = Storage.getActiveZones();
       
       hammer.add([longpress],[tap]);
       

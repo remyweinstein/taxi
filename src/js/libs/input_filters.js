@@ -25,15 +25,16 @@ define(['Dom'], function(Dom) {
     }
 
     function only_date(e, target) {
-      var text = target.value;
+      var text = target.value,
+          chr  = getChar(e);
+
+      if (e.ctrlKey || e.altKey || e.metaKey || e.key === "Backspace") {
+        return;
+      }
       
       if (text.length > 9) {
         e.preventDefault();
       }
-      
-      if (e.ctrlKey || e.altKey || e.metaKey) return;
-      
-      var chr = getChar(e);
       
       if ( (text.length === 0 && chr > '3') || ( (text.length === 3 || text.length === 2) && chr > '1' ) || ( (text.length === 5 || text.length === 4) && chr > '2' )) {
         e.preventDefault();

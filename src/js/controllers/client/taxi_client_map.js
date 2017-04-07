@@ -5,13 +5,12 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   
   var global_el, MyOrder;
   
-  function cbApproveOffer() {
+  function cbApproveOffer(resp) {
     Conn.clearCb('cbApproveOffer');
-    MyOrder.bid_id = global_el.dataset.id;
-    localStorage.setItem('_current_id_bid', MyOrder.bid_id);
-    localStorage.setItem('_active_order_id', MyOrder.id);
-    localStorage.setItem('_current_id_order', MyOrder.id);
-    window.location.hash = "#client_go";
+    if (!resp.error) {
+      MyOrder.bid_id = global_el.dataset.id;
+      Storage.setTripClient(MyOrder.id);
+    }
   }
   
   function cbCancelOrder() {
@@ -43,12 +42,13 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
           var elem = Dom.sel('button[data-click="automat"]');
           
           global_el = target;
-          if (localStorage.getItem('_automat_client_approve')) {
-            localStorage.removeItem('_automat_client_approve');
+          
+          if (Storage.getClientAutomat()) {
+            Storage.removeClientAutomat();
             elem.classList.remove('button_rounded--green');
             elem.classList.add('button_rounded--grey');
           } else {
-            localStorage.setItem('_automat_client_approve', true);
+            Storage.setClientAutomat();
             elem.classList.remove('button_rounded--grey');
             elem.classList.add('button_rounded--green');
           }
@@ -83,8 +83,8 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
       var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route'),
-          color_automat = localStorage.getItem('_automat_client_approve') ? 'green' : 'grey',
-          addCityFrom, addCityTo;
+          color_automat = Storage.getClientAutomat() ? 'green' : 'grey',
+          addCityFrom = '', addCityTo = '';
         
       if (Storage.getActiveTypeTaxi() === "intercity") {
         addCityFrom = MyOrder.fromCity + ', ',

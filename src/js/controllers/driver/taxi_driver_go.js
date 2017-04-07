@@ -8,11 +8,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       MyOrder, MyOffer;
   
   function cbOnFinish() { 
-    localStorage.setItem('_rating_offer', MyOffer.id);
-    localStorage.removeItem('_enable_safe_zone');
-    localStorage.removeItem('_enable_safe_route');
-    localStorage.removeItem('_active_offer_id');
     Conn.clearCb('cbOnFinish');
+    localStorage.setItem('_rating_offer', MyOffer.id);
+    Storage.removeActiveZones();
+    Storage.removeActiveRoute();
+    Storage.removeTripDriver();
     window.location.hash = '#driver_clients_rating';
   }
 
@@ -33,7 +33,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function startOffer(response) {
     if (response.orders.length === 0) {
       stop();
-      localStorage.removeItem('_active_offer_id');
+      Storage.removeTripDriver();
       alert('К сожалению, заказ отменен.');
       window.location.hash = '#driver_city';
       return;
@@ -42,7 +42,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     var ords = response.orders[0];
     
     if (!ords) {
-      localStorage.removeItem('_active_offer_id');
+      Storage.removeTripDriver();
       window.location.hash = '#driver_city';
     }
     
@@ -77,79 +77,84 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
 
   function cbGetOrdersByOffer(response) {
-    if (first_time) {
-      first_time = false;
-      startOffer(response.result);
-    }
-    
-    if (response.result.orders.length === 0) {
-      stop();
-      localStorage.removeItem('_active_offer_id');
-      alert('К сожалению, заказ не найден.');
-      window.location.hash = '#driver_city';
-      return;
-    }
+    if (!response.error || response.result.orders.length === 0) {
+      if (first_time) {
+        first_time = false;
+        startOffer(response.result);
+      }
 
-    var ords        = response.result.orders[0],
-        agnt        = response.result.orders[0].agent,
-        radius      = agnt.distance,
-        lost_diff   = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
-        toLoc       = ords.toLocation.split(','),
-        arrived_but = Dom.sel('button[data-click="driver-arrived"]'),
-        loc         = agnt.location,
-        dist        = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
-        dr_time, but;
-      
-    if (lost_diff >= 0) {
-      dr_time = lost_diff;
-    } else {
-      dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
-    }
-    if (ords.arrived && !ords.inCar) {
-      dr_time = 'На месте';
-      lost_diff = Dates.diffTime(ords.updated, 20);
-      if (lost_diff < 0) {
-        but = Dom.sel('[data-click="cancel-order"]');
+      if (response.result.orders.length === 0) {
+        stop();
+        Storage.removeTripDriver();
+        alert('К сожалению, заказ не найден.');
+        window.location.hash = '#driver_city';
+        return;
+      }
 
-        if (but && but.classList.contains('button_rounded--red')) {
-          but.classList.remove('button_rounded--red');
-          but.classList.add('button_rounded--green');
+      var ords        = response.result.orders[0],
+          agnt        = response.result.orders[0].agent,
+          radius      = agnt.distance,
+          lost_diff   = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
+          toLoc       = ords.toLocation.split(','),
+          arrived_but = Dom.sel('button[data-click="driver-arrived"]'),
+          loc         = agnt.location,
+          dist        = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
+          dr_time, but;
+
+      if (lost_diff >= 0) {
+        dr_time = lost_diff;
+      } else {
+        dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
+      }
+      if (ords.arrived && !ords.inCar) {
+        dr_time = 'На месте';
+        lost_diff = Dates.diffTime(ords.updated, 20);
+        if (lost_diff < 0) {
+          but = Dom.sel('[data-click="cancel-order"]');
+
+          if (but && but.classList.contains('button_rounded--red')) {
+            but.classList.remove('button_rounded--red');
+            but.classList.add('button_rounded--green');
+          }
         }
       }
-    }
-    if (dist < 1) {
-      but = Dom.sel('[data-click="driver-came"]');
+      if (dist < 1) {
+        but = Dom.sel('[data-click="driver-came"]');
 
-      if (but) {
-        but.disabled = false;
+        if (but) {
+          but.disabled = false;
+        }
       }
-    }
-    if (radius < 1) {
-      if (arrived_but) {
-        var kuda = arrived_but.parentNode;
-        
-        arrived_but.disabled = false;
+      if (radius < 1) {
+        if (arrived_but) {
+          var kuda = arrived_but.parentNode;
+
+          arrived_but.disabled = false;
+        }
       }
-    }
-    if (ords.canceledByDriver || ords.canceledByClient) {
-      stop();
-      localStorage.removeItem('_active_offer_id');
-      alert('К сожалению, заказ отменен.');
-      window.location.hash = '#client_city';
-    }
-    if (ords.arrived) {
-      if (arrived_but) {
-        kuda.innerHTML = '<button data-click="driver-came" class="button_wide--green" disabled>Приехали</button>';
+      if (ords.canceledByDriver || ords.canceledByClient) {
+        stop();
+        Storage.removeTripDriver();
+        alert('К сожалению, заказ отменен.');
+        window.location.hash = '#client_city';
       }
-    }
-    Dom.sel('[data-view="distance_to_car"]').innerHTML = ords.agent.distance.toFixed(1);
-    Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
-    Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
-    
-    if (!MapElements.marker_client) {
-      MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Клиент', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',  [10,10], function(){});
+      if (ords.arrived) {
+        if (arrived_but) {
+          kuda.innerHTML = '<button data-click="driver-came" class="button_wide--green" disabled>Приехали</button>';
+        }
+      }
+      Dom.sel('[data-view="distance_to_car"]').innerHTML = ords.agent.distance.toFixed(1);
+      Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
+      Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
+
+      if (!MapElements.marker_client) {
+        MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Клиент', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',  [10,10], function(){});
+      } else {
+        Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
+      }
     } else {
-      Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
+      Storage.removeTripDriver();
+      window.location.hash = '#driver_city';
     }
   }
 
@@ -167,6 +172,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         if (target.dataset.click === "cancel-order") {
           if (confirm('Отменить заказ?')) {
             Conn.request('cancelOrder', MyOrder.id);
+            Storage.removeTripDriver();
             window.location.hash = '#driver_city';
           }
         }
@@ -186,8 +192,8 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         el_price  = Dom.sel('.wait-order-approve__route-info__price'),
         el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
         el        = Dom.sel('.wait-bids-approve'),
-        addCityFrom,
-        addCityTo;
+        addCityFrom = '',
+        addCityTo = '';
 
       if (Storage.getActiveTypeTaxi() === "intercity") {
         addCityFrom = MyOrder.fromCity + ', ',
@@ -228,16 +234,21 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   
   function start() {
     MyOrder = new clClientOrder();
-    MyOrder.activateCurrent();
     MyOffer = new clDriverOffer();
+    MyOrder.activateCurrent();
     MyOffer.activateCurrent();
-    Maps.mapOn();
-    initMap();
-    MyOffer.id = localStorage.getItem('_active_offer_id');
-    SafeWin.overviewPath = [];
-    Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
-    GetPositions.my();
-    Chat.start('offer', MyOffer.id);
+    
+    if (MyOffer.id) {
+      Maps.mapOn();
+      initMap();
+      SafeWin.overviewPath = [];
+      Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
+      GetPositions.my();
+      Chat.start('offer', MyOffer.id);
+    } else {
+      Storage.removeTripDriver();
+      window.location.hash = '#driver_city';
+    }
   }
   
   return {

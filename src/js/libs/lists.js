@@ -10,17 +10,14 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   function cbApproveOffer2() {
     Conn.clearCb('cbApproveOffer2');
     Model.bid_id = global_bid;
-    localStorage.setItem('_current_id_bid', Model.bid_id);
-    localStorage.setItem('_active_order_id', Model.id);
-    localStorage.setItem('_current_id_order', Model.id);
-    window.location.hash = "#client_go";
+    Storage.setTripClient(Model.id);
   }
   
   function cbGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
         bids = response.result.offers,
         innText = '',
-        automat_client_approve = localStorage.getItem('_automat_client_approve');
+        automat_client_approve = Storage.getClientAutomat();
       
     el.innerHTML = "";
     
@@ -121,8 +118,8 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         order_finishedDriver,
         tempOrder = Orders,
         orders_result = Dom.sel('.list-orders__result span'),
-        automat_driver = order==='order' ? localStorage.getItem('_automat_driver_orders') : false,
-        automat_client = order==='order' ? false : localStorage.getItem('_automat_client_offers'),
+        automat_driver = order==='order' ? Storage.getDriverAutomat() : false,
+        automat_client = order==='order' ? false : Storage.getClientOfferAutomat(),
         type = Storage.getActiveTypeTaxi();
       
     Orders = [];
@@ -157,17 +154,11 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
           if(ords[i].bids && ords[i].bids.length > 0) {
             if (ords[i].bids[0].approved && !order_finished && !order_canceled && !order_finishedDriver && !order_finishedClient) {
               if (order === 'order') {
-                localStorage.setItem('_active_offer_id', ords[i].bids[0].offerId);
-                window.location.hash = '#driver_go';
+                //Storage.setTripDriver(ords[i].bids[0].offerId);
               } else {
-                localStorage.setItem('_active_order_id', ords[i].bids[0].orderId);
-                window.location.hash = '#client_go';
+                //Storage.setTripClient(ords[i].bids[0].orderId);
               }
             }
-          }
-          if (temp_order.agentBidId === temp_order.bidId) {
-            localStorage.setItem('_current_id_bid', temp_order.bidId);
-            localStorage.setItem('_current_id_order', temp_order.id);
           }
           i++;
         });
@@ -516,6 +507,13 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     item.style.display = 'none';
   }
   
+  function cancelOrder(target) {
+    var item = target.parentNode.parentNode.parentNode;
+    
+    Conn.request('cancelOrder', target.dataset.id);
+    item.style.display = 'none';
+  }
+  
   function filterSortWindow(el) {
     var resp = getValueForPopupFiltersSort();
     
@@ -542,17 +540,17 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   
   function enableAutomatDriver(el) {
     if (Dom.toggle(el, 'active')) {
-      localStorage.removeItem('_automat_driver_orders');
+      Storage.removeDriverAutomat();
     } else {
-      localStorage.setItem('_automat_driver_orders', true);
+      Storage.setDriverAutomat();
     }
   }
   
   function enableAutomatClient(el) {
     if (Dom.toggle(el, 'active')) {
-      localStorage.removeItem('_automat_client_offers');
+      Storage.removeClientOfferAutomat();
     } else {
-      localStorage.setItem('_automat_client_offers', true);
+      Storage.setClientOfferAutomat();
     }
   }
   
@@ -666,6 +664,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     
     deleteOrder: function (target) {
       deleteOrder(target);
+    },
+    
+    cancelOrder: function (target) {
+      cancelOrder(target);
     },
     
     priceMinus: function (el) {

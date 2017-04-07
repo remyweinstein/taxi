@@ -63,17 +63,12 @@ define(['Storage'], function(Storage) {
       self.bags             = ord.bags;
       Conn.clearCb('cbgetOfferById');
       
-      if (self.bid_id) {
-        localStorage.setItem('_current_id_bid', self.bid_id);
-      }
-      
       if (ord.bids) {
         if (ord.bids[0].approved) {
-          localStorage.setItem('_active_offer_id', self.id);
+          Storage.setTripDriver(self.id);
         }
       }
       Storage.lullModel(self);
-      window.location.hash = '#driver_my_offer';
     }
     
     

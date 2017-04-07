@@ -5,10 +5,8 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   var MyOffer;
   
   function cbOnApproveOrder() {
-    localStorage.setItem('_current_id_order', MyOffer.id);
-    localStorage.setItem('_active_offer_id', MyOffer.id);
-    window.location.hash = "#driver_go";
     Conn.clearCb('cbOnApproveOrder');
+    Storage.setTripDriver(MyOffer.id);
   }
   
   function cbOnCancelOffer() {
@@ -92,10 +90,6 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
         addCargo();
       }
 
-      if (localStorage.getItem('_active_offer_id') > 0) {
-        window.location.hash = '#driver_go';
-      }
-      
       var el_price = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route');

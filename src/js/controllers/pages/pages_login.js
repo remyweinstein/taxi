@@ -1,13 +1,14 @@
                                                                      /* global Event, User, Conn */
 
-define(['Dom'], function (Dom) {
+define(['Dom', 'Storage'], function (Dom, Storage) {
   
   function cbRegisterUser(response) {
+    Conn.clearCb('cbRegisterUser');
+    
     if (response.result) {
-      localStorage.setItem('_auth_token', response.result.authToken);
       User.authToken = response.result.authToken;
+      User.save();
       window.location.hash = '#sms';
-      Conn.clearCb('cbRegisterUser');
     }
   }
   

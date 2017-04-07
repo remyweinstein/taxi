@@ -1,6 +1,6 @@
 /* global User, SafeWin, Conn, Zones */
 
-define(['Funcs'], function(Funcs) {
+define(['Funcs', 'Storage'], function(Funcs, Storage) {
   var new_polygon,
       new_note,
       new_name;
@@ -73,9 +73,9 @@ define(['Funcs'], function(Funcs) {
       }
       
       if (active.length > 0) {
-        localStorage.setItem('_enable_safe_zone', active.join(','));
+        Storage.setActiveZones(active.join(','));
       } else {
-        localStorage.removeItem('_enable_safe_zone');
+        Storage.removeActiveZones();
       }
 
       win_init();

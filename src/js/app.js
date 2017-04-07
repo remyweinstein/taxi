@@ -18,7 +18,10 @@ define(['User',
         'MapElements',
         'Maps',
         'Google', 
-        'Yandex'], 
+        'Yandex',
+        'Storage',
+        'ClientOrder',
+        'DriverOffer'], 
   function (clUser, 
             clCar, 
             clConn,
@@ -37,7 +40,10 @@ define(['User',
             clMapElements,
             clMaps,
             clGoogle, 
-            clYandex) {
+            clYandex,
+            Storage,
+            clClientOrder,
+            clDriverOffer) {
 
   var timerCheckMayLoading;
   
@@ -96,13 +102,11 @@ define(['User',
 
     init: function () {
       domReady(function () {
+        var item_login  = Dom.sel('.menu__list__item_login'),
+            item_logout = Dom.sel('.menu__list__item_logout');
         
         Tabs.init();
-
         content.style.height = (window.innerHeight - Funcs.outerHeight(Dom.sel('.header'))) + 'px';
-
-        var item_login = Dom.sel('.menu__list__item_login'),
-            item_logout = Dom.sel('.menu__list__item_logout');
 
         if (item_login) {
           if (User.is_auth) {

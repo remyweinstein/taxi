@@ -3,7 +3,8 @@
 define(['Dom'], function(Dom) {
 
   var timerGetMessages,
-      interlocutor;
+      interlocutor,
+      active_id;
 
   function cbGetChatMessages(response) {
     if (!response.error) {
@@ -49,9 +50,9 @@ define(['Dom'], function(Dom) {
             var data = {};
 
             if (interlocutor === "order") {
-              data.orderId = localStorage.getItem('_active_order_id');
+              data.orderId = active_id;
             } else {
-              data.offerId = localStorage.getItem('_active_offer_id');
+              data.offerId = active_id;
             }
             
             data.text = messaga;
@@ -84,11 +85,14 @@ define(['Dom'], function(Dom) {
       var paramparam = {};
       
       interlocutor = loc;
+      active_id = id;
+      
       if (loc === "offer") {
         paramparam.offerId = id;
       } else {
         paramparam.orderId = id;
       }
+      
       content.addEventListener('click', clickEvent);
       Conn.request('startChatMessages', paramparam, cbGetChatMessages);
     }

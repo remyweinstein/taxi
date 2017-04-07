@@ -1,17 +1,15 @@
 /* global User */
 
-define(function () {
+define(['Storage'], function (Storage) {
   
   function stop() {
 
   }
   
   function start() {
-    localStorage.removeItem('_my_token');
-    localStorage.removeItem('_auth_token');
-    localStorage.removeItem('_is_auth');
     User.is_auth = false;
     User.token = '';
+    User.save();
     window.location.hash = '#client_city';
   }
   
