@@ -133,6 +133,7 @@ var menus_arr = [];
       cost_of_km = 25,
   
       global_order_id,
+      ymaps,
       timerMyPos,
       timerCheckLoading,
       
@@ -146,7 +147,7 @@ var menus_arr = [];
     
     if (Conn) {
       Conn.request('ulogin', {'ulogin':token,'host':'indriver.ru'});
-      clearInterval(timerWhenLoadConn);
+      timerWhenLoadConn = clearInterval(timerWhenLoadConn);
     } else {
       timerWhenLoadConn = !timerWhenLoadConn ? setInterval(reciveUlogin, 250) : false;
     }

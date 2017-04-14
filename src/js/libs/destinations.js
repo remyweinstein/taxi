@@ -1,7 +1,7 @@
 /* global MapElements, Maps, User */
 
-define(['Dom', 'ModalWindows', 'Storage'], 
-function (Dom, Modal, Storage) {
+define(['Dom', 'ModalWindows', 'Storage', 'Dates'], 
+function (Dom, Modal, Storage, Dates) {
 
   var Model, price, comment;
 
@@ -83,7 +83,10 @@ function (Dom, Modal, Storage) {
   }
   
   function addStartTime (datetime) {
+    var buttonierro = Dom.sel('button[data-click="date_order"]');
+    
     Model.start = datetime;
+    buttonierro.innerHTML = Dates.datetimeForPeople(datetime);
   }
 
   function addTime(id) {
@@ -135,11 +138,22 @@ function (Dom, Modal, Storage) {
 
       MapElements.marker_b = Maps.addMarker(_addr_to[0], _addr_to[1], to_value, '//www.google.com/mapfiles/markerB.png', [32,32], function () {});
     }
-
+    
+    if (Model.start) {
+      var buttonierro = Dom.sel('button[data-click="date_order"]'),
+          now_time = new Date().valueOf(),
+          ord_time = new Date(Model.start).valueOf();
+      
+      if (now_time < ord_time) {
+        buttonierro.innerHTML = Dates.datetimeForPeople(Model.start);
+      }
+    }
+    
     if (from_value !== '' && to_value !== '') {
       Maps.drawRoute(Model, false, function (recomended) {
-        Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуемая цена ' + recomended + ' руб.';
+        Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
         Model.recommended_cost = recomended;
+        return Model;
       });
     }
   }

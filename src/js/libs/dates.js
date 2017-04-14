@@ -21,32 +21,46 @@ define(function() {
         
         var date_order = date[0].split("-"),
             time_order = date[1].split(":"),
-            today_text = '',
+            today_text,
             time_text = time_order[0] + ':' + time_order[1],
             now = new Date(),
             order_time = new Date(date),
             today = new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).valueOf(),
+            yesterday = today - 86400000,
+            tomorrow = today + 86400000,
             other = new Date(date_order[0], date_order[1], date_order[2]).valueOf();
-
-        if (other < today - 86400000) {
-          today_text = date_order[2] + '.' + date_order[1] + '.' + date_order[0];
-        } else if (other < today) {
-          today_text = "Вчера";
-        } else {
-          today_text = "Сегодня";
+        
+        switch (other) {
+          case yesterday:
+            today_text = "Вчера";
+            break;
+          case tomorrow:
+            today_text = "Завтра";
+            break;
+          case today:
+            today_text = "Сегодня";
+            break;
+          default:
+            today_text = date_order[2] + '.' + date_order[1] + '.' + date_order[0];
+            break;
         }
+
         if (options === "ONLY_TIME") {
           date = time_text;
         }
+        
         if (options === "ONLY_TIME_IF_TODAY") {
           date = today_text === "Сегодня" ? time_text : today_text + ', ' + time_text;
         }
+        
         if (options === "TIME_AND_TODAY") {
           date = today_text + ', ' + time_text;
         }
+        
         if (options === "TIME_AND TODAY_ONLY") {
           date = today_text !== "Вчера" && today_text !== "Сегодня" ? today_text : today_text + ', ' + time_text;
         }
+        
         if (options === "LEFT_TIME_OR_DATE") {
           //today, other, 1000 * 60 {one minute};
           var diff = now - order_time;

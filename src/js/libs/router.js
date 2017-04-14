@@ -46,7 +46,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       currentHash = '';
 
   function hashCheck() {
-    if (User.city && Conn.is_connect && !Maps.loading) {
+    if (User.city && User.lat && User.lng && Conn.is_connect && !Maps.loading) {
       MayLoading = true;
     } else {
       if (!Conn.is_connect) {
@@ -153,7 +153,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
   
   function clearVars() {
     Chat.stop();
-    clearInterval(timerCheckLoading);
+    timerCheckLoading = clearInterval(timerCheckLoading);
 
     Dom.sel('.content').removeEventListener('click', Event.click);
     Dom.sel('.content').removeEventListener('submit', Event.submit);

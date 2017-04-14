@@ -12,7 +12,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
         currentCity = city || User.city;
     
     list_results.innerHTML = "";
-    clearTimeout(_timer);    
+    _timer = clearTimeout(_timer);    
 
     if (query !== "") {
       _timer = setTimeout(startSearch, 1000);
@@ -26,9 +26,17 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
 
     function callback(results) {
       if (results) {
+        var temp_arr = [];
+
         for (var i = 0; i < results.length; i++) {
-          innText += '<p data-city="' + results[i].city + '" data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
+          console.log('temp_arr.indexOf(results[i].name) = ', temp_arr.indexOf(results[i].name));
+          
+          if (temp_arr.indexOf(results[i].name) < 0) {
+            temp_arr.push(results[i].name);
+            innText += '<p data-city="' + results[i].city + '" data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';
+          }
         }
+        
         list_results.innerHTML = innText;
       }
     }

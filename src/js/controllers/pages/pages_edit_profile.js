@@ -3,6 +3,8 @@
 define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   
   function cbFillFields(response) {
+    Conn.clearCb('cbFillFields');
+    
     var sex = response.result.profile.sex ? 1: 0,
         city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]'),
         listOfSocials =[],
@@ -56,11 +58,11 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     sex.selected = true;
     city.selected = true;
     Dom.sel('.avatar').src = response.result.profile.photo || User.avatar;
-    Conn.clearCb('cbFillFields');
   }
   
   function cbClearPhoto(result) {
     Conn.clearCb('cbClearPhoto');
+    
     if (!result.error) {
       Dom.sel('.avatar').src = User.default_avatar;
     }

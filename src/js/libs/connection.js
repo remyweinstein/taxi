@@ -206,9 +206,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("stop-get-offers");
   }
 
-  function agreeOrder(id) {
-    params.offer = {};
-    params.offer.order = id;
+  function agreeOrder(data) {
+    params.offer             = {};
+    params.offer.order       = data.id;
+    params.offer.travelTime  = data.travelTime;
+    params.offer.price       = data.price;
     Conn.sendMessage("post-offer", params);
   }
   
@@ -219,11 +221,13 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
 
   function agreeOffer(data) {
     params.order              = {};
-    params.order.offer        = data.id;    
+    params.order.fromCity     = data.fromCity;
+    params.order.fromLocation = data.fromLocation;
     params.order.fromAddress  = data.fromAddress;
-    params.order.fromLocation = data.fromCoords;
+    params.order.toCity       = data.toCity;
+    params.order.toLocation   = data.toLocation;
     params.order.toAddress    = data.toAddress;
-    params.order.toLocation   = data.toCoords;
+    params.order.offer        = data.id;    
     params.order.price        = data.price;
 
     Conn.sendMessage("post-order", params);
@@ -701,7 +705,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         self.is_connect = true;
         self.is_connecting = false;
         viewLog('Соединение установлено');
-        clearInterval(timerReconnectionWebSocket);
+        timerReconnectionWebSocket = clearInterval(timerReconnectionWebSocket);
         callback();
       };
 

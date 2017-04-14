@@ -4,7 +4,6 @@ define(['ModalWindows', 'PopupWindows'], function (Modal, Popup) {
   
   function cbGetSosAgents(response) {
     Conn.clearCb('cbGetSosAgents');
-    console.log('list sos agents ', response.result);
   }
   
   function cbRemoveSosAgents() {
@@ -17,6 +16,7 @@ define(['ModalWindows', 'PopupWindows'], function (Modal, Popup) {
   
   function cbInviteSosAgent(response) {
     Conn.clearCb('cbInviteSosAgent');
+    
     if (response.error) {
       Modal.show('<h4>Агент не найден</h4>', function(){});
     } else {

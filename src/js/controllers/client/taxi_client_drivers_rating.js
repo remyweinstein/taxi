@@ -6,23 +6,25 @@ define(['Dom', 'Stars'], function (Dom, Stars) {
   var order_id, agent_id, global_el;
   
   function cbAddFavorites() {
+    Conn.clearCb('cbAddFavorites');
+    
     var stars = Dom.selAll('[data-view="star"]');
     
     for (var i = 0; i < stars.length; i++) {
       stars[i].classList.add('active');
     }
     inActive(global_el);
-    Conn.clearCb('cbAddFavorites');
   }
   
   function cbAddToBlackList() {
+    Conn.clearCb('cbAddToBlackList');
+    
     var stars = Dom.selAll('[data-view="star"]');
     
     for (var i = 0; i < stars.length; i++) {
       stars[i].classList.remove('active');
     }
     inActive(global_el);
-    Conn.clearCb('cbAddToBlackList');
   }
   
   function inActive(el) {

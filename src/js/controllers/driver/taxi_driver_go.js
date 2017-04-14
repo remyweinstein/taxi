@@ -4,7 +4,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
-      waypoints, price, name_client, photo_client, first_time = true, agIndexes,
+      price, name_client, photo_client, first_time = true, agIndexes,
       MyOrder, MyOffer;
   
   function cbOnFinish() { 
@@ -65,8 +65,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     agIndexes           = parseObj(getAgentIndexes(ords.agent));
 
     render();
-      console.log('MyOrder = ', MyOrder);
-    Maps.drawRoute(MyOrder, true, function(){});
+    Maps.drawRoute(MyOffer, true, function(){});
     addEvents();
     HideForms.init();
   }
@@ -106,9 +105,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       } else {
         dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
       }
+      
       if (ords.arrived && !ords.inCar) {
         dr_time = 'На месте';
         lost_diff = Dates.diffTime(ords.updated, 20);
+        
         if (lost_diff < 0) {
           but = Dom.sel('[data-click="cancel-order"]');
 
@@ -118,6 +119,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           }
         }
       }
+      
       if (dist < 1) {
         but = Dom.sel('[data-click="driver-came"]');
 
@@ -125,6 +127,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           but.disabled = false;
         }
       }
+      
       if (radius < 1) {
         if (arrived_but) {
           var kuda = arrived_but.parentNode;
@@ -132,17 +135,27 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           arrived_but.disabled = false;
         }
       }
-      if (ords.canceledByDriver || ords.canceledByClient) {
+      
+      if (ords.canceledByDriver) {
         stop();
         Storage.removeTripDriver();
-        alert('К сожалению, заказ отменен.');
-        window.location.hash = '#client_city';
+        alert('Заказ отменен.');
+        window.location.hash = '#driver_city';
       }
+      
+      if (ords.canceledByClient) {
+        stop();
+        Storage.removeTripDriver();
+        alert('К сожалению, клиент отменил заказ.');
+        window.location.hash = '#driver_city';
+      }
+      
       if (ords.arrived) {
         if (arrived_but) {
           kuda.innerHTML = '<button data-click="driver-came" class="button_wide--green" disabled>Приехали</button>';
         }
       }
+      
       Dom.sel('[data-view="distance_to_car"]').innerHTML = ords.agent.distance.toFixed(1);
       Dom.sel('[data-view="while_car"]').innerHTML = dr_time;
       Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
@@ -166,9 +179,11 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         if (target.dataset.click === "driver-came") {
           Conn.request('finishOrder', MyOrder.id, cbOnFinish);
         }
+        
         if (target.dataset.click === "driver-arrived") {
           Conn.request('arrivedDriver', MyOrder.id);
         }
+        
         if (target.dataset.click === "cancel-order") {
           if (confirm('Отменить заказ?')) {
             Conn.request('cancelOrder', MyOrder.id);
@@ -195,10 +210,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         addCityFrom = '',
         addCityTo = '';
 
-      if (Storage.getActiveTypeTaxi() === "intercity") {
-        addCityFrom = MyOrder.fromCity + ', ',
-        addCityTo = MyOrder.toCity + ', ';
-      }
+    if (Storage.getActiveTypeTaxi() === "intercity") {
+      addCityFrom = MyOrder.fromCity + ', ',
+      addCityTo = MyOrder.toCity + ', ';
+    }
       
     el_route.children[0].innerHTML = addCityFrom + fromAddress;
     el_route.children[2].innerHTML = addCityTo + toAddress;
@@ -218,7 +233,6 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
                         '<div>' + agIndexes + '</div>' +
                        '</div>' +
                      '</div>';
-
   }
   
   function stop() {
@@ -238,7 +252,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     MyOrder.activateCurrent();
     MyOffer.activateCurrent();
     
-    if (MyOffer.id) {
+    if (MyOffer.id === Storage.getTripDriver()) {
       Maps.mapOn();
       initMap();
       SafeWin.overviewPath = [];

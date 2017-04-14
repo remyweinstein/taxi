@@ -60,25 +60,25 @@ define(['Car'], function (Car) {
 
     for (i = 0; i < agnts.length; i++) {
       if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
-        var photo = agnts[i].photo || User.default_avatar,
+        var photo     = agnts[i].photo || User.default_avatar,
             photo_car = agnts[i].vehicle || Car.default_vehicle,
-            name = agnts[i].name || '&nbsp;',
-            brand = agnts[i].brand || '&nbsp;',
-            model = agnts[i].model || '&nbsp;',
-            favorite = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
-            icon = agnts[i].isDriver ? driver_icon : men_icon,
-            info  = '<div style="text-align:center;">' +
-                    '<div style="width:50%;display:inline-block;float: left;">' +
-                    '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
-                    '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
-                    '<p>' + favorite + '</p>' +
-                    '</div>' +
-                    '<div style="width:50%;display:inline-block">' +
-                    '<p>' + brand + '<br>' + model + '</p>' +
-                    '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
-                    '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
-                    '</div>' +
-                    '</div>';
+            name      = agnts[i].name || '&nbsp;',
+            brand     = agnts[i].brand || '&nbsp;',
+            model     = agnts[i].model || '&nbsp;',
+            favorite  = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
+            icon      = agnts[i].isDriver ? driver_icon : men_icon,
+            info      = '<div style="text-align:center;">' +
+                        '<div style="width:50%;display:inline-block;float: left;">' +
+                        '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
+                        '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
+                        '<p>' + favorite + '</p>' +
+                        '</div>' +
+                        '<div style="width:50%;display:inline-block">' +
+                        '<p>' + brand + '<br>' + model + '</p>' +
+                        '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
+                        '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
+                        '</div>' +
+                        '</div>';
 
         loc = agnts[i].location.split(',');
 
@@ -98,18 +98,22 @@ define(['Car'], function (Car) {
 
     for (i = 0; i < MapElements.markers_driver_pos.length; i++) {
       var s = false;
+      
       for (var y = 0; y < new_markers.length; y++) {
         if (MapElements.markers_driver_pos[i].id === new_markers[y].id) {
           s = true;
         }
       }
+      
       if (!s) {
         result.push(MapElements.markers_driver_pos[i]);
       }
     }
+    
     for (i = 0; i < result.length; i++) {
       Maps.removeElement(result[i].marker);
     }
+    
     MapElements.markers_driver_pos = [];
     MapElements.markers_driver_pos = new_markers;
   }
@@ -119,14 +123,15 @@ define(['Car'], function (Car) {
     clear: function () {
       Conn.request('stopGetAgents');
       Conn.clearCb('cbGetAgents');
-      clearInterval(timerMyPos);
+      timerMyPos = clearInterval(timerMyPos);
       MapElements.clear();
     },
     
     my: function () {
       get_my_pos();
+      
       if (timerMyPos) {
-        clearInterval(timerMyPos);
+        timerMyPos = clearInterval(timerMyPos);
       }
       timerMyPos = setInterval(get_my_pos, 1000);
     },

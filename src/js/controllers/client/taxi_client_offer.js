@@ -9,11 +9,16 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
       MyOrder;
   
   function cbChangeState(response) {
-    MyOrder.id = response.result.id;
     Conn.clearCb('cbChangeState');
+    
+    if (!response.error) {
+      MyOrder.id = response.result.id;
+    }
   }
   
   function cbGetOfferById(response) {
+    Conn.clearCb('cbGetOfferById');
+    
     var ords = response.result.offer;
     
     //MyOrder.setModel(response, true);
@@ -39,6 +44,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           bid_num = i;
         }
       }
+      
       if (bid_num > -1) {
         active_bid          = true;
         MyOrder.price       = ords.bids[bid_num].order.price;
@@ -60,13 +66,11 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
       if (!MyOrder.fromAddress) {
         MyOrder.fromAddress = fromAddress;
-        MyOrder.fromCity    = fromCity;
         MyOrder.fromCoords  = ords.fromLocation;
       }
 
       if (!MyOrder.toAddress) {
         MyOrder.toAddress = toAddress;
-        MyOrder.toCity    = toCity;
         MyOrder.toCoords  = ords.toLocation;
       }
     }
@@ -81,32 +85,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     }
     
     waypoints = [];
-
     MapElements.marker_to_2   = Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
     MapElements.marker_from_2 = Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
-    /*      
-    if (MyOrder.fromAddress) {
-      var mfromCoords = MyOrder.fromCoords.split(",");
-      
-      Maps.addMarker(mfromCoords[0], mfromCoords[1], MyOrder.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
-        function (mark) {
-          MapElements.marker_from = mark;
-        });
-    }
-
-    if (MyOrder.toAddress) {
-      var mtoCoords = MyOrder.toCoords.split(",");
-      
-      Maps.addMarker(mtoCoords[0], mtoCoords[1], MyOrder.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
-        function (mark) {
-          MapElements.marker_from = mark;
-        });
-    }
-    */
-
     setRoute();
     HideForms.init();
-    Conn.clearCb('cbGetOfferById');
   }
   
   function getAgentIndexes(agent) {
@@ -206,8 +188,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           } else {
             var data = {};
             
+            data.fromCity     = MyOrder.fromCity;
             data.fromAddress  = MyOrder.fromAddress;
             data.fromLocation = MyOrder.fromCoords;
+            data.toCity       = MyOrder.toCity;
             data.toAddress    = MyOrder.toAddress;
             data.toLocation   = MyOrder.toCoords;
             data.price        = MyOrder.price;

@@ -4,26 +4,37 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
   function (Dom, HideForms, GetPositions, Lists, Destinations, Modal, clClientOrder, Storage) {
     var content = Dom.sel('.content'), 
         global_el,
+        global_item,
         MyOrder,
         eventOnChangeZoom,
         old_filters = Storage.getActiveFilters(),
         old_sorts   = Storage.getActiveSortFilters();
     
+    function cbDeleteOrder(response) {
+      Conn.clearCb('cbDeleteOrder');
+      
+      if (!response.error) {
+        global_item.style.display = 'none';
+      }
+    }
+    
     function cbAfterAddFav() {
+      Conn.clearCb('cbAfterAddFav');
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
-      Conn.clearCb();
     }
     
     function cbAfterDeleteFav() {
+      Conn.clearCb('cbAfterDeleteFav');
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtofav">Избранное</button>';
-      Conn.clearCb();
     }
     
     function cbAfterAddBlackList() {
+      Conn.clearCb('cbAfterAddBlackList');
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltoblack">Удалить из Черного списка</button>';
     }
     
     function cbAfterDeleteBlackList() {
+      Conn.clearCb('cbAfterDeleteBlackList');
       global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
     }
     
@@ -49,11 +60,12 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
     }
     
     function cbGetMyOrder(response) {
+      Conn.request('stopGetOrders');
+      Conn.clearCb('cbGetMyOrder');
+      
       if (!response.error) {
         Lists.myOrders(response.result);
       }
-        Conn.request('stopGetOrders');
-        Conn.clearCb('cbGetMyOrder');
     }
 
     function initMap() {
@@ -123,7 +135,6 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
               Modal.calendar(function (datetime) {
                                 Destinations.addStartTimeOrder(datetime);
                               });
-
               break;
             }
 
@@ -167,19 +178,16 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
           
               // = Menu my Orders Item DELETE order =
             if (target.dataset.click === 'myorders_item_menu_delete') {
-              Lists.deleteOrder(target);
+              global_item = target.parentNode.parentNode.parentNode;
+              Conn.request('deleteOrderById', target.dataset.id, cbDeleteOrder);
 
               return;
             }
-              // = Menu my Orders Item DELETE order =
-            if (target.dataset.click === 'myorders_item_menu_cancel') {
-              Lists.cancelOrder(target);
-
-              return;
-            }            
               // = Menu my Orders Item GO order =
             if (target.dataset.click === 'myorders_item_menu_go') {
-              Lists.getOrderByID(target.dataset.id);
+              MyOrder.getByID(target.dataset.id, function () {
+                window.location.hash = "#client_map";
+              });
 
               return;
             }

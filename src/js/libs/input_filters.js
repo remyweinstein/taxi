@@ -36,9 +36,12 @@ define(['Dom'], function(Dom) {
         e.preventDefault();
       }
       
-      if ( (text.length === 0 && chr > '3') || ( (text.length === 3 || text.length === 2) && chr > '1' ) || ( (text.length === 5 || text.length === 4) && chr > '2' )) {
-        e.preventDefault();
-      }
+      if ( (text.length === 0 && chr > '3') || 
+           ( (text.length === 3 || text.length === 2) && chr > '1' ) || 
+           ( (text.length === 5 || text.length === 6) && chr > '2' ) ||
+           (text.length === 4 && text[3] === "1" && chr > '2')) {
+            e.preventDefault();
+          }
       
       if (text.length === 2 || text.length === 5) {
         target.value += ".";

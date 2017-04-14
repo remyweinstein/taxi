@@ -8,13 +8,15 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   function cbApproveOffer(resp) {
     Conn.clearCb('cbApproveOffer');
     if (!resp.error) {
-      MyOrder.bid_id = global_el.dataset.id;
-      Storage.setTripClient(MyOrder.id);
+      MyOrder.getByID(MyOrder.id, function () {});
     }
   }
   
-  function cbCancelOrder() {
-    window.location.hash = '#client_city';
+  function cbCancelOrder(resp) {
+    Conn.clearCb('cbCancelOrder');
+    if (!resp.error) {
+      window.location.hash = '#client_city';
+    }
   }
   
   function initMap() {
@@ -77,18 +79,19 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   function start() {
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();
-    Lists.init(MyOrder);
 
     if (MyOrder.id > 0) {
-      var el_price = Dom.sel('.wait-order-approve__route-info__price'),
-          el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
-          el_routes = Dom.selAll('.wait-order-approve__route-info__route'),
+      var el_price      = Dom.sel('.wait-order-approve__route-info__price'),
+          el_cancel     = Dom.sel('.wait-order-approve__route-info__cancel'),
+          el_routes     = Dom.selAll('.wait-order-approve__route-info__route'),
           color_automat = Storage.getClientAutomat() ? 'green' : 'grey',
-          addCityFrom = '', addCityTo = '';
+          addCityFrom   = '', 
+          addCityTo     = '',
+          disabled      = MyOrder.canceled ? ' disabled' : '';
         
       if (Storage.getActiveTypeTaxi() === "intercity") {
         addCityFrom = MyOrder.fromCity + ', ',
-        addCityTo = MyOrder.toCity + ', ';
+        addCityTo   = MyOrder.toCity + ', ';
       }
       
       Maps.mapOn();
@@ -109,8 +112,9 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
           el_routes[0].children[1].style.display = 'none';
         }
       }
-      el_price.innerHTML = Math.round(MyOrder.price) + ' руб';
-      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>' + 
+      
+      el_price.innerHTML  = Math.round(MyOrder.price) + ' руб';
+      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green"' + disabled + '>Отмена</button>' + 
                             '<button data-click="automat" class="button_rounded--' + color_automat + '">Автомат</button>';
       HideForms.init();
       Lists.getBidsDriver();

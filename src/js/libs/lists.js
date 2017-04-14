@@ -4,52 +4,53 @@ define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'],
 function(Dates, Dom, clDriverOrders, Popup, Storage) {
   var Orders = [],
       arr_filters = {},
-      global_bid,
       Model;
   
-  function cbApproveOffer2() {
+  function cbApproveOffer2(resp) {
     Conn.clearCb('cbApproveOffer2');
-    Model.bid_id = global_bid;
-    Storage.setTripClient(Model.id);
+    
+    if (!resp.error) {
+      Model.getByID(Model.id, function () {});
+    }
   }
   
   function cbGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
-        bids = response.result.offers,
+        offers = response.result.offers,
         innText = '',
         automat_client_approve = Storage.getClientAutomat();
       
     el.innerHTML = "";
     
-    if (!bids || bids === "undefined") {
-      bids = response.result.orders;
+    if (!offers || offers === "undefined") {
+      offers = response.result.orders;
     }
 
-    if (bids) {
-      if (bids.length > 0 && automat_client_approve) {
+    if (offers) {
+      if (offers.length > 0 && automat_client_approve) {
         Lists.clear();
-        global_bid = bids[0].id;
-        Conn.request('approveOffer', bids[0].id, cbApproveOffer2);
+        Conn.request('approveOffer', offers[0].id, cbApproveOffer2);
         return;
       }
       
-      for (var i = 0; i < bids.length; i++) {
-        var photo = bids[i].agent.photo || User.avatar,
-            vehicle = bids[i].agent.vehicle || default_vehicle,
-            loc = bids[i].agent.location,
-            agIndex = parseObj(getAgentIndexes(bids[i].agent));
+      for (var i = 0; i < offers.length; i++) {
+        var agIndex = parseObj(getAgentIndexes(offers[i].agent)),
+            vehicle = offers[i].agent.vehicle || default_vehicle,
+            active  = offers[i].bids[0].approved ? ' active' : ' inactive',
+            photo   = offers[i].agent.photo || User.avatar,
+            loc     = offers[i].agent.location;
 
         loc = loc.split(',');
         
-        if (!MapElements.driver_marker[bids[i].agent.id]) {
-          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], bids[i].agent.name, driver_icon, [32,32], function(){});
+        if (!MapElements.driver_marker[offers[i].agent.id]) {
+          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], offers[i].agent.name, driver_icon, [32,32], function(){});
         } else {
-          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[bids[i].agent.id]);
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[offers[i].agent.id]);
         }
 
-        var dist =  bids[i].agent.distance ? (bids[i].agent.distance).toFixed(1) : 0;
+        var dist = offers[i].agent.distance ? (offers[i].agent.distance).toFixed(1) : 0;
         
-        innText +=  '<div class="wait-bids-approve__item">' +
+        innText += '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__distance">' +
                         'Растояние до водителя, <span>' + dist + ' км</span>' +
                       '</div>' +
@@ -57,7 +58,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                         '<div>' +
                           '<img src="' + photo + '" alt="" />' +
                         '</div>' +
-                        '<div>' + bids[i].agent.name + '</div>' +
+                        '<div>' + offers[i].agent.name + '</div>' +
                         '<div>' + agIndex + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__car">' +
@@ -65,17 +66,17 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<img src="' + vehicle + '" alt="" />' +
                         '</div>' +
                         '<div>' +
-                          bids[i].agent.brand + ' ' + bids[i].agent.model +
+                          offers[i].agent.brand + ' ' + offers[i].agent.model +
                         '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve">' +
-                        '<i data-click="taxi_client_bid" data-id="' + bids[i].id + '" class="icon-ok-circled"></i>' +
+                        '<i data-click="taxi_client_bid" data-id="' + offers[i].id + '" class="icon-ok-circled' + active + '"></i>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__bid-time">' +
-                        'Время подъезда: <span>' + bids[i].travelTime + ' мин</span>' +
+                        'Время подъезда: <span>' + offers[i].travelTime + ' мин</span>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__bid-price">' +
-                        'Предложенная цена: <span>' + Math.round(bids[i].price) + ' руб</span>' +
+                        'Предложенная цена: <span>' + Math.round(offers[i].price) + ' руб</span>' +
                       '</div>' +
                     '</div>';
       }
@@ -151,15 +152,6 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
         tempOrders.constructor(function(temp_order) {
           Orders.push(temp_order);
-          if(ords[i].bids && ords[i].bids.length > 0) {
-            if (ords[i].bids[0].approved && !order_finished && !order_canceled && !order_finishedDriver && !order_finishedClient) {
-              if (order === 'order') {
-                //Storage.setTripDriver(ords[i].bids[0].offerId);
-              } else {
-                //Storage.setTripClient(ords[i].bids[0].orderId);
-              }
-            }
-          }
           i++;
         });
       }
@@ -284,14 +276,15 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         }
         
         for (var i = 0; i < ords.length; i++) {
-          var goto, del;
+          var goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>',
+              del  = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
 
-          if (!ords[i].comeout) {
-            goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
-            del = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+          if (!ords[i].canceled) {
+            del = '';
           }
 
           zaezdy = "";
+          
           if (ords[i].points) {
             for (var y = 0; y < ords[i].points.length; y++) {
                 zaezdy += '<p class="myorders__item__to' + (y + 1) + '">' +
@@ -300,9 +293,9 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             }
           }
 
-          show('LI','<div>' +
+        show('LI','<div>' +
                       '<p class="myorders__item__time">' +
-                        Dates.datetimeForPeople(ords[i].created, "LEFT_TIME_OR_DATE") +
+                        Dates.datetimeForPeople(ords[i].created) + //, "LEFT_TIME_OR_DATE") +
                       '</p>' +
                       '<p class="myorders__item__from">' +
                         ords[i].fromAddress +
@@ -500,13 +493,6 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     return response;
   }
   
-  function deleteOrder(target) {
-    var item = target.parentNode.parentNode.parentNode;
-    
-    Conn.request('deleteOrderById', target.dataset.id);
-    item.style.display = 'none';
-  }
-  
   function cancelOrder(target) {
     var item = target.parentNode.parentNode.parentNode;
     
@@ -631,11 +617,11 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     },
     
     getOfferByID: function (id) {
-      Model.getByID(id);
+      Model.getByID(id, function () {});
     },
     
     getOrderByID: function (id) {
-      Model.getByID(id);
+      Model.getByID(id, function () {});
     },
     
     filterToggleFav: function (el) {
@@ -660,10 +646,6 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     
     filtersStart: function () {
       onstartAddFilters();
-    },
-    
-    deleteOrder: function (target) {
-      deleteOrder(target);
     },
     
     cancelOrder: function (target) {

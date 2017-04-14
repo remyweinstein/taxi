@@ -90,18 +90,34 @@ define(['Dom'], function(Dom) {
   }
   
   function minUp() {
-    Dom.sel('.clock__min__value').innerHTML = checkMinutes(parseInt(Dom.sel('.clock__min__value').innerHTML) + 1);
+    var minutes = Dom.sel('.clock__min__value').innerHTML;
+    
+    minutes = minutes >= 30 ? 30: 0;
+    
+    if (minutes === 30) {
+      hourUp();
+    }
+    
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes + 30);
     return;
   }
   
   function minDown() {
-    Dom.sel('.clock__min__value').innerHTML = checkMinutes(parseInt(Dom.sel('.clock__min__value').innerHTML) - 1);
+    var minutes = Dom.sel('.clock__min__value').innerHTML;
+    
+    minutes = minutes >= 30 ? 30: 0;
+    
+    if (minutes === 0) {
+      hourDown();
+    }
+    
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes - 30);
     return;
   }
   
   function checkMinutes(value) {
     value = value > 59 ? 0 : value;
-    value = value < 0 ? 59 : value;
+    value = value < 0 ? 30 : value;
     value = value < 10 ? '0' + value : value;
     
     return value;
@@ -165,6 +181,14 @@ define(['Dom'], function(Dom) {
     }
   }
   
+  function clock30(diff) {
+    
+  }
+
+  function date30(diff) {
+    
+  }
+  
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -220,6 +244,29 @@ define(['Dom'], function(Dom) {
   }
   
   var ModalWindow = {
+    plusTime: function (callback) {
+                this.show('<table class="plusHalfHour">' +
+                            '<thead>' +
+                              '<tr><td><<td colspan="5"><td>>' +
+                              '<tr><td>Пн<td>Вт<td>Ср<td>Чт<td>Пт<td>Сб<td>Вс' +
+                            '<tbody>' +
+                          '</table>' +
+                          '<div style="position:relative;top:-1em;">' +
+                            '<button data-getvalue="datetime" class="button_short--green">Сохранить</button>' +
+                          '</div>', function (datetime) {
+                                        callback(datetime);
+                                      });
+                                      
+                Dom.sel('.plusHalfHour').parentNode.insertBefore(Clock(), null);
+                addEvents();
+                date30();
+                Dom.sel('.plusHalfHour .plus30').onclick = function () {
+                  clock30(+30);
+                };
+                Dom.sel('.plusHalfHour .minus30').onclick = function () {
+                  clock30(-30);
+                };
+    },
     calendar: function (callback) {
                 this.show('<table class="calendar">' +
                             '<thead>' +

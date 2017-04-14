@@ -5,33 +5,45 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   var content = Dom.sel('.content'),
       eventOnChangeZoom,
       global_el,
+      global_item,
       MyOrder,
       _timer,
       old_filters = Storage.getActiveFilters();
 
+  function cbDeleteOrder(response) {
+    Conn.clearCb('cbDeleteOrder');
+
+    if (!response.error) {
+      global_item.style.display = 'none';
+    }
+  }
+
   function cbGetMyIntercityOrder(response) {
+    Conn.request('stopGetOrders');
+    Conn.clearCb('cbGetMyIntercityOrder');
+    
     if (!response.error) {
       Lists.myOrders(response.result);
     }
-      Conn.request('stopGetOrders');
-      Conn.clearCb('cbGetMyIntercityOrder');
   }
 
   function cbAfterAddFav() {
-    global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
     Conn.clearCb('cbAfterAddFav');
+    global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltofav">Удалить из Избранного</button>';
   }
 
   function cbAfterDeleteFav() {
+    Conn.clearCb('cbAfterDeleteFav');
     global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtofav">Избранное</button>';
-    Conn.clearCb('cbAfterAddFav');
   }
 
   function cbAfterAddBlackList() {
+    Conn.clearCb('cbAfterAddBlackList');
     global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="deltoblack">Удалить из Черного списка</button>';
   }
 
   function cbAfterDeleteBlackList() {
+    Conn.clearCb('cbAfterDeleteBlackList');
     global_el.parentNode.innerHTML = '<button data-id="' + global_el.dataset.id  + '" data-click="addtoblack">Черный список</button>';
   }
 
@@ -55,12 +67,12 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   }
     
   function onchange(el) {
-    var list_parent = el.srcElement ? el.srcElement.parentNode : el.parentNode,
+    var list_parent  = el.srcElement ? el.srcElement.parentNode : el.parentNode,
         list_results = list_parent.querySelector('.form-order-city__hint'),
-        input = el.srcElement || el,
-        query = input.value,
-        route = input.dataset.route,
-        innText = '';
+        input        = el.srcElement || el,
+        query        = input.value,
+        route        = input.dataset.route,
+        innText      = '';
     
     list_results.style.display = 'none';
     list_results.innerHTML = "";
@@ -111,17 +123,17 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           if (target.dataset.click === "add_hint_city") {
             var parent, route;
 
-            el = target;
+            el                          = target;
             el.parentNode.style.display = 'none';
-            parent = el.parentNode.parentNode.querySelector('input');
-            parent.value = el.innerHTML;
-            route = parent.dataset.route;
+            parent                      = el.parentNode.parentNode.querySelector('input');
+            parent.value                = el.innerHTML;
+            route                       = parent.dataset.route;
             
             if (route === "from") {
-              MyOrder.fromCity = el.innerHTML;
+              MyOrder.fromCity         = el.innerHTML;
               MyOrder.fromCityLocation = el.dataset.latlng;
             } else {
-              MyOrder.toCity = el.innerHTML;
+              MyOrder.toCity         = el.innerHTML;
               MyOrder.toCityLocation = el.dataset.latlng;
             }
           }
@@ -197,14 +209,17 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
 
             // = Menu my Orders Item DELETE order =
           if (target.dataset.click === 'myorders_item_menu_delete') {
-            Lists.deleteOrder(target);
+            global_item = target.parentNode.parentNode.parentNode;
+            Conn.request('deleteOrderById', target.dataset.id, cbDeleteOrder);
 
             return;
           }
 
             // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
-            Lists.getOrderByID(target.dataset.id);
+            MyOrder.getByID(target.dataset.id, function () {
+              window.location.hash = "#client_map";
+            });
 
             return;
           }

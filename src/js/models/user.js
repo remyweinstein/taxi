@@ -5,11 +5,12 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     var self = this;
     
     function cbgetProfileData(response) {
+      Conn.clearCb('cbgetProfileData');
+      
       if (response.error) {
         self.token = null;
         self.initToken();
       } else {
-        Conn.clearCb('cbgetProfileData');
         self.setData(response.result);
         Settings.getSettings();
         Maps.start();
@@ -18,9 +19,10 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     }
     
     function cbGetToken(response) {
+      Conn.clearCb('cbGetToken');
       self.initialization_token = false;
       self.setNewToken(response.result);
-      Conn.clearCb('cbGetToken');
+      Conn.request('requestProfile', '', cbgetProfileData);
     }
 
     var default_avatar = 'assets/images/no_avatar.png';

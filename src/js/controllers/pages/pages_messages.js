@@ -4,10 +4,10 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   var id_li_delete;
   
   function cbGetNotify(response) {
+    Conn.clearCb('cbGetNotify');
+    
     var ul = Dom.sel('ul.list-message'),
         messages = response.result.notifications;
-    
-    Conn.clearCb('cbGetNotify');
     
     for (var i = 0; i < messages.length; i++) {
       var li = document.createElement('li'),
@@ -21,7 +21,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
       }
       
       li.dataset.id = messages[i].id;
-      li.innerHTML = '<div data-click="open-notify">' +
+      li.innerHTML = '<div data-click="open-notify" data-id="' + messages[i].id + '">' +
                        text +
                      '</div>' +
                      '<div>' +

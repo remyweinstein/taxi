@@ -24,6 +24,7 @@ define(['Dom'], function(Dom) {
           }
           innText += '<p class="text-' + float + '"><strong>' + name + '</strong>: ' + messages[i].text + '</p>';
         }
+        
         if (innText) {
           var oldText = textarea.innerHTML;
 
@@ -72,7 +73,7 @@ define(['Dom'], function(Dom) {
   var Chat = {
 
     stop: function() {
-      clearInterval(timerGetMessages);
+      timerGetMessages = clearInterval(timerGetMessages);
       content.removeEventListener('click', clickEvent);
     },
     

@@ -30,6 +30,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     }
 
     function cbSearchCity(results) {
+      Conn.clearCb('cbSearchCity');
       var cities = results.result.city;
       
       if (cities) {
@@ -40,7 +41,6 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
         list_results.innerHTML     = innText;
         list_results.style.display = 'block';
       }
-      Conn.clearCb('cbSearchCity');
     }
   }
   

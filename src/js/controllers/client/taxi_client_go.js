@@ -8,10 +8,14 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       color_follow = isFollow ? 'green' : 'red',
       inCar        = false,
       fromCoords, toCoords, fromAddress, toAddress,
-      price, dr_model, dr_name, dr_color, dr_number, dr_photo, dr_vehicle, dr_time, duration_time,
+      price, 
+      dr_model, dr_name, dr_color, dr_number, dr_distanse,
+      dr_photo, dr_vehicle, dr_time, duration_time,
       MyOrder;
 
   function cbFinishOrder() {
+    Conn.clearCb('cbFinishOrder');
+    
     var active_zones = Storage.getActiveZones();
     
     color_follow = isFollow ? 'green' : 'red';
@@ -35,6 +39,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
   
   function cbCancelOrder() {
+    Conn.clearCb('cbCancelOrder');
+    
     Storage.removeFollowOrder();
     Storage.removeTripClient();
     window.location.hash = '#client_city';
@@ -67,12 +73,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           agnt                  = offer.agent,
           toLoc                 = ords.toLocation,
           loc                   = agnt.location.split(','),
-          lost_diff             = Dates.diffTime(ords.bids[0].approved, ords.travelTime),
-          incar_but             = Dom.sel('button[data-click="client-incar"]'),
-          but_came              = Dom.sel('[data-click="client-came"]'),
+          lost_diff             = Dates.diffTime(ords.bids[0].approved, offer.travelTime),
           field_distance_to_car = Dom.sel('[data-view="distance_to_car"]'),
           field_while_car       = Dom.sel('[data-view="while_car"]'),
-          field_duration        = Dom.sel('[data-view="duration"]');
+          field_duration        = Dom.sel('[data-view="duration"]'),
+          incar_but             = Dom.sel('button[data-click="client-incar"]'),
+          but_came              = Dom.sel('[data-click="client-came"]');
 
       if (ords.id) {
         MyOrder.id = ords.id;
@@ -317,15 +323,21 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   function start() {
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();
-    isFollow = Storage.getFollowOrder();
-    Maps.mapOn();
-    initMap();
-    SafeWin.overviewPath = [];
-    GetPositions.my();
-    //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
-    Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
-    Chat.start('order', MyOrder.id);
-    HideForms.init();
+    
+    if (MyOrder.id === Storage.getTripClient()) {
+      isFollow = Storage.getFollowOrder();
+      Maps.mapOn();
+      initMap();
+      SafeWin.overviewPath = [];
+      GetPositions.my();
+      //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
+      Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
+      Chat.start('order', MyOrder.id);
+      HideForms.init();
+    } else {
+      Storage.removeTripClient();
+      window.location.hash = "#client_city";
+    }
   }
   
   return {

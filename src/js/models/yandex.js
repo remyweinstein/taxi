@@ -56,7 +56,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           points = [],
           waypoints = [];
 
-      if (Model.toAddresses.length > 0) {
+      if (Model.toAddresses && Model.toAddresses.length > 0) {
         for (var i = 0; i < Model.toAddresses; i++) {
           var latlng = Model.toCoordses[i].split(',');
           
@@ -76,7 +76,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
         ];
       }
-      
+
       ymaps.route(points).then(function (route) {
           var routa = route.getPaths();
           
@@ -90,10 +90,12 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           Maps.map.geoObjects.add(routa);
           MapElements.routes.push(routa);
 
-          Model.duration = Math.round(route.getLength() / 60);
+          Model.duration = Math.round(route.getTime()/60);
           Model.length = Math.round(route.getLength());
+          
           var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+          
           Storage.lullModel(Model);
           callback(recommended_cost);
         });
@@ -114,7 +116,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
 
       self.insertHtml('beforeend', '<i class="icon-target find-me" data-click="find-me"></i>');
       Dom.sel('.find-me').addEventListener('click', function() {
-        self.setCenter([User.lat, User.lng]);
+        self.setCenter(User.lat, User.lng);
       });
     };
     

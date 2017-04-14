@@ -1,12 +1,12 @@
-/* global User, Event, default_city, default_vehicle, Conn */
+/* global User, Event, default_city, default_vehicle, Conn, Car */
 
 define(['Dom', 'Storage'], function (Dom, Storage) {
   
   function cbGetAutos(response) {
-    var cars = response.result.cars;
-    
     Conn.clearCb('cbGetAutos');
     
+    var cars = response.result.cars;
+        
     if (cars) {
       var ul = Dom.sel('.list-cars');
       
@@ -52,6 +52,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
           }
           
           Dom.toggle(target, 'active');
+          Car.setData();
           Conn.request('setActiveAuto', target.dataset.id);
         }
 

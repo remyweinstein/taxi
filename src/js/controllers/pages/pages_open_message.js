@@ -3,8 +3,8 @@
 define(['Storage', 'Dom'], function (Storage, Dom) {
 
   function cbReadOpenNotify(response) {
-    Storage.clearOpenNotify();
     Conn.clearCb('cbReadOpenNotify');
+    Storage.clearOpenNotify();
     
     var ul = Dom.sel('ul.list-message'),
         message = response.result.notification,
@@ -29,8 +29,9 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
   }
   
   function cbAcceptInvite(resp) {
+    Conn.clearCb('cbAcceptInvite');
+    
     if (!resp.error) {
-      Conn.clearCb('cbAcceptInvite');
       window.location.hash = '#messages';
     }
   }

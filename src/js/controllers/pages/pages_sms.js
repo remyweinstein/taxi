@@ -3,12 +3,12 @@
 define(['Dom', 'Storage'], function (Dom, Storage) {
 
   function cbConfirmSms(response) {
+    Conn.clearCb('cbConfirmSms');
     User.token = response.result.token;
     User.id = response.result.id;             
     User.is_auth = true;
     User.save();    
     window.location.hash = '#client_city';
-    Conn.clearCb('cbConfirmSms');
   }
   
   function addEvents() {

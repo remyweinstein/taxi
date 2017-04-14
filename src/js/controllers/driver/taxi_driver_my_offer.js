@@ -4,20 +4,23 @@ define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'S
 function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clDriverOffer) {
   var MyOffer;
   
-  function cbOnApproveOrder() {
+  function cbOnApproveOrder(response) {
     Conn.clearCb('cbOnApproveOrder');
-    Storage.setTripDriver(MyOffer.id);
+    
+    if (!response.error) {
+      MyOffer.getByID(response.result.id, function () {});
+    }
   }
   
   function cbOnCancelOffer() {
-    window.location.hash = '#client_city';
     Conn.clearCb('cbOnCancelOffer');
+    window.location.hash = '#client_city';
   }
   
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute('offer', true, function(){});
+    Maps.drawRoute(MyOffer, false, function(){});
   }
   
   function addCargo() {
@@ -90,7 +93,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
         addCargo();
       }
 
-      var el_price = Dom.sel('.wait-order-approve__route-info__price'),
+      var el_price  = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route');
       

@@ -50,7 +50,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
 
           Model.duration = Math.round(dura / 60);
           Model.length = dist;
-          recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
           for (i = 0; i < response.routes.length; i++) {
@@ -320,10 +320,11 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
         Conn.request('searchCity', city, cbSearchCity);
 
         function cbSearchCity(results) {
+          Conn.clearCb('cbSearchCity');
+          
           var cities = results.result.city;
 
           if (cities[0]) {            
-            Conn.clearCb('cbSearchCity');
             var loc = cities[0].location;
             loc = loc.split(',');
             var request   = {
@@ -371,13 +372,14 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
         Conn.request('searchCity', city, cbSearchCity);
 
         function cbSearchCity(results) {
+          Conn.clearCb('cbSearchCity');
+          
           if (results.result) {
             var cities = results.result.city;
 
             if (cities[0]) {
               var loc = cities[0].location;
 
-              Conn.clearCb('cbSearchCity');            
               loc = loc.split(',');
 
               var request = {

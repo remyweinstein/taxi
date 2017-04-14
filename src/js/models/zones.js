@@ -6,39 +6,40 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
       new_name;
   
   function cbAddZones(response) {
+    Conn.clearCb('cbAddZones');
     Zones.list.push({polygon:new_polygon, id:response.result.id, note:new_note, name:new_name});
     win_reload();
-    Conn.clearCb('cbAddZones');
   }
   function cbGetZones(response) {
+    Conn.clearCb('cbGetZones');
+    
     if (!response.error) {
       Zones.initSafeWin(response.result);
     }
-    Conn.clearCb('cbGetZones');
   }
   
   function cbUpdateZone() {
+    Conn.clearCb('cbUpdateZone');
     Zones.list[Zones.current_zone_id].name = new_name;
     Zones.list[Zones.current_zone_id].note = new_note;
     Zones.list[Zones.current_zone_id].polygon = new_polygon;
     win_reload();
-    Conn.clearCb('cbUpdateZone');
   }
  
   function cbDeleteZone() {
+    Conn.clearCb('cbDeleteZone');
     Zones.list.splice(Zones.current_zone_id, 1);
     win_reload();
-    Conn.clearCb('cbDeleteZone');
   }
   
   function cbActiveZone() {
-    Zones.list[Zones.current_zone_id].isActive = true;
     Conn.clearCb('cbActiveZone');
+    Zones.list[Zones.current_zone_id].isActive = true;
   }
   
   function cbInactiveZone() {
-    Zones.list[Zones.current_zone_id].isActive = false;
     Conn.clearCb('cbInactiveZone');
+    Zones.list[Zones.current_zone_id].isActive = false;
   }
   
   function win_reload() {

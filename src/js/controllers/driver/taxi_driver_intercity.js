@@ -7,10 +7,21 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
       myOffer;
 
   function cbMyOffers(response) {
+    Conn.clearCb('cbMyOffers');
+    
     if (!response.error) {
       Lists.myOffers(response.result);
     }
-    Conn.clearCb('cbMyOffers');
+  }
+  
+  function cbAgreeOrder(response) {
+    Conn.clearCb('cbAgreeOrder');
+    
+    if (!response.error) {
+      var checkOffer = new clDriverOffer;
+      
+      checkOffer.getByID(response.result.id, function () {});
+    }
   }
   
   function cbGetOrders(response) {
@@ -57,18 +68,25 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
           } else {
             menu.style.display = 'none';
           }
+          
           return;
         }
             // = Menu my Orders Item DELETE order =
         if (target.dataset.click === 'myorders_item_menu_delete') {
           Lists.Delete(target);
+          
           return;
         }
             // = Menu my Orders Item GO order =
         if (target.dataset.click === 'myorders_item_menu_go') {
-          Storage.setActiveTypeModelTaxi('offer');
-          Storage.setActiveTypeTaxi('intercity');
-          myOffer.getByID(target.dataset.id);
+          id = target.dataset.id;
+          myOffer.getByID(id, function () {
+            localStorage.setItem('_open_offer_id', id);
+            Storage.setActiveTypeModelTaxi('offer');
+            Storage.setActiveTypeTaxi('intercity');
+            window.location.hash = '#driver_my_offer';
+          });
+          
           return;
         }
 
@@ -80,10 +98,12 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
 
         if (target.dataset.click === "open-offer") {
           id = target.dataset.id;
-          localStorage.setItem('_open_offer_id', id);
-          Storage.setActiveTypeModelTaxi('offer');
-          Storage.setActiveTypeTaxi('intercity');
-          myOffer.getByID(id);
+          myOffer.getByID(id, function () {
+            localStorage.setItem('_open_offer_id', id);
+            Storage.setActiveTypeModelTaxi('offer');
+            Storage.setActiveTypeTaxi('intercity');
+            window.location.hash = '#driver_my_offer';
+          });
         }
 
         if (target.dataset.click === "fav-orders") {
@@ -147,7 +167,12 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
               get_price = get_price.split(" ");
               get_time = get_time.split(" ");
 
-              Conn.request('agreeOrder', id);
+              var data = {};
+
+              data.id = id;
+              data.price = parseInt(get_price[0]);
+              data.travelTime = parseInt(get_time[0]);
+              Conn.request('agreeOrder', data, cbAgreeOrder);
               el.classList.add('active');
             }
           }

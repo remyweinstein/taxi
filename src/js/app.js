@@ -49,7 +49,7 @@ define(['User',
   
   function checkMayLoading() {
     if (MayLoading) {
-      clearInterval(timerCheckMayLoading);
+      timerCheckMayLoading = clearInterval(timerCheckMayLoading);
       App.afterLoading();
     }
   }

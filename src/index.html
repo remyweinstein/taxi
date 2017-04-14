@@ -193,7 +193,7 @@
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
                                 <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
-                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">Легковой</option>
                                     <option value="moto">Мотоцикл</option>
@@ -346,7 +346,7 @@
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
                                 <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
-                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="truck">Грузовик</option>
                                     <option value="microbus">Микроавтобус</option>
@@ -426,7 +426,7 @@
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
                                 <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
-                                <button data-click="date_order" class="button_short--green">Время</button>
+                                <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">Легковой</option>
                                     <option value="moto">Мотоцикл</option>
@@ -612,7 +612,7 @@
                     <div class="form-order-city__field">
                         <i class="icon-rouble form-order-city__label"></i>
                         <span class="form-order-city__wrap_two_thirds"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
-                        <button data-click="date_offer" class="button_short--green">Время</button>
+                        <button data-click="date_offer" class="button_short--green">Сейчас</button>
                     </div>
                     <button class="button_rounded--green" data-click="save-order">Предложить</button>
                 </div>
@@ -791,7 +791,7 @@
             <p>Отзывы(0):</p>
         </template>
         <template id="TaxiDriverEditAuto">
-            <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post">
+            <form data-controller="taxi_driver_my_auto" data-submit="form-edit-auto" onsubmit="return false;" class="form-edit-auto" action="" method="post" enctype="multipart/form-data">
                 <p>
                     <label>Марка:
                         <select name="brand">

@@ -3,6 +3,8 @@
 define(['Dom'], function (Dom) {
 
   function cbFillFavorites(response) {
+    Conn.clearCb('cbFillFavorites');
+    
     var parent = Dom.sel('[data-view="favorites"]'),
         favs = response.result.favorites,
         innertext = '',
@@ -34,10 +36,11 @@ define(['Dom'], function (Dom) {
 
     ul.innerHTML = innertext;
     parent.appendChild(ul);
-    Conn.clearCb('cbFillFavorites');
   }
   
   function cbFillBlackList(response) {
+    Conn.clearCb('cbFillBlackList');
+    
     var parent = Dom.sel('[data-view="blacklist"]'),
         blacks = response.result.blackList,
         innertext = '',

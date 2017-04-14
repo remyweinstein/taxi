@@ -2,10 +2,10 @@
 
 define(function() {
   function cbGetAutos(response) {
-    var prfl = response.result.cars;
-
     Conn.clearCb('cbGetAutos');
     
+    var prfl = response.result.cars;
+
     for (var i = 0; i < prfl.length; i++) {
       if (prfl[i].isActive) {
         Car.id          = prfl[i].id;
@@ -19,8 +19,8 @@ define(function() {
         Car.photo       = prfl[i].photo;
         Car.type        = prfl[i].type;
         Car.isActive    = prfl[i].isActive;
-        Car.inGarage    = prfl.length;
       }
+      Car.inGarage = prfl.length;
     }
   };
   

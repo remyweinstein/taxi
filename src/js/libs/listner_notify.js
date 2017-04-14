@@ -7,6 +7,19 @@ define(['push', 'Storage'], function(Push, Storage) {
         var notify = response.notifications;
         
         for(var i = 0; i < notify.length; i++) {
+          var type = notify[i].type,
+              args = notify[i].args;
+          
+          if (type === "start") {
+            if (args.offerId) {
+              Storage.setTripDriver(args.offerId);
+            }
+            
+            if (args.orderId) {
+              Storage.setTripClient(args.orderId);
+            }
+          }
+          
           Storage.setOpenNotify(notify[i].id);
           Push.create(notify[i].text, {
               body: "",

@@ -1,29 +1,35 @@
-/* global Event, Conn, User, default_city, default_vehicle */
+/* global Event, Conn, User, default_city, default_vehicle, Car */
 
 define(['Dom', 'Storage'], function (Dom, Storage) {
   var model,
       id_car;
 
   function cbGetModels(response) {
+    Conn.clearCb('cbGetModels');
+    
     var model_el = Dom.sel('select[name="model"]', model);
     
     model_el.options.length = 0;
+    
     for (var i = 0; i < response.result.models.length; i++) {
         model_el.options[i] = new Option(response.result.models[i], response.result.models[i]);
     }
+    
     if (model) {
       var current = Dom.sel('select[name="model"] option[value="' + model + '"]');
        current.selected = true;
     }
-    Conn.clearCb('cbGetModels');
   }
   
   function cbUpdateAuto() {
     Conn.clearCb('cbUpdateAuto');
+    Car.setData();
     Dom.historyBack();
   }
   
   function cbGetAuto(response) {
+    Conn.clearCb('cbGetAuto');
+    
     var cars = response.result.cars;
     
     for (var i = 0; i < cars.length; i++) {
@@ -48,14 +54,12 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
 
         model = cars[i].model;
         changeModel(cars[i].brand);
-        var photo_car = cars[i].vehicle || default_vehicle;
+        var photo_car = cars[i].photo || default_vehicle;
         Dom.sel('.avatar').src = photo_car;
         
         break;
       }
     }
-    
-    Conn.clearCb('cbGetAuto');
   }
   
   function changeModel(brand) {
@@ -118,8 +122,11 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
         sel_type = Dom.sel('select[name="type"]'),
         sel_model = Dom.sel('select[name="model"]'),
         data = {};
-
-    data.photo       = file ? window.btoa(file) : null;    
+    
+    if (file) {
+      data.photo = window.btoa(file);      
+    }
+    
     data.id          = id_car || null;
     data.isActive    = false;
     data.color       = Dom.sel('input[name="color"]').value;

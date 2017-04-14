@@ -7,17 +7,20 @@ define(['Dom'], function (Dom) {
     
     if (!MayLoading) {
       Dom.startLoading();
-      var text = "Определяем ваше местоположение...";
+      var text;
       
-      if (Maps.loading){
+      if (Maps.loading) {
         text = "Загружаем карты...";
       } else if (!Conn.is_connect) {
         text = "Подключаемся к серверу...";
+      } else {
+        text = "Определяем ваше местоположение...";
       }
 
       Dom.sel('.start_logo_state__text').innerHTML = text;
       
     } else {
+      timerCheckLoading = clearInterval(timerCheckLoading);
       if (lastURL !== "#start" && lastURL !== "") {
         next_page = lastURL;
       } else {

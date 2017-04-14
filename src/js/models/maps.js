@@ -38,10 +38,10 @@ define(['jsts'], function(jsts) {
       
       _addr_from = Model.fromCoords.split(",");
       _addr_to = Model.toCoords.split(",");
-      MapElements.marker_b = null;
-      MapElements.marker_a = null;
+      MapElements.marker_b    = null;
+      MapElements.marker_a    = null;
       MapElements.marker_from = self.addMarker(_addr_from[0], _addr_from[1], Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32], function(){});
-      MapElements.marker_to = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32], function(){});
+      MapElements.marker_to   = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32], function(){});
 
       if (Model.toAddresses) {
         for (var i = 0; i < Model.toAddresses.length; i++) {

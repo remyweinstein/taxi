@@ -2,7 +2,12 @@ define(function() {
   
   var Storage = {
     lullModel: function (Model) {
-      localStorage.setItem('_my_' + Storage.getActiveTypeModelTaxi() + '_' + Storage.getActiveTypeTaxi(), JSON.stringify(Model));
+      var model = Storage.getActiveTypeModelTaxi(),
+          type  = Storage.getActiveTypeTaxi();
+      
+      if (model && type) {
+        localStorage.setItem('_my_' + model + '_' + type, JSON.stringify(Model));
+      }
     },
     
     setActiveTypeTaxi: function (type) {

@@ -1,89 +1,121 @@
 /* global User, Car, average_speed, Event, MapElements, Conn, Maps */
 
-define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'], 
-function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
+define(['Dom', 'Dates', 'ModalWindows', 'HideForms', 'Storage', 'ClientOrder', 'Destinations', 'DriverOffer'], 
+function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, clDriverOffer) {
 
-  var active_bid = false, route, marker_to, marker_from, points = [], name_points =[],
+  var active_bid = false, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
       name_client, photo_client, travelTime, agIndexes, cargo_info = '',
+      global_el,
       MyOrder;
   
+  function cbAgreeOrder(response) {
+    Conn.clearCb('cbAgreeOrder');
+    
+    if (!response.error) {
+      var checkOffer = new clDriverOffer;
+      
+      checkOffer.getByID(response.result.id, function () {});
+    }
+  }
+  
+  function cbDisagreeOrder(response) {
+    Conn.clearCb('cbDisagreeOrder');
+    
+    if (!response.error) {
+      global_el.classList.remove('active');
+      active_bid = false;
+      setRoute();
+    } else {
+      window.location.hash = "#driver_city";
+    }
+  }
+
   function cbGetOrderById(response) {
+    Conn.clearCb('cbGetOrderById');
+    
     var ords = response.result.order;
     
-    if (ords) {
-      MyOrder.setModel(response);
-      order_id = ords.id;
-      fromAddress = ords.fromAddress;
-      toAddress = ords.toAddress;
-      fromCoords = ords.fromLocation.split(",");
-      toCoords = ords.toLocation.split(",");
-      price = Math.round(ords.price);
-      name_client = ords.agent.name || User.default_name;
-      photo_client = ords.agent.photo || User.default_avatar;
-      distanse = (ords.length / 1000).toFixed(1);
-      duration = ords.duration;
-      agIndexes = parseObj(getAgentIndexes(ords.agent));
-      if (ords.weight) {
-        cargo_info += ' Вес: ' + ords.weight;
-      }
+    if (!response.error) {
+      if (ords) {
+        MyOrder.setModel(response);
+        order_id = ords.id;
+        fromAddress = ords.fromAddress;
+        toAddress = ords.toAddress;
+        fromCoords = ords.fromLocation.split(",");
+        toCoords = ords.toLocation.split(",");
+        price = Math.round(ords.price);
+        name_client = ords.agent.name || User.default_name;
+        photo_client = ords.agent.photo || User.default_avatar;
+        distanse = (ords.length / 1000).toFixed(1);
+        duration = ords.duration;
+        agIndexes = parseObj(getAgentIndexes(ords.agent));
 
-      if (ords.volume) {
-        cargo_info += ' Объем: ' + ords.volume;
-      }
-
-      if (ords.stevedores) {
-        cargo_info += ' Грузчики: ' + ords.stevedores;
-      }
-
-      
-      for (var y = 0; y < ords.bids.length; y++) {
-        var agid = ords.bids[y].agentId;
-
-        if (agid === User.id) {
-          active_bid = true;
-          break;
+        if (ords.weight) {
+          cargo_info += ' Вес: ' + ords.weight;
         }
-      }
-      ag_distanse = ords.agent.distance.toFixed(1);
-      travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
 
-      if (travelTime < 5) {
-        travelTime = 5;
-      } else {
-        travelTime = 5 * Math.ceil( travelTime / 5 );
-      }
-      waypoints = [];
-      points = [];
-      name_points = [];
-
-      if (ords.points) {
-        for (var i = 0; i < ords.points.length; i++) {
-          var _wp = ords.points[i].location.split(",");
-
-          waypoints.push(Maps.convertWayPointsForRoutes(_wp[0], _wp[1]));
-          name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
-          Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
-            function (mark) {
-              Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
-              MapElements.points.push(mark);
-            });
+        if (ords.volume) {
+          cargo_info += ' Объем: ' + ords.volume;
         }
+
+        if (ords.stevedores) {
+          cargo_info += ' Грузчики: ' + ords.stevedores;
+        }
+
+
+        for (var y = 0; y < ords.bids.length; y++) {
+          var agid = ords.bids[y].offer.agent.id,
+              approve = ords.bids[y].approved;
+
+          if (agid === User.id && approve) {
+            active_bid = true;
+            break;
+          }
+        }
+
+        ag_distanse = ords.agent.distance.toFixed(1);
+        travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
+
+        if (travelTime < 5) {
+          travelTime = 5;
+        } else {
+          travelTime = 5 * Math.ceil( travelTime / 5 );
+        }
+
+        waypoints = [];
+        points = [];
+        name_points = [];
+
+        if (ords.points) {
+          for (var i = 0; i < ords.points.length; i++) {
+            var _wp = ords.points[i].location.split(",");
+
+            waypoints.push(Maps.convertWayPointsForRoutes(_wp[0], _wp[1]));
+            name_points.push({address: ords.points[i].address, time: ords.points[i].stopTime});
+            Maps.addMarker(_wp[0], _wp[1], ords.points[i].address, '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32],
+              function (mark) {
+                Maps.addInfoForMarker(ords.points[i].stopTime + 'мин.', true, mark);
+                MapElements.points.push(mark);
+              });
+          }
+        }
+
+        Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
+          function (mark) {
+            MapElements.marker_to = mark;
+          });
+        Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
+          function (mark) {
+            MapElements.marker_from = mark;
+          });
+
+        setRoute();
+        Maps.drawRoute(MyOrder, false, function(){});
+        HideForms.init();
       }
-
-      Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
-        function (mark) {
-          MapElements.marker_to = mark;
-        });
-      Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
-        function (mark) {
-          MapElements.marker_from = mark;
-        });
-
-      setRoute();
-      Maps.drawRoute('order', false, function(){});
-      HideForms.init();
-      Conn.clearCb('cbGetOrderById');
+    } else {
+      window.location.hash = '#driver_city';
     }
   }
   
@@ -161,17 +193,15 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
     Event.click = function (event) {
       var target = event.target, el;
 
-      while (target !== this) {
+      while (target !== this && target) {
 
             // Click taxi_bid
         if (target.dataset.click === "taxi_bid") {
-          el = target;
+          el = target,
+          global_el = target;
 
           if (el.classList.contains('active')) {
-              Conn.request('disagreeOrder', order_id);
-              el.classList.remove('active');
-              active_bid = false;
-              setRoute();
+              Conn.request('disagreeOrder', order_id, cbDisagreeOrder);
           } else {
             if (!User.is_auth) {
               Modal.show('<p>Для совершения заказов необходимо авторизоваться</p>' +
@@ -181,7 +211,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
                           if (response === "yes") {
                             window.location.hash = '#login';
                           }
-                      });
+                        });
             } else if (Car.inGarage === 0) {
               Modal.show('<p>Для совершения заказов необходимо добавить автомобиль</p>' +
                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
@@ -190,19 +220,29 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations) {
                           if (response === "yes") {
                             window.location.hash = '#driver_my_auto';
                           }
-                      });
+                        });
             } else if (!Car.id) {
                 Modal.show('<p>Для совершения заказов необходимо выбрать автомобиль из списка</p>' +
                           '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
                           '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
-                            if (response === "yes") {
-                              window.location.hash = '#driver_my_auto';
-                            }
+                          if (response === "yes") {
+                            window.location.hash = '#driver_my_auto';
+                          }
                         });
               } else {
-              Conn.request('agreeOrder', order_id);
+              var li        = el.parentNode.parentNode,
+                  pricer    = li.querySelector('.wait-order-approve__route-info__price span'),
+                  timer     = li.querySelector('span[data-view="while_car"]'),
+                  get_price = pricer.split(' '),
+                  data      = {};
+
+              data.id = order_id;
+              data.price = get_price[0];
+              data.travelTime = timer;
+              Conn.request('agreeOrder', data, cbAgreeOrder);
               active_bid = true;
+              el.classList.remove('active');
               setRoute();
             }
           }
