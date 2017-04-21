@@ -1,4 +1,4 @@
-/* global User, Event, default_city, default_vehicle, Conn, Car */
+/* global User, Event, default_city, Conn, Car */
 
 define(['Dom', 'Storage'], function (Dom, Storage) {
   

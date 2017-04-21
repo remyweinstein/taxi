@@ -154,12 +154,11 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
     
     this.addMarker = function (lat, lng, title, icon, iSize, callback) {
       var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(lat, lng),
-        //animation: google.maps.Animation.DROP,
-        icon: icon,
-        title: title,
-        map: Maps.map
-      });
+            position: new google.maps.LatLng(lat, lng),
+            icon: icon,
+            title: title,
+            map: Maps.map
+          });
       
       callback(marker);
 
@@ -169,7 +168,6 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
     this.addMarkerDrag = function (lat, lng, title, icon, iSize, callback) {
       var marker = new google.maps.Marker({
         position: new google.maps.LatLng(lat, lng),
-        //animation: google.maps.Animation.DROP,
         draggable: true,
         icon: icon,
         title: title,

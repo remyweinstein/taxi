@@ -54,6 +54,11 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
           Conn.request('cancelOffer', MyOffer.id, cbOnCancelOffer);
         }
         
+        if (target && target.dataset.click === "start-offer") {
+          el = target;
+          Conn.request('startOffer', MyOffer.id);
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -73,23 +78,29 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   }
   
   function start() {
-    //Storage.getActiveTypeTaxi();
     MyOffer = new clDriverOffer();
     MyOffer.activateCurrent();
 
     if (MyOffer.id > 0) {
       var addCityFrom = '',
-          addCityTo = '';
+          addCityTo = '',
+          activeTypeTaxi = Storage.getActiveTypeTaxi();
         
       Lists.init(MyOffer);
       
-      if (Storage.getActiveTypeTaxi() === "intercity") {
+      if (activeTypeTaxi === "intercity") {
         addInterCity();
         addCityFrom = MyOffer.fromCity + ', ',
         addCityTo = MyOffer.toCity + ', ';
       }
 
-      if (Storage.getActiveTypeTaxi() === "trucking") {
+      if (activeTypeTaxi === "tourism") {
+        addInterCity();
+        addCityFrom = MyOffer.fromCity + ', ',
+        addCityTo = MyOffer.toCity + ', ';
+      }
+
+      if (activeTypeTaxi === "trucking") {
         addCargo();
       }
 
@@ -109,7 +120,9 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
                                            Dates.minToHours(MyOffer.duration);
 
       el_price.innerHTML = Math.round(MyOffer.price) + ' руб';
-      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>';
+      el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>' + 
+                            '<button data-click="start-offer" class="button_rounded--green" disabled>Поехали</button>';
+                          
       HideForms.init();
       Lists.getBidsClient();
     } else {

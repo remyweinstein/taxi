@@ -1,4 +1,4 @@
-define(function() {
+define(['ActiveOrder'], function(ActiveOrder) {
   
   var Storage = {
     lullModel: function (Model) {
@@ -8,6 +8,96 @@ define(function() {
       if (model && type) {
         localStorage.setItem('_my_' + model + '_' + type, JSON.stringify(Model));
       }
+    },
+    
+    setLastPage: function(hash) {
+      localStorage.setItem('_last_url', hash);
+    },
+    
+    getLastPage: function() {
+      return localStorage.getItem('_last_url');
+    },
+    
+    clearLastPage: function() {
+      localStorage.removeItem('_last_url');
+    },
+    
+    addHistoryPages: function(url) {
+      var arr = Storage.getHistoryPages(),
+          arrLen = arr.length,
+          newArr = [];
+
+      if (url === "#start" || url === "undefined" || !url) {
+        return;
+      }
+      
+      for (var i = 0; i < arrLen; i++) {
+        if (i === 9) {
+          break;
+        } else if (!((arrLen > 9 && i === 0) || ((i + 1) === arrLen && arr[i] === url))) {
+          newArr.push(arr[i]);
+        }
+      }
+      
+      newArr.push(url);
+      Storage.saveHistoryPages(newArr);
+    },
+    
+    saveHistoryPages: function(arr) {
+      localStorage.setItem('_history_url', arr.join('|'));
+    },
+    
+    getPreviousHistoryPages: function() {
+      var urls = localStorage.getItem('_history_url'),
+          def = '#client_city';
+      
+      urls = urls || def;
+      urls = urls.split('|');
+      
+      var urlsLen = urls.length,
+          resp = urlsLen > 2 ? urls[urlsLen - 2] : def;
+      
+      urls.splice((urlsLen - 1), 1);
+      Storage.saveHistoryPages(urls);
+      
+      return resp;
+    },
+    
+    getHistoryPages: function() {
+      var urls = localStorage.getItem('_history_url'),
+          def = '#client_city';
+      
+      urls = urls || def;
+      
+      return urls.split('|');
+    },
+    
+    clearHisrtoryPages: function() {
+      localStorage.removeItem('_history_url');
+    },
+    
+    setStartLoading: function() {
+      localStorage.setItem('_break_communication', true);
+    },
+    
+    getStartLoading: function() {
+      return localStorage.getItem('_break_communication');
+    },
+    
+    clearStartLoading: function() {
+      localStorage.removeItem('_break_communication');
+    },
+    
+    setPrevListOrders: function (data) {
+      localStorage.setItem('_previous_order_list', data);
+    },
+    
+    getPrevListOrders: function () {
+      return localStorage.getItem('_previous_order_list');
+    },
+    
+    clearPrevListOrders: function () {
+      localStorage.removeItem('_previous_order_list');
     },
     
     setActiveTypeTaxi: function (type) {
@@ -172,6 +262,7 @@ define(function() {
     
     setTripClient: function (id) {
       localStorage.setItem('_redirect_trip_client', id);
+      ActiveOrder.enable();
     },
 
     getTripClient: function () {
@@ -180,10 +271,12 @@ define(function() {
     
     removeTripClient: function () {
       localStorage.removeItem('_redirect_trip_client');
+      ActiveOrder.disable();
     },
     
     setTripDriver: function (id) {
       localStorage.setItem('_redirect_trip_driver', id);
+      ActiveOrder.enable();
     },
 
     getTripDriver: function () {
@@ -192,6 +285,7 @@ define(function() {
     
     removeTripDriver: function () {
       localStorage.removeItem('_redirect_trip_driver');
+      ActiveOrder.disable();
     },
 
     setFollowOrder: function () {

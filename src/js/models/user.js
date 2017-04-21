@@ -1,8 +1,15 @@
-/* global lastURL, Car, User, Conn, Maps, Settings */
+/* global Car, User, Conn, Maps, Settings */
 
 define(['Dom', 'Storage'], function(Dom, Storage) {
   var clUser = function () {
     var self = this;
+    
+    function cbReloadProfileData(response) {
+      Conn.clearCb('cbgetProfileData');
+      
+      self.setData(response.result);
+      Settings.getSettings();
+    }
     
     function cbgetProfileData(response) {
       Conn.clearCb('cbgetProfileData');
@@ -63,20 +70,30 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     this.map                       = null;
     this.routeGuardZoneRadius      = null;
       
+    this.constructor = function() {
+      self.load();
+    };
+    
     this.getInfo = function () {
       return "token = " + this.token + ", id =  " + this.id;
     };
 
     this.getData = function () {
-      var load = self.load();
-      
       if (self.token) {
         Conn.request('requestProfile', '', cbgetProfileData);
       } else {
         self.initToken();
       }
     };
-
+        
+    this.reloadData = function () {
+      if (self.token) {
+        Conn.request('requestProfile', '', cbReloadProfileData);
+      } else {
+        //self.initToken();
+      }
+    };
+    
     this.setData = function (response) {
       var prfl = response.profile;
       
@@ -180,10 +197,16 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
         self.map                       = obj.map || self.map;
         self.routeGuardZoneRadius      = obj.routeGuardZoneRadius || self.routeGuardZoneRadius;
         
-        return true;
-      }
-      
-      return false;
+        var response = {};
+        
+        response.profile = obj;        
+        self.setData(response);
+        Settings.getSettings();
+        Maps.start();
+        Maps.init();
+      } else {
+        self.getData();
+      }      
     };
     
     this.save = function () {

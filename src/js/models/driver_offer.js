@@ -46,44 +46,47 @@ define(['Storage'], function(Storage) {
     function cbgetOfferById(response) {
       Conn.clearCb('cbgetOfferById');
       
-      var ord      = response.result.offer,
-          now      = new Date().getTime(),
-          start    = new Date(ord.start).getTime(),
-          pregnant = ord.seats === ord.occupiedSeats ? true : false,
-          active   = pregnant && start <= now ? true : false;
+      if (response.result) {
 
-      self.id               = ord.id;
-      self.fromAddress      = ord.fromAddress;
-      self.toAddress        = ord.toAddress;
-      self.fromCoords       = ord.fromLocation;
-      self.toCoords         = ord.toLocation;
-      self.start            = ord.start;
-      self.length           = ord.length;
-      self.fromFullAddress  = ord.fromFullAddress;
-      self.toFullAddress    = ord.toFullAddress;
-      self.fromCity         = ord.fromCity;
-      self.fromCityLocation = ord.fromCityLocation;
-      self.toCity           = ord.toCity;
-      self.toCityLocation   = ord.toCityLocation;
-      self.price            = ord.price;
-      self.comment          = ord.comment;
-      self.weight           = ord.weight;
-      self.volume           = ord.volume;
-      self.stevedores       = ord.stevedores;
-      self.seats            = ord.seats;
-      self.occupiedSeats    = ord.occupiedSeats;
-      self.bags             = ord.bags;
-      self.started          = ord.started;
-      self.canceled         = ord.canceled;
-      //self.active           = active;
-      //self.pregnant         = pregnant;
-      
-      if (self.active) {
-        Storage.setTripDriver(self.id);
+        var ord      = response.result.offer,
+            now      = new Date().getTime(),
+            start    = new Date(ord.start).getTime(),
+            pregnant = ord.seats === ord.occupiedSeats ? true : false,
+            active   = pregnant && start <= now ? true : false;
+
+        self.id               = ord.id;
+        self.fromAddress      = ord.fromAddress;
+        self.toAddress        = ord.toAddress;
+        self.fromCoords       = ord.fromLocation;
+        self.toCoords         = ord.toLocation;
+        self.start            = ord.start;
+        self.length           = ord.length;
+        self.fromFullAddress  = ord.fromFullAddress;
+        self.toFullAddress    = ord.toFullAddress;
+        self.fromCity         = ord.fromCity;
+        self.fromCityLocation = ord.fromCityLocation;
+        self.toCity           = ord.toCity;
+        self.toCityLocation   = ord.toCityLocation;
+        self.price            = ord.price;
+        self.comment          = ord.comment;
+        self.weight           = ord.weight;
+        self.volume           = ord.volume;
+        self.stevedores       = ord.stevedores;
+        self.seats            = ord.seats;
+        self.occupiedSeats    = ord.occupiedSeats;
+        self.bags             = ord.bags;
+        self.started          = ord.started;
+        self.canceled         = ord.canceled;
+        //self.active           = active;
+        //self.pregnant         = pregnant;
+
+        if (self.active) {
+          Storage.setTripDriver(self.id);
+        }
+
+        global_end_get_order = true;
+        Storage.lullModel(self);
       }
-      
-      global_end_get_order = true;
-      Storage.lullModel(self);
     }
     
     function parse(type) {

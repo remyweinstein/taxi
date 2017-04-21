@@ -1,4 +1,4 @@
-/* global User, default_vehicle, driver_icon, MapElements, Conn, Maps */
+/* global User, driver_icon, MapElements, Conn, Maps, Car */
 
 define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], 
 function(Dates, Dom, clDriverOrders, Popup, Storage) {
@@ -14,6 +14,89 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     }
   }
   
+  function cbGetClientBids(response) {
+    var el = Dom.sel('.wait-bids-approve'),
+        orders = response.result.orders,
+        innText = '',
+        automat_driver_approve = Storage.getDriverAutomat(),
+        gl_active = false;
+      
+    el.innerHTML = "";
+
+    if (orders) {
+      if (Storage.getTripDriver()) {
+        window.location.hash = '#driver_go';
+      }
+      
+      if (orders.length > 0 && automat_driver_approve) {
+        Lists.clear();
+        Conn.request('approveOrder', orders[0].id, cbApproveOffer2);
+        return;
+      }
+      
+      for (var i = 0; i < orders.length; i++) {
+        var agIndex = parseObj(getAgentIndexes(orders[i].agent)),
+            vehicle = orders[i].agent.vehicle || Car.default_vehicle,
+            active  = orders[i].bids[0].approved ? ' active' : ' inactive',
+            photo   = orders[i].agent.photo || User.avatar,
+            loc     = orders[i].agent.location;
+        
+        if (!gl_active && orders[i].bids[0].approved) {
+          gl_active = true;
+        }
+        
+        loc = loc.split(',');
+
+        if (!MapElements.driver_marker[orders[i].agent.id]) {
+          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], orders[i].agent.name, driver_icon, [32,32], function(){});
+        } else {
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[orders[i].agent.id]);
+        }
+
+        var dist = orders[i].agent.distance ? (orders[i].agent.distance).toFixed(1) : 0;
+        
+        innText += '<div class="wait-bids-approve__item">' +
+                      '<div class="wait-bids-approve__item__distance">' +
+                        'Растояние до водителя, <span>' + dist + ' км</span>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__driver">' +
+                        '<div>' +
+                          '<img src="' + photo + '" alt="" />' +
+                        '</div>' +
+                        '<div>' + orders[i].agent.name + '</div>' +
+                        '<div>' + agIndex + '</div>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__car">' +
+                        '<div>' +
+                          '<img src="' + vehicle + '" alt="" />' +
+                        '</div>' +
+                        '<div>' +
+                          orders[i].agent.brand + ' ' + orders[i].agent.model +
+                        '</div>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__approve">' +
+                        '<i data-click="taxi_client_bid" data-id="' + orders[i].id + '" class="icon-ok-circled' + active + '"></i>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__bid-time">' +
+                        'Время подъезда: <span>' + orders[i].travelTime + ' мин</span>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__bid-price">' +
+                        'Предложенная цена: <span>' + Math.round(orders[i].price) + ' руб</span>' +
+                      '</div>' +
+                    '</div>';
+      }
+      
+      var startButton = Dom.sel('button[data-click="start-offer"]'),
+          start = Model.start;
+      
+      if (gl_active) {
+        startButton.disabled = false;
+      }
+      
+    }
+    el.innerHTML = innText;
+  }
+  
   function cbGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
         offers = response.result.offers,
@@ -27,6 +110,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     }
 
     if (offers) {
+      if (Storage.getTripClient()) {
+        window.location.hash = '#client_go';
+      }
+      
       if (offers.length > 0 && automat_client_approve) {
         Lists.clear();
         Conn.request('approveOffer', offers[0].id, cbApproveOffer2);
@@ -35,7 +122,8 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       
       for (var i = 0; i < offers.length; i++) {
         var agIndex = parseObj(getAgentIndexes(offers[i].agent)),
-            vehicle = offers[i].agent.vehicle || default_vehicle,
+            car     = offers[i].agent.cars[0],
+            vehicle = car.photo || Car.default_vehicle,
             active  = offers[i].bids[0].approved ? ' active' : ' inactive',
             photo   = offers[i].agent.photo || User.avatar,
             loc     = offers[i].agent.location;
@@ -66,7 +154,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<img src="' + vehicle + '" alt="" />' +
                         '</div>' +
                         '<div>' +
-                          offers[i].agent.brand + ' ' + offers[i].agent.model +
+                          car.brand + ' ' + car.model +
                         '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve">' +
@@ -113,6 +201,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   
   function render_list(order, response) {
     var ords = order==='order' ? response.orders : response.offers,
+        prevList = Storage.getPrevListOrders(),
         order_canceled,
         order_finished,
         order_finishedClient,
@@ -128,6 +217,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     if (ords) {
       if (automat_driver) {
         
+      }
+      
+      if (Storage.getTripDriver()) {
+        window.location.hash = '#driver_go';
       }
       
       for (var i = 0; i < ords.length;) {
@@ -160,13 +253,17 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     if (orders_result) {
       orders_result.innerHTML = Orders.length;
     }
-
-    fillOrders(order, type);
+    
+    if (prevList !== JSON.stringify(response)) {
+      fillOrders(order, type);
+    }
+    
+    Storage.setPrevListOrders(JSON.stringify(response));
   }
   
   function fillOrders(order, type) {
     var listOrders = Dom.sel('[data-model=list-orders]');
-
+      console.log('render list orders');
     if (listOrders) {
       listOrders.innerHTML = '';
 
@@ -281,6 +378,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
           if (!ords[i].canceled) {
             del = '';
+          }
+          
+          if (ords[i].finished || ords[i].canceled) {
+            goto = '';
           }
 
           zaezdy = "";
@@ -409,10 +510,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             /^0$|^[1-9]\d*$/.test(key) &&
             key <= 4294967294) {
 
-          var zaezdy = '',
-              goto = '', del,
-              fromCity = '',
-              toCity = '';
+          var del,
+              zaezdy         = '',
+              goto           = '',
+              fromCity       = '',
+              toCity         = '',
+              activeTypeTaxi = Storage.getActiveTypeTaxi();
 
           if (!arrOffers[key].comeout) {
             //goto = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>';
@@ -426,7 +529,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
           }
 
           
-          if (Storage.getActiveTypeTaxi() === "intercity") {
+          if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
             fromCity = arrOffers[key].fromCity + ', ';
             toCity = arrOffers[key].toCity + ', ';
           }
@@ -594,11 +697,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   }
   
   function get_bid_clients () {
-    Conn.request('startOrdersByOffer', Model.id, cbGetBids);
+    Conn.request('startOrdersByOffer', Model.id, cbGetClientBids);
   }
   
   var Lists = {
     clear: function () {
+      Storage.clearPrevListOrders();
       MapElements.clear();
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetBids');
@@ -682,6 +786,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     
     allOrdersIntercity: function (response) {
       render_list('order', response, 'intercity');
+    },
+    
+    allOrdersTourism: function (response) {
+      render_list('order', response, 'tourism');
     },
     
     allOffers: function (response) {

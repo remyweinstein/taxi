@@ -22,7 +22,7 @@ define(function() {
     
     this.clear = function () {
       var i;
-            
+
       if (self.route) {
         Maps.removeElement(self.route);
       }

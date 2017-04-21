@@ -208,7 +208,7 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
               data.id = target.dataset.id;
               
               if (Dom.toggle(target, 'active')) {
-                Conn.request('disagreeOffer', data);
+                Conn.request('disagreeOffer', target.dataset.id);
               } else {
                 Conn.request('agreeOffer', data);
               }

@@ -100,16 +100,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
               });
           }
         }
-
-        Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32],
-          function (mark) {
-            MapElements.marker_to = mark;
-          });
-        Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32],
-          function (mark) {
-            MapElements.marker_from = mark;
-          });
-
+          
         setRoute();
         Maps.drawRoute(MyOrder, false, function(){});
         HideForms.init();
@@ -144,12 +135,12 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
         price_plus  = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '',
         time_minus  = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '',
         time_plus   = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '',
-        add_button = '<i data-click="taxi_bid" class="font4 icon-ok-circled' + _active_bid + '"></i>',
-        intt = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
-        el_route = Dom.sel('.wait-order-approve__route-info__route'),
+        add_button  = '<i data-click="taxi_bid" class="font4 icon-ok-circled' + _active_bid + '"></i>',
+        intt        = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
+        el_route    = Dom.sel('.wait-order-approve__route-info__route'),
         _addrPoints = "",
-        el_price = Dom.sel('.wait-order-approve__route-info__price'),
-        el = Dom.sel('.wait-bids-approve');
+        el_price    = Dom.sel('.wait-order-approve__route-info__price'),
+        el          = Dom.sel('.wait-bids-approve');
       
     if (intt) {
       intt.innerHTML = add_button;
@@ -223,8 +214,8 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                         });
             } else if (!Car.id) {
                 Modal.show('<p>Для совершения заказов необходимо выбрать автомобиль из списка</p>' +
-                          '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
-                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
+                           '<p><button class="button_rounded--yellow" data-response="no">Отмена</button>' +
+                           '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
                           if (response === "yes") {
                             window.location.hash = '#driver_my_auto';
@@ -232,8 +223,8 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                         });
               } else {
               var li        = el.parentNode.parentNode,
-                  pricer    = li.querySelector('.wait-order-approve__route-info__price span'),
-                  timer     = li.querySelector('span[data-view="while_car"]'),
+                  pricer    = li.querySelector('.wait-order-approve__route-info__price > span').innerHTML,
+                  timer     = li.querySelector('span[data-view="while_car"]').innerHTML,
                   get_price = pricer.split(' '),
                   data      = {};
 

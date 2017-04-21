@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerCheckLoading, Event, Conn, lastURL, Maps */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps */
 
 define(['Dom', 'Chat', 'Tabs', 'HideForms', 'Redirect', 'Storage'], 
 function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
@@ -22,6 +22,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#client_city', template:'TaxiClientCity', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
                 {hash:'#client_go', template:'TaxiClientGo', controller:'ctrlTaxiClientGo', title:'Поехали', menu:'client', pageType: ''},
                 {hash:'#client_intercity', template:'TaxiClientIntercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
+                {hash:'#client_tourism', template:'TaxiClientTourism', controller:'ctrlTaxiClientTourism', title:'Туризм', menu:'client', pageType: ''},
                 {hash:'#client_cargo', template:'TaxiClientCargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
                 {hash:'#client_feedback', template:'TaxiClientFeedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
                 {hash:'#client_drivers_rating', template:'TaxiClientDriversRating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
@@ -40,13 +41,14 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#driver_go', template:'TaxiDriverGo', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_order', template:'TaxiDriverOrder', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_intercity', template:'TaxiDriverIntercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
+                {hash:'#driver_tourism', template:'TaxiDriverTourism', controller:'ctrlTaxiDriverTourism', title:'Туризм', menu:'driver', pageType: ''},
                 {hash:'#driver_my_auto', template:'TaxiDriverMyAuto', controller:'ctrlTaxiDriverMyAuto', title:'Мой гараж', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_edit_auto', template:'TaxiDriverEditAuto', controller:'ctrlTaxiDriverEditAuto', title:'Мой авто', menu:'', pageType: 'back-arrow'}],
       defaultRoute = '#start',
       currentHash = '';
 
   function hashCheck() {
-    if (User.city && User.lat && User.lng && Conn.is_connect && !Maps.loading) {
+    if (User.city && User.lat && User.lng && (Conn.is_connect || Conn.alreadyStart) && !Maps.loading) {
       MayLoading = true;
     } else {
       if (!Conn.is_connect) {
@@ -61,8 +63,26 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       window.location.hash = '#start';
     }
     
+    if (!Conn.is_connect) {
+      if (Conn.alreadyStart) {
+        Dom.startAgainConnection();
+        return;
+      }
+    } else {
+      Dom.finishAgainConnection();
+    }
+    
     Redirect.check(currentHash);
+    
+      var last_page = Storage.getLastPage(),
+          cur_hash  = window.location.hash;
 
+      if (last_page !== cur_hash) {
+        if (cur_hash !== "#start" && cur_hash !== "") {
+          Storage.setLastPage(cur_hash);
+        }
+      } 
+    
     if (window.location.hash !== currentHash) {
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (currentHash === currentRoute.hash) {
@@ -76,6 +96,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
           loadController(currentRoute);
         }
       }
+      Storage.addHistoryPages(window.location.hash);
       currentHash = window.location.hash;
     }
   }
@@ -170,8 +191,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       
     Tabs.clear();
     HideForms.clear();
-    
-    lastURL = currentHash;
     
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);

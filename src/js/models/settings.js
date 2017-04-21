@@ -1,6 +1,6 @@
-/* global User */
+/* global User, Conn */
 
-define(['Storage'], function(Storage) {
+define(function() {
   
   var clSettings = function () {
     var self = this;
@@ -16,11 +16,30 @@ define(['Storage'], function(Storage) {
     this.myAuto                    = null;
     this.myRating                  = null;
     this.selectMapProvider         = User.map;
+    this.orderRadius               = null;
     
     this.label = [];
     this.type = [];
-
+    
+    function cbGetSettings(response) {
+      Conn.clearCb('cbGetSettings');
+      
+      if (!response.error) {
+        var sets = response.result.settings;
+        
+        for (var i = 0; i < sets.length; i++) {
+          if (sets[i].id === "orderRadius") {
+            self.orderRadius = sets[i].value;
+            self.label.orderRadius = sets[i].note;
+            self.type.orderRadius = 'number';
+          }
+        }
+      }
+    }
+    
     this.getSettings = function () {
+      Conn.request('getSettings', '', cbGetSettings);
+      
       self.favoritesAgents = '#favorites';
       self.label.favoritesAgents = 'Избранные агенты';
       self.type.favoritesAgents = 'link';
@@ -36,7 +55,7 @@ define(['Storage'], function(Storage) {
       self.safeRadius = User.routeGuardZoneRadius;
       self.label.safeRadius = 'Радиус зоны безопасности (м)';
       self.type.safeRadius = 'number';
-      
+     
       self.newSafeZone = '#zones';
       self.label.newSafeZone = 'Зоны безопасности';
       self.type.newSafeZone = 'link';

@@ -1,6 +1,6 @@
-                                                                     /* global Event, User, Conn */
+/* global Event, User, Conn */
 
-define(['Dom', 'Storage'], function (Dom, Storage) {
+define(['Dom'], function (Dom) {
   
   function cbRegisterUser(response) {
     Conn.clearCb('cbRegisterUser');
@@ -17,12 +17,29 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
           var target = event.target;
 
           while (target !== this) {
-            if (target.dataset.click === 'form-submit') {
+            if (target.dataset.click === 'form-submit-phone') {
               var _el = target,
+                  data = {},
+                  code = Dom.sel('.phone_code').innerHTML,
                   phone = Dom.selAll('input[name="phone"]')[0].value;
               
+              code = code === "7" ? 8 : code;
+              data.phone = code + phone;
+              
               _el.disabled = true;
-              Conn.request('registerUser', phone, cbRegisterUser);
+              Conn.request('registerUser', data, cbRegisterUser);
+
+            return;
+            }
+
+            if (target.dataset.click === 'form-submit-email') {
+              var _el = target,
+                  data = {};
+                
+              data.email = Dom.selAll('input[name="email"]')[0].value;
+              
+              _el.disabled = true;
+              Conn.request('registerUser', data, cbRegisterUser);
 
             return;
             }
@@ -32,6 +49,23 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
         };
 
     Dom.sel('.content').addEventListener('click', Event.click);
+    
+    Event.change = function (event) {
+          var target = event.target;
+
+          while (target !== this) {
+            if (target.dataset.change === 'country') {
+              var _el = target;
+              
+              Dom.sel('.phone_code').innerHTML = _el.value;
+              return;
+            }
+
+            target = target.parentNode;
+          }
+        };
+
+    Dom.sel('.content').addEventListener('change', Event.change);  
   }
   
   function stop() {

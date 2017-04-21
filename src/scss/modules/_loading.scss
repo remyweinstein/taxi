@@ -2,7 +2,7 @@
    Modules/Loading
    ======================= */
 
-.loading{
+.loading {
     display: none;
     position: absolute;
     width: 3em;
@@ -12,6 +12,12 @@
     background: url(../images/loading.gif) no-repeat;
     margin: -1.5em 0 0 -1.5em;
     background-size: cover;
+    p {
+        margin-left: -50%;
+        margin-top: 100%;
+        color: black;
+        white-space: nowrap;
+    }
     &.active {
         display: block;
     }

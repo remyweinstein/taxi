@@ -1,8 +1,8 @@
 /* global Conn, Car */
 
 define(function() {
-  function cbGetAutos(response) {
-    Conn.clearCb('cbGetAutos');
+  function cbGetForSetAuto(response) {
+    Conn.clearCb('cbGetForSetAuto');
     
     var prfl = response.result.cars;
 
@@ -47,7 +47,7 @@ define(function() {
     };
     
     this.setData = function () {
-      Conn.request('getAuto', '', cbGetAutos);
+      Conn.request('getAuto', '', cbGetForSetAuto);
     };
 
     

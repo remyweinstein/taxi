@@ -1,4 +1,4 @@
-/* global driver_icon, men_icon, User, MapElements, default_vehicle, Conn, Maps */
+/* global driver_icon, men_icon, User, MapElements, Conn, Maps */
 
 define(['Car'], function (Car) {
   var radiusSearch = 0.5;
@@ -68,16 +68,16 @@ define(['Car'], function (Car) {
             favorite  = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
             icon      = agnts[i].isDriver ? driver_icon : men_icon,
             info      = '<div style="text-align:center;">' +
-                        '<div style="width:50%;display:inline-block;float: left;">' +
-                        '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
-                        '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
-                        '<p>' + favorite + '</p>' +
-                        '</div>' +
-                        '<div style="width:50%;display:inline-block">' +
-                        '<p>' + brand + '<br>' + model + '</p>' +
-                        '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
-                        '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
-                        '</div>' +
+                          '<div style="width:50%;display:inline-block;float: left;">' +
+                            '<p>id' + agnts[i].id + '<br>' + name + '</p>' +
+                            '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
+                            '<p>' + favorite + '</p>' +
+                          '</div>' +
+                          '<div style="width:50%;display:inline-block">' +
+                            '<p>' + brand + '<br>' + model + '</p>' +
+                            '<p><img class="avatar" src="' + photo_car + '" alt=""/></p>' +
+                            '<p><button data-id="' + agnts[i].id + '" data-click="addtoblack">Черный список</button></p>' +
+                          '</div>' +
                         '</div>';
 
         loc = agnts[i].location.split(',');
@@ -94,6 +94,7 @@ define(['Car'], function (Car) {
         }
       }
     }
+    
     var result = [];
 
     for (i = 0; i < MapElements.markers_driver_pos.length; i++) {

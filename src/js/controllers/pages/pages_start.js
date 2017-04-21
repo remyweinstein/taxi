@@ -1,6 +1,6 @@
-/* global Event, MayLoading, Conn, currentHash, lastURL, Maps */
+/* global Event, MayLoading, Conn, currentHash, Maps */
 
-define(['Dom'], function (Dom) {
+define(['Storage', 'Dom'], function (Storage, Dom) {
 
   function checkLoading() {
     var next_page;
@@ -20,12 +20,15 @@ define(['Dom'], function (Dom) {
       Dom.sel('.start_logo_state__text').innerHTML = text;
       
     } else {
+      Conn.request('getProfile');
       timerCheckLoading = clearInterval(timerCheckLoading);
-      if (lastURL !== "#start" && lastURL !== "") {
-        next_page = lastURL;
+      
+      if (Storage.getLastPage()) {
+        next_page = Storage.getLastPage();
       } else {
         next_page = '#client_city';
       }
+      
       window.location.hash = next_page;
     }
   }

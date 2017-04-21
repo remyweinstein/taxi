@@ -19,9 +19,7 @@ define(['User',
         'Maps',
         'Google', 
         'Yandex',
-        'Storage',
-        'ClientOrder',
-        'DriverOffer'], 
+        'Storage'], 
   function (clUser, 
             clCar, 
             clConn,
@@ -41,9 +39,7 @@ define(['User',
             clMaps,
             clGoogle, 
             clYandex,
-            Storage,
-            clClientOrder,
-            clDriverOffer) {
+            Storage) {
 
   var timerCheckMayLoading;
   
@@ -73,8 +69,6 @@ define(['User',
         Zones       = new clZones();
         Settings    = new clSettings();
         
-        //Maps.start();
-        
         Router.start(App, function () {
           App.afterConnection();
         });
@@ -88,7 +82,8 @@ define(['User',
     },
     
     afterConnection: function () {
-      User.getData();
+      User.load();
+      //User.getData();
       Geo.init();
       MainMenu.init();
       //Maps.init();

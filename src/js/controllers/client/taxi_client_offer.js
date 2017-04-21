@@ -1,11 +1,11 @@
-/* global User, average_speed, Event, MapElements, Conn, Maps */
+/* global User, average_speed, Event, MapElements, Conn, Maps, Car */
 
 define(['Dom', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'], 
 function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
-  var active_bid = false, route, marker_to, marker_from, points = [],
+  var active_bid = false,
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
-      name_client, photo_client, travelTime, agIndexes,
+      name_client, photo_client, travelTime, agIndexes, auto_photo, auto_brand, auto_model,
       MyOrder;
   
   function cbChangeState(response) {
@@ -35,6 +35,15 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     agIndexes    = parseObj(getAgentIndexes(ords.agent));
     //distanse     = (ords.length / 1000).toFixed(1);
     //duration     = ords.duration;
+    if (ords.agent.cars) {
+      auto_photo   = ords.agent.cars[0].photo || Car.default_vehicle;
+      auto_brand   = ords.agent.cars[0].brand;
+      auto_model   = ords.agent.cars[0].model;  
+    } else {
+      auto_photo   = Car.default_vehicle;
+      auto_brand   = '';
+      auto_model   = '';  
+    }
     
     if (ords.bids) {
       var bid_num = -1;
@@ -122,19 +131,26 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
         el_price    = Dom.sel('.wait-order-approve__route-info__price'),
         el          = Dom.sel('.wait-bids-approve'),
         addCityFrom = '',
-        addCityTo   = '';
+        addCityTo   = '',
+        activeTypeTaxi = Storage.getActiveTypeTaxi();
       
     if (intt) {
       intt.innerHTML = add_button;
     }
     
-    if (Storage.getActiveTypeTaxi() === "intercity") {
+    if (activeTypeTaxi === "intercity") {
       //addInterCity();
       addCityFrom = fromCity + ', ',
       addCityTo   = toCity + ', ';
     }
 
-    if (Storage.getActiveTypeTaxi() === "trucking") {
+    if (activeTypeTaxi === "tourism") {
+      //addInterCity();
+      addCityFrom = fromCity + ', ',
+      addCityTo   = toCity + ', ';
+    }
+    
+    if (activeTypeTaxi === "trucking") {
       addCargo();
     }
     
@@ -142,17 +158,6 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     Dom.sel('div[data-route="to"]').innerHTML   = addCityTo + toAddress;
     Dom.sel('input.adress_from').value          = MyOrder.fromAddress;
     Dom.sel('input.adress_to').value            = MyOrder.toAddress;
-    
-    /*
-    for (var i = 0; i < name_points.length; i++) {
-      _addrPoints += '<p>' + name_points[i].address + ', ' + name_points[i].time + ' мин.</p>';
-    }    
-    if (_addrPoints === "") {
-      _addrPoints = "Заездов нет";
-    }
-    el_route.children[1].innerHTML = _addrPoints;
-    */
-   
     el_price.innerHTML = price_minus + '<span>' + price + '</span> руб.' + price_plus;
     el.innerHTML = '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__driver">' +
@@ -164,7 +169,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                         '</div>' +
                         '<div>' + agIndexes + '</div>' +
                       '</div>' +
-                      '<div class="wait-bids-approve__item__approve"></div>' +
+                      '<div class="wait-bids-approve__item__approve">' +
+                        '<img src="' + auto_photo + '" alt="' + auto_brand + ' ' + auto_model + '"><br/>' +
+                        auto_brand + ' ' + auto_model +
+                      '</div>' +
                     '</div>';
     Maps.drawRoute(MyOrder, false, function(){});
   }

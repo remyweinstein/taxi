@@ -74,18 +74,19 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
           }
           
           MapGoogle.geocoder(latl[0], latl[1], function (results) {
-            var _address = MapGoogle.getStreetFromCoords(results);
+            var _address = MapGoogle.getStreetFromCoords(results),
+                activeTypeTaxi = Storage.getActiveTypeTaxi();
 
             if (_route === "from") {
               Model.fromAddress = _address.address;
-              if (Storage.getActiveTypeTaxi() === 'intercity') {
+              if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
                 Model.fromCity = _address.city;
               }
             }
 
             if (_route === "to") {
               Model.toAddress = _address.address;
-              if (Storage.getActiveTypeTaxi() === 'intercity') {
+              if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
                 Model.toCity = _address.city;
               }
             }

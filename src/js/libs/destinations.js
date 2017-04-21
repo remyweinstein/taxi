@@ -8,10 +8,17 @@ function (Dom, Modal, Storage, Dates) {
   function AddNewZaezd(just_add) {
     var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
         addr = Model.toAddresses[just_add] || "",
-        el = Storage.getActiveTypeTaxi()==="intercity" ? Dom.sel('.order-Namecity-from') : Dom.sel('.order-city-to'),
+        el,
         new_field = document.createElement('div'),
-        parentDiv = el.parentNode;
+        parentDiv = el.parentNode,
+        activeTypeTaxi = Storage.getActiveTypeTaxi();
 
+    if (activeTypeTaxi==="intercity" || activeTypeTaxi==="tourism") {
+      el = Dom.sel('.order-Namecity-from');
+    } else {
+      el = Dom.sel('.order-city-to');
+    }
+    
     new_field.className += 'form-order-city__field order-city-to_z';
     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' +
                           '<span class="form-order-city__wrap">' +
@@ -47,11 +54,15 @@ function (Dom, Modal, Storage, Dates) {
     var _price = Dom.sel('[name="cost"]').value,
         weight = Dom.sel('input[name="weight"]'),
         volume = Dom.sel('input[name="volume"]'),
+        seats  = Dom.sel('input[name="seats"]'),
+        bags   = Dom.sel('input[name="bags"]'),
         stevedores = Dom.sel('input[name="loaders"]');
     
     Model.stevedores = stevedores ? stevedores.value : null;
     Model.volume = volume ? volume.value : null;
     Model.weight = weight ? weight.value : null;
+    Model.seats  = seats ? seats.value : null;
+    Model.bags   = bags ? bags.value : null;
     //event.preventDefault();
     Dom.sel('[data-click="save-order"]').disabled = true;
     Model.type = typeOf || 'taxi';
@@ -82,11 +93,63 @@ function (Dom, Modal, Storage, Dates) {
     Storage.lullModel(Model);
   }
   
+  function compareTime(datetime) {
+    var currentday   = new Date(),
+        seldateV     = new Date(datetime).valueOf(),
+        sel_year  = currentday.getFullYear(),
+        sel_month = currentday.getMonth(),
+        sel_day   = currentday.getDate(),
+        sel_hour  = currentday.getHours(),
+        sel_min   = currentday.getMinutes(),
+        check_min = roundFive(currentday.getMinutes()) + 25;
+      
+    function roundFive(a) {
+      var b = a % 5;
+      b && (a = a - b + 5);
+
+      return a;
+    }
+    
+    sel_month++;
+    sel_month = '0' + sel_month;
+    
+    if (check_min > 60) {
+      check_min = '00';
+      sel_hour++;
+      
+      if (sel_hour > 23) {
+        sel_hour = '00';
+        sel_day++;
+      }
+    }
+    
+    if (check_min < 10) {
+      check_min = '0' + check_min;
+    }
+    
+      console.log(datetime, sel_year + '-' + sel_month + '-' + sel_day + ' ' + sel_hour + ':' + check_min + ':00');
+    
+    var guess_time = new Date(sel_year + '-' + sel_month + '-' + sel_day + ' ' + sel_hour + ':' + check_min + ':00').valueOf();
+      
+    if (seldateV < guess_time) {
+      return false;
+    } else {
+      return true;
+    }
+    
+  }
+  
   function addStartTime (datetime) {
-    var buttonierro = Dom.sel('button[data-click="date_order"]');
+    var buttonierro = Dom.sel('button[data-click="date_order"]'),
+        text = Dates.datetimeForPeople(datetime);
+    
+    if (!compareTime(datetime)) {
+      datetime = null;
+      text = 'Сейчас';
+    }
     
     Model.start = datetime;
-    buttonierro.innerHTML = Dates.datetimeForPeople(datetime);
+    buttonierro.innerHTML = text;
   }
 
   function addTime(id) {
@@ -141,8 +204,8 @@ function (Dom, Modal, Storage, Dates) {
     
     if (Model.start) {
       var buttonierro = Dom.sel('button[data-click="date_order"]'),
-          now_time = new Date().valueOf(),
-          ord_time = new Date(Model.start).valueOf();
+          now_time    = new Date().valueOf(),
+          ord_time    = new Date(Model.start).valueOf();
       
       if (now_time < ord_time) {
         buttonierro.innerHTML = Dates.datetimeForPeople(Model.start);
@@ -176,6 +239,10 @@ function (Dom, Modal, Storage, Dates) {
       SaveOrderOffer('order', 'intercity');
     },
     
+    saveOrderTourism: function () {
+      SaveOrderOffer('order', 'tourism');
+    },
+    
     saveOrderCargo: function () {
       SaveOrderOffer('order', 'trucking');
     },
@@ -190,6 +257,10 @@ function (Dom, Modal, Storage, Dates) {
     
     saveOfferIntercity: function () {
       SaveOrderOffer('offer', 'intercity');
+    },
+    
+    saveOfferTourism: function () {
+      SaveOrderOffer('offer', 'tourism');
     },
     
     addNewInterpoint: function (add) {

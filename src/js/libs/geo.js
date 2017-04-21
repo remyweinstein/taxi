@@ -1,6 +1,6 @@
 /* global User, Settings, Conn, Maps, google */
 
-define(['Storage'], function (Storage) {
+define(function () {
 
     var old_lat, old_lng;
 
@@ -21,13 +21,16 @@ define(['Storage'], function (Storage) {
       function success(position) {
         var latitude  = position.coords.latitude,
             longitude = position.coords.longitude;
-          
-        old_lat = User.lat;
-        old_lng = User.lng;
-        User.lat = latitude;
-        User.lng = longitude;
-        User.save();
-        Conn.request('updateUserLocation');
+        
+        if (old_lat !== latitude  || old_lng !== longitude) {
+          User.lat = latitude;
+          User.lng = longitude;
+          User.save();
+          Conn.request('updateUserLocation');
+          Conn.request('getProfile');
+          old_lat = User.lat;
+          old_lng = User.lng;
+        }
         
         if (!User.city) {
           var latlng = new google.maps.LatLng(latitude,longitude);
@@ -79,7 +82,7 @@ define(['Storage'], function (Storage) {
               str = str.replace('</table> -->', '');
             
               var first_find = str.indexOf('<table class="table table-striped">'),
-                  last_find = str.indexOf('</table>') + 8;
+                  last_find  = str.indexOf('</table>') + 8;
               
               str = str.substring(first_find, last_find);
               
@@ -105,7 +108,7 @@ define(['Storage'], function (Storage) {
         xhr.setRequestHeader('Content-Type', 'application/json');        
         xhr.send();
         
-        console.log('watchID = ', watchID, 'error: ', resp);
+        console.log('geo location error: ', resp);
       }
       
       //navigator.geolocation.getCurrentPosition(success, error);

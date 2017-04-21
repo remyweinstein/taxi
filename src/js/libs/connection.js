@@ -1,12 +1,6 @@
 /* global User, Zones, Conn, Funcs */
 /*
-
- type = taxi
- type = intercity
- type = trucking
- type = tourism
-
- * @param {type} Uries
+ * @param {type} Uries, Funcs, Storage, Notify
  * @returns {connectionL#5.clConn}
  */
 define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, Notify) {
@@ -220,22 +214,43 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
   }
 
   function agreeOffer(data) {
+    params.offerId            = data.id;
     params.order              = {};
-    params.order.fromCity     = data.fromCity;
-    params.order.fromLocation = data.fromLocation;
-    params.order.fromAddress  = data.fromAddress;
-    params.order.toCity       = data.toCity;
-    params.order.toLocation   = data.toLocation;
-    params.order.toAddress    = data.toAddress;
-    params.order.offer        = data.id;    
-    params.order.price        = data.price;
+    
+    if (data.fromCity) {
+      params.order.fromCity     = data.fromCity;
+    }
+    
+    if (data.fromLocation) {
+      params.order.fromLocation = data.fromLocation;
+    }
+    
+    if (data.fromAddress) {
+      params.order.fromAddress  = data.fromAddress;
+    }
+    
+    if (data.toCity) {
+      params.order.toCity       = data.toCity;
+    }
+    
+    if (data.toLocation) {
+      params.order.toLocation   = data.toLocation;
+    }
+    
+    if (data.toAddress) {
+      params.order.toAddress    = data.toAddress;
+    }
+    
+    if (data.price) {
+      params.order.price        = data.price;
+    }
 
     Conn.sendMessage("post-order", params);
   }
 
   function disagreeOffer(data) {
     //params.offerId = id;
-    params.orderId = data.id;
+    params.orderId = data;
     Conn.sendMessage("delete-order", params);
   }
 
@@ -284,6 +299,23 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("get-orders", params);
   }
   
+  function requestMyTourismOrders() {
+    params.filter      = {};
+    params.filter.type = "tourism";
+    params.filter.my   = 1;
+    Conn.sendMessage("get-orders", params);
+  }
+  
+  function getSettings() {
+    Conn.sendMessage("get-settings");
+  }
+  
+  function setSettings(data) {
+    params.settings = [];
+    params.settings.push(data);
+    Conn.sendMessage("post-settings", params);
+  }
+  
   function approveOffer(id) {
     params.offerId = id;
     Conn.sendMessage("approve-offer", params);
@@ -309,6 +341,13 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
   }
   
   function requestMyIntercityOffers() {
+    params.filter      = {};
+    params.filter.type = "intercity";
+    params.filter.my   = 1;
+    Conn.sendMessage("get-offers", params);
+  }
+  
+  function requestMyTourismOffers() {
     params.filter      = {};
     params.filter.type = "intercity";
     params.filter.my   = 1;
@@ -403,14 +442,19 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("post-location", params);
   }
   
-  function registerUser(phone) {
-    params.phone = '8' + phone;
+  function registerUser(data) {
+    params = data;
     Conn.sendMessage("register", params);
   }
   
   function confirmSms(data) {
     params = data;
     Conn.sendMessage("confirm", params);
+  }
+  
+  function startOffer(id) {
+    params.offerId = id;
+    Conn.sendMessage("start-order", params);
   }
   
   function getModels(brand) {
@@ -452,9 +496,10 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
       }
     }
     
-    this.is_connect = false;
+    this.is_connect    = false;
     this.is_connecting = false;
-    this.callback = [];
+    this.alreadyStart  = false;
+    this.callback      = [];
     
     this.clearCb = function(name) {
       for (var i = 0; i < self.callback.length; i++) {
@@ -591,6 +636,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "startGetIntercityOrders":
           startGetOrders('intercity');
           break;
+        case "startGetTourismOrders":
+          startGetOrders('tourism');
+          break;
         case "stopGetOrders":
           stopGetOrders();
           break;
@@ -621,6 +669,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "disagreeOrder":
           disagreeOrder(data);
           break;
+        case "getSettings":
+          getSettings();
+          break;
+        case "setSettings":
+          setSettings(data);
+          break;
         case "approveOffer":
           approveOffer(data);
           break;
@@ -645,6 +699,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "requestMyIntercityOrders":
           requestMyIntercityOrders();
           break;
+        case "requestMyTourismOrders":
+          requestMyTourismOrders();
+          break;
         case "requestMyCargoOrders":
           requestMyCargoOrders();
           break;
@@ -656,6 +713,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "requestMyIntercityOffers":
           requestMyIntercityOffers();
+          break;
+        case "requestMyTourismOffers":
+          requestMyTourismOffers();
           break;
         case "startGetAgents":
           startGetAgents(data);
@@ -693,30 +753,41 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "confirmSms":
           confirmSms(data);
           break;
+        case "startOffer":
+          startOffer(data);
+          break;
       }
     };
           
     this.start = function (callback) {
       socket = new WebSocket("wss://" + Uries.server_uri + ":4443");
-      //socket = new WebSocket("ws://" + Uries.server_uri + ":8080");
       self.is_connecting = true;
       
       socket.onopen = function () {
-        self.is_connect = true;
+        if (self.alreadyStart) {
+          self.request('getProfile');
+        }
+        
+        if (Storage.getPrevListOrders()) {
+          Storage.clearPrevListOrders();
+        }
+        
+        self.is_connect    = true;
         self.is_connecting = false;
+        self.alreadyStart  = true;
         viewLog('Соединение установлено');
         timerReconnectionWebSocket = clearInterval(timerReconnectionWebSocket);
         callback();
       };
 
       socket.onerror = function (error) {
-        self.is_connect = false;
+        self.is_connect    = false;
         self.is_connecting = false;
         viewLog('Ошибка: ' + error.message);
       };
 
       socket.onclose = function (event) {
-        self.is_connect = false;
+        self.is_connect    = false;
         self.is_connecting = false;
         timerReconnectionWebSocket = setTimeout(self.start, 2000);
         if (event.wasClean) {

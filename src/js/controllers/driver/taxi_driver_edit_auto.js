@@ -1,4 +1,4 @@
-/* global Event, Conn, User, default_city, default_vehicle, Car */
+/* global Event, Conn, User, default_city, Car */
 
 define(['Dom', 'Storage'], function (Dom, Storage) {
   var model,
@@ -12,19 +12,22 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
     model_el.options.length = 0;
     
     for (var i = 0; i < response.result.models.length; i++) {
-        model_el.options[i] = new Option(response.result.models[i], response.result.models[i]);
+      model_el.options[i] = new Option(response.result.models[i], response.result.models[i]);
     }
     
     if (model) {
       var current = Dom.sel('select[name="model"] option[value="' + model + '"]');
-       current.selected = true;
+      
+      if (current) {
+        current.selected = true;
+      }
     }
   }
   
   function cbUpdateAuto() {
     Conn.clearCb('cbUpdateAuto');
     Car.setData();
-    Dom.historyBack();
+    window.location.hash = '#driver_my_auto';
   }
   
   function cbGetAuto(response) {
@@ -54,7 +57,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
 
         model = cars[i].model;
         changeModel(cars[i].brand);
-        var photo_car = cars[i].photo || default_vehicle;
+        var photo_car = cars[i].photo || Car.default_vehicle;
         Dom.sel('.avatar').src = photo_car;
         
         break;

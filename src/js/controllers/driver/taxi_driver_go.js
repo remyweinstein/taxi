@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, MapElements, Conn, Maps */
+/* global User, SafeWin, Event, MapElements, Conn, Maps, Settings */
 
 define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage'],
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage) {
@@ -99,7 +99,12 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           loc         = agnt.location,
           dist        = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
           dr_time, but;
-
+        
+      if (ords.finishedByClient) { //Add check safe zones
+        Conn.request('finishOrder', MyOrder.id, cbOnFinish);
+        return;
+      } 
+      
       if (lost_diff >= 0) {
         dr_time = lost_diff;
       } else {
@@ -120,7 +125,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         }
       }
       
-      if (dist < 1) {
+      if (dist < Settings.distanceToPoint) {
         but = Dom.sel('[data-click="driver-came"]');
 
         if (but) {
@@ -128,7 +133,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         }
       }
       
-      if (radius < 1) {
+      if (radius < Settings.distanceToPoint) {
         if (arrived_but) {
           var kuda = arrived_but.parentNode;
 
@@ -208,9 +213,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
         el        = Dom.sel('.wait-bids-approve'),
         addCityFrom = '',
-        addCityTo = '';
+        addCityTo = '',
+        activeTypeTaxi = Storage.getActiveTypeTaxi();
 
-    if (Storage.getActiveTypeTaxi() === "intercity") {
+    if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
       addCityFrom = MyOrder.fromCity + ', ',
       addCityTo = MyOrder.toCity + ', ';
     }

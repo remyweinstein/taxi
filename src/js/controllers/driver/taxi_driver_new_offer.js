@@ -110,6 +110,8 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
               Destinations.saveOfferCargo();
             } else if (typer === "taxi") {
               Destinations.saveOffer();
+            } else if (typer === "tourism") {
+              Destinations.saveOfferTourism();
             }
 
             break;
@@ -194,6 +196,10 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     elForm.insertBefore(innerPlaces, elFormChildren);
   }
   
+  function addTourism() {
+    
+  }
+  
   function stop() {
     GetPositions.clear();
     Destinations.clear();
@@ -201,12 +207,18 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   }
   
   function start() {
-    if (Storage.getActiveTypeTaxi() === "intercity") {
+    var activeTypeTaxi = Storage.getActiveTypeTaxi();
+    
+    if (activeTypeTaxi === "intercity") {
       addInterCity();
     }
     
-    if (Storage.getActiveTypeTaxi() === "trucking") {
+    if (activeTypeTaxi === "trucking") {
       addCargo();
+    }
+    
+    if (activeTypeTaxi === "tourism") {
+      addInterCity();
     }
     
     Storage.setActiveTypeModelTaxi('offer');

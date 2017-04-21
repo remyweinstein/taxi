@@ -25,6 +25,12 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
                 data.routeGuardZoneRadius = response;
                 Conn.request('updateProfile', data);
               }
+
+              if (_key === "orderRadius") {
+                data.id = _key;
+                data.value = response;
+                Conn.request('setSettings', data);
+              }
               
               el.querySelectorAll('span')[0].innerHTML = response === 0 ? 'Выключено' : response;
             });
@@ -46,8 +52,11 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
               
               Maps.setCurrentModel(response);
               data.map = response;
+              data.city = User.city;
+              data.name = User.name;
               Conn.request('updateProfile', data);
               User.map = response;
+              User.save();
               eval('Settings.' + _key + ' = "' + response + '"');
               Maps.init();
               SafeWin.reinit();

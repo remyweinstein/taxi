@@ -61,7 +61,7 @@ define(['Dates'], function(Dates) {
       self.length = order.length || 0;
       self.duration = order.duration || 0;
       self.name = order.agent.name || User.default_name;
-      self.created = Dates.datetimeForPeople(order.created, 'LEFT_TIME_OR_DATE');
+      self.created = Dates.datetimeForPeople(order.created);
       self.photo = order.agent.photo || User.default_avatar;
       self.bidId = order.bidId;
       self.fromAddress = order.fromAddress;

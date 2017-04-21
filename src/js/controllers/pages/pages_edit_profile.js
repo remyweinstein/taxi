@@ -171,7 +171,12 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     var data = {};
     
     if (file) {
-      data.photo = window.btoa(file);
+      if (file.length > 512000) {
+        alert('Размер картинки превышает 500кБ');
+        return;
+      } else {
+        data.photo = window.btoa(file);
+      }
     }
     
     data.name = Dom.sel('input[name=myname]').value;

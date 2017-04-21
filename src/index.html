@@ -5,9 +5,9 @@
         <title>Tech Agent</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <link href="assets/css/main.css?id=20170405" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?version=0.0.0.3" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?version=0.21" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -50,6 +50,7 @@
                     <i class="icon-share"></i><i class="icon-shield" data-click="openSafe"></i>
                 </div>
                 <div class="safety-window safety-window--closed"></div>
+                <div data-click="goto_order" class="active_order_win closed"></div>
             </div>
         </header>
         <main class="content">
@@ -124,11 +125,253 @@
             </form>
         </template>
         <template id="PageLogin">
-            <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
-                <p>Введите ваш номер телефона для входа</p>
-                <p>+7<input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
-                <p><button class="button_rounded--green" data-click="form-submit">Далее</button></p>
-            </form>
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">По номеру телефона</li>
+                    <li data-tab="2">По email</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                  <div data-tab-content="1" class="tabs_content">
+                    <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
+                        <p>Введите ваш номер телефона для входа</p>
+                        <select data-change="country" name="country">
+                            <option value="7">Россия</option>
+                            <option value="380">Украина</option>
+                            <option value="7">Казахстан</option>
+                            <option value="375">Белоруссия</option>
+                            <option value="7">Абхазия</option>
+                            <option value="61">Австралия</option>
+                            <option value="43">Австрия</option>
+                            <option value="994">Азербайджан</option>
+                            <option value="355">Албания</option>
+                            <option value="213">Алжир</option>
+                            <option value="685">Американское Самоа</option>
+                            <option value="1264">Ангилья</option>
+                            <option value="244">Ангола</option>
+                            <option value="376">Андорра</option>
+                            <option value="1">Антарктида</option>
+                            <option value="1268">Антигуа и Барбуда</option>
+                            <option value="54">Аргентина</option>
+                            <option value="374">Армения</option>
+                            <option value="297">Аруба</option>
+                            <option value="93">Афганистан</option>
+                            <option value="1242">Багамы</option>
+                            <option value="880">Бангладеш</option>
+                            <option value="1246">Барбадос</option>
+                            <option value="973">Бахрейн</option>
+                            <option value="501">Белиз</option>
+                            <option value="32">Бельгия</option>
+                            <option value="229">Бенин</option>
+                            <option value="1441">Бермудские острова</option>
+                            <option value="359">Болгария</option>
+                            <option value="591">Боливия</option>
+                            <option value="387">Босния и Герцеговина</option>
+                            <option value="267">Ботсвана</option>
+                            <option value="55">Бразилия</option>
+                            <option value="226">Буркина-Фасо</option>
+                            <option value="257">Бурунди</option>
+                            <option value="975">Бутан</option>
+                            <option value="678">Вануату</option>
+                            <option value="39">Ватикан</option>
+                            <option value="44">Великобритания</option>
+                            <option value="36">Венгрия</option>
+                            <option value="58">Венесуэла</option>
+                            <option value="84">Вьетнам</option>
+                            <option value="241">Габон</option>
+                            <option value="509">Гаити</option>
+                            <option value="592">Гайана</option>
+                            <option value="220">Гамбия</option>
+                            <option value="233">Гана</option>
+                            <option value="590">Гваделупа</option>
+                            <option value="502">Гватемала</option>
+                            <option value="224">Гвинея</option>
+                            <option value="245">Гвинея-Бисау</option>
+                            <option value="49">Германия</option>
+                            <option value="350">Гибралтар</option>
+                            <option value="504">Гондурас</option>
+                            <option value="852">Гонконг</option>
+                            <option value="1473">Гренада</option>
+                            <option value="299">Гренландия</option>
+                            <option value="30">Греция</option>
+                            <option value="995">Грузия</option>
+                            <option value="1671">Гуам</option>
+                            <option value="45">Дания</option>
+                            <option value="1767">Доминика</option>
+                            <option value="1829">Доминиканская Республика</option>
+                            <option value="20">Египет</option>
+                            <option value="260">Замбия</option>
+                            <option value="263">Зимбабве</option>
+                            <option value="972">Израиль</option>
+                            <option value="91">Индия</option>
+                            <option value="62">Индонезия</option>
+                            <option value="962">Иордания</option>
+                            <option value="964">Ирак</option>
+                            <option value="98">Иран</option>
+                            <option value="353">Ирландия</option>
+                            <option value="354">Исландия</option>
+                            <option value="34">Испания</option>
+                            <option value="39">Италия</option>
+                            <option value="967">Йемен</option>
+                            <option value="238">Кабо-Верде</option>
+                            <option value="1345">Каймановы острова</option>
+                            <option value="855">Камбоджа</option>
+                            <option value="237">Камерун</option>
+                            <option value="1">Канада</option>
+                            <option value="974">Катар</option>
+                            <option value="254">Кения</option>
+                            <option value="357">Кипр</option>
+                            <option value="686">Кирибати</option>
+                            <option value="86">Китай</option>
+                            <option value="57">Колумбия</option>
+                            <option value="269">Коморы</option>
+                            <option value="242">Конго</option>
+                            <option value="383">Косово</option>
+                            <option value="506">Коста-Рика</option>
+                            <option value="225">Кот д’Ивуар</option>
+                            <option value="53">Куба</option>
+                            <option value="965">Кувейт</option>
+                            <option value="856">Лаос</option>
+                            <option value="371">Латвия</option>
+                            <option value="266">Лесото</option>
+                            <option value="231">Либерия</option>
+                            <option value="961">Ливан</option>
+                            <option value="218">Ливия</option>
+                            <option value="370">Литва</option>
+                            <option value="423">Лихтенштейн</option>
+                            <option value="352">Люксембург</option>
+                            <option value="230">Маврикий</option>
+                            <option value="222">Мавритания</option>
+                            <option value="261">Мадагаскар</option>
+                            <option value="1">Майотта</option>
+                            <option value="853">Макао</option>
+                            <option value="265">Малави</option>
+                            <option value="60">Малайзия</option>
+                            <option value="223">Мали</option>
+                            <option value="960">Мальдивы</option>
+                            <option value="356">Мальта</option>
+                            <option value="212">Марокко</option>
+                            <option value="596">Мартиника</option>
+                            <option value="692">Маршалловы острова</option>
+                            <option value="52">Мексика</option>
+                            <option value="691">Микронезия</option>
+                            <option value="258">Мозамбик</option>
+                            <option value="373">Молдавия</option>
+                            <option value="377">Монако</option>
+                            <option value="976">Монголия</option>
+                            <option value="1664">Монтсеррат</option>
+                            <option value="95">Мьянма</option>
+                            <option value="264">Намибия</option>
+                            <option value="674">Науру</option>
+                            <option value="977">Непал</option>
+                            <option value="227">Нигер</option>
+                            <option value="234">Нигерия</option>
+                            <option value="1">Нидерландские Антилы</option>
+                            <option value="505">Никарагуа</option>
+                            <option value="683">Ниуэ</option>
+                            <option value="64">Новая Зеландия</option>
+                            <option value="687">Новая Каледония</option>
+                            <option value="47">Норвегия</option>
+                            <option value="971">ОАЭ</option>
+                            <option value="968">Оман</option>
+                            <option value="92">Пакистан</option>
+                            <option value="680">Палау</option>
+                            <option value="507">Панама</option>
+                            <option value="675">Папуа-Новая Гвинея</option>
+                            <option value="595">Парагвай</option>
+                            <option value="51">Перу</option>
+                            <option value="48">Польша</option>
+                            <option value="351">Португалия</option>
+                            <option value="1787">Пуэрто-Рико</option>
+                            <option value="389">Республика Македония</option>
+                            <option value="262">Реюньон</option>
+                            <option value="250">Руанда</option>
+                            <option value="40">Румыния</option>
+                            <option value="685">Самоа</option>
+                            <option value="378">Сан-Марино</option>
+                            <option value="239">Сан-Томе и Принсипи</option>
+                            <option value="966">Саудовская Аравия</option>
+                            <option value="268">Свазиленд</option>
+                            <option value="1">Святая Елена</option>
+                            <option value="850">Северная Корея</option>
+                            <option value="1670">Северные Марианские острова</option>
+                            <option value="248">Сейшелы</option>
+                            <option value="1">Сен-Бартельми</option>
+                            <option value="508">Сен-Пьер и Микелон</option>
+                            <option value="221">Сенегал</option>
+                            <option value="1784">Сент-Винсент и Гренадины</option>
+                            <option value="1869">Сент-Китс и Невис</option>
+                            <option value="1758">Сент-Люсия</option>
+                            <option value="381">Сербия</option>
+                            <option value="65">Сингапур</option>
+                            <option value="963">Сирия</option>
+                            <option value="421">Словакия</option>
+                            <option value="677">Соломоновы острова</option>
+                            <option value="252">Сомали</option>
+                            <option value="249">Судан</option>
+                            <option value="597">Суринам</option>
+                            <option value="1">США</option>
+                            <option value="232">Сьерра-Леоне</option>
+                            <option value="992">Таджикистан</option>
+                            <option value="66">Таиланд</option>
+                            <option value="886">Тайвань</option>
+                            <option value="255">Танзания</option>
+                            <option value="670">Тимор-Лесте</option>
+                            <option value="228">Того</option>
+                            <option value="690">Токелау</option>
+                            <option value="767">Тонга</option>
+                            <option value="1868">Тринидад и Тобаго</option>
+                            <option value="688">Тувалу</option>
+                            <option value="216">Тунис</option>
+                            <option value="993">Туркмения</option>
+                            <option value="90">Турция</option>
+                            <option value="256">Уганда</option>
+                            <option value="998">Узбекистан</option>
+                            <option value="598">Уругвай</option>
+                            <option value="298">Фарерские острова</option>
+                            <option value="679">Фиджи</option>
+                            <option value="63">Филиппины</option>
+                            <option value="358">Финляндия</option>
+                            <option value="500">Фолклендские острова</option>
+                            <option value="33">Франция</option>
+                            <option value="594">Французская Гвиана</option>
+                            <option value="689">Французская Полинезия</option>
+                            <option value="385">Хорватия</option>
+                            <option value="236">Центральноафриканская Республика</option>
+                            <option value="235">Чад</option>
+                            <option value="382">Черногория</option>
+                            <option value="420">Чехия</option>
+                            <option value="56">Чили</option>
+                            <option value="41">Швейцария</option>
+                            <option value="46">Швеция</option>
+                            <option value="1">Шпицберген и Ян Майен</option>
+                            <option value="94">Шри-Ланка</option>
+                            <option value="593">Эквадор</option>
+                            <option value="240">Экваториальная Гвинея</option>
+                            <option value="1">Эландские острова</option>
+                            <option value="503">Эль-Сальвадор</option>
+                            <option value="291">Эритрея</option>
+                            <option value="372">Эстония</option>
+                            <option value="251">Эфиопия</option>
+                            <option value="27">Южная Африка</option>
+                            <option value="82">Южная Корея</option>
+                            <option value="1876">Ямайка</option>
+                            <option value="81">Япония</option>
+                        </select>
+                        <p><span class="phone_code">7</span><input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
+                        <p><button class="button_rounded--green" data-click="form-submit-phone">Далее</button></p>
+                    </form>
+                  </div>
+                  <div data-tab-content="2" class="tabs_content">
+                    <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
+                        <p>Введите ваш email для входа</p>
+                        <p><input type="email" name="email" placeholder="Ваш email" /></p>
+                        <p><button class="button_rounded--green" data-click="form-submit-email">Далее</button></p>
+                    </form>
+                  </div>
+              </div>
+            </div>                  
         </template>
         <template id="PageLogout">
             <div data-controller="pages_logout"></div>
@@ -138,8 +381,8 @@
         </template>
         <template id="PageSms">
             <form data-controller="pages_sms" data-submit="form-auth-sms" onsubmit="return false;" class="form-login">
-                <p>Введите код из смс</p>
-                <p><input type="text" name="sms" placeholder="Код из смс" /></p>
+                <p>Введите полученный код</p>
+                <p><input type="text" name="sms" placeholder="Код" /></p>
                 <p><button class="button_rounded--green">Далее</button></p>
             </form>
         </template>
@@ -449,6 +692,88 @@
               </div>
             </div>
         </template>
+        <template id="TaxiClientTourism">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказать</li>
+                    <li data-tab="2">Преложения</li>
+                    <li data-tab="3">Мои заказы</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper" data-controller="taxi_client_tourism">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" data-map="enable" class="tabs_content">
+                    <div class="form-order-city">
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка..."/>
+                                <span class="form-order-city__hint"></span>
+                            </span>
+                        </div>
+                        <div class="form-order-city__field order-city-from">
+                            <i class="icon-right-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap">
+                                <input id="autocomplete" class="adress_from" type="text" data-click="choose_address" name="from" value="" placeholder="Откуда" autocomplete="off" />
+                                <i data-field="from" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field order-Namecity-from">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."/>
+                                <span class="form-order-city__hint"></span>
+                            </span>
+                        </div>
+                        <div class="form-order-city__field order-city-to">
+                            <i class="icon-left-circled form-order-city__label"></i>
+                            <span class="form-order-city__wrap">
+                                <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
+                            </span>
+                            <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
+                            <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-accessibility form-order-city__label"></i>
+                            <span class="form-order-city__wrap_short3">
+                                <input type="text" name="seats" value="1" placeholder="">
+                            </span>
+                            <i class="icon-shopping-bag form-order-city__label"></i>
+                            <span class="form-order-city__wrap_short3">
+                                <input type="text" name="bags" value="3" placeholder="">
+                            </span>
+                        </div>
+                        <div class="form-order-city__field">
+                            <i class="icon-commerical-building form-order-city__label"></i>
+                            <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                        </div>
+                        <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
+                            <div class="form-order-city__field">
+                                <i class="icon-rouble form-order-city__label"></i>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <button data-click="date_order" class="button_short--green">Сейчас</button>
+                                <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
+                                    <option value="auto">Легковой</option>
+                                    <option value="moto">Мотоцикл</option>
+                                    <option value="microbus">Микроавтобус</option>
+                                    <option value="bus">Автобус</option>
+                                </select>
+                            </div>
+                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                        </div>
+                    </div>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="myorders"></ul>
+                </div>
+              </div>
+            </div>
+        </template>        
         <template id="TaxiClientMap">
             <div class="wait-order-approve" data-hide-form="enable">
                 <div class="wait-order-approve__route-info">
@@ -528,6 +853,7 @@
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
                     <li data-tab="2">Мои предложения</li>
+                    <li data-tab="3">Архив</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
@@ -541,6 +867,9 @@
                     <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
                     <ul class="list-orders" data-model="list-offers"></ul>
                 </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
               </div>
             </div>
         </template>
@@ -549,6 +878,7 @@
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
                     <li data-tab="2">Мои предложения</li>
+                    <li data-tab="3">Архив</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
@@ -562,6 +892,34 @@
                     <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
                     <ul class="list-orders" data-model="list-offers"></ul>
                 </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+              </div>    
+            </div>    
+        </template>
+        <template id="TaxiDriverTourism">
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Мои предложения</li>
+                    <li data-tab="3">Архив</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content" id="1">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-controller="taxi_driver_intercity_list_orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
               </div>    
             </div>    
         </template>
@@ -570,6 +928,7 @@
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
                     <li data-tab="2">Мои предложения</li>
+                    <li data-tab="3">Архив</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
@@ -581,6 +940,9 @@
                 </div>
                 <div data-tab-content="2" class="tabs_content">
                     <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
                     <ul class="list-orders" data-model="list-offers"></ul>
                 </div>
               </div>

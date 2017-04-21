@@ -60,7 +60,7 @@ define(['Dom'], function(Dom) {
         newDiv = document.createElement('div');
       
     hour = hour < 10 ? '0' + hour : hour;
-    min = min < 10 ? '0' + min : min;
+    min  = min < 10 ? '0' + min : min;
           
     newDiv.innerHTML =  '<div class="clock">' + 
                           '<span class="clock__hour">' + 
@@ -79,6 +79,13 @@ define(['Dom'], function(Dom) {
     return newDiv;
   }
   
+  function roundFive(a) {
+    var b = a % 5;
+    b && (a = a - b + 5);
+    
+    return a;
+  }
+
   function hourUp() {
     Dom.sel('.clock__hour__value').innerHTML = checkHours(parseInt(Dom.sel('.clock__hour__value').innerHTML) + 1);
     return;
@@ -90,32 +97,57 @@ define(['Dom'], function(Dom) {
   }
   
   function minUp() {
-    var minutes = Dom.sel('.clock__min__value').innerHTML;
+    var minutes = parseInt(Dom.sel('.clock__min__value').innerHTML);
     
-    minutes = minutes >= 30 ? 30: 0;
+    if (minutes % 5 !== 0) {
+      minutes = roundFive(minutes);
+    }
     
-    if (minutes === 30) {
+    minutes = minutes >= 55 ? -5: minutes;
+    
+    if (minutes === -5) {
       hourUp();
     }
     
-    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes + 30);
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes + 5);
     return;
   }
   
   function minDown() {
-    var minutes = Dom.sel('.clock__min__value').innerHTML;
+    var minutes = parseInt(Dom.sel('.clock__min__value').innerHTML);
     
-    minutes = minutes >= 30 ? 30: 0;
+    if (minutes % 5 !== 0) {
+      minutes = roundFive(minutes);
+    }
     
-    if (minutes === 0) {
+    minutes = minutes <= 5 ? 60: minutes;
+    
+    if (minutes === 60) {
       hourDown();
     }
     
-    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes - 30);
+    Dom.sel('.clock__min__value').innerHTML = checkMinutes(minutes - 5);
     return;
   }
   
   function checkMinutes(value) {
+    var currentdate = new Date(),
+        day         = currentdate.getDate(),
+        month       = currentdate.getMonth(),
+        year        = currentdate.getFullYear(),
+        hour        = currentdate.getHours(),
+        sel_hour    = parseInt(Dom.sel('.clock__hour__value').innerHTML),
+        sel_day     = parseInt(Dom.sel('td.today').innerHTML),
+        sel_month   = parseInt(Dom.sel('.calendar__date_selected').dataset.month),
+        sel_year    = parseInt(Dom.sel('.calendar__date_selected').dataset.year),
+        min         = currentdate.getMinutes();
+          
+    if (day === sel_day && month === sel_month && year === sel_year && hour === sel_hour && value < min) {
+      value = min;
+    }
+    
+    
+    
     value = value > 59 ? 0 : value;
     value = value < 0 ? 30 : value;
     value = value < 10 ? '0' + value : value;
@@ -124,8 +156,21 @@ define(['Dom'], function(Dom) {
   }
   
   function checkHours(value) {
-    value = value > 23 ? 0 : value;
-    value = value < 0 ? 23 : value;
+    var currentdate = new Date(),
+        day         = currentdate.getDate(),
+        month       = currentdate.getMonth(),
+        year        = currentdate.getFullYear(),
+        sel_day     = parseInt(Dom.sel('td.today').innerHTML),
+        sel_month   = parseInt(Dom.sel('.calendar__date_selected').dataset.month),
+        sel_year    = parseInt(Dom.sel('.calendar__date_selected').dataset.year),
+        hour        = currentdate.getHours();
+    
+    if (day === sel_day && month === sel_month && year === sel_year && value < hour) {
+      value = hour;
+    }
+    
+    value = value > 23 ? 23 : value;
+    value = value < 0 ? 0 : value;
     value = value < 10 ? '0' + value : value;
     
     return value;
@@ -144,6 +189,7 @@ define(['Dom'], function(Dom) {
     if (MonthCurrent > month && YearCurrent.toString() === year.toString()) {
       return;
     }
+    
     if (DNfirst !== 0) {
       for (i = 1; i < DNfirst; i++) {
         calendar += '<td data-click="get-date">';
@@ -176,6 +222,7 @@ define(['Dom'], function(Dom) {
     Dom.sel('.calendar thead td:nth-child(2)').innerHTML = months[D.getMonth()] + ' ' + D.getFullYear();
     Dom.sel('.calendar thead td:nth-child(2)').dataset.month = D.getMonth();
     Dom.sel('.calendar thead td:nth-child(2)').dataset.year = D.getFullYear();
+    
     if (Dom.selAll('.calendar tbody tr').length < 6) {
       Dom.sel('.calendar tbody').innerHTML += '<tr><td>&nbsp;<td>&nbsp;<td>&nbsp;<td>&nbsp;<td>&nbsp;<td>&nbsp;<td>&nbsp;';
     }
@@ -270,7 +317,7 @@ define(['Dom'], function(Dom) {
     calendar: function (callback) {
                 this.show('<table class="calendar">' +
                             '<thead>' +
-                              '<tr><td><<td colspan="5"><td>>' +
+                              '<tr><td><<td colspan="5" class="calendar__date_selected"><td>>' +
                               '<tr><td>Пн<td>Вт<td>Ср<td>Чт<td>Пт<td>Сб<td>Вс' +
                             '<tbody>' +
                           '</table>' +

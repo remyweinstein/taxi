@@ -1,13 +1,32 @@
-define(['Storage'], function(Storage) {
+define(['Storage', 'Dom', 'ActiveOrder'], function(Storage, Dom, ActiveOrder) {
+  
+  function checkEnableActiveWindow() {
+    var active_win = Dom.sel('.active_order_win'),
+        arr = active_win.classList,
+        is_closed = false;
+
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] === 'closed') {
+        is_closed = true;
+        break;
+      }
+    }
+    
+    if (is_closed) {
+      ActiveOrder.enable();
+    }
+    
+    return;
+  }
   
   var Redirect = {
     check: function (currentHash) {
-      if (Storage.getTripClient() && currentHash !== "#client_go") {
-        window.location.hash = "#client_go";
+      if (Storage.getTripClient()) {
+        checkEnableActiveWindow();
       }
 
-      if (Storage.getTripDriver() && currentHash !== "#driver_go") {
-        window.location.hash = "#driver_go";
+      if (Storage.getTripDriver()) {
+        checkEnableActiveWindow();
       }
 
     }

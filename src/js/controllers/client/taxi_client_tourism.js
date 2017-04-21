@@ -18,9 +18,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     }
   }
 
-  function cbGetMyIntercityOrder(response) {
+  function cbGetMyTourismOrder(response) {
     Conn.request('stopGetOrders');
-    Conn.clearCb('cbGetMyIntercityOrder');
+    Conn.clearCb('cbGetMyTourismOrder');
     
     if (!response.error) {
       Lists.myOrders(response.result);
@@ -115,7 +115,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           
           if (target.dataset.click === "save-order") {
             Storage.setActiveTypeModelTaxi('order');
-            Destinations.saveOrderIntercity();
+            Destinations.saveOrderTourism();
 
             return;
           }
@@ -249,7 +249,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             el = target;
 
             Storage.setActiveTypeModelTaxi('offer');
-            Storage.setActiveTypeTaxi('intercity');
+            Storage.setActiveTypeTaxi('tourism');
             localStorage.setItem('_open_offer_id', el.dataset.id);
             window.location.hash = "#client_offer";
           }
@@ -328,10 +328,10 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   
   function start() {
     Storage.setActiveTypeModelTaxi('order');
-    Storage.setActiveTypeTaxi('intercity');
+    Storage.setActiveTypeTaxi('tourism');
     Storage.setActiveTypeFilters('offers');
     MyOrder = new clClientOrder();
-    MyOrder.activateInterCity();
+    MyOrder.activateTourism();
     Lists.init(MyOrder);
     Maps.mapOn();
     eventOnChangeZoom = GetPositions.drivers();
@@ -339,11 +339,11 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     initMap();
     // = Draw Offers of Drivers =
     Lists.filtersStart();
-    Conn.request('startGetOffers', 'intercity', cbGetOffers);
+    Conn.request('startGetOffers', 'tourism', cbGetOffers);
     // ===== Draw New Order =====
     Destinations.init(MyOrder);
     // ===== Draw My Orders =====
-    Conn.request('requestMyIntercityOrders', '', cbGetMyIntercityOrder);
+    Conn.request('requestMyTourismOrders', '', cbGetMyTourismOrder);
     HideForms.init();
     addEvents();
   }

@@ -87,13 +87,15 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
           color_automat = Storage.getClientAutomat() ? 'green' : 'grey',
           addCityFrom   = '', 
           addCityTo     = '',
-          disabled      = MyOrder.canceled ? ' disabled' : '';
+          disabled      = MyOrder.canceled ? ' disabled' : '',
+          activeTypeTaxi = Storage.getActiveTypeTaxi();
         
-      if (Storage.getActiveTypeTaxi() === "intercity") {
+      if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
         addCityFrom = MyOrder.fromCity + ', ',
         addCityTo   = MyOrder.toCity + ', ';
       }
       
+      Lists.init(MyOrder);
       Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();      

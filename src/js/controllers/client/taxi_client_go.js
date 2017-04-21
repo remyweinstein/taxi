@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, default_vehicle, driver_icon, MapElements, Conn, Maps, Zones */
+/* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Settings */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
@@ -80,14 +80,19 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           incar_but             = Dom.sel('button[data-click="client-incar"]'),
           but_came              = Dom.sel('[data-click="client-came"]');
 
+      if (ords.finishedByDriver) { //Add check safe zones
+        Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+        return;
+      } 
+      
       if (ords.id) {
         MyOrder.id = ords.id;
       }
       
-      dr_model    = agnt.brand + ' ' + agnt.model;
+      dr_model    = agnt.cars[0].brand + ' ' + agnt.cars[0].model;
       dr_name     = agnt.name;
-      dr_color    = agnt.color;
-      dr_number   = agnt.number;
+      dr_color    = agnt.cars[0].color;
+      dr_number   = agnt.cars[0].number;
       dr_distanse = ords.agent.distance.toFixed(1);
 
       if (lost_diff >= 0) {
@@ -116,7 +121,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }
       
       dr_photo            = agnt.photo || User.avatar;
-      dr_vehicle          = agnt.vehicle || default_vehicle;
+      dr_vehicle          = agnt.cars[0].photo || Car.default_vehicle;
       fromCoords          = ords.fromLocation.split(",");
       toCoords            = ords.toLocation.split(",");
       fromAddress         = ords.fromAddress;
@@ -142,7 +147,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       if (field_duration) {
         field_duration.innerHTML = duration_time;
       }
-        
+
       if (!show_route) {
         setRoute();
       }
@@ -166,7 +171,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         if(isFollow) {
           but_came.disabled = false;
         } else {
-          if (dist < 1) {
+          if (dist < Settings.distanceToPoint) {
             but_came.disabled = false;
           }
         }
@@ -191,6 +196,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       } else {
         Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
       }
+      
     } else {
       Storage.removeTripClient();
     }
@@ -207,9 +213,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         el_cancel   = Dom.sel('.wait-order-approve__route-info__cancel'),
         el          = Dom.sel('.wait-bids-approve'),
         addCityFrom = '',
-        addCityTo   = '';
+        addCityTo   = '',
+        activeTypeTaxi = Storage.getActiveTypeTaxi();
 
-      if (Storage.getActiveTypeTaxi() === "intercity") {
+      if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
         addCityFrom = MyOrder.fromCity + ', ',
         addCityTo = MyOrder.toCity + ', ';
       }
@@ -325,6 +332,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     MyOrder.activateCurrent();
     
     if (MyOrder.id === Storage.getTripClient()) {
+      show_route = false;
       isFollow = Storage.getFollowOrder();
       Maps.mapOn();
       initMap();

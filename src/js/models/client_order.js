@@ -164,6 +164,10 @@ define(['Storage'], function(Storage) {
       parse('intercity');
     };
     
+    this.activateTourism = function () {
+      parse('tourism');
+    };
+    
     this.lullInterCity = function () {
       lull('intercity');
     };

@@ -1,0 +1,31 @@
+/* ==|====================
+   Modules/active_order_win
+   ======================= */
+
+.active_order_win {
+    position: absolute;
+    top: 24em;
+    right: -1em;
+    height: 5em;
+    border-radius: .5em;
+    background-color: red;
+    color: white;
+    cursor: pointer;
+    
+    &:before {
+        content: "ЗАКАЗ";
+        top: 1em;
+        left: -0.25em;
+        display: inline-block;
+        position: relative;
+        -webkit-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        -ms-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+}
+
+.closed {
+    display: none;
+}

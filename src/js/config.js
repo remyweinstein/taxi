@@ -1,4 +1,5 @@
 requirejs.config({
+  urlArgs: "version=0.21",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -23,6 +24,7 @@ requirejs.config({
     "Yandex" :       "models/yandex",
 		"Zones" :        "models/zones",
     
+    "ActiveOrder" :  "libs/active_order_win",
     "Chat" :         "libs/chat",
     "Conn" :         "libs/connection",
     "Dates" :        "libs/dates",
@@ -64,6 +66,7 @@ requirejs.config({
     "ctrlTaxiClientCity" :              "controllers/client/taxi_client_city",
     "ctrlTaxiClientGo" :                "controllers/client/taxi_client_go",
     "ctrlTaxiClientIntercity" :         "controllers/client/taxi_client_intercity",
+    "ctrlTaxiClientTourism" :           "controllers/client/taxi_client_tourism",
     "ctrlTaxiClientCargo" :             "controllers/client/taxi_client_cargo",
     "ctrlTaxiClientFeedback" :          "controllers/client/taxi_client_feedback",
     "ctrlTaxiClientHelp" :              "controllers/client/taxi_client_help",
@@ -82,6 +85,7 @@ requirejs.config({
     "ctrlTaxiDriverGo" :            "controllers/driver/taxi_driver_go",
     "ctrlTaxiDriverOrder" :         "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" :     "controllers/driver/taxi_driver_intercity",
+    "ctrlTaxiDriverTourism" :       "controllers/driver/taxi_driver_tourism",
     "ctrlTaxiDriverHelp" :          "controllers/driver/taxi_driver_help",
     "ctrlTaxiDriverClientsRating" : "controllers/driver/taxi_driver_clients_rating",
     "ctrlTaxiDriverMyAuto" :        "controllers/driver/taxi_driver_my_auto",
@@ -104,6 +108,7 @@ var menus_arr = [];
     menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
+                           {name: 'Туризм', url: '#client_tourism', icon: 'compass'},
                            {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
                            {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
@@ -112,6 +117,7 @@ var menus_arr = [];
     menus_arr['driver'] = [{name: 'Город', url: '#driver_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
+                           {name: 'Туризм', url: '#driver_tourism', icon: 'compass'},
                            {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
                            {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
@@ -120,14 +126,12 @@ var menus_arr = [];
                            {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
   var content,
-      lastURL = '',
       MayLoading = false,
       
-      User, Car, Conn = false, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, 
+      User, Car, Conn = false, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements,
 
       driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
-      default_vehicle = 'assets/images/no_vehicle.png',
       default_city = 'Хабаровск',
       average_speed = 40,
       cost_of_km = 25,

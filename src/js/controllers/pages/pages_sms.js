@@ -1,14 +1,17 @@
 /* global Event, User, Conn, Car */
 
-define(['Dom', 'Storage'], function (Dom, Storage) {
+define(['Dom'], function (Dom) {
 
   function cbConfirmSms(response) {
     Conn.clearCb('cbConfirmSms');
-    User.token = response.result.token;
-    User.id = response.result.id;             
-    User.is_auth = true;
-    User.save();    
-    window.location.hash = '#client_city';
+    
+    if (!response.error) {
+      User.token   = response.result.token;
+      User.id      = response.result.id;             
+      User.is_auth = true;
+      User.reloadData();
+      window.location.hash = '#client_city';
+    }
   }
   
   function addEvents() {
