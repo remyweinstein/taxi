@@ -10,7 +10,7 @@ define(['Dom'], function (Dom) {
       User.id      = response.result.id;             
       User.is_auth = true;
       User.reloadData();
-      window.location.hash = '#client_city';
+      goToPage = '#client_city';
     }
   }
   

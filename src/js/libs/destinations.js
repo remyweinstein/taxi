@@ -1,4 +1,4 @@
-/* global MapElements, Maps, User */
+/* global MapElements, Maps, User, Conn, Settings */
 
 define(['Dom', 'ModalWindows', 'Storage', 'Dates'], 
 function (Dom, Modal, Storage, Dates) {
@@ -10,7 +10,6 @@ function (Dom, Modal, Storage, Dates) {
         addr = Model.toAddresses[just_add] || "",
         el,
         new_field = document.createElement('div'),
-        parentDiv = el.parentNode,
         activeTypeTaxi = Storage.getActiveTypeTaxi();
 
     if (activeTypeTaxi==="intercity" || activeTypeTaxi==="tourism") {
@@ -19,16 +18,18 @@ function (Dom, Modal, Storage, Dates) {
       el = Dom.sel('.order-city-to');
     }
     
+    var parentDiv = el.parentNode;
+    
     new_field.className += 'form-order-city__field order-city-to_z';
     new_field.innerHTML = '<i class="icon-record form-order-city__label"></i>' +
                           '<span class="form-order-city__wrap">' +
-                          '<input type="text" data-click="choose_address" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' +
+                            '<input type="text" data-click="choose_address" name="to_plus' + just_add + '" value="' + addr + '" placeholder="Заезд"/>' +
                           '</span>' +
                           '<span data-click="field_add_time" data-id="' + just_add + '" class="form-order-city__field_add_time">' +
-                          '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' +
+                            '<i class="icon-clock"></i><span class="top-index">' + time + '</span>' +
                           '</span>' +
                           '<span data-click="field_delete" data-id="' + just_add + '" class="form-order-city__field_delete">' +
-                          '<i class="icon-trash"></i>' +
+                            '<i class="icon-trash"></i>' +
                           '</span>' +
                           '<i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>';
 
@@ -37,7 +38,7 @@ function (Dom, Modal, Storage, Dates) {
 
   function reloadPoints(Model) {
     var rem_old_stops = Dom.selAll('.order-city-to_z'),
-      i;
+        i;
 
     for (i = 0; i < rem_old_stops.length; i++) {
       rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
@@ -56,17 +57,23 @@ function (Dom, Modal, Storage, Dates) {
         volume = Dom.sel('input[name="volume"]'),
         seats  = Dom.sel('input[name="seats"]'),
         bags   = Dom.sel('input[name="bags"]'),
-        stevedores = Dom.sel('input[name="loaders"]');
+        stevedores = Dom.sel('input[name="loaders"]'),
+        now   = new Date();
+      
+    if (now.valueOf() > Date.parse(Model.start)) {
+      Model.start = now.getFullYear() + '-' + (now.getMonth()+ 1)   + '-' + now.getDate() + ' ' +  now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+    }
     
     Model.stevedores = stevedores ? stevedores.value : null;
-    Model.volume = volume ? volume.value : null;
-    Model.weight = weight ? weight.value : null;
-    Model.seats  = seats ? seats.value : null;
-    Model.bags   = bags ? bags.value : null;
+    Model.volume     = volume ? volume.value : null;
+    Model.weight     = weight ? weight.value : null;
+    Model.seats      = seats ? seats.value : null;
+    Model.occupiedSeats = 0;
+    Model.bags       = bags ? bags.value : null;
     //event.preventDefault();
     Dom.sel('[data-click="save-order"]').disabled = true;
-    Model.type = typeOf || 'taxi';
-    Model.price = _price === "" ? Model.recommended_cost : _price;
+    Model.type    = typeOf || 'taxi';
+    Model.price   = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
     Model.save(MapElements.points);
     Storage.lullModel(Model);
@@ -101,7 +108,7 @@ function (Dom, Modal, Storage, Dates) {
         sel_day   = currentday.getDate(),
         sel_hour  = currentday.getHours(),
         sel_min   = currentday.getMinutes(),
-        check_min = roundFive(currentday.getMinutes()) + 25;
+        check_min = roundFive(currentday.getMinutes()) + Settings.t3;
       
     function roundFive(a) {
       var b = a % 5;
@@ -126,8 +133,6 @@ function (Dom, Modal, Storage, Dates) {
     if (check_min < 10) {
       check_min = '0' + check_min;
     }
-    
-      console.log(datetime, sel_year + '-' + sel_month + '-' + sel_day + ' ' + sel_hour + ':' + check_min + ':00');
     
     var guess_time = new Date(sel_year + '-' + sel_month + '-' + sel_day + ' ' + sel_hour + ':' + check_min + ':00').valueOf();
       
@@ -291,6 +296,13 @@ function (Dom, Modal, Storage, Dates) {
       Model.toCoordses.splice(id, 1);
       Model.times.splice(id, 1);
       be_dead.parentNode.removeChild(be_dead);
+      Storage.lullModel(Model);
+      MapElements.clear();
+      Maps.drawRoute(Model, false, function (recomended) {
+        Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
+        Model.recommended_cost = recomended;
+        return Model;
+      });
       reloadPoints(Model);
     },
 

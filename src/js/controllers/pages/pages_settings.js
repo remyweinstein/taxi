@@ -1,7 +1,17 @@
 /* global Event, Settings, Maps, SafeWin, User, Conn */
 
 define(['Dom', 'ModalWindows'], function (Dom, Modal) {
-  
+    function success(position) {
+      var latitude  = position.coords.latitude,
+          longitude = position.coords.longitude;
+        
+      alert('latitude =' + latitude + ', longitude = ' + longitude);   
+    }
+    
+    function error() {
+      alert('Ошибка определения местоположения');
+    }
+
   function addEvents() {
     Event.click = function (event) {
       var target = event.target,
@@ -26,7 +36,22 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
                 Conn.request('updateProfile', data);
               }
 
-              if (_key === "orderRadius") {
+              if (_key === "distanceToPoint" || 
+                  _key === "automatClientTime" ||
+                  _key === "automatDriverTime" ||
+                  _key === "blockDays" ||
+                  _key === "indexInterval" ||
+                  _key === "cancelCount0" ||
+                  _key === "cancelCount1" ||
+                  _key === "orderCostOfKm" ||
+                  _key === "orderLandingPrice" ||
+                  _key === "orderZoneRadius" ||
+                  _key === "t0" ||
+                  _key === "t1" ||
+                  _key === "t2" ||
+                  _key === "t3" ||
+                  _key === "tSecurityProtocol"
+                ) {
                 data.id = _key;
                 data.value = response;
                 Conn.request('setSettings', data);
@@ -38,7 +63,11 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
         }
         
         if (target.dataset.click === "link") {
-          window.location.hash = target.dataset.link;
+          goToPage = target.dataset.link;
+        }
+        
+        if (target.dataset.click === "func") {
+          eval(target.dataset.func);
         }
 
         if (target.dataset.click === "select") {
@@ -140,6 +169,11 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
             _click = ' data-click="' + Settings.type[key]  + '"';
           }
           
+          if (Settings.type[key] === "func") {
+            _ins = ' <span></span>';
+            _click = ' data-click="' + Settings.type[key]  + '" data-func="' + _obj[key] + '"';
+          }
+          
           if (Settings.type[key] === "number") {
             _res = 'Выключено';
             
@@ -154,6 +188,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
             _ins = ' <span></span>';
             _click = ' data-click="' + Settings.type[key]  + '" data-link="' + _obj[key] + '"';
           }
+
         }
         
         _innerText += '<p data-key="' + key + '"' + _click + '>' + Settings.label[key] + _ins + '</p>';

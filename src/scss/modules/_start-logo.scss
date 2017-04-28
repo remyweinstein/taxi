@@ -11,6 +11,18 @@
     img {
         max-width: 60%;
     }
+    &__again_location {
+        width: 2em;
+        height: 1.75em;
+        background-color: #ff0;
+        cursor: pointer;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        text-align: center;
+        padding-top: 0.25em;
+        font-weight: 800;
+    }
 }
 
 .start_logo_state {

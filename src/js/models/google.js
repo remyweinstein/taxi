@@ -1,4 +1,4 @@
-/* global google, SafeWin, User, Maps, MapElements, cost_of_km, Conn */
+/* global google, SafeWin, User, Maps, MapElements, Conn, Settings */
 
 define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
   var clGoogle = function () {
@@ -15,7 +15,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           var latlng = Model.toCoordses[i].split(',');
 
           waypoints.push({
-            location: {lat: latlng[0], lng: latlng[1]}
+            location: new google.maps.LatLng(latlng[0], latlng[1])
             //stopover: true
           });
         }
@@ -50,7 +50,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
 
           Model.duration = Math.round(dura / 60);
           Model.length = dist;
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Settings.orderCostOfKm) + parseInt(Settings.orderLandingPrice)) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
           for (i = 0; i < response.routes.length; i++) {

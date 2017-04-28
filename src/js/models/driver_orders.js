@@ -31,6 +31,7 @@ define(['Dates'], function(Dates) {
     this.agentBidId = null;
     this.active_bid = false;
     this.id = null;
+    this.zone = null;
     this.comment = null;
 
     this.constructor = function (callback) {
@@ -69,6 +70,7 @@ define(['Dates'], function(Dates) {
       self.toAddress = order.toAddress;
       self.toCity = order.toCity;
       self.comment = order.comment;
+      self.zone = order.zone;
 
       if (order.bids) {
         if (order.bids[0]) {

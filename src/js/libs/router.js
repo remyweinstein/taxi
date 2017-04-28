@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps, goToPage, isGeolocation */
 
 define(['Dom', 'Chat', 'Tabs', 'HideForms', 'Redirect', 'Storage'], 
 function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
@@ -10,13 +10,14 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#login', template:'PageLogin', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
-                {hash:'#trusted_contacts', template:'PagesTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
+                {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
                 {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
+                {hash:'#agent_rating', template:'PageAgentRating', controller:'ctrlPageAgentRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_choose_address', template:'TaxiClientChooseAddress', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_city', template:'TaxiClientCity', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},
@@ -25,7 +26,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#client_tourism', template:'TaxiClientTourism', controller:'ctrlTaxiClientTourism', title:'Туризм', menu:'client', pageType: ''},
                 {hash:'#client_cargo', template:'TaxiClientCargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
                 {hash:'#client_feedback', template:'TaxiClientFeedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
-                {hash:'#client_drivers_rating', template:'TaxiClientDriversRating', controller:'ctrlTaxiClientDriversRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
                 {hash:'#client_offer', template:'TaxiClientOffer', controller:'ctrlTaxiClientOffer', title:'Предложение', menu:'client', pageType: ''},
@@ -37,7 +37,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#driver_rating', template:'TaxiDriverRating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_cargo', template:'TaxiDriverCargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', template:'TaxiDriverCity', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
-                {hash:'#driver_clients_rating', template:'TaxiDriverClientsRating', controller:'ctrlTaxiDriverClientsRating', title:'Оставьте свой отзыв', menu:'driver', pageType: ''},
                 {hash:'#driver_go', template:'TaxiDriverGo', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_order', template:'TaxiDriverOrder', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
                 {hash:'#driver_intercity', template:'TaxiDriverIntercity', controller:'ctrlTaxiDriverIntercity', title:'Межгород', menu:'driver', pageType: ''},
@@ -48,7 +47,15 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       currentHash = '';
 
   function hashCheck() {
-    if (User.city && User.lat && User.lng && (Conn.is_connect || Conn.alreadyStart) && !Maps.loading) {
+    if (!goToPage || goToPage === "undefined") {
+      goToPage = '#start';
+    }
+    
+    if (window.location.hash !== goToPage && window.location.hash !== currentHash) {
+      goToPage = window.location.hash;
+    }
+    
+    if (User.city && User.lat && User.lng && (Conn.is_connect || Conn.alreadyStart) && !Maps.loading && isGeolocation) {
       MayLoading = true;
     } else {
       if (!Conn.is_connect) {
@@ -60,7 +67,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     }
     
     if (!MayLoading) {
-      window.location.hash = '#start';
+      goToPage = '#start';
     }
     
     if (!Conn.is_connect) {
@@ -75,15 +82,17 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     Redirect.check(currentHash);
     
       var last_page = Storage.getLastPage(),
-          cur_hash  = window.location.hash;
+          cur_hash  = goToPage;
 
       if (last_page !== cur_hash) {
-        if (cur_hash !== "#start" && cur_hash !== "") {
+        if (cur_hash !== "#logout" && cur_hash !== "#start" && cur_hash !== "") {
           Storage.setLastPage(cur_hash);
         }
       } 
-    
-    if (window.location.hash !== currentHash) {
+      
+    if (goToPage !== currentHash) {
+      window.location.hash = goToPage;
+      
       for (var i = 0, currentRoute; currentRoute = routes[i++];) {
         if (currentHash === currentRoute.hash) {
           old_controller = currentRoute;
@@ -164,7 +173,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     var win_route = Dom.selAll('.safe_by_route')[0];
     
     if (win_route) {
-      if (route.hash === "#client_go" || route.hash === "#driver_go" || route.hash === "#client_map") {
+      if (route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_cargo" || route.hash === "#client_intercity") {
         win_route.classList.remove('hidden');
       } else {
         win_route.classList.add('hidden');

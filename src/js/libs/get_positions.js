@@ -61,10 +61,10 @@ define(['Car'], function (Car) {
     for (i = 0; i < agnts.length; i++) {
       if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
         var photo     = agnts[i].photo || User.default_avatar,
-            photo_car = agnts[i].vehicle || Car.default_vehicle,
+            photo_car = agnts[i].cars[0].photo || Car.default_vehicle,
             name      = agnts[i].name || '&nbsp;',
-            brand     = agnts[i].brand || '&nbsp;',
-            model     = agnts[i].model || '&nbsp;',
+            brand     = agnts[i].cars[0].brand || '&nbsp;',
+            model     = agnts[i].cars[0].model || '&nbsp;',
             favorite  = !agnts[i].isFavorite ? '<button data-id="' + agnts[i].id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnts[i].id + '" data-click="deltofav">Удалить из Избранного</button>',
             icon      = agnts[i].isDriver ? driver_icon : men_icon,
             info      = '<div style="text-align:center;">' +

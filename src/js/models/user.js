@@ -1,6 +1,6 @@
 /* global Car, User, Conn, Maps, Settings */
 
-define(['Dom', 'Storage'], function(Dom, Storage) {
+define(['Dom', 'Storage', 'MainMenu'], function(Dom, Storage, MainMenu) {
   var clUser = function () {
     var self = this;
     
@@ -38,8 +38,8 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     this.initialization_token      = false;
     this.default_avatar            = default_avatar;
     this.default_name              = default_name;
-    this.token                     = getToken();
-    this.id                        = getId();
+    this.token                     = null;
+    this.id                        = null;
     this.lat                       = null;
     this.lng                       = null;
     this.hasPin                    = false;
@@ -94,6 +94,39 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       }
     };
     
+    
+    this.clear = function () {
+      self.token                     = null;
+      self.id                        = null;
+      self.initialization_token      = false;
+      self.hasPin                    = false;
+      self.is_auth                   = false;
+      self.authToken                 = null;
+      self.name                      = null;
+      self.phone                     = null;
+      self.avatar                    = default_avatar;
+      self.birthday                  = null;
+      self.sex                       = null;
+      self.hasVkontakte              = false;
+      self.hasOdnoklassniki          = false;
+      self.hasMailru                 = false;
+      self.hasFacebook               = false;
+      self.hasTwitter                = false;
+      self.hasGoogle                 = false;
+      self.hasYandex                 = false;
+      self.hasGoogleplus             = false;
+      self.hasInstagram              = false;
+      self.hasYoutube                = false;
+      self.hasWargaming              = false;
+      self.isAllowReciveSos          = false;
+      self.isAllowSendSos            = false;
+      self.isDisableZoneByPin        = false;
+      self.isActivateSosOnDisconnect = false;
+      self.routeGuardZoneRadius      = null;
+      
+      self.initToken();
+    };
+    
     this.setData = function (response) {
       var prfl = response.profile;
       
@@ -101,8 +134,8 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       self.id                        = prfl.id;
       self.city                      = prfl.city || self.city;
       self.phone                     = prfl.phone;
-      self.name                      = prfl.name && prfl.name !== "undefined" ? prfl.name : default_name;
-      self.avatar                    = prfl.photo ? prfl.photo : default_avatar;
+      self.name                      = prfl.name || default_name;
+      self.avatar                    = prfl.photo || prfl.avatar || default_avatar;
       self.hasPin                    = prfl.hasPin;
       self.hasVkontakte              = prfl.hasVkontakte;
       self.hasOdnoklassniki          = prfl.hasOdnoklassniki;
@@ -122,20 +155,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       self.map                       = prfl.map || 'google';
       self.routeGuardZoneRadius      = prfl.routeGuardZoneRadius || 50;
 
-      if (Dom.selAll('.jq_my_name').length) {
-        var img = Dom.sel('.menu__desc_avatar');
-        
-        Dom.sel('.jq_my_name').innerHTML = self.name;
-        Dom.sel('.jq_my_phone').innerHTML = self.phone;
-
-        if (!self.avatar) {
-          self.avatar = default_avatar;
-        }
-
-        img.src = self.avatar;
-        img.alt = self.name;
-      }
-      
+      MainMenu.renderUserInfo();
       self.save();
     };
     
@@ -148,9 +168,11 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     this.initToken = function () {
       if (!self.token) {
         self.is_auth = false;
+        
         if (!self.initialization_token) {
           Conn.request('requestToken', '', cbGetToken);
         }
+        
         self.initialization_token = true;
         self.save();
       }
@@ -162,40 +184,40 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       var obj = Storage.getUser();
       
       if (obj) {
-        self.initialization_token      = obj.initialization_token || self.initialization_token;
-        self.default_avatar            = obj.default_avatar || self.default_avatar;
-        self.default_name              = obj.default_name || self.default_name;
-        self.token                     = obj.token || self.token;
-        self.id                        = obj.id || self.id;
-        self.lat                       = obj.lat || self.lat;
-        self.lng                       = obj.lng || self.lng;
-        self.hasPin                    = obj.hasPin || self.hasPin;
-        self.city                      = obj.city || self.city;
-        self.country                   = obj.country || self.country;
-        self.is_auth                   = obj.is_auth || self.is_auth;
-        self.authToken                 = obj.authToken || self.authToken;
-        self.name                      = obj.name || self.name;
-        self.phone                     = obj.phone || self.phone;
-        self.avatar                    = obj.avatar || self.avatar;
-        self.birthday                  = obj.birthday || self.birthday;
-        self.sex                       = obj.sex || self.sex;
-        self.hasVkontakte              = obj.hasVkontakte || self.hasVkontakte;
-        self.hasOdnoklassniki          = obj.hasOdnoklassniki || self.hasOdnoklassniki;
-        self.hasMailru                 = obj.hasMailru || self.hasMailru;
-        self.hasFacebook               = obj.hasFacebook || self.hasFacebook;
-        self.hasTwitter                = obj.hasTwitter || self.hasTwitter;
-        self.hasGoogle                 = obj.hasGoogle || self.hasGoogle;
-        self.hasYandex                 = obj.hasYandex || self.hasYandex;
-        self.hasGoogleplus             = obj.hasGoogleplus || self.hasGoogleplus;
-        self.hasInstagram              = obj.hasInstagram || self.hasInstagram;
-        self.hasYoutube                = obj.hasYoutube || self.hasYoutube;
-        self.hasWargaming              = obj.hasWargaming || self.hasWargaming;
-        self.isAllowReciveSos          = obj.isAllowReciveSos || self.isAllowReciveSos;
-        self.isAllowSendSos            = obj.isAllowSendSos || self.isAllowSendSos;
-        self.isDisableZoneByPin        = obj.isDisableZoneByPin || self.isDisableZoneByPin;
-        self.isActivateSosOnDisconnect = obj.isActivateSosOnDisconnect || self.isActivateSosOnDisconnect;
-        self.map                       = obj.map || self.map;
-        self.routeGuardZoneRadius      = obj.routeGuardZoneRadius || self.routeGuardZoneRadius;
+        self.initialization_token      = obj.initialization_token;
+        self.default_avatar            = obj.default_avatar;
+        self.default_name              = obj.default_name;
+        self.token                     = obj.token;
+        self.id                        = obj.id;
+        self.lat                       = obj.lat;
+        self.lng                       = obj.lng;
+        self.hasPin                    = obj.hasPin;
+        self.city                      = obj.city;
+        self.country                   = obj.country;
+        self.is_auth                   = obj.is_auth;
+        self.authToken                 = obj.authToken;
+        self.name                      = obj.name;
+        self.phone                     = obj.phone;
+        self.avatar                    = obj.avatar;
+        self.birthday                  = obj.birthday;
+        self.sex                       = obj.sex;
+        self.hasVkontakte              = obj.hasVkontakte;
+        self.hasOdnoklassniki          = obj.hasOdnoklassniki;
+        self.hasMailru                 = obj.hasMailru;
+        self.hasFacebook               = obj.hasFacebook;
+        self.hasTwitter                = obj.hasTwitter;
+        self.hasGoogle                 = obj.hasGoogle;
+        self.hasYandex                 = obj.hasYandex;
+        self.hasGoogleplus             = obj.hasGoogleplus;
+        self.hasInstagram              = obj.hasInstagram;
+        self.hasYoutube                = obj.hasYoutube;
+        self.hasWargaming              = obj.hasWargaming;
+        self.isAllowReciveSos          = obj.isAllowReciveSos;
+        self.isAllowSendSos            = obj.isAllowSendSos;
+        self.isDisableZoneByPin        = obj.isDisableZoneByPin;
+        self.isActivateSosOnDisconnect = obj.isActivateSosOnDisconnect;
+        self.map                       = obj.map;
+        self.routeGuardZoneRadius      = obj.routeGuardZoneRadius;
         
         var response = {};
         
@@ -211,7 +233,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
     
     this.save = function () {
       var obj = {};
-      
+
       obj.initialization_token      = self.initialization_token;
       obj.default_avatar            = self.default_avatar;
       obj.default_name              = self.default_name;
@@ -246,7 +268,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       obj.isActivateSosOnDisconnect = self.isActivateSosOnDisconnect;
       obj.map                       = self.map;
       obj.routeGuardZoneRadius      = self.routeGuardZoneRadius;
-      
+
       Storage.setUser(obj);
     };
 
@@ -256,22 +278,10 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       Conn.request('updateUserLocation');
     }
 
-    function getToken() {
-      return self.token;
-    }
-
     function setId(id) {
       self.id = id;
       self.save();
     }
-
-    function getId() {
-      return self.id;
-    }
-    
-    
-    
-
   };
 
 	return clUser;

@@ -32,7 +32,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
     Conn.clearCb('cbAcceptInvite');
     
     if (!resp.error) {
-      window.location.hash = '#messages';
+      goToPage = '#messages';
     }
   }
   
@@ -46,7 +46,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
         }
 
         if (target.dataset.click === 'recept-invite') {
-          window.location.hash = '#messages';
+          goToPage = '#messages';
         }
 
         if (target) {
@@ -71,7 +71,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
       Conn.request('readNotification', id, cbReadOpenNotify);
       addEvents();
     } else {
-      window.location.hash = '#messages';
+      goToPage = '#messages';
     }
   }
   

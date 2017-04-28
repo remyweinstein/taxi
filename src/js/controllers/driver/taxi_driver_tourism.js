@@ -56,7 +56,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
 
       while (target !== this && target) {
         if (target.dataset.click === "new-offer") {
-          window.location.hash = "#driver_new_offer";
+          goToPage = "#driver_new_offer";
         }
             // = Menu my Orders Item =
         if (target.dataset.click === 'myorders_item_menu') {
@@ -84,7 +84,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
             localStorage.setItem('_open_offer_id', id);
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('tourism');
-            window.location.hash = '#driver_my_offer';
+            goToPage = '#driver_my_offer';
           });
           
           return;
@@ -93,7 +93,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
         if (target.dataset.click === "open-order") {
           el = target;
           localStorage.setItem('_open_order_id', el.dataset.id);
-          window.location.hash = "#driver_order";
+          goToPage = "#driver_order";
         }
 
         if (target.dataset.click === "open-offer") {
@@ -102,7 +102,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
             localStorage.setItem('_open_offer_id', id);
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('tourism');
-            window.location.hash = '#driver_my_offer';
+            goToPage = '#driver_my_offer';
           });
         }
 
@@ -137,7 +137,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
                         '<button class="button_rounded--green" data-response="yes">Войти</button></p>',
                       function (response) {
                           if (response === "yes") {
-                            window.location.hash = '#login';
+                            goToPage = '#login';
                           }
                       });
             } else if (Car.inGarage === 0) {
@@ -146,7 +146,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
                         '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                       function (response) {
                           if (response === "yes") {
-                            window.location.hash = '#driver_my_auto';
+                            goToPage = '#driver_my_auto';
                           }
                       });
             } else if (!Car.id) {
@@ -155,7 +155,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
                           '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
                             if (response === "yes") {
-                              window.location.hash = '#driver_my_auto';
+                              goToPage = '#driver_my_auto';
                             }
                         });
               } else {

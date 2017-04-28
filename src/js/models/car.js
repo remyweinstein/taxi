@@ -4,23 +4,25 @@ define(function() {
   function cbGetForSetAuto(response) {
     Conn.clearCb('cbGetForSetAuto');
     
-    var prfl = response.result.cars;
+    if (response && !response.error) {
+      var prfl = response.result.cars;
 
-    for (var i = 0; i < prfl.length; i++) {
-      if (prfl[i].isActive) {
-        Car.id          = prfl[i].id;
-        Car.brand       = prfl[i].brand;
-        Car.model       = prfl[i].model;
-        Car.color       = prfl[i].color;
-        Car.number      = prfl[i].number;
-        Car.tonnage     = prfl[i].tonnage;
-        Car.type        = prfl[i].type;
-        Car.conditioner = prfl[i].conditioner;
-        Car.photo       = prfl[i].photo;
-        Car.type        = prfl[i].type;
-        Car.isActive    = prfl[i].isActive;
+      for (var i = 0; i < prfl.length; i++) {
+        if (prfl[i].isActive) {
+          Car.id          = prfl[i].id;
+          Car.brand       = prfl[i].brand;
+          Car.model       = prfl[i].model;
+          Car.color       = prfl[i].color;
+          Car.number      = prfl[i].number;
+          Car.tonnage     = prfl[i].tonnage;
+          Car.type        = prfl[i].type;
+          Car.conditioner = prfl[i].conditioner;
+          Car.photo       = prfl[i].photo;
+          Car.type        = prfl[i].type;
+          Car.isActive    = prfl[i].isActive;
+        }
+        Car.inGarage = prfl.length;
       }
-      Car.inGarage = prfl.length;
     }
   };
   

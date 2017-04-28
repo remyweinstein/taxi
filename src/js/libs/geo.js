@@ -2,126 +2,128 @@
 
 define(function () {
 
-    var old_lat, old_lng;
+    var old_lat, old_lng, timerGetLocation = false;
 
-
-    function geoFindMe() {
-      if (!navigator.geolocation) {
-        alert("К сожалению, геолокация не поддерживается в вашем браузере");
+    function success(position) {
+      var latitude  = position.coords.latitude,
+          longitude = position.coords.longitude;
         
-        return;
+      if (timerGetLocation) {
+        clearInterval(timerGetLocation);
       }
       
-      var options = {
-        enableHighAccuracy : true,
-        maximumAge         : 0,
-        timeout            : 27000
-      };
+      isGeolocation = true;
       
-      function success(position) {
-        var latitude  = position.coords.latitude,
-            longitude = position.coords.longitude;
-        
-        if (old_lat !== latitude  || old_lng !== longitude) {
-          User.lat = latitude;
-          User.lng = longitude;
-          User.save();
-          Conn.request('updateUserLocation');
-          Conn.request('getProfile');
-          old_lat = User.lat;
-          old_lng = User.lng;
-        }
-        
-        if (!User.city) {
-          var latlng = new google.maps.LatLng(latitude,longitude);
-          
-          geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
-          geocoder.geocode({
-            'latLng': latlng
-            }, function (results, status) {
-                if (status === google.maps.GeocoderStatus.OK) {
-                  var obj = results[0].address_components,key;
-                  
-                  for (key in obj) {
-                    if(obj[key].types[0] === "locality") {
-                      if (obj[key].long_name) {
-                        User.city = obj[key].long_name;
-                        var name = User.name || 'Гость',
-                            data = new FormData();
-                            data.append('city', User.city);
-                            data.append('name', name);
-                            
-                        MayLoading = true;
-                        Conn.request('updateProfile', data);
-                        User.save();
-                      }
-                    }
-                    
-                    if (obj[key].types[0] === "country") {
-                      User.country = obj[key].long_name;
+      if (old_lat !== latitude  || old_lng !== longitude) {
+        User.lat = latitude;
+        User.lng = longitude;
+        User.save();
+        Conn.request('updateUserLocation');
+        Conn.request('getProfile');
+        old_lat = User.lat;
+        old_lng = User.lng;
+      }
+
+      if (!User.city) {
+        var latlng = new google.maps.LatLng(latitude,longitude);
+
+        geocoder = new google.maps.Geocoder();// .setLanguage('ru');//Cyrl
+        geocoder.geocode({
+          'latLng': latlng
+          }, function (results, status) {
+              if (status === google.maps.GeocoderStatus.OK) {
+                var obj = results[0].address_components,key;
+
+                for (key in obj) {
+                  if(obj[key].types[0] === "locality") {
+                    if (obj[key].long_name) {
+                      User.city = obj[key].long_name;
+                      var name = User.name || 'Гость',
+                          data = new FormData();
+                          data.append('city', User.city);
+                          data.append('name', name);
+
+                      MayLoading = true;
+                      Conn.request('updateProfile', data);
                       User.save();
                     }
                   }
-                  
+
+                  if (obj[key].types[0] === "country") {
+                    User.country = obj[key].long_name;
+                    User.save();
+                  }
                 }
-            });
-        }
-      }
-      
-      function error(resp) {
-        var xhr = new XMLHttpRequest;
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-          
-              var position = {},
-                  str = xhr.responseText,
-                  xmlDoc;
-                  //ipinfo = JSON.parse(xhr.responseText);
-                  
-              str = str.replace('</table> -->', '');
-            
-              var first_find = str.indexOf('<table class="table table-striped">'),
-                  last_find  = str.indexOf('</table>') + 8;
-              
-              str = str.substring(first_find, last_find);
-              
-              if (window.DOMParser) {
-                parser = new DOMParser();
-                xmlDoc = parser.parseFromString(str, "text/xml");
-              } else {
-                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                xmlDoc.async = false;
-                xmlDoc.loadXML(str);
+
               }
-              
-              var location = xmlDoc.getElementsByTagName("tr")[3].childNodes[3].innerHTML,
-                  latLong = location.split(",");
-              
-              position.coords = {};
-              position.coords.latitude = latLong[0];
-              position.coords.longitude = latLong[1];
-              success(position);                
-            }
-        };
-        xhr.open("GET", "https://ipinfo.io", true);
-        xhr.setRequestHeader('Content-Type', 'application/json');        
-        xhr.send();
-        
-        console.log('geo location error: ', resp);
+          });
       }
-      
+    }
+
+    function error(resp) {
+      var xhr = new XMLHttpRequest;
+
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+
+            var position = {},
+                str = xhr.responseText,
+                xmlDoc;
+                //ipinfo = JSON.parse(xhr.responseText);
+
+            str = str.replace('</table> -->', '');
+
+            var first_find = str.indexOf('<table class="table table-striped">'),
+                last_find  = str.indexOf('</table>') + 8;
+
+            str = str.substring(first_find, last_find);
+
+            if (window.DOMParser) {
+              parser = new DOMParser();
+              xmlDoc = parser.parseFromString(str, "text/xml");
+            } else {
+              xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+              xmlDoc.async = false;
+              xmlDoc.loadXML(str);
+            }
+
+            var location = xmlDoc.getElementsByTagName("tr")[3].childNodes[3].innerHTML,
+                latLong = location.split(",");
+
+            position.coords = {};
+            position.coords.latitude = latLong[0];
+            position.coords.longitude = latLong[1];
+            success(position);                
+          }
+      };
+      xhr.open("GET", "https://ipinfo.io", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');        
+      xhr.send();
+
+      console.log('geo location error: ', resp);
+    }
+
+    function geoFindMe() {
+      if (!navigator.geolocation) {
+        alert("Необходимо разрешить доступ к местоположению");
+        return false;
+      }
+
       //navigator.geolocation.getCurrentPosition(success, error);
-      var watchID = navigator.geolocation.watchPosition(success, error, options);
-      
-      return;
+      return navigator.geolocation.watchPosition(success, error, {
+        enableHighAccuracy : false,
+        maximumAge         : 0,
+        timeout            : 27000
+      });
     }
 
   var Geo = {
 
       init: function() {
         //setInterval(geoFindMe, 1000);
-        geoFindMe();
+        if (!geoFindMe() && !MayLoading) {
+          timerGetLocation = setInterval(geoFindMe, 5000);
+        }
       },
 
       distance: function(lat1, lon1, lat2, lon2) {

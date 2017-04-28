@@ -48,11 +48,11 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   }
   
   function gotoNewZone() {
-    window.location.hash = '#edit_zone';
+    goToPage = '#edit_zone';
   }
   
   function drawPolygon(ids) {
-    clearPolygonZones(ids);
+    SafeWin.clearPolygonZones(ids);
     for (var i = 0; i < ids.length; i++) {
       var arr_id = Funcs.findIdArray(Zones.list, ids[i]);
       
@@ -61,15 +61,6 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     }  
   }
 
-  function clearPolygonZones() {
-    if (safe_zone_polygons) {
-      for (var i = 0; i < safe_zone_polygons.length; i++) {
-        Maps.removeElement(safe_zone_polygons[i]);
-      }
-      safe_zone_polygons = [];
-    }
-  }
-  
   function selectZone(event) {
     var target = event.target;
 
@@ -125,7 +116,11 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   }
   
   function runZone(event) {
-    var el = event.target;
+    var el = false;
+      
+    if (event) {
+        el = event.target;
+    }
     
     if (!el) {
       el = event;
@@ -189,7 +184,10 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     if (safety_route) {
       Maps.removeElement(safety_route);
     }
+    
+    Storage.clearSafeRoute();
     Storage.removeActiveRoute();
+    
   }
   
   function enableZoneForRoute () {
@@ -202,6 +200,8 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
       for (var i = 0; i < path.b.length; i++) {
         s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
       }
+      
+      Storage.setSafeRoute(s_route_to_Zone);
     }
   }
   
@@ -337,6 +337,19 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
       Dom.sel('[data-click="new_zone"]').removeEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').removeEventListener('change', onInputRange);
       safe_win.innerHTML = '';
+    },
+    
+    toggleButton: function() {
+      runZone();
+    },
+    
+    clearPolygonZones: function() {
+      if (safe_zone_polygons) {
+        for (var i = 0; i < safe_zone_polygons.length; i++) {
+          Maps.removeElement(safe_zone_polygons[i]);
+        }
+        safe_zone_polygons = [];
+      }
     }
 
   };

@@ -8,7 +8,7 @@ define(['Dom'], function (Dom) {
     if (response.result) {
       User.authToken = response.result.authToken;
       User.save();
-      window.location.hash = '#sms';
+      goToPage = '#sms';
     }
   }
   

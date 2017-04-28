@@ -27,7 +27,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   function cbUpdateAuto() {
     Conn.clearCb('cbUpdateAuto');
     Car.setData();
-    window.location.hash = '#driver_my_auto';
+    goToPage = '#driver_my_auto';
   }
   
   function cbGetAuto(response) {

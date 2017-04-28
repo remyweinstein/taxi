@@ -27,7 +27,7 @@ define(['Storage'], function(Storage) {
       },
       
       historyBack: function () {
-        window.location.hash = Storage.getPreviousHistoryPages();
+        goToPage = Storage.getPreviousHistoryPages();
       },
       
       startLoading: function () {

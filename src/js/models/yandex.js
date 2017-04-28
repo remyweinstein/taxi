@@ -1,4 +1,4 @@
-/* global map, ymaps, User, SafeWin, Maps, MapElements, cost_of_km */
+/* global map, ymaps, User, SafeWin, Maps, MapElements, Settings */
 
 define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
   function objCoordsToArray (obj) {
@@ -56,26 +56,26 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           points = [],
           waypoints = [];
 
+      points.push({ 
+        type: 'wayPoint', 
+        point: [_addr_from[0], _addr_from[1]]
+      });
+      
       if (Model.toAddresses && Model.toAddresses.length > 0) {
-        for (var i = 0; i < Model.toAddresses; i++) {
+        for (var i = 0; i < Model.toAddresses.length; i++) {
           var latlng = Model.toCoordses[i].split(',');
           
-          waypoints.push({
+          points.push({
             type: 'viaPoint', 
             point: [latlng[0], latlng[1]]
           });
         }
-        points = [
-          { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
-          waypoints,
-          { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
-        ];
-      } else {
-        points = [
-          { type: 'wayPoint', point: [_addr_from[0], _addr_from[1]] },
-          { type: 'wayPoint', point: [_addr_to[0], _addr_to[1]] }
-        ];
       }
+      
+      points.push({ 
+        type: 'wayPoint', 
+        point: [_addr_to[0], _addr_to[1]] 
+      });
 
       ymaps.route(points).then(function (route) {
           var routa = route.getPaths();
@@ -93,7 +93,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           Model.duration = Math.round(route.getTime()/60);
           Model.length = Math.round(route.getLength());
           
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * cost_of_km) / 10 );
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Settings.orderCostOfKm) + parseInt(Settings.orderLandingPrice)) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
           
           Storage.lullModel(Model);

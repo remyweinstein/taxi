@@ -37,11 +37,11 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
           var id = el.dataset.id;
           
           Storage.setIdEditCar(id);
-          window.location.hash = '#driver_edit_auto';
+          goToPage = '#driver_edit_auto';
         }
         
         if (target.dataset.click === "add_new_auto") {
-          window.location.hash = '#driver_edit_auto';
+          goToPage = '#driver_edit_auto';
         }
         
         if (target.dataset.click === "set-drive") {

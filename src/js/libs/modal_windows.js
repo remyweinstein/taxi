@@ -17,7 +17,7 @@ define(['Dom'], function(Dom) {
   function moveCenter(el) {
     var height = getHeight(el),
         height_window = window.innerHeight,
-        margin = (height_window - height) / 2;
+        margin = (height_window - height) / 2 + window.pageYOffset;
 
     el.style.top = margin + 'px';
   }

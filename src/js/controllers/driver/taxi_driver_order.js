@@ -27,7 +27,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
       active_bid = false;
       setRoute();
     } else {
-      window.location.hash = "#driver_city";
+      goToPage = "#driver_city";
     }
   }
 
@@ -106,7 +106,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
         HideForms.init();
       }
     } else {
-      window.location.hash = '#driver_city';
+      goToPage = '#driver_city';
     }
   }
   
@@ -200,7 +200,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                          '<button class="button_rounded--green" data-response="yes">Войти</button></p>', 
                         function (response) {
                           if (response === "yes") {
-                            window.location.hash = '#login';
+                            goToPage = '#login';
                           }
                         });
             } else if (Car.inGarage === 0) {
@@ -209,7 +209,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                          '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
                           if (response === "yes") {
-                            window.location.hash = '#driver_my_auto';
+                            goToPage = '#driver_my_auto';
                           }
                         });
             } else if (!Car.id) {
@@ -218,7 +218,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                            '<button class="button_rounded--green" data-response="yes">Перейти</button></p>',
                         function (response) {
                           if (response === "yes") {
-                            window.location.hash = '#driver_my_auto';
+                            goToPage = '#driver_my_auto';
                           }
                         });
               } else {

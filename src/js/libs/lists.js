@@ -25,7 +25,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
     if (orders) {
       if (Storage.getTripDriver()) {
-        window.location.hash = '#driver_go';
+        goToPage = '#driver_go';
       }
       
       if (orders.length > 0 && automat_driver_approve) {
@@ -36,21 +36,22 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       
       for (var i = 0; i < orders.length; i++) {
         var agIndex = parseObj(getAgentIndexes(orders[i].agent)),
+            approve = orders[i].bids[0] ? orders[i].bids[0].approved : false,
             vehicle = orders[i].agent.vehicle || Car.default_vehicle,
-            active  = orders[i].bids[0].approved ? ' active' : ' inactive',
+            active  = approve ? ' active' : ' inactive',
             photo   = orders[i].agent.photo || User.avatar,
             loc     = orders[i].agent.location;
         
-        if (!gl_active && orders[i].bids[0].approved) {
+        if (!gl_active && approve) {
           gl_active = true;
         }
         
         loc = loc.split(',');
 
-        if (!MapElements.driver_marker[orders[i].agent.id]) {
+        if (!MapElements.markers_driver_pos[orders[i].agent.id]) {
           MapElements.marker_client = Maps.addMarker(loc[0], loc[1], orders[i].agent.name, driver_icon, [32,32], function(){});
         } else {
-          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[orders[i].agent.id]);
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[orders[i].agent.id]);
         }
 
         var dist = orders[i].agent.distance ? (orders[i].agent.distance).toFixed(1) : 0;
@@ -111,7 +112,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
     if (offers) {
       if (Storage.getTripClient()) {
-        window.location.hash = '#client_go';
+        goToPage = '#client_go';
       }
       
       if (offers.length > 0 && automat_client_approve) {
@@ -124,16 +125,17 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         var agIndex = parseObj(getAgentIndexes(offers[i].agent)),
             car     = offers[i].agent.cars[0],
             vehicle = car.photo || Car.default_vehicle,
-            active  = offers[i].bids[0].approved ? ' active' : ' inactive',
+            approve = offers[i].bids[0] ? offers[i].bids[0].approved : false,
+            active  = approve ? ' active' : ' inactive',
             photo   = offers[i].agent.photo || User.avatar,
             loc     = offers[i].agent.location;
 
         loc = loc.split(',');
         
-        if (!MapElements.driver_marker[offers[i].agent.id]) {
+        if (!MapElements.markers_driver_pos[offers[i].agent.id]) {
           MapElements.marker_client = Maps.addMarker(loc[0], loc[1], offers[i].agent.name, driver_icon, [32,32], function(){});
         } else {
-          Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker[offers[i].agent.id]);
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[offers[i].agent.id]);
         }
 
         var dist = offers[i].agent.distance ? (offers[i].agent.distance).toFixed(1) : 0;
@@ -220,7 +222,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       }
       
       if (Storage.getTripDriver()) {
-        window.location.hash = '#driver_go';
+        goToPage = '#driver_go';
       }
       
       for (var i = 0; i < ords.length;) {
@@ -263,7 +265,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   
   function fillOrders(order, type) {
     var listOrders = Dom.sel('[data-model=list-orders]');
-      console.log('render list orders');
+
     if (listOrders) {
       listOrders.innerHTML = '';
 
@@ -274,7 +276,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
           var active_bid = Orders[key].active_bid ? ' active' : '', 
               zaezdy = '',
-              fromCity = '', toCity = '';
+              fromCity = '', toCity = '', safety = '';
 
           if (Orders[key].stops > 0) {
             zaezdy = '<div class="list-orders_route_to">' +
@@ -291,6 +293,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
           
           if (Orders[key].weight) {
             cargo_info += '<div class="list-orders_route_info">Вес: ' + Orders[key].weight + '</div>';
+          }
+          
+          if (Orders[key].zone) {
+            safety = '<div style="color:red">Строго по маршруту</div>';
           }
 
           if (Orders[key].volume) {
@@ -337,6 +343,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                         '<div class="list-orders_route_time">' +
                           'Время подъезда: ' + time_minus +
                           '<span>' + Orders[key].travelTime + ' мин.</span>' + time_plus +
+                          safety +
                         '</div>' +
                       '</div>' +
                       '<div class="list-orders_personal">' +

@@ -28,14 +28,14 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         Zones.inactive(list_active_zone[i]);
       }
       
-      SafeWin.clearPolygonZones();
+      SafeWin.toggleButton();
       Storage.removeActiveZones();
     }
     
     Storage.removeTripClient();
     Storage.removeActiveRoute();
     Storage.removeFollowOrder();
-    window.location.hash = '#client_drivers_rating';
+    goToPage = '#agent_rating';
   }
   
   function cbCancelOrder() {
@@ -43,7 +43,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     
     Storage.removeFollowOrder();
     Storage.removeTripClient();
-    window.location.hash = '#client_city';
+    goToPage = '#client_city';
   }
 
   function cbGetOrderById(response) {
@@ -53,7 +53,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       if (!ords) {
         stop();
         Storage.removeTripClient();
-        window.location.hash = '#client_city';
+        goToPage = '#client_city';
         alert('К сожалению, заказ не найден.');
       }
       
@@ -71,6 +71,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       var but,
           offer                 = ords.bids[0].offer,
           agnt                  = offer.agent,
+          car                   = agnt.cars[0],
           toLoc                 = ords.toLocation,
           loc                   = agnt.location.split(','),
           lost_diff             = Dates.diffTime(ords.bids[0].approved, offer.travelTime),
@@ -89,10 +90,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         MyOrder.id = ords.id;
       }
       
-      dr_model    = agnt.cars[0].brand + ' ' + agnt.cars[0].model;
+      dr_model    = car.brand + ' ' + car.model;
       dr_name     = agnt.name;
-      dr_color    = agnt.cars[0].color;
-      dr_number   = agnt.cars[0].number;
+      dr_color    = car.color;
+      dr_number   = car.number;
       dr_distanse = ords.agent.distance.toFixed(1);
 
       if (lost_diff >= 0) {
@@ -121,7 +122,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }
       
       dr_photo            = agnt.photo || User.avatar;
-      dr_vehicle          = agnt.cars[0].photo || Car.default_vehicle;
+      dr_vehicle          = car.photo || Car.default_vehicle;
       fromCoords          = ords.fromLocation.split(",");
       toCoords            = ords.toLocation.split(",");
       fromAddress         = ords.fromAddress;
@@ -180,7 +181,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       if (ords.canceledByDriver || ords.canceledByClient) {
         stop();
         Storage.removeTripClient();
-        window.location.hash = '#client_city';
+        goToPage = '#client_city';
         alert('К сожалению, заказ отменен.');
       }
       
@@ -191,10 +192,27 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         }
       }    
 
-      if (!MapElements.marker_client) {
-        MapElements.marker_client = Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(){});
+      if (!MapElements.driver_marker) {
+        var favorite  = !agnt.isFavorite ? '<button data-id="' + agnt.id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnt.id + '" data-click="deltofav">Удалить из Избранного</button>',
+            info      = '<div style="text-align:center;">' +
+                          '<div style="width:50%;display:inline-block;float: left;">' +
+                            '<p>id' + agnt.id + '<br>' + dr_name + '</p>' +
+                            '<p><img class="avatar" src="' + dr_photo + '" alt=""/></p>' +
+                            '<p>' + favorite + '</p>' +
+                          '</div>' +
+                          '<div style="width:50%;display:inline-block">' +
+                            '<p>' + car.brand + '<br>' + car.model + '</p>' +
+                            '<p><img class="avatar" src="' + dr_vehicle + '" alt=""/></p>' +
+                            '<p><button data-id="' + agnt.id + '" data-click="addtoblack">Черный список</button></p>' +
+                          '</div>' +
+                        '</div>';
+
+        Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(mark){
+          Maps.addInfoForMarker(info, false, mark);
+          MapElements.driver_marker = mark;
+        });
       } else {
-        Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_client);
+        Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker);
       }
       
     } else {
@@ -259,7 +277,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     Event.click = function (event) {
       var target = event.target;
 
-      while (target !== this) {
+      while (target && target !== this) {
         if (target.dataset.click === "client-came") {
           Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
           break;
@@ -344,7 +362,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       HideForms.init();
     } else {
       Storage.removeTripClient();
-      window.location.hash = "#client_city";
+      goToPage = "#client_city";
     }
   }
   

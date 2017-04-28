@@ -4,36 +4,46 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
   var el_top;
   
   function addNewEvents(event) {
-    var target = event.target,
-        el,
-        prev;
+    var target = event.target, el,
+        bottom_block = Dom.sel('div[data-hide-form=bottom]'),
+        top_block = Dom.sel('[data-hide-form=top]');
 
     while (target !== this) {
       if (target) {
         if (target.dataset.click === "drop-down") {
           el = target;
-          prev = el.previousSibling;
 
-          prev.classList.add('hidden-forms');
+          if (bottom_block) {
+            bottom_block.classList.add('hidden-forms');
+          }
+          
+          if (top_block) {
+            top_block.classList.add('hidden-forms');
+          }
+          
           el.classList.remove('drop-down');
           el.classList.add('drop-up');
           el.dataset.click = 'drop-up';
-
-          el.style.top = 12 + 'px';
+          el.style.top     = 12 + 'px';
 
           break;
         }
 
         if (target.dataset.click === "drop-up") {
           el = target;
-          prev = el.previousSibling;
 
-          prev.classList.remove('hidden-forms');
+          if (bottom_block) {
+            bottom_block.classList.remove('hidden-forms');
+          }
+          
+          if (top_block) {
+            top_block.classList.remove('hidden-forms');
+          }
+          
           el.classList.add('drop-down');
           el.classList.remove('drop-up');
           el.dataset.click = 'drop-down';
-
-          el.style.top = el_top;
+          el.style.top     = el_top;
 
           break;
         }

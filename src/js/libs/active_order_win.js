@@ -1,14 +1,12 @@
 define(function () {
 
   function goToTrip() {
-    console.log('i am click');
-
     if (localStorage.getItem('_redirect_trip_client')) {
-      window.location.hash = '#client_go';
+      goToPage = '#client_go';
     }
 
     if (localStorage.getItem('_redirect_trip_driver')) {
-      window.location.hash = '#driver_go';
+      goToPage = '#driver_go';
     }
   }
   

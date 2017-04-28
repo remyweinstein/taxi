@@ -10,6 +10,18 @@ define(['ActiveOrder'], function(ActiveOrder) {
       }
     },
     
+    setSafeRoute: function(points) {
+      localStorage.setItem('_safe_route', JSON.stringify(points));
+    },
+    
+    getSafeRoute: function() {
+      return JSON.parse(localStorage.getItem('_safe_route'));
+    },
+    
+    clearSafeRoute: function() {
+      localStorage.removeItem('_safe_route');
+    },
+    
     setLastPage: function(hash) {
       localStorage.setItem('_last_url', hash);
     },
@@ -27,7 +39,7 @@ define(['ActiveOrder'], function(ActiveOrder) {
           arrLen = arr.length,
           newArr = [];
 
-      if (url === "#start" || url === "undefined" || !url) {
+      if (url === "#logout" || url === "#start" || url === "undefined" || !url) {
         return;
       }
       

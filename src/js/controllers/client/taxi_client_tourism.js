@@ -144,13 +144,13 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             Storage.setTemporaryRoute(el.name);
             Storage.setTemporaryAddress(el.value);
             Storage.setActiveTypeModelTaxi('order');
-            window.location.hash = '#client_choose_address';
+            goToPage = '#client_choose_address';
           }
 
           if (target.dataset.click === 'choice_location') {
             Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             Storage.setActiveTypeModelTaxi('order');
-            window.location.hash = '#client_choice_location_map';
+            goToPage = '#client_choice_location_map';
             break;
           }
 
@@ -218,7 +218,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
             MyOrder.getByID(target.dataset.id, function () {
-              window.location.hash = "#client_map";
+              goToPage = "#client_map";
             });
 
             return;
@@ -251,7 +251,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('tourism');
             localStorage.setItem('_open_offer_id', el.dataset.id);
-            window.location.hash = "#client_offer";
+            goToPage = "#client_offer";
           }
 
           if (target.dataset.click === "taxi_bid") {

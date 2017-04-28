@@ -29,8 +29,34 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
         next_page = '#client_city';
       }
       
-      window.location.hash = next_page;
+      goToPage = next_page;
     }
+  }
+  
+  function getPosition(position) {
+    console.log(position);
+  }
+  
+  function addEvents() {
+    Event.click = function (event) {
+          var target = event.target;
+
+          while (target !== this) {
+            if (target.dataset.click === 'again-location') {
+              navigator.geolocation.getCurrentPosition(getPosition);
+              
+              return;
+            }
+
+            if (target) {
+              target = target.parentNode;
+            } else {
+              break;
+            }
+          }
+        };
+
+    content.addEventListener('click', Event.click);
   }
   
   function stop() {
@@ -39,6 +65,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
   
   function start() {
     timerCheckLoading = setInterval(checkLoading, 250);
+    addEvents();
   }
   
   return {

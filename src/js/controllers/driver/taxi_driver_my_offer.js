@@ -8,13 +8,13 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
     Conn.clearCb('cbOnApproveOrder');
     
     if (!response.error) {
-      MyOffer.getByID(response.result.id, function () {});
+      MyOffer.getByID(MyOffer.id, function () {});
     }
   }
   
   function cbOnCancelOffer() {
     Conn.clearCb('cbOnCancelOffer');
-    window.location.hash = '#client_city';
+    goToPage = '#client_city';
   }
   
   function initMap() {
@@ -130,7 +130,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
       
       targetLink = targetLink==="taxi" ? "city" : targetLink;
       targetLink = targetLink==="trucking" ? "cargo" : targetLink;
-      window.location.hash = "#driver_" + targetLink;
+      goToPage = "#driver_" + targetLink;
     }
     
     addEvents();

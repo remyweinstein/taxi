@@ -4,7 +4,7 @@ define(['Dom'], function (Dom) {
   var current_agent;
 
   function addEvents() {
-    Event.click = function (event) {
+    clickEv = function (event) {
       var target = event.target;
 
       while (target !== this) {
@@ -30,10 +30,10 @@ define(['Dom'], function (Dom) {
         
         if (target.dataset.click === "save_rating") {
           if (current_agent === 'driver') {
-            window.location.hash = '#driver_city';
+            goToPage = '#driver_city';
           }
           if (current_agent === 'client') {
-            window.location.hash = '#client_city';
+            goToPage = '#client_city';
           }
         }
 
@@ -45,9 +45,9 @@ define(['Dom'], function (Dom) {
       }
     };
 
-    Dom.sel('.content').addEventListener('click', Event.click);
+    Dom.sel('.content').addEventListener('click', clickEv);
     
-    Event.hover = function (event) {
+    hoverEv = function (event) {
       var target = event.target;
 
       while (target !== this) {
@@ -66,7 +66,7 @@ define(['Dom'], function (Dom) {
       }
     };
 
-    Dom.sel('.content').addEventListener('mouseenter', Event.hover);
+    Dom.sel('.content').addEventListener('mouseenter', hoverEv);
     
   }
 
@@ -76,6 +76,11 @@ define(['Dom'], function (Dom) {
         current_agent = agent;
 
         addEvents();
+      },
+      
+      stop: function() {
+        Dom.sel('.content').removeEventListener('click', clickEv);
+        Dom.sel('.content').removeEventListener('mouseenter', hoverEv);
       }
   };
 

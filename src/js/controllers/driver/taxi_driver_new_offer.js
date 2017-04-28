@@ -59,7 +59,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
             Storage.setTemporaryRoute(el.name);
             Storage.setTemporaryAddress(el.value);
             Storage.setActiveTypeModelTaxi('offer');
-            window.location.hash = '#client_choose_address';
+            goToPage = '#client_choose_address';
           }
           
           if (target.dataset.click === "add_hint_city") {
@@ -83,7 +83,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
           if (target.dataset.click === 'choice_location') {
             Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
             Storage.setActiveTypeModelTaxi('offer');
-            window.location.hash = '#client_choice_location_map';
+            goToPage = '#client_choice_location_map';
 
             break;
           }
@@ -151,7 +151,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   
   function addCargo() {
     var innerAdditional = document.createElement('div'),
-        elForm          = Dom.sel('.form-order-city'),
+        elForm          = Dom.sel('.form-order-city__top'),
         elTo            = Dom.sel('.order-city-comment');
     
     innerAdditional.className += 'form-order-city__field';
@@ -170,7 +170,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
         innerPlaces    = document.createElement('div'),
         elFrom         = Dom.sel('.order-city-from'),
         elTo           = Dom.sel('.order-city-to'),
-        elForm         = Dom.sel('.form-order-city'),
+        elForm         = Dom.sel('.form-order-city__top'),
         elFormChildren = Dom.sel('input[name="description"]').parentNode.parentNode;
     
     innerCityFrom.className += 'form-order-city__field';

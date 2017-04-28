@@ -45,7 +45,19 @@ define(['Storage'], function(Storage) {
     function cbCreateOrder(response) {
       Conn.clearCb('cbCreateOrder');
       self.id = response.result.id;
-      window.location.hash = '#client_map';
+      
+      if (Storage.getSafeRoute()) {
+        var data = {};
+        
+        data.polygon = Storage.getSafeRoute();
+        data.name = 'temporary';
+        data.isActive = true;
+        data.orderId = self.id;
+        Conn.request('addZones', data);
+        Storage.clearSafeRoute();
+      }
+      
+      goToPage = '#client_map';
     }
   
     function cbgetOrderById(response) {

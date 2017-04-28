@@ -213,6 +213,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("delete-offer", params);
   }
 
+  function deleteOffer(id) {
+    params.offerId = id;
+    Conn.sendMessage("delete-offer", params);
+  }
+
   function agreeOffer(data) {
     params.offerId            = data.id;
     params.order              = {};
@@ -391,6 +396,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
 
   function requestProfile() {
     Conn.sendMessage("get-profile");
+  }
+  
+  function addRating(data) {
+    params = data;
+    Conn.sendMessage("post-rating", params);
   }
   
   function checkPin(pin) {
@@ -669,6 +679,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "disagreeOrder":
           disagreeOrder(data);
           break;
+        case "deleteOffer":
+          deleteOffer(data);
+          break;
         case "getSettings":
           getSettings();
           break;
@@ -728,6 +741,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "requestProfile":
           requestProfile();
+          break;
+        case "addRating":
+          addRating(data);
           break;
         case "checkPin":
           checkPin(data);

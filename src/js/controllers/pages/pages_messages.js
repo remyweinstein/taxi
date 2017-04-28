@@ -1,6 +1,6 @@
 /* global Event, User, Conn */
 
-define(['Dom', 'Storage'], function (Dom, Storage) {
+define(['Dom', 'Storage', 'Dates'], function (Dom, Storage, Dates) {
   var id_li_delete;
   
   function cbGetNotify(response) {
@@ -22,9 +22,10 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
       
       li.dataset.id = messages[i].id;
       li.innerHTML = '<div data-click="open-notify" data-id="' + messages[i].id + '">' +
+                       '<span>' + Dates.datetimeForPeople(messages[i].created) + '</span><br/>' + 
                        text +
-                     '</div>' +
-                     '<div>' +
+                      '</div>' +
+                      '<div>' +
                        '<i class="icon-cancel-circled" data-click="delete-notify" data-id="' + messages[i].id + '"></i>' +
                      '</div>';
       ul.appendChild(li);
@@ -49,7 +50,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
       while (target !== this) {
         if (target.dataset.click === 'open-notify') {
           Storage.setOpenNotify(target.dataset.id);
-          window.location.hash = '#open_message';
+          goToPage = '#open_message';
         }
         
         if (target.dataset.click === 'delete-notify') {

@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "version=0.21",
+  urlArgs: "version=0.36",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -56,7 +56,8 @@ requirejs.config({
     "ctrlPageOpenMessage" :     "controllers/pages/pages_open_message",
     "ctrlPageSettings" :        "controllers/pages/pages_settings",
     "ctrlPageSms" :             "controllers/pages/pages_sms",
-    "ctrlPagesTrustedContacts": "controllers/pages/pages_trusted_contacts",
+    "ctrlPageAgentRating" :     "controllers/pages/pages_agent_rating",
+    "ctrlPageTrustedContacts":  "controllers/pages/pages_trusted_contacts",
     "ctrlPageFavorites" :       "controllers/pages/pages_favorites",
     "ctrlPageZones" :           "controllers/pages/pages_zones",
     "ctrlPageEditZone" :        "controllers/pages/pages_edit_zone",
@@ -71,7 +72,6 @@ requirejs.config({
     "ctrlTaxiClientFeedback" :          "controllers/client/taxi_client_feedback",
     "ctrlTaxiClientHelp" :              "controllers/client/taxi_client_help",
     "ctrlTaxiClientMap" :               "controllers/client/taxi_client_map",
-    "ctrlTaxiClientDriversRating" :     "controllers/client/taxi_client_drivers_rating",
     "ctrlTaxiClientOffer" :             "controllers/client/taxi_client_offer",
 
     
@@ -81,13 +81,11 @@ requirejs.config({
     "ctrlTaxiDriverFeedback" :      "controllers/driver/taxi_driver_feedback",
     "ctrlTaxiDriverCargo" :         "controllers/driver/taxi_driver_cargo",
     "ctrlTaxiDriverMyAccount" :     "controllers/driver/taxi_driver_my_account",
-    "ctrlTaxiDriverRating" :        "controllers/driver/taxi_driver_rating",
     "ctrlTaxiDriverGo" :            "controllers/driver/taxi_driver_go",
     "ctrlTaxiDriverOrder" :         "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" :     "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverTourism" :       "controllers/driver/taxi_driver_tourism",
     "ctrlTaxiDriverHelp" :          "controllers/driver/taxi_driver_help",
-    "ctrlTaxiDriverClientsRating" : "controllers/driver/taxi_driver_clients_rating",
     "ctrlTaxiDriverMyAuto" :        "controllers/driver/taxi_driver_my_auto",
     "ctrlTaxiDriverEditAuto" :      "controllers/driver/taxi_driver_edit_auto"
 	},
@@ -126,20 +124,21 @@ var menus_arr = [];
                            {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
 
   var content,
-      MayLoading = false,
+      MayLoading = false, isGeolocation = false,
       
-      User, Car, Conn = false, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements,
+      User, Car, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
 
-      driver_icon = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
-      men_icon = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
-      default_city = 'Хабаровск',
+      driver_icon   = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+      men_icon      = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
+      default_city  = 'Хабаровск',
       average_speed = 40,
-      cost_of_km = 25,
   
       global_order_id,
       ymaps,
       timerMyPos,
       timerCheckLoading,
+      
+      goToPage,
       
       timerWhenLoadConn = false,
       tempTokenUlogin;

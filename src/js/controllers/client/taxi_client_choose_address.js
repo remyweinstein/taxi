@@ -29,8 +29,6 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
         var temp_arr = [];
 
         for (var i = 0; i < results.length; i++) {
-          console.log('temp_arr.indexOf(results[i].name) = ', temp_arr.indexOf(results[i].name));
-          
           if (temp_arr.indexOf(results[i].name) < 0) {
             temp_arr.push(results[i].name);
             innText += '<p data-city="' + results[i].city + '" data-latlng="' + results[i].lat + ',' + results[i].lng + '"><span>' + results[i].name + '</span><span>' + results[i].address + '</span></p>';

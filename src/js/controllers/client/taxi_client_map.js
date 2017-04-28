@@ -15,7 +15,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   function cbCancelOrder(resp) {
     Conn.clearCb('cbCancelOrder');
     if (!resp.error) {
-      window.location.hash = '#client_city';
+      goToPage = '#client_city';
     }
   }
   
@@ -121,7 +121,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
       HideForms.init();
       Lists.getBidsDriver();
     } else {
-      window.location.hash = "#client_city";
+      goToPage = "#client_city";
     }
     
     addEvents();

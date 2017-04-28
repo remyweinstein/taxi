@@ -10,6 +10,9 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
         listOfSocials =[],
         prof = response.result.profile;
     
+    
+    User.setData(response.result);
+
     sex = Dom.sel('select[name="sex"] option[value="' + sex + '"]');
     
     if (!prof.hasVkontakte) {

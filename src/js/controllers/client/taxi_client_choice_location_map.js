@@ -40,7 +40,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
       Storage.setTemporaryCoords(Maps.point2LatLng((center_marker.offsetLeft + 10), (center_marker.offsetTop + 34)));
     }
   }
-    
+  
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -51,54 +51,56 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
           var _route = Storage.getTemporaryRoute(),
               latl = Storage.getTemporaryCoords();
           
-          latl = latl.replace("(", "");
-          latl = latl.replace(")", "");
-          latl = latl.replace(" ", "");
-          latl = latl.split(",");
-          
-          var latlng = latl[0] + ',' + latl[1];
+          if (latl) {
+            latl = latl.replace("(", "");
+            latl = latl.replace(")", "");
+            latl = latl.replace(" ", "");
+            latl = latl.split(",");
 
-          if (_route === "from") {
-            Model.fromCoords = latlng;
-          }
-
-          if (_route === "to") {
-            Model.toCoords = latlng;
-          }
-
-          var substr = _route.substring(0, 7);
-          if (substr === "to_plus") {
-            var _index = _route.replace("to_plus", "");
-
-            Model.toCoordses[_index] = latlng;
-          }
-          
-          MapGoogle.geocoder(latl[0], latl[1], function (results) {
-            var _address = MapGoogle.getStreetFromCoords(results),
-                activeTypeTaxi = Storage.getActiveTypeTaxi();
+            var latlng = latl[0] + ',' + latl[1];
 
             if (_route === "from") {
-              Model.fromAddress = _address.address;
-              if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
-                Model.fromCity = _address.city;
-              }
+              Model.fromCoords = latlng;
             }
 
             if (_route === "to") {
-              Model.toAddress = _address.address;
-              if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
-                Model.toCity = _address.city;
-              }
+              Model.toCoords = latlng;
             }
 
             var substr = _route.substring(0, 7);
             if (substr === "to_plus") {
               var _index = _route.replace("to_plus", "");
-              Model.toAddresses[_index] = _address.address;
+
+              Model.toCoordses[_index] = latlng;
             }
 
-            Dom.historyBack();
-          });
+            MapGoogle.geocoder(latl[0], latl[1], function (results) {
+              var _address = MapGoogle.getStreetFromCoords(results),
+                  activeTypeTaxi = Storage.getActiveTypeTaxi();
+
+              if (_route === "from") {
+                Model.fromAddress = _address.address;
+                if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
+                  Model.fromCity = _address.city;
+                }
+              }
+
+              if (_route === "to") {
+                Model.toAddress = _address.address;
+                if (activeTypeTaxi === 'intercity' || activeTypeTaxi === 'tourism') {
+                  Model.toCity = _address.city;
+                }
+              }
+
+              var substr = _route.substring(0, 7);
+              if (substr === "to_plus") {
+                var _index = _route.replace("to_plus", "");
+                Model.toAddresses[_index] = _address.address;
+              }
+
+              Dom.historyBack();
+            });
+          }
           
           return;
         }

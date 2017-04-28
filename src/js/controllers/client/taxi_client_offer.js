@@ -217,12 +217,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           Storage.setTemporaryRoute(el.name);
           Storage.setTemporaryAddress(el.value);
           Storage.setActiveTypeModelTaxi('order');
-          window.location.hash = '#client_choose_address';
+          goToPage = '#client_choose_address';
         }
         if (target.dataset.click === 'choice_location') {
           Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
           Storage.setActiveTypeModelTaxi('order');
-          window.location.hash = '#client_choice_location_map';
+          goToPage = '#client_choice_location_map';
           break;
         }
 

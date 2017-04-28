@@ -40,7 +40,7 @@ define(['Storage'], function(Storage) {
       targetLink = targetLink==="taxi" ? "city" : targetLink;
       targetLink = targetLink==="trucking" ? "cargo" : targetLink;
       self.id = response.result.id;
-      window.location.hash = '#driver_my_offer'; //+ targetLink;
+      goToPage = '#driver_my_offer'; //+ targetLink;
     }
     
     function cbgetOfferById(response) {

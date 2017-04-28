@@ -107,7 +107,7 @@ define(['Dom', 'hammer', 'Storage'], function (Dom, Hammer, Storage) {
                 //= Click edit profile =
             if (target.dataset.click === 'edit_profile') {
               swipeMenu(-1);
-              window.location.hash = '#edit_profile';
+              goToPage = '#edit_profile';
               
               return;
             }
@@ -115,6 +115,20 @@ define(['Dom', 'hammer', 'Storage'], function (Dom, Hammer, Storage) {
             target = target.parentNode;
           }
         });
+      },
+      
+      renderUserInfo: function() {
+        if (Dom.sel('.menu__desc')) {
+          Dom.sel('.jq_my_name').innerHTML = User.name;
+          Dom.sel('.jq_my_phone').innerHTML = User.phone;
+
+          if (!User.avatar) {
+            User.avatar = User.default_avatar;
+          }
+
+          Dom.sel('.menu__desc_avatar').src = User.avatar;
+          Dom.sel('.menu__desc_avatar').alt = User.name;
+        }
       }
 
   };

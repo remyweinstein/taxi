@@ -26,7 +26,7 @@ define(['push', 'Storage'], function(Push, Storage) {
               icon: 'icon.png',
               timeout: 4000,
               onClick: function () {
-                window.location.hash = '#open_message';
+                goToPage = '#open_message';
                 window.focus();
                 this.close();
               }

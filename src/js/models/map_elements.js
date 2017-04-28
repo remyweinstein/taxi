@@ -17,8 +17,9 @@ define(function() {
     this.markers = [];
     this.markers_driver_pos = [];
     this.marker_mine = null;
-    this.driver_marker = [];
+    this.driver_marker = null;
     this.marker_client = null;
+    this.marker_clients = [];
     
     this.clear = function () {
       var i;
@@ -47,6 +48,9 @@ define(function() {
       if (self.marker_client) {
         Maps.removeElement(self.marker_client);
       }
+      for (i = 0; i < self.marker_clients.length; i++) {
+        Maps.removeElement(self.marker_clients[i]);
+      }
       for (i = 0; i < self.routes.length; i++) {
         Maps.removeElement(self.routes[i]);
       }
@@ -62,16 +66,12 @@ define(function() {
       for (i = 0; i < self.markers_driver_pos.length; i++) {
         Maps.removeElement(self.markers_driver_pos[i].marker);
       }
-      for (i = 0; i < self.driver_marker.length; i++) {
-        if (self.driver_marker[i]) { 
-          Maps.removeElement(self.driver_marker[i]);
-        }
-      }
-      
+      self.driver_marker = null;
       self.route = null;
       self.routes = [];
       self.markers = [];
       self.marker_client = null;
+      self.marker_clients = [];
       self.marker_b = null;
       self.marker_a = null;
       self.marker_from = null;
@@ -81,7 +81,6 @@ define(function() {
       self.marker_mine = null;
       self.points = [];
       self.markers_driver_pos = [];
-      self.driver_marker = [];
 
     };
 

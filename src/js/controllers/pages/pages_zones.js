@@ -12,7 +12,7 @@ define(['Dom'], function (Dom) {
                 if (target.dataset.id) {
                   localStorage.setItem('_edit_zone', target.dataset.id);
                 }
-                window.location.hash = '#edit_zone';
+                goToPage = '#edit_zone';
                 
                 return;
               }
