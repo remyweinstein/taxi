@@ -192,7 +192,7 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   }
   
   function stop() {
-    
+    Modal.close();    
   }
   
   function start() {

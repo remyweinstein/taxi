@@ -29,6 +29,7 @@ define(['Storage'], function(Storage) {
     this.bags             = 0;
     this.canceled         = false;
     this.started          = null;
+    this.zone             = null;
     //this.active           = false;
     //this.pregnant         = false;
     
@@ -38,7 +39,6 @@ define(['Storage'], function(Storage) {
       var targetLink = Storage.getActiveTypeTaxi();
       
       targetLink = targetLink==="taxi" ? "city" : targetLink;
-      targetLink = targetLink==="trucking" ? "cargo" : targetLink;
       self.id = response.result.id;
       goToPage = '#driver_my_offer'; //+ targetLink;
     }
@@ -77,6 +77,7 @@ define(['Storage'], function(Storage) {
         self.bags             = ord.bags;
         self.started          = ord.started;
         self.canceled         = ord.canceled;
+        self.zone             = ord.zone;
         //self.active           = active;
         //self.pregnant         = pregnant;
 
@@ -116,6 +117,7 @@ define(['Storage'], function(Storage) {
         self.bags             = ord.bags;
         self.started          = ord.started;
         self.canceled         = ord.canceled;
+        self.zone             = ord.zone;
         //self.active           = ord.active;
         //self.pregnant         = ord.pregnant;
       }
@@ -149,11 +151,11 @@ define(['Storage'], function(Storage) {
       lull('intercity');
     };
     
-    this.activateCargo = function () {
+    this.activateTrucking = function () {
       parse('trucking');
     };
     
-    this.lullCargo = function () {
+    this.lullTrucking = function () {
       lull('trucking');
     };
     
@@ -180,6 +182,7 @@ define(['Storage'], function(Storage) {
       data.occupiedSeats = self.occupiedSeats;
       data.bags          = self.bags;
       data.start         = self.start;
+      data.zone          = self.zone;
       //data.active /      = self.active;   //far future
       //data.pregnant /    = self.pregnant;
       

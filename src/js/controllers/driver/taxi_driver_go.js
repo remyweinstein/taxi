@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, MapElements, Conn, Maps, Settings */
+/* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters */
 
 define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage'],
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage) {
@@ -78,6 +78,13 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function cbGetOrdersByOffer(response) {
     if (!response.error || response.result.orders.length === 0) {
       if (first_time) {
+
+        if (response.result.orders.length === 1 && response.result.orders[0].zone) {
+          var poly = Maps.drawPoly(response.result.orders[0].zone.polygon, '#ccffff');
+          
+          Maps.addElOnMap(poly);
+        }
+        
         first_time = false;
         startOffer(response.result);
       }
@@ -99,7 +106,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
             lost_diff   = Dates.diffTime(ords.bids[i].approved, ords.travelTime),
             toLoc       = ords.toLocation.split(','),
             arrived_but = Dom.sel('button[data-click="driver-arrived"]'),
-            loc         = agnt.location,
+            loc         = agnt.location.split(','),
             dist        = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
             dr_time, but;
 
@@ -130,7 +137,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           }
         }
 
-        if (dist < Settings.distanceToPoint) {
+        if (dist < Parameters.distanceToPoint) {
           but = Dom.sel('[data-click="driver-came"]');
 
           if (but) {
@@ -138,7 +145,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           }
         }
 
-        if (radius < Settings.distanceToPoint) {
+        if (radius < Parameters.distanceToPoint) {
           if (arrived_but) {
             var kuda = arrived_but.parentNode;
 
@@ -171,7 +178,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         Dom.sel('[data-view="duration"]').innerHTML = Dates.minToHours(ords.duration);
 
         if (!MapElements.marker_clients[i]) {
-          MapElements.marker_clients[i] = Maps.addMarker(loc[0], loc[1], 'Клиент', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==',  [10,10], function(){});
+          MapElements.marker_clients[i] = Maps.addMarker(loc[0], loc[1], 'Клиент', '//maps.google.com/mapfiles/kml/shapes/man.png',  [16, 16], function(){});
         } else {
           Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_clients[i]);
         }
@@ -259,18 +266,21 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
   
   function start() {
+    var offerId = Storage.getTripDriver();
     MyOrder = new clClientOrder();
     MyOffer = new clDriverOffer();
-    MyOrder.activateCurrent();
-    MyOffer.activateCurrent();
+    //MyOrder.activateCurrent();
+    //MyOffer.activateCurrent();
     
-    if (MyOffer.id === Storage.getTripDriver()) {
-      Maps.mapOn();
-      initMap();
-      SafeWin.overviewPath = [];
-      Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
-      GetPositions.my();
-      Chat.start('offer', MyOffer.id);
+    if (offerId) {
+      MyOffer.getByID(offerId, function () {
+        Maps.mapOn();
+        initMap();
+        SafeWin.overviewPath = [];
+        Conn.request('startOrdersByOffer', MyOffer.id, cbGetOrdersByOffer);
+        GetPositions.my();
+        Chat.start('offer', MyOffer.id);
+      });
     } else {
       Storage.removeTripDriver();
       goToPage = '#driver_city';

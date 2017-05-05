@@ -125,7 +125,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         var agIndex = parseObj(getAgentIndexes(offers[i].agent)),
             car     = offers[i].agent.cars[0],
             vehicle = car.photo || Car.default_vehicle,
-            approve = offers[i].bids[0] ? offers[i].bids[0].approved : false,
+            approve = offers[i].bids ? offers[i].bids[0].approved : false,
             active  = approve ? ' active' : ' inactive',
             photo   = offers[i].agent.photo || User.avatar,
             loc     = offers[i].agent.location;
@@ -215,7 +215,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         type = Storage.getActiveTypeTaxi();
       
     Orders = [];
-    
+
     if (ords) {
       if (automat_driver) {
         
@@ -226,6 +226,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       }
       
       for (var i = 0; i < ords.length;) {
+        if (i === 0 && tempOrder.length > 0) {
+          if (tempOrder[0].type !== ords[0].type) {
+            tempOrder = [];
+          }
+        }
+        
         var ordId = ords[i].id,
             same_el = tempOrder.filter(function(ord) {
               return ord.id === ordId;
@@ -249,6 +255,29 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
           Orders.push(temp_order);
           i++;
         });
+      }
+      
+      for (var i = 0; i < tempOrder.length; i++) {
+        var id = tempOrder[i].id,
+            sovp = false;
+        
+        for (var y = 0; y < Orders.length; y++) {
+          if (tempOrder[i].id === Orders[y].id) {
+            sovp = true;
+          }
+        }
+        
+        if (!sovp) {
+          if (!tempOrder[i].deactived) {
+            tempOrder[i].deactived = new Date().valueOf() + 60000;
+          }
+          
+          if (tempOrder[i].deactived > new Date().valueOf()) {
+            //i = i===0 ? -1 : i;
+            Orders.splice(i, 0, tempOrder[i]);
+          }
+        }
+
       }
     }
 
@@ -275,8 +304,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             key <= 4294967294) {
 
           var active_bid = Orders[key].active_bid ? ' active' : '', 
-              zaezdy = '',
-              fromCity = '', toCity = '', safety = '';
+              zaezdy     = '',
+              fromCity   = '', toCity = '', safety = '',
+              clas       = Orders[key].deactived ? 'deactivate' : false,
+              forClick   =  !Orders[key].deactived ? 'data-click="taxi_bid"' : '';
 
           if (Orders[key].stops > 0) {
             zaezdy = '<div class="list-orders_route_to">' +
@@ -284,10 +315,10 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                       '</div>';
           }
 
-          var price_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '',
-              price_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="price_plus"></i>' : '',
-              time_minus = active_bid === "" ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="time_minus"></i>' : '',
-              time_plus = active_bid === "" ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '',
+          var price_minus = active_bid === "" && !Orders[key].deactived ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '',
+              price_plus = active_bid === "" && !Orders[key].deactived ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="price_plus"></i>' : '',
+              time_minus = active_bid === "" && !Orders[key].deactived ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="time_minus"></i>' : '',
+              time_plus = active_bid === "" && !Orders[key].deactived ? '<i class="icon-plus-circle for-click" data-key="' + key + '" data-click="time_plus"></i>' : '',
               ideika = Orders[key].order_in_offer || Orders[key].id,
               cargo_info = '';
           
@@ -351,9 +382,9 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                            Orders[key].name + '<br/>' + Orders[key].created +
                       '</div>' +
                       '<div class="list-orders_phone">' +
-                        '<i data-click="taxi_bid" data-id="' + ideika + '" class="icon-ok-circled' + active_bid + '"></i>' +
+                        '<i ' + forClick + ' data-id="' + ideika + '" class="icon-ok-circled' + active_bid + '"></i>' +
                       '</div>',
-                    listOrders);
+                    listOrders, clas);
         }
       }
 
@@ -363,10 +394,14 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     }
   }
   
-  function show(el, a, to) {
+  function show(el, a, to, clas) {
     var n = document.createElement(el);
         n.innerHTML = a;
-
+    
+    if (clas) {
+      n.classList.add(clas);
+    }
+    
     to.appendChild(n);
   }
   
@@ -713,6 +748,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       MapElements.clear();
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetBids');
+      Conn.clearCb('cbGetClientBids');
     },
     
     init: function (model) {
@@ -724,7 +760,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     },
     
     getBidsClient: function () {
-      get_bid_clients(); //было по таймеру
+      get_bid_clients();
     },
     
     getOfferByID: function (id) {

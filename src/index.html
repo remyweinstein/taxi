@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html> 
+<html>
     <!--debug="true">-->
     <head>
         <title>Tech Agent</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-        <link href="assets/css/main.css?version=0.14" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?version=0.18" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?version=0.36" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?version=0.51" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -107,7 +107,7 @@
             </div>
             <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
-        <template id="PagesTrustedContacts">
+        <template id="PageTrustedContacts">
             <p><button class="button_wide--green" data-click="invite-agent">Пригласить агента</button></p>
             <ul class="trusted-contacts"></ul>
         </template>
@@ -391,6 +391,9 @@
         <template id="PageLogout">
             <div data-controller="pages_logout"></div>
         </template>
+        <template id="PageAdmin">
+            <div class="settings" data-controller="pages_admin"></div>
+        </template>
         <template id="PageSettings">
             <div class="settings" data-controller="pages_settings"></div>
         </template>
@@ -568,7 +571,7 @@
                 </div>
             </div>
         </template>
-        <template id="TaxiClientCargo">
+        <template id="TaxiClientTrucking">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказать</li>
@@ -663,14 +666,19 @@
         <template id="TaxiClientIntercity">
             <nav class="tabs">
                 <ul>
-                    <li data-tab="1" class="tab--active">Заказать</li>
-                    <li data-tab="2">Попутки</li>
+                    <li data-tab="1" class="tab--active">Попутки</li>
+                    <li data-tab="2">Заказать</li>
                     <li data-tab="3">Мои заказы</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper" data-controller="taxi_client_intercity">
               <div class="tabs__viewport">
-                <div data-tab-content="1" data-map="enable" class="tabs_content">
+                <div data-tab-content="1" class="tabs_content">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                </div>
+                  <div data-tab-content="2" data-map="enable" class="tabs_content">
                     <div class="form-order-city" data-hide-form="enable">
                         <div class="form-order-city__top" data-hide-form="top">
                             <div class="form-order-city__field">
@@ -754,11 +762,6 @@
                             <button class="button_rounded--green" data-click="save-order">Заказать</button>
                         </div>
                     </div>
-                </div>
-                <div data-tab-content="2" class="tabs_content">
-                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
-                    <div class="list-orders__result">Найдено <span></span> заявок</div>
-                    <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
                 <div data-tab-content="3" class="tabs_content">
                     <ul class="myorders"></ul>
@@ -887,65 +890,6 @@
                 </div>
             </div>
         </template>
-        <template id="TaxiClientFeedback">
-            <nav class="tabs">
-                <ul>
-                    <li data-tab="1" class="tab--active">Пожаловаться</li>
-                    <li data-tab="2">Мои жалобы</li>
-                </ul>
-            </nav>
-            <div class="tabs__wrapper">
-              <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
-                    <h1>Обратная связь</h1>
-                    <p>Здесь вы можете пожаловаться на действия других участников сервиса.</p>
-                    <p>Пожалуйста, опишите максимально подробно вашу ситуацию.</p>
-                    <form action="" method="POST" class="form-feedback" >
-                        <p><input type="text" name="second-phone" value="" placeholder="Телефон второго лица" /></p>
-                        <p>
-                            <select name="reason">
-                                <option value="1">Укажите причину</option>
-                                <option value="2">Пассажир не вышел на заказ (Укажите заказ)</option>
-                                <option value="3">Пассажир не оплатил за проезд (Укажите заказ)</option>
-                                <option value="4">Конфликт с пассажиром (Напишите подробно)</option>
-                                <option value="5">Пассажир забыл вещи в машине</option>
-                                <option value="6">Проблемы с приложением</option>
-                                <option value="7">Неполное описание заказа</option>
-                                <option value="8">Другое</option>
-                            </select>
-                        </p>
-                        <p>
-                            <textarea name="message" placeholder="Сообщение"></textarea>
-                        </p>
-                        <p><input type="text" value="WIFI" name="wifi" /></p>
-                        <p>Если у вас есть предложения по улучшению приложения просим написать на почту.</p>
-                        <div class="gBlock">
-                            <p><button class="button_wide--yellow">Отправить</button></p>
-                        </div>
-                    </form>
-                </div>
-                <div data-tab-content="2" class="tabs_content">
-                    <h1>Мои заявки</h1>
-                    <p>Нет результатов</p>
-                </div>
-              </div>
-            </div>        
-        </template>
-        <template id="TaxiClientHelp">
-            <h1>Помощь клиенту</h1>
-            <p class="strong">1. Как взять заказ:</p>
-            <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
-            <p class="strong">2. Как обновить приложение?</p>
-            <p>Перейдите по <a href="#">ссылке</a></p>
-            <p class="strong">3. Можно ли сбросить свой рейтинг?</p>
-            <p>Нельзя. Рейтинг формируется по результатам выполненных Вами заказов. Обнулить или искусственно увеличить рейтинг невозможно.</p>
-            <p class="strong">4. Нет моей марки машины в каталоге</p>
-            <p>Напишите разработчикам</p>
-            <p class="strong">5. Пассажир не вышел на заказ или возникла конфликтная ситуация</p>
-            <p>Просим написать жалобу на почту или через форму обратной связи в боковом меню</p>
-            <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
-            <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
-        </template>
         <template id="TaxiDriverCity">
             <nav class="tabs">
                 <ul>
@@ -1021,7 +965,7 @@
               </div>    
             </div>    
         </template>
-        <template id="TaxiDriverCargo">
+        <template id="TaxiDriverTrucking">
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
@@ -1079,65 +1023,6 @@
                     <button class="button_rounded--green" data-click="save-order">Предложить</button>
                 </div>
             </div>
-        </template>
-        <template id="TaxiDriverFeedback">
-            <nav class="tabs">
-                <ul>
-                    <li data-tab="1" class="tab--active">Пожаловаться</li>
-                    <li data-tab="2">Мои жалобы</li>
-                </ul>
-            </nav>
-            <div class="tabs__wrapper">
-              <div class="tabs__viewport">
-                <div data-tab-content="1" class="tabs_content">
-                    <h1>Обратная связь</h1>
-                    <p>Здесь вы можете пожаловаться на действия других участников сервиса.</p>
-                    <p>Пожалуйста, опишите максимально подробно вашу ситуацию.</p>
-                    <form action="" method="POST" class="form-feedback" >
-                        <p><input type="text" name="second-phone" value="" placeholder="Телефон второго лица" /></p>
-                        <p>
-                            <select name="reason">
-                                <option value="1">Укажите причину</option>
-                                <option value="2">Пассажир не вышел на заказ (Укажите заказ)</option>
-                                <option value="3">Пассажир не оплатил за проезд (Укажите заказ)</option>
-                                <option value="4">Конфликт с пассажиром (Напишите подробно)</option>
-                                <option value="5">Пассажир забыл вещи в машине</option>
-                                <option value="6">Проблемы с приложением</option>
-                                <option value="7">Неполное описание заказа</option>
-                                <option value="8">Другое</option>
-                            </select>
-                        </p>
-                        <p>
-                            <textarea name="message" placeholder="Сообщение"></textarea>
-                        </p>
-                        <p><input type="text" value="WIFI" name="wifi" /></p>
-                        <p>Если у вас есть предложения по улучшению приложения просим написать на почту.</p>
-                        <div class="gBlock">
-                            <p><button class="button_wide--yellow">Отправить</button></p>
-                        </div>
-                    </form>
-                </div>
-                <div data-tab-content="2" class="tabs_content">
-                    <h1>Мои заявки</h1>
-                    <p>Нет результатов</p>
-                </div>
-              </div>
-            </div>
-        </template>
-        <template id="TaxiDriverHelp">
-            <h1>Помощь водителю</h1>
-            <p class="strong">1. Как взять заказ:</p>
-            <p>В приложении есть лента заказов. Если вы хотите взять заказ надо нажать на него, далее автоматически будет произведен звонок (по тарифу вашего оператора). После соединения с пассажиром подтвердите, что вы взяли заказ и уточните время подачи автомобиля. Все заказы, на которые был произведен звонок, автоматически переходят во вкладку "Мои заказы"</p>
-            <p class="strong">2. Как обновить приложение?</p>
-            <p>Перейдите по <a href="#">ссылке</a></p>
-            <p class="strong">3. Можно ли сбросить свой рейтинг?</p>
-            <p>Нельзя. Рейтинг формируется по результатам выполненных Вами заказов. Обнулить или искусственно увеличить рейтинг невозможно.</p>
-            <p class="strong">4. Нет моей марки машины в каталоге</p>
-            <p>Напишите разработчикам</p>
-            <p class="strong">5. Пассажир не вышел на заказ или возникла конфликтная ситуация</p>
-            <p>Просим написать жалобу на почту или через форму обратной связи в боковом меню</p>
-            <p class="strong">6. Невозможно дозвониться до клиента, постоянно занято</p>
-            <p>У вас низкий рейтинг или Вы находитесь от клиента дальше чем те водители, которые отправляют запрос по данному заказу.</p>
         </template>
         <template id="TaxiDriverOrder">
             <div class="go-order" data-hide-form="enable">

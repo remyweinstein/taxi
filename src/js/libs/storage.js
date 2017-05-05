@@ -10,6 +10,26 @@ define(['ActiveOrder'], function(ActiveOrder) {
       }
     },
     
+    setUpdateVersion: function(version) {
+      localStorage.setItem('_update_version', version);
+    },
+    
+    getUpdateVersion: function() {
+      localStorage.getItem('_update_version');
+    },
+    
+    addMyActiveOrder: function(ids) {
+      localStorage.setItem('_my_active_orders', JSON.stringify(ids));
+    },
+    
+    clearMyActiveOrder: function() {
+      localStorage.removeItem('_my_active_orders');
+    },
+    
+    getMyActiveOrder: function() {
+      return JSON.parse(localStorage.getItem('_my_active_orders'));
+    },
+    
     setSafeRoute: function(points) {
       localStorage.setItem('_safe_route', JSON.stringify(points));
     },
@@ -39,7 +59,7 @@ define(['ActiveOrder'], function(ActiveOrder) {
           arrLen = arr.length,
           newArr = [];
 
-      if (url === "#logout" || url === "#start" || url === "undefined" || !url) {
+      if (url === "#logout" || url === "#start" || url === "undefined" || url === "open_message" || !url) {
         return;
       }
       
@@ -84,7 +104,7 @@ define(['ActiveOrder'], function(ActiveOrder) {
       return urls.split('|');
     },
     
-    clearHisrtoryPages: function() {
+    clearHistoryPages: function() {
       localStorage.removeItem('_history_url');
     },
     

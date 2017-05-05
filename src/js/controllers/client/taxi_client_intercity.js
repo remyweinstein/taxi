@@ -1,4 +1,4 @@
-/* global User, Maps, Conn, Event */
+/* global User, Maps, Conn, Event, SafeWin */
 
 define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder'], 
 function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder) {
@@ -93,6 +93,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
         for (var i = 0; i < cities.length; i++) {
           innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
         }
+        
         list_results.innerHTML = innText;
         list_results.style.display = 'block';
       }
@@ -258,6 +259,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             var data = {};
 
             data.id = target.dataset.id;
+            
 
             if (Dom.toggle(target, 'active')) {
               Conn.request('disagreeOffer', target.dataset.id);
@@ -324,6 +326,8 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     Conn.clearCb('cbGetOffers');
     Conn.request('stopGetOffers');
     Storage.lullModel(MyOrder);
+    Modal.close();
+    SafeWin.disableZoneForRoute();
   }
   
   function start() {

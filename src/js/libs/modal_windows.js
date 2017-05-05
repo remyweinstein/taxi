@@ -477,6 +477,10 @@ define(['Dom'], function(Dom) {
 
                   cur_win = new_field;
 
+    },
+    
+    close: function() {
+      close();
     }
 
   };

@@ -10,9 +10,10 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#login', template:'PageLogin', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
                 {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
-                {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPagesTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
+                {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPageTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
+                {hash:'#admin', template:'PageAdmin', controller:'ctrlPageAdmin', title:'Параметры', menu:'client', pageType: ''},
                 {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
@@ -24,7 +25,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#client_go', template:'TaxiClientGo', controller:'ctrlTaxiClientGo', title:'Поехали', menu:'client', pageType: ''},
                 {hash:'#client_intercity', template:'TaxiClientIntercity', controller:'ctrlTaxiClientIntercity', title:'Межгород', menu:'client', pageType: ''},
                 {hash:'#client_tourism', template:'TaxiClientTourism', controller:'ctrlTaxiClientTourism', title:'Туризм', menu:'client', pageType: ''},
-                {hash:'#client_cargo', template:'TaxiClientCargo', controller:'ctrlTaxiClientCargo', title:'Грузоперевозки', menu:'client', pageType: ''},
+                {hash:'#client_trucking', template:'TaxiClientTrucking', controller:'ctrlTaxiClientTrucking', title:'Грузоперевозки', menu:'client', pageType: ''},
                 {hash:'#client_feedback', template:'TaxiClientFeedback', controller:'ctrlTaxiClientFeedback', title:'Обратная связь', menu:'client', pageType: ''},
                 {hash:'#client_help', template:'TaxiClientHelp', controller:'ctrlTaxiClientHelp', title:'Помощь клиенту', menu:'client', pageType: ''},
                 {hash:'#client_map', template:'TaxiClientMap', controller:'ctrlTaxiClientMap', title:'Поиск водителя', menu:'client', pageType: ''},
@@ -35,7 +36,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#driver_my_account', template:'TaxiDriverMyAccount', controller:'ctrlTaxiDriverMyAccount', title:'Личный кабинет', menu:'driver', pageType: ''},
                 {hash:'#driver_feedback', template:'TaxiDriverFeedback', controller:'ctrlTaxiDriverFeedback', title:'Обратная связь', menu:'driver', pageType: ''},
                 {hash:'#driver_rating', template:'TaxiDriverRating', controller:'ctrlTaxiDriverRating', title:'Мой рейтинг', menu:'driver', pageType: 'back-arrow'},
-                {hash:'#driver_cargo', template:'TaxiDriverCargo', controller:'ctrlTaxiDriverCargo', title:'Грузоперевозки', menu:'driver', pageType: ''},
+                {hash:'#driver_trucking', template:'TaxiDriverTrucking', controller:'ctrlTaxiDriverTrucking', title:'Грузоперевозки', menu:'driver', pageType: ''},
                 {hash:'#driver_city', template:'TaxiDriverCity', controller:'ctrlTaxiDriverCity', title:'Город', menu:'driver', pageType: ''},
                 {hash:'#driver_go', template:'TaxiDriverGo', controller:'ctrlTaxiDriverGo', title:'Поехали', menu:'driver', pageType: ''},
                 {hash:'#driver_order', template:'TaxiDriverOrder', controller:'ctrlTaxiDriverOrder', title:'Подробности заказа', menu:'driver', pageType: 'back-arrow'},
@@ -105,6 +106,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
           loadController(currentRoute);
         }
       }
+      
       Storage.addHistoryPages(window.location.hash);
       currentHash = window.location.hash;
     }
@@ -173,7 +175,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     var win_route = Dom.selAll('.safe_by_route')[0];
     
     if (win_route) {
-      if (route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_cargo" || route.hash === "#client_intercity") {
+      if (route.hash === "#driver_go" || route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_trucking" || route.hash === "#client_intercity") {
         win_route.classList.remove('hidden');
       } else {
         win_route.classList.add('hidden');
@@ -197,7 +199,9 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
         dynamic_el = Dom.sel('.dynamic'),
         content = document.querySelector('#' + route.template).innerHTML,
         dynamic = document.createElement('div');
-      
+    
+    //checkActiveOrder();
+    
     Tabs.clear();
     HideForms.clear();
     
@@ -223,6 +227,29 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       controller.start();
       Dom.finishLoading();
     });
+  }
+  
+  function checkActiveOrder() {
+    Conn.request('requestMyOrders', '', cbCheckActiveOrder);
+    Conn.request('stopGetOrders');
+  }
+  
+  function cbCheckActiveOrder(response) {
+      Conn.clearCb('cbCheckActiveOrder');
+      
+      if (!response.error) {
+        var orders = response.result.orders,
+            tempArr = [];
+          
+        for (var i = 0; i < orders.length; i++) {
+
+          if (!orders[i].finished && !orders[i].canceled) {
+            tempArr.push(parseInt(orders[i].id));
+          }
+        }
+        
+        Storage.addMyActiveOrder(tempArr);
+      }
   }
 
   return {

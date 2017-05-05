@@ -1,4 +1,4 @@
-/* global User, ymaps, MapGoogle, MapYandex, google, Settings, MapElements, Conn */
+/* global User, ymaps, MapGoogle, MapYandex, google, Parameters, MapElements, Conn, Settings */
 
 define(['jsts'], function(jsts) {
 
@@ -192,11 +192,11 @@ define(['jsts'], function(jsts) {
       return self.currentModel.getLocationClick(event);
     };
     
-    this.drawPoly = function(Coords) {
+    this.drawPoly = function(Coords, color) {
       var polygon = false;
 
       if (Coords) {
-        polygon = self.currentModel.drawPoly(Coords);
+        polygon = self.currentModel.drawPoly(Coords, color);
         self.removeElement(polygon);
       }
 
@@ -234,30 +234,27 @@ define(['jsts'], function(jsts) {
       }
 
       var distance = Settings.safeRadius / 500 / 111.12,
-      geoInput = {
-        type: "MultiLineString",
-        coordinates: overviewPathGeo
-        };
-      var geoReader = new jsts.io.GeoJSONReader(),
-          geoWriter = new jsts.io.GeoJSONWriter();
-      var geometry = geoReader.read(geoInput).buffer(distance, 2);
-      var polygon = geoWriter.write(geometry);
-
-      var oLanLng = [],
+          geoInput = {
+            type: "MultiLineString",
+            coordinates: overviewPathGeo
+            },
+          geoReader = new jsts.io.GeoJSONReader(),
+          geoWriter = new jsts.io.GeoJSONWriter(),
+          geometry = geoReader.read(geoInput).buffer(distance, 2),
+          polygon = geoWriter.write(geometry),
+          oLanLng = [],
           oCoordinates = polygon.coordinates[0];
 
       for (i = 0; i < oCoordinates.length; i++) {
         var oItem = oCoordinates[i];
 
-        oLanLng.push(new google.maps.LatLng(oItem[1], oItem[0]));
+        oLanLng.push({"lat":oItem[1], "lng":oItem[0]});
       }
-
-      var polygone = new google.maps.Polygon({
-        paths: oLanLng,
-        //strokeWeight: 0,
-        map: self.map
-      });
-
+      
+      var polygone = self.drawPoly(oLanLng);
+      
+      self.addElOnMap(polygone);
+      
       return polygone;
     };
     

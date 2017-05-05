@@ -1,6 +1,6 @@
-/* global map, ymaps, User, SafeWin, Maps, MapElements, Settings */
+/* global map, ymaps, User, SafeWin, Maps, MapElements, Parameters */
 
-define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
+define(['Dom', 'Storage'], function(Dom, Storage) {
   function objCoordsToArray (obj) {
     var newArr = [];
     
@@ -93,7 +93,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
           Model.duration = Math.round(route.getTime()/60);
           Model.length = Math.round(route.getLength());
           
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Settings.orderCostOfKm) + parseInt(Settings.orderLandingPrice)) / 10 );
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
           
           Storage.lullModel(Model);
@@ -225,12 +225,16 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
       return event.get('coords');
     };
     
-    this.drawPoly = function (Coords) {
+    this.drawPoly = function (Coords, color) {
+      color = color || '#FF0088';
+
       var poly =  new ymaps.Polygon([
                     objCoordsToArray(Coords)
                   ],{
-                      fillColor: '#00FF0088',
-                      strokeWidth: 5
+                    fillColor: color,
+                    strokeColor: '#0000FF',
+                    opacity: 0.35,
+                    strokeWidth: 2
                   });
       
       return poly;

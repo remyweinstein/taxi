@@ -309,6 +309,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
   function stop() {
     Destinations.clear();
     Storage.lullModel(MyOrder);
+    Modal.close();
   }
   
   function start() {

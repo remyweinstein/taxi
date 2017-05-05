@@ -205,6 +205,7 @@ function (Lists, Storage, Modal, clDriverOffer) {
     Lists.clear();
     Conn.clearCb('cbGetOrders');
     Conn.request('stopGetOrders');
+    Modal.close();
   }
   
   function start() {

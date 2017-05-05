@@ -1,4 +1,4 @@
-/* global User, Event, Conn, Maps */
+/* global User, Event, Conn, Maps, SafeWin */
 
 define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindows', 'ClientOrder', 'Storage'],
   function (Dom, HideForms, GetPositions, Lists, Destinations, Modal, clClientOrder, Storage) {
@@ -171,7 +171,9 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             
             if (target.dataset.click === "save-order") {
               Storage.setActiveTypeModelTaxi('order');
-              Destinations.saveOrder();
+              Destinations.saveOrder(function () {
+                goToPage = '#client_map';
+              });
 
               return;
             }
@@ -251,6 +253,8 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
       Conn.request('stopGetOffers');
       Maps.removeEvent(eventOnChangeZoom);
       Storage.lullModel(MyOrder);
+      Modal.close();
+      SafeWin.disableZoneForRoute();
     }
 
     function start() {

@@ -206,6 +206,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     Lists.clear();
     Conn.clearCb('cbGetOrders');
     Conn.request('stopGetOrders');
+    Modal.close();
   }
   
   function start() {

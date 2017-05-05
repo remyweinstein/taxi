@@ -219,6 +219,7 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
     Lists.clear();
     Conn.clearCb('cbGetOrders');
     Conn.request('stopGetOrders');
+    Modal.close();
   }
   
   function start() {

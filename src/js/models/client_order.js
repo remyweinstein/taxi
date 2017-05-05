@@ -40,6 +40,7 @@ define(['Storage'], function(Storage) {
     this.price            = 0;
     this.seats            = 1;
     this.start            = null;
+    this.zone             = null;
     this.bags             = 0;
     
     function cbCreateOrder(response) {
@@ -49,15 +50,22 @@ define(['Storage'], function(Storage) {
       if (Storage.getSafeRoute()) {
         var data = {};
         
-        data.polygon = Storage.getSafeRoute();
-        data.name = 'temporary';
+        data.polygon  = Storage.getSafeRoute();
+        data.name     = 'temporary';
         data.isActive = true;
-        data.orderId = self.id;
-        Conn.request('addZones', data);
+        data.orderId  = self.id;
+        self.zone     = data;
+        
+        Conn.request('addZones', data, cbAddSafeRoute);
         Storage.clearSafeRoute();
+      } else {
+        self.callback();
       }
-      
-      goToPage = '#client_map';
+    }
+    
+    function cbAddSafeRoute() {
+      Conn.clearCb('cbAddSafeRoute');
+      self.callback();
     }
   
     function cbgetOrderById(response) {
@@ -103,6 +111,7 @@ define(['Storage'], function(Storage) {
         self.times            = [];
         self.price            = ord.price;
         self.type             = ord.type;
+        self.zone             = ord.zone;
         
         if (ord.toAddresses) {
           for (var i = 0; i < ord.toAddresses.length; i++) {
@@ -154,6 +163,7 @@ define(['Storage'], function(Storage) {
       self.seats            = 1;
       self.bags             = 0;
       self.type             = null;
+      self.zone             = null;
     }
     
     this.activateCurrent = function () {
@@ -184,11 +194,11 @@ define(['Storage'], function(Storage) {
       lull('intercity');
     };
     
-    this.activateCargo = function () {
+    this.activateTrucking = function () {
       parse('trucking');
     };
     
-    this.lullCargo = function () {
+    this.lullTrucking = function () {
       lull('trucking');
     };
     
@@ -233,6 +243,7 @@ define(['Storage'], function(Storage) {
       self.seats            = ord.seats;
       self.bags             = ord.bags;
       self.type             = ord.type;
+      self.zone             = ord.zone;
       
       if (ord.points) {
         if (ord.points.length > 0) {
@@ -258,7 +269,7 @@ define(['Storage'], function(Storage) {
       clear();
     };
     
-    this.save = function () {
+    this.save = function (callback) {
       var data = {};
 
       data.fromLocation  = self.fromCoords;
@@ -281,6 +292,7 @@ define(['Storage'], function(Storage) {
       data.price         = self.price;
       data.type          = self.type;
       data.bags          = self.bags;
+      data.zone          = self.zone;
       //data.active        = self.active;
       //data.pregnant      = self.pregnant;
 
@@ -301,10 +313,17 @@ define(['Storage'], function(Storage) {
       }
 
       Conn.request('createOrder', data, cbCreateOrder);
+      function st() {
+        callback();
+      };
+      
+      arguments.callee.st = st;
     };
     
     this.callback = function () {
+      self.save.st();
       
+      return true;
     };
     
     this.getByID = function (id, callback) {

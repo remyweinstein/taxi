@@ -23,6 +23,9 @@
         border-bottom: 1px solid grey;
         padding: 0.25em 0;
         display: flex;
+        &.deactivate {
+            opacity: 0.2;
+        }
     }
     &__result{
         text-align: center;

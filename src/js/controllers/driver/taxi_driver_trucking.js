@@ -27,7 +27,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     var stopStartOrders = function () {
           Conn.request('stopGetOrders');
           Conn.clearCb('cbGetOrders');
-          Conn.request('startGetOrdersCargo', '', cbGetOrders);
+          Conn.request('startGetOrdersTrucking', '', cbGetOrders);
         },
         filters = Storage.getActiveFilters(),
         sortes = Storage.getActiveSortFilters();
@@ -206,6 +206,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     Lists.clear();
     Conn.clearCb('cbGetOrders');
     Conn.request('stopGetOrders');
+    Modal.close();
   }
   
   function start() {
@@ -216,8 +217,8 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     old_filters = Storage.getActiveFilters();
     old_sortes = Storage.getActiveSortFilters();
     Lists.filtersStart();
-    Conn.request('requestMyCargoOffers', '', cbMyOffers);
-    Conn.request('startGetOrdersCargo', '', cbGetOrders);
+    Conn.request('requestMyTruckingOffers', '', cbMyOffers);
+    Conn.request('startGetOrdersTrucking', '', cbGetOrders);
     Conn.request('stopGetOffers');
     addEvents();
   }

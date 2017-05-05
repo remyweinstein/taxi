@@ -47,7 +47,19 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
+    var params = window.location.search;
+    
     addEvents();
+    
+    if (params !== "") {
+      params = (params.substr(1)).split('&');
+      
+      var authToken = params[0].split('='),
+          code      = params[1].split('=');
+      
+      User.authToken = authToken[1];
+      Dom.sel('input[name="sms"]').value = code[1];  
+    }
   }
   
   return {

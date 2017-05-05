@@ -23,7 +23,7 @@
         width: 100%;
         text-align: center;
         &.hidden{
-            display: none;
+            opacity: 0.2;
         }
     }
     &__grid {

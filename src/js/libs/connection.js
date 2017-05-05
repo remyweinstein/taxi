@@ -26,7 +26,8 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Notify.listnerNotify(response);
     
     if (response.error) {
-      if (response.error[0] === "Token not found.") {
+      
+      if (response.error[0] === "Token not found." || response.error === "Missing required parameters: token") {
         if (!User.initialization_token) {
           User.token = null;
           User.initToken();
@@ -205,6 +206,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     params.offer.order       = data.id;
     params.offer.travelTime  = data.travelTime;
     params.offer.price       = data.price;
+    delete params.offer.zone;
     Conn.sendMessage("post-offer", params);
   }
   
@@ -249,6 +251,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     if (data.price) {
       params.order.price        = data.price;
     }
+    
+    if (data.seats) {
+      params.order.seats        = data.seats;
+    } else {
+      params.order.seats        = 1;
+    }
 
     Conn.sendMessage("post-order", params);
   }
@@ -261,6 +269,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
 
   function createOrder(data) {
     params.order = data;
+    delete params.order.zone;
     Conn.sendMessage("post-order", params);
   }
   
@@ -280,6 +289,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
   
   function createOffer(data) {
     params.offer = data;
+    delete params.offer.zone;
     Conn.sendMessage("post-offer", params);
   }
 
@@ -290,7 +300,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("get-orders", params);
   }
   
-  function requestMyCargoOrders() {
+  function requestMyTruckingOrders() {
     params.filter      = {};
     params.filter.type = "trucking";
     params.filter.my   = 1;
@@ -338,7 +348,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("get-offers", params);
   }
   
-  function requestMyCargoOffers() {
+  function requestMyTruckingOffers() {
     params.filter      = {};
     params.filter.type = "trucking";
     params.filter.my   = 1;
@@ -490,17 +500,18 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     var self = this;
     
     function addCbFunc(cb) {
-      var sov = false,
+      var sovp = false,
           name = getFnName(cb);
         
       for (var i = 0; i < self.callback.length; i++) {
         if (getFnName(self.callback[i]) === name) {
-          sov = true;
+          sovp = true;
           
           break;
         }
       }
-      if (!sov) {
+      
+      if (!sovp) {
         self.callback.push(cb);
         global_id = name;
       }
@@ -524,6 +535,10 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     
     this.request = function(func, data, cb) {
       params = {};
+      
+      if (User.initialization_token) {
+        return;
+      }
       
       if (cb) {
         addCbFunc(cb);
@@ -640,7 +655,7 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "startGetOrders":
           startGetOrders('taxi');
           break;
-        case "startGetOrdersCargo":
+        case "startGetOrdersTrucking":
           startGetOrders('trucking');
           break;
         case "startGetIntercityOrders":
@@ -715,14 +730,14 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "requestMyTourismOrders":
           requestMyTourismOrders();
           break;
-        case "requestMyCargoOrders":
-          requestMyCargoOrders();
+        case "requestMyTruckingOrders":
+          requestMyTruckingOrders();
           break;
         case "requestMyOffers":
           requestMyOffers();
           break;
-        case "requestMyCargoOffers":
-          requestMyCargoOffers();
+        case "requestMyTruckingOffers":
+          requestMyTruckingOffers();
           break;
         case "requestMyIntercityOffers":
           requestMyIntercityOffers();

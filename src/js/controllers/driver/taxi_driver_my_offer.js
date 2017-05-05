@@ -23,7 +23,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
     Maps.drawRoute(MyOffer, false, function(){});
   }
   
-  function addCargo() {
+  function addTrucking() {
     var additional_info = Dom.sel('div[data-block="additional_info"]'),
         innerText = '<i class="icon-box form-order-city__label"></i><span>Объем ' + MyOffer.volume + 'м3</span>' +
                     '<i class="icon-balance-scale form-order-city__label"></i><span>Вес ' + MyOffer.weight + 'кг</span>' +
@@ -46,7 +46,11 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
 
       while (target !== this) {
         if (target && target.dataset.click === "taxi_client_bid") {
-          Conn.request('approveOrder', target.dataset.id, cbOnApproveOrder);
+          if (target.classList.contains('active')) {
+            Conn.request('disagreeOffer', target.dataset.id, cbOnApproveOrder);
+          } else {
+            Conn.request('approveOrder', target.dataset.id, cbOnApproveOrder);
+          }
         }
         
         if (target && target.dataset.click === "cancel-order") {
@@ -101,7 +105,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
       }
 
       if (activeTypeTaxi === "trucking") {
-        addCargo();
+        addTrucking();
       }
 
       var el_price  = Dom.sel('.wait-order-approve__route-info__price'),
@@ -119,7 +123,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
                                            ' км / ' +
                                            Dates.minToHours(MyOffer.duration);
 
-      el_price.innerHTML = Math.round(MyOffer.price) + ' руб';
+      el_price.innerHTML  = Math.round(MyOffer.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>' + 
                             '<button data-click="start-offer" class="button_rounded--green" disabled>Поехали</button>';
                           
@@ -129,7 +133,6 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
       var targetLink = Storage.getActiveTypeTaxi();
       
       targetLink = targetLink==="taxi" ? "city" : targetLink;
-      targetLink = targetLink==="trucking" ? "cargo" : targetLink;
       goToPage = "#driver_" + targetLink;
     }
     

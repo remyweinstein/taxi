@@ -1,9 +1,26 @@
 /* global Event, Conn */
 
-define(['ModalWindows', 'PopupWindows'], function (Modal, Popup) {
+define(['ModalWindows', 'PopupWindows', 'Dom', 'Dates'], function (Modal, Popup, Dom, Dates) {
   
   function cbGetSosAgents(response) {
+    var agents = response.result.sosAgents,
+        ul = Dom.sel('ul.trusted-contacts');
+    
     Conn.clearCb('cbGetSosAgents');
+    
+    for (var i = 0; i < agents.length; i++) {
+      var li = document.createElement('li');
+
+      li.dataset.id = agents[i].id;
+      li.innerHTML = '<div>' +
+                       '<span>' + agents[i].name + '</span><br/>' + 
+                       agents[i].phone +
+                      '</div>' +
+                      '<div>' +
+                       '<i class="icon-cancel-circled" data-click="remove-agent" data-id="' + agents[i].id + '"></i>' +
+                     '</div>';
+      ul.appendChild(li);
+    }
   }
   
   function cbRemoveSosAgents() {
@@ -38,14 +55,13 @@ define(['ModalWindows', 'PopupWindows'], function (Modal, Popup) {
             }
 
             if (target.dataset.click === 'remove-agent') {
-              Conn.request('removeSosAgent', '', cbRemoveSosAgents);
+              Conn.request('removeSosAgent', target.dataset.id, cbRemoveSosAgents);
               
               return;
             }
 
             if (target.dataset.click === 'accept-agent') {
-              Conn.request('acceptInviteSosAgent', '', cbAcceptSosAgents);
-              //<p><button class="button_wide--green" data-click="invite-agent">Пригласить агента</button></p>
+              Conn.request('acceptInviteSosAgent', target.dataset.id, cbAcceptSosAgents);
               return;
             }
 
@@ -61,7 +77,7 @@ define(['ModalWindows', 'PopupWindows'], function (Modal, Popup) {
   }
   
   function stop() {
-
+    Modal.close();
   }
   
   function start() {

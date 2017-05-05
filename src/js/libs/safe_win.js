@@ -1,12 +1,10 @@
-/* global safe_zone_polygons, Zones, Settings, Maps, Conn, User */
+/* global Zones, Settings, Maps, Conn, User */
 
 define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], function (Dom, Hammer, Funcs, Multirange, Modal, Storage) {
   
   var s_route_to_Zone = [],
-      safety_route, 
       safe_win, 
-      list_active_zone,
-      safe_zone_polygons = [];
+      list_active_zone;
   
   function swipeRight() {
     var safe_win = Dom.sel('.safety-window');
@@ -56,8 +54,8 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     for (var i = 0; i < ids.length; i++) {
       var arr_id = Funcs.findIdArray(Zones.list, ids[i]);
       
-      safe_zone_polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon);
-      Maps.addElOnMap(safe_zone_polygons[i]);
+      SafeWin.polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon);
+      Maps.addElOnMap(SafeWin.polygons[i]);
     }  
   }
 
@@ -90,8 +88,8 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
 
           if (Dom.toggle(el, 'active-bg')) {
             list_active_zone.splice(arr_id, 1);
-            Maps.removeElement(safe_zone_polygons[arr_id]);
-            safe_zone_polygons.splice(arr_id, 1);            
+            Maps.removeElement(SafeWin.polygons[arr_id]);
+            SafeWin.polygons.splice(arr_id, 1);            
           } else {
             if (id !== "") {
               list_active_zone.push(id);
@@ -116,21 +114,14 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   }
   
   function runZone(event) {
-    var el = false;
-      
-    if (event) {
-        el = event.target;
-    }
-    
-    if (!el) {
-      el = event;
-    }
+    var el = event && event.target ? event.target : event;
     
     var active = el.dataset.active,
         disableZones = function () {
           for (var i = 0; i < list_active_zone.length; i++) {
             Zones.inactive(list_active_zone[i]);
           }
+          
           Storage.removeActiveZones();
         },
         cbCheckPin = function (response) {
@@ -158,62 +149,55 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
         for (var i = 0; i < list_active_zone.length; i++) {
           Zones.active(list_active_zone[i]);
         }
+        
         Storage.setActiveZones(active);
       }
     }
   }
   
   function runRoute(event) {
-    var el = event.target;
+    var el = event.target,
+        parent = el ? el.parentNode : false;
     
     if (!el) {
       el = event;
     }
     
+    if (parent) {
+      if (parent.classList.contains('hidden')) {
+        alert('Перейдите в редактирование заказа, чтобы включить охрану');
+        return;
+      }
+    }
+    
     s_route_to_Zone = [];
     
     if (Dom.toggle(el, 'active')) {
-      disableZoneForRoute();
+      SafeWin.disableZoneForRoute();
     } else {
-      enableZoneForRoute();
+      SafeWin.enableZoneForRoute();
     }
-  }
-
-  function disableZoneForRoute() {
-    Dom.sel('[data-click=runRoute]').classList.remove('active');
-    if (safety_route) {
-      Maps.removeElement(safety_route);
-    }
-    
-    Storage.clearSafeRoute();
-    Storage.removeActiveRoute();
-    
   }
   
-  function enableZoneForRoute () {
-    Storage.setActiveRoute(Settings.safeRadius);
-    safety_route = Maps.showPoly(SafeWin.overviewPath);
+  function onInputRange(el) {
+    var val = parseInt(this.value),
+        parent = el.parentNode.parentNode;
     
-    var path = safety_route.getPath();
-    
-    if (path) {
-      for (var i = 0; i < path.b.length; i++) {
-        s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
+    if (parent) {
+      if (parent.classList.contains('hidden')) {
+        alert('Перейдите в редактирование заказа, чтобы включить охрану');
+        return;
       }
-      
-      Storage.setSafeRoute(s_route_to_Zone);
     }
-  }
-  
-  function onInputRange() {
-    var val = parseInt(this.value);
     
-    disableZoneForRoute();
+    SafeWin.disableZoneForRoute();
     Settings.safeRadius = val;
     Dom.sel('.safety-window__view-radius').innerHTML = val + ' м.';
   }
   
   var SafeWin = {
+    polygons: [],
+    polyRoute: null,
     overviewPath: [],
     
     initial: function () {
@@ -281,6 +265,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
       for (var v = 0; v < Zones.list.length; v++) {
         zones += '<span><button class="button_short--grey" data-click="zone" data-id="' + Zones.list[v].id + '">' + (v + 1) + '</button></span>';
       }
+      
       wrap.innerHTML = '<div class="safety-window__grid">' + 
                           '<div data-click="runSos" class="safety-window__round">SOS</div>' + 
                         '</div>' + 
@@ -344,13 +329,58 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     },
     
     clearPolygonZones: function() {
-      if (safe_zone_polygons) {
-        for (var i = 0; i < safe_zone_polygons.length; i++) {
-          Maps.removeElement(safe_zone_polygons[i]);
+      if (SafeWin.polygons) {
+        for (var i = 0; i < SafeWin.polygons.length; i++) {
+          Maps.removeElement(SafeWin.polygons[i]);
         }
-        safe_zone_polygons = [];
+        
+        SafeWin.polygons = [];
+      }
+    },
+    
+    enableButtonRoute: function() {
+      Dom.sel('[data-click=runRoute]').classList.add('active');
+    },
+    
+    disableButtonRoute: function() {
+      Dom.sel('[data-click=runRoute]').classList.remove('active');
+    },
+    
+    disableZoneForRoute: function() {
+      SafeWin.disableButtonRoute();
+      
+      if (SafeWin.polyRoute) {
+        Maps.removeElement(SafeWin.polyRoute);
+      }
+
+      Storage.clearSafeRoute();
+      Storage.removeActiveRoute();
+    },
+
+    enableZoneForRoute: function() {
+      Storage.setActiveRoute(Settings.safeRadius);
+      SafeWin.polyRoute = Maps.showPoly(SafeWin.overviewPath);
+
+      var path = SafeWin.polyRoute.getPath();
+
+      if (path) {
+        for (var i = 0; i < path.b.length; i++) {
+          s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
+        }
+
+        Storage.setSafeRoute(s_route_to_Zone);
+        if (window.location.hash === "#driver_go") {
+          var data = {};
+
+          data.polygon  = s_route_to_Zone;
+          data.name     = 'temporary';
+          data.isActive = true;
+          data.orderId  = Storage.getTripDriver();
+          Conn.request('addZones', data);
+        }
       }
     }
+
 
   };
   

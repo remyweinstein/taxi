@@ -28,6 +28,12 @@ define(['Storage', 'Dom', 'ActiveOrder'], function(Storage, Dom, ActiveOrder) {
       if (Storage.getTripDriver()) {
         checkEnableActiveWindow();
       }
+      
+      if (currentHash === "#client_city" && window.location.search !== '') {
+        Storage.setLastPage('#client_city');
+        Storage.clearHistoryPages();
+        window.location.search = '';
+      }
 
     }
   };

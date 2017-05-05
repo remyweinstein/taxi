@@ -1,6 +1,6 @@
-/* global google, SafeWin, User, Maps, MapElements, Conn, Settings */
+/* global google, SafeWin, User, Maps, MapElements, Conn, Parameters */
 
-define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, clDriverOffer, clClientOrder) {
+define(['Dom', 'Storage'], function(Dom, Storage) {
   var clGoogle = function () {
     var self = this;
     
@@ -50,7 +50,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
 
           Model.duration = Math.round(dura / 60);
           Model.length = dist;
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Settings.orderCostOfKm) + parseInt(Settings.orderLandingPrice)) / 10 );
+          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
           for (i = 0; i < response.routes.length; i++) {
@@ -243,15 +243,17 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function(Dom, Storage, 
       return [event.latLng.lat(),event.latLng.lng()];
     };
     
-    this.drawPoly = function (Coords) {
+    this.drawPoly = function (Coords, color) {
+      color = color || '#FF0088';
+
       var poly = new google.maps.Polygon({
-               paths: Coords
-               //strokeColor: '#FF0000',
-               //strokeOpacity: 0.8,
-               //strokeWeight: 2,
+               paths: Coords,
+               strokeColor: '#FF0000',
+               strokeOpacity: 0.8,
+               strokeWeight: 2,
                //draggable: true,
-               //fillColor: '#FF0000',
-               //fillOpacity: 0.35
+               fillColor: color,
+               fillOpacity: 0.35
              });
       
       return poly;

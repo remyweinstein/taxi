@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "version=0.36",
+  urlArgs: "version=0.51",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -19,6 +19,7 @@ requirejs.config({
     "Google" :       "models/google",
 		"MapElements" :  "models/map_elements",
     "Maps" :         "models/maps",
+		"Parameters" :   "models/parameters",
 		"Settings" :     "models/settings",
 		"User" :         "models/user",
     "Yandex" :       "models/yandex",
@@ -48,6 +49,7 @@ requirejs.config({
     "Storage" :      "libs/storage",
     "Tabs" :         "libs/tabs",
     
+    "ctrlPageAdmin" :           "controllers/pages/pages_admin",
     "ctrlPageEditProfile" :     "controllers/pages/pages_edit_profile",
     "ctrlPageStart" :           "controllers/pages/pages_start",
     "ctrlPageLogin" :           "controllers/pages/pages_login",
@@ -68,9 +70,7 @@ requirejs.config({
     "ctrlTaxiClientGo" :                "controllers/client/taxi_client_go",
     "ctrlTaxiClientIntercity" :         "controllers/client/taxi_client_intercity",
     "ctrlTaxiClientTourism" :           "controllers/client/taxi_client_tourism",
-    "ctrlTaxiClientCargo" :             "controllers/client/taxi_client_cargo",
-    "ctrlTaxiClientFeedback" :          "controllers/client/taxi_client_feedback",
-    "ctrlTaxiClientHelp" :              "controllers/client/taxi_client_help",
+    "ctrlTaxiClientTrucking" :          "controllers/client/taxi_client_trucking",
     "ctrlTaxiClientMap" :               "controllers/client/taxi_client_map",
     "ctrlTaxiClientOffer" :             "controllers/client/taxi_client_offer",
 
@@ -78,14 +78,12 @@ requirejs.config({
     "ctrlTaxiDriverCity" :          "controllers/driver/taxi_driver_city",
     "ctrlTaxiDriverNewOffer" :      "controllers/driver/taxi_driver_new_offer",
     "ctrlTaxiDriverOffer" :         "controllers/driver/taxi_driver_my_offer",
-    "ctrlTaxiDriverFeedback" :      "controllers/driver/taxi_driver_feedback",
-    "ctrlTaxiDriverCargo" :         "controllers/driver/taxi_driver_cargo",
+    "ctrlTaxiDriverTrucking" :      "controllers/driver/taxi_driver_trucking",
     "ctrlTaxiDriverMyAccount" :     "controllers/driver/taxi_driver_my_account",
     "ctrlTaxiDriverGo" :            "controllers/driver/taxi_driver_go",
     "ctrlTaxiDriverOrder" :         "controllers/driver/taxi_driver_order",
     "ctrlTaxiDriverIntercity" :     "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverTourism" :       "controllers/driver/taxi_driver_tourism",
-    "ctrlTaxiDriverHelp" :          "controllers/driver/taxi_driver_help",
     "ctrlTaxiDriverMyAuto" :        "controllers/driver/taxi_driver_my_auto",
     "ctrlTaxiDriverEditAuto" :      "controllers/driver/taxi_driver_edit_auto"
 	},
@@ -105,28 +103,27 @@ requirejs.config({
 var menus_arr = [];
     menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
-                           {name: 'Грузовые', url: '#client_cargo', icon: 'truck'},
+                           {name: 'Грузовые', url: '#client_trucking', icon: 'truck'},
                            {name: 'Туризм', url: '#client_tourism', icon: 'compass'},
                            {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
-                           {name: 'Обратная связь', url: '#client_feedback', icon: 'attention'},
                            {name: 'Режим водителя', url: '#driver_city', icon: 'steering-wheel', add_icon: '<i class="icon-toggle-off toggle_block--inactive"></i>'},
-                           {name: 'Помощь', url: '#client_help', icon: 'lifebuoy'}];
+                           {name: 'Админ', url: '#admin', icon: 'attention'}];
     menus_arr['driver'] = [{name: 'Город', url: '#driver_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#driver_intercity', icon: 'suitcase'},
-                           {name: 'Грузовые', url: '#driver_cargo', icon: 'truck'},
+                           {name: 'Грузовые', url: '#driver_trucking', icon: 'truck'},
                            {name: 'Туризм', url: '#driver_tourism', icon: 'compass'},
                            {name: 'Мой кабинет', url: '#driver_my_account', icon: 'money'},
                            {name: 'Сообщения', url: '#messages', icon: 'attention'},
                            {name: 'Настройки', url: '#settings', icon: 'cog'},
-                           {name: 'Обратная связь', url: '#driver_feedback', icon: 'attention'},
                            {name: 'Режим клиента', url: '#client_city', icon: 'steering-wheel',  add_icon: '<i class="icon-toggle-on toggle_block"></i>'},
-                           {name: 'Помощь', url: '#driver_help', icon: 'lifebuoy'}];
+                           {name: 'Админ', url: '#admin', icon: 'attention'}];
 
   var content,
+      version = '48',
       MayLoading = false, isGeolocation = false,
       
-      User, Car, Event, Settings, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
+      User, Car, Event, Settings, Parameters, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
 
       driver_icon   = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon      = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',

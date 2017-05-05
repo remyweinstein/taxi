@@ -27,9 +27,13 @@ define(['Dom', 'Storage', 'MainMenu'], function(Dom, Storage, MainMenu) {
     
     function cbGetToken(response) {
       Conn.clearCb('cbGetToken');
-      self.initialization_token = false;
-      self.setNewToken(response.result);
-      Conn.request('requestProfile', '', cbgetProfileData);
+      
+      if (!response.error && self.initialization_token) {
+        self.initialization_token = false;
+        self.setNewToken(response.result);
+        self.save();
+        Conn.request('requestProfile', '', cbgetProfileData);
+      }
     }
 
     var default_avatar = 'assets/images/no_avatar.png';
@@ -171,10 +175,10 @@ define(['Dom', 'Storage', 'MainMenu'], function(Dom, Storage, MainMenu) {
         
         if (!self.initialization_token) {
           Conn.request('requestToken', '', cbGetToken);
+          self.initialization_token = true;
         }
         
-        self.initialization_token = true;
-        self.save();
+//        self.save();
       }
       
       return;
@@ -184,7 +188,6 @@ define(['Dom', 'Storage', 'MainMenu'], function(Dom, Storage, MainMenu) {
       var obj = Storage.getUser();
       
       if (obj) {
-        self.initialization_token      = obj.initialization_token;
         self.default_avatar            = obj.default_avatar;
         self.default_name              = obj.default_name;
         self.token                     = obj.token;
@@ -234,7 +237,6 @@ define(['Dom', 'Storage', 'MainMenu'], function(Dom, Storage, MainMenu) {
     this.save = function () {
       var obj = {};
 
-      obj.initialization_token      = self.initialization_token;
       obj.default_avatar            = self.default_avatar;
       obj.default_name              = self.default_name;
       obj.token                     = self.token;

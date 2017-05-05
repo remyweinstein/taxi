@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Settings */
+/* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
@@ -83,6 +83,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
 
       if (ords.finishedByDriver) { //Add check safe zones
         Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+        
         return;
       } 
       
@@ -172,7 +173,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         if(isFollow) {
           but_came.disabled = false;
         } else {
-          if (dist < Settings.distanceToPoint) {
+          if (dist < Parameters.distanceToPoint) {
             but_came.disabled = false;
           }
         }
@@ -207,7 +208,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                           '</div>' +
                         '</div>';
 
-        Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(mark){
+        Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(mark) {
           Maps.addInfoForMarker(info, false, mark);
           MapElements.driver_marker = mark;
         });
@@ -343,27 +344,38 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     Conn.request('stopGetOrder');
     Chat.exit();
     Storage.lullModel(MyOrder);
+    SafeWin.disableZoneForRoute();
   }
   
   function start() {
-    MyOrder = new clClientOrder();
-    MyOrder.activateCurrent();
+    var orderId = Storage.getTripClient();
     
-    if (MyOrder.id === Storage.getTripClient()) {
-      show_route = false;
-      isFollow = Storage.getFollowOrder();
-      Maps.mapOn();
-      initMap();
-      SafeWin.overviewPath = [];
-      GetPositions.my();
-      //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
-      Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
-      Chat.start('order', MyOrder.id);
-      HideForms.init();
-    } else {
-      Storage.removeTripClient();
-      goToPage = "#client_city";
-    }
+    MyOrder = new clClientOrder();
+    //MyOrder.activateCurrent();
+    MyOrder.getByID(orderId, function () {
+      if (orderId) {
+        show_route = false;
+        isFollow = Storage.getFollowOrder();
+        Maps.mapOn();
+        initMap();
+        SafeWin.overviewPath = [];
+        GetPositions.my();
+        //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
+        Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
+        Chat.start('order', MyOrder.id);
+        HideForms.init();
+
+        if (MyOrder.zone) {
+          SafeWin.polyRoute = Maps.drawPoly(MyOrder.zone.polygon);
+          SafeWin.enableButtonRoute();
+          Maps.addElOnMap(SafeWin.polyRoute);
+        }
+
+      } else {
+        Storage.removeTripClient();
+        goToPage = "#client_city";
+      }
+    });
   }
   
   return {

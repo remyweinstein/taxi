@@ -151,7 +151,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     }
     
     if (activeTypeTaxi === "trucking") {
-      addCargo();
+      addTrucking();
     }
     
     Dom.sel('div[data-route="from"]').innerHTML = addCityFrom + fromAddress;

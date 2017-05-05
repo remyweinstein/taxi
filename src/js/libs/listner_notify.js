@@ -1,4 +1,9 @@
-define(['push', 'Storage'], function(Push, Storage) {
+define(['push', 'Storage', 'ModalWindows'], function(Push, Storage, Modal) {
+
+  function openMessage() {
+    goToPage = '#open_message';
+    window.focus();
+  }
 
   var Notify = {
     
@@ -21,6 +26,12 @@ define(['push', 'Storage'], function(Push, Storage) {
           }
           
           Storage.setOpenNotify(notify[i].id);
+          
+          if (type === "invite") {
+            Modal.show('<p>Вас приглашают в список контактов</p>' + 
+                           '<p><button data-click="close" class="button_short--green">Перейти</button></p>', openMessage);
+            }
+                         
           Push.create(notify[i].text, {
               body: "",
               icon: 'icon.png',

@@ -4,7 +4,8 @@ define(['User',
         'Car', 
         'Conn',
         'Events', 
-        'Settings', 
+        'Settings',
+        'Parameters',
         'Geo', 
         'MainMenu', 
         'InputFilters', 
@@ -19,12 +20,14 @@ define(['User',
         'Maps',
         'Google', 
         'Yandex',
-        'Storage'], 
+        'Storage',
+        'push'], 
   function (clUser, 
             clCar, 
             clConn,
             clEvents, 
             clSettings, 
+            clParameters,
             Geo, 
             MainMenu, 
             InputFilters, 
@@ -39,7 +42,8 @@ define(['User',
             clMaps,
             clGoogle, 
             clYandex,
-            Storage) {
+            Storage,
+            Push) {
 
   var timerCheckMayLoading;
   
@@ -48,6 +52,14 @@ define(['User',
       timerCheckMayLoading = clearInterval(timerCheckMayLoading);
       App.afterLoading();
     }
+  }
+  
+  function onPushGranted() {
+    console.log('push messages granted');
+  }
+  
+  function onPushDenied() {
+    console.log('push messages denied');
   }
 
   var App =  {
@@ -68,6 +80,9 @@ define(['User',
         MapYandex   = new clYandex();
         Zones       = new clZones();
         Settings    = new clSettings();
+        Parameters  = new clParameters();
+        
+        //Push.Permission.request(onPushGranted, onPushDenied);
         
         Router.start(App, function () {
           App.afterConnection();
@@ -83,10 +98,9 @@ define(['User',
     
     afterConnection: function () {
       User.load();
-      //User.getData();
+      Parameters.getParameters();
       Geo.init();
       MainMenu.init();
-      //Maps.init();
       InputFilters.init();
       timerCheckMayLoading = setInterval(checkMayLoading, 250);
     },

@@ -1,4 +1,4 @@
-/* global User, Maps, Conn, Event */
+/* global User, Maps, Conn, Event, SafeWin */
 
 define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder'], 
 function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder) {
@@ -324,6 +324,8 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     Conn.clearCb('cbGetOffers');
     Conn.request('stopGetOffers');
     Storage.lullModel(MyOrder);
+    Modal.close();
+    SafeWin.disableZoneForRoute();
   }
   
   function start() {

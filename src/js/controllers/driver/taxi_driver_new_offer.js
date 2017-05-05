@@ -107,7 +107,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
             if (typer === "intercity") {
               Destinations.saveOfferIntercity();
             } else if (typer === "trucking") {
-              Destinations.saveOfferCargo();
+              Destinations.saveOfferTrucking();
             } else if (typer === "taxi") {
               Destinations.saveOffer();
             } else if (typer === "tourism") {
@@ -149,7 +149,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     content.addEventListener('input', Event.input);
   }
   
-  function addCargo() {
+  function addTrucking() {
     var innerAdditional = document.createElement('div'),
         elForm          = Dom.sel('.form-order-city__top'),
         elTo            = Dom.sel('.order-city-comment');
@@ -204,6 +204,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     GetPositions.clear();
     Destinations.clear();
     Storage.lullModel(MyOffer);
+    Modal.close();
   }
   
   function start() {
@@ -214,7 +215,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     }
     
     if (activeTypeTaxi === "trucking") {
-      addCargo();
+      addTrucking();
     }
     
     if (activeTypeTaxi === "tourism") {

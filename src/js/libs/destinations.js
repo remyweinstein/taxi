@@ -1,4 +1,4 @@
-/* global MapElements, Maps, User, Conn, Settings */
+/* global MapElements, Maps, User, Conn, Parameters */
 
 define(['Dom', 'ModalWindows', 'Storage', 'Dates'], 
 function (Dom, Modal, Storage, Dates) {
@@ -51,7 +51,7 @@ function (Dom, Modal, Storage, Dates) {
     }
   }
 
-  function SaveOrderOffer(type, typeOf) {
+  function SaveOrderOffer(type, typeOf, callback) {
     var _price = Dom.sel('[name="cost"]').value,
         weight = Dom.sel('input[name="weight"]'),
         volume = Dom.sel('input[name="volume"]'),
@@ -75,7 +75,7 @@ function (Dom, Modal, Storage, Dates) {
     Model.type    = typeOf || 'taxi';
     Model.price   = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
-    Model.save(MapElements.points);
+    Model.save(callback);
     Storage.lullModel(Model);
   }
 
@@ -108,7 +108,7 @@ function (Dom, Modal, Storage, Dates) {
         sel_day   = currentday.getDate(),
         sel_hour  = currentday.getHours(),
         sel_min   = currentday.getMinutes(),
-        check_min = roundFive(currentday.getMinutes()) + Settings.t3;
+        check_min = roundFive(currentday.getMinutes()) + Parameters.t3;
       
     function roundFive(a) {
       var b = a % 5;
@@ -145,7 +145,7 @@ function (Dom, Modal, Storage, Dates) {
   }
   
   function addStartTime (datetime) {
-    var buttonierro = Dom.sel('button[data-click="date_order"]'),
+    var buttonierro = Dom.sel('button[data-click="date_order"]') || Dom.sel('button[data-click="date_offer"]'),
         text = Dates.datetimeForPeople(datetime);
     
     if (!compareTime(datetime)) {
@@ -233,39 +233,40 @@ function (Dom, Modal, Storage, Dates) {
     },
 
     clear: function () {
+      Modal.close();
       MapElements.clear();
     },
 
-    saveOrder: function () {
-      SaveOrderOffer('order');
+    saveOrder: function (callback) {
+      SaveOrderOffer('order', null, callback);
     },
     
-    saveOrderIntercity: function () {
-      SaveOrderOffer('order', 'intercity');
+    saveOrderIntercity: function (callback) {
+      SaveOrderOffer('order', 'intercity', callback);
     },
     
-    saveOrderTourism: function () {
-      SaveOrderOffer('order', 'tourism');
+    saveOrderTourism: function (callback) {
+      SaveOrderOffer('order', 'tourism', callback);
     },
     
-    saveOrderCargo: function () {
-      SaveOrderOffer('order', 'trucking');
+    saveOrderTrucking: function (callback) {
+      SaveOrderOffer('order', 'trucking', callback);
     },
 
-    saveOffer: function () {
-      SaveOrderOffer('offer');
+    saveOffer: function (callback) {
+      SaveOrderOffer('offer', null, callback);
     },
 
-    saveOfferCargo: function () {
-      SaveOrderOffer('offer', 'trucking');
+    saveOfferTrucking: function (callback) {
+      SaveOrderOffer('offer', 'trucking', callback);
     },
     
-    saveOfferIntercity: function () {
-      SaveOrderOffer('offer', 'intercity');
+    saveOfferIntercity: function (callback) {
+      SaveOrderOffer('offer', 'intercity', callback);
     },
     
-    saveOfferTourism: function () {
-      SaveOrderOffer('offer', 'tourism');
+    saveOfferTourism: function (callback) {
+      SaveOrderOffer('offer', 'tourism', callback);
     },
     
     addNewInterpoint: function (add) {

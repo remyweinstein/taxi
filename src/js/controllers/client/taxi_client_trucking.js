@@ -1,4 +1,4 @@
-/* global User, Maps, Conn, Event */
+/* global User, Maps, Conn, Event, SafeWin */
 
 define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder'], 
  function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder) {
@@ -6,7 +6,9 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
       eventOnChangeZoom,
       global_el,
       global_item,
-      MyOrder;
+      MyOrder,
+      old_filters = Storage.getActiveFilters(),
+      old_sorts   = Storage.getActiveSortFilters();
 
   function cbDeleteOrder(response) {
     Conn.clearCb('cbDeleteOrder');
@@ -16,9 +18,9 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
     }
   }
     
-  function cbGetMyCargoOrder(response) {
+  function cbGetMyTruckingOrder(response) {
     Conn.request('stopGetOrders');
-    Conn.clearCb('cbGetMyCargoOrder');
+    Conn.clearCb('cbGetMyTruckingOrder');
     
     if (!response.error) {
       Lists.myOrders(response.result);
@@ -80,7 +82,7 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
         if (target) {
           
           if (target.dataset.click === "save-order") {
-            Destinations.saveOrderCargo();
+            Destinations.saveOrderTrucking();
 
             return;
           }
@@ -248,6 +250,8 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
     Storage.lullModel(MyOrder);
     Conn.clearCb('cbGetOffers');
     Conn.request('stopGetOffers');
+    Modal.close();
+    SafeWin.disableZoneForRoute();
   }
   
   function start() {
@@ -255,7 +259,7 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
     Storage.setActiveTypeTaxi('trucking');
     Storage.setActiveTypeFilters('offers');
     MyOrder = new clClientOrder();
-    MyOrder.activateCargo();
+    MyOrder.activateTrucking();
     Lists.init(MyOrder);
     Maps.mapOn();
     eventOnChangeZoom = GetPositions.drivers();
@@ -267,7 +271,7 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
     Lists.filtersStart();
     Conn.request('startGetOffers', '', cbGetOffers);
     // ===== Draw My Orders =====
-    Conn.request('requestMyCargoOrders', '', cbGetMyCargoOrder);
+    Conn.request('requestMyTruckingOrders', '', cbGetMyTruckingOrder);
     HideForms.init();
     addEvents();
   }
