@@ -366,9 +366,11 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         HideForms.init();
 
         if (MyOrder.zone) {
-          SafeWin.polyRoute = Maps.drawPoly(MyOrder.zone.polygon);
+          var poly = Maps.drawPoly(MyOrder.zone.polygon);
+          
+          SafeWin.polyRoute.push(poly);
           SafeWin.enableButtonRoute();
-          Maps.addElOnMap(SafeWin.polyRoute);
+          Maps.addElOnMap(poly);
         }
 
       } else {

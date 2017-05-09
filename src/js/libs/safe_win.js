@@ -4,7 +4,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   
   var s_route_to_Zone = [],
       safe_win, 
-      list_active_zone;
+      list_active_zone = [];
   
   function swipeRight() {
     var safe_win = Dom.sel('.safety-window');
@@ -197,7 +197,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   
   var SafeWin = {
     polygons: [],
-    polyRoute: null,
+    polyRoute: [],
     overviewPath: [],
     
     initial: function () {
@@ -346,22 +346,29 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
       Dom.sel('[data-click=runRoute]').classList.remove('active');
     },
     
+    clearPolies: function() {
+      if (SafeWin.polyRoute) {
+        for (var i = 0; i < SafeWin.polyRoute.length; i++) {
+          Maps.removeElement(SafeWin.polyRoute[i]);
+        }
+      }
+    },
+    
     disableZoneForRoute: function() {
       SafeWin.disableButtonRoute();
-      
-      if (SafeWin.polyRoute) {
-        Maps.removeElement(SafeWin.polyRoute);
-      }
-
+      SafeWin.clearPolies();
       Storage.clearSafeRoute();
       Storage.removeActiveRoute();
     },
 
     enableZoneForRoute: function() {
       Storage.setActiveRoute(Settings.safeRadius);
-      SafeWin.polyRoute = Maps.showPoly(SafeWin.overviewPath);
-
-      var path = SafeWin.polyRoute.getPath();
+      
+      var poly = Maps.showPoly(SafeWin.overviewPath);
+      
+      SafeWin.polyRoute.push(poly);
+      
+      var path = poly.getPath();
 
       if (path) {
         for (var i = 0; i < path.b.length; i++) {

@@ -7,7 +7,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       price, name_client, photo_client, first_time = true, agIndexes,
       MyOrder, MyOffer, orderIds = [];
   
-  function cbOnFinish() { 
+  function cbOnFinish() {
     Conn.clearCb('cbOnFinish');
     localStorage.setItem('_rating_offer', orderIds[0]);
     Storage.removeActiveZones();
@@ -36,6 +36,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       Storage.removeTripDriver();
       alert('К сожалению, заказ отменен.');
       goToPage = '#driver_city';
+      
       return;
     }
 
@@ -82,6 +83,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         if (response.result.orders.length === 1 && response.result.orders[0].zone) {
           var poly = Maps.drawPoly(response.result.orders[0].zone.polygon, '#ccffff');
           
+          SafeWin.polyRoute.push(poly);
           Maps.addElOnMap(poly);
         }
         
@@ -94,6 +96,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         Storage.removeTripDriver();
         alert('К сожалению, заказ не найден.');
         goToPage = '#driver_city';
+        
         return;
       }
       
@@ -225,9 +228,9 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         el_price       = Dom.sel('.wait-order-approve__route-info__price'),
         el_cancel      = Dom.sel('.wait-order-approve__route-info__cancel'),
         el             = Dom.sel('.wait-bids-approve'),
+        activeTypeTaxi = Storage.getActiveTypeTaxi(),
         addCityFrom    = '',
-        addCityTo      = '',
-        activeTypeTaxi = Storage.getActiveTypeTaxi();
+        addCityTo      = '';
 
     if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
       addCityFrom = MyOrder.fromCity + ', ',
