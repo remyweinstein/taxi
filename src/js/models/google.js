@@ -4,7 +4,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
   var clGoogle = function () {
     var self = this;
     
-    this.renderRoute = function (Model, callback) {
+    this.renderRoute = function (Model, short, callback) {
       var directionsService = new google.maps.DirectionsService(),
           _addr_from = Model.fromCoords.split(","),
           _addr_to = Model.toCoords.split(","),
@@ -21,18 +21,34 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
         }
       }
       
+      if (Model.clientPointsFrom) {
+        for (var i = 0; i < Model.clientPointsFrom.length; i++) {
+          var latlng = Model.clientPointsFrom[i].location.split(',');
+
+          waypoints.push({
+            location: new google.maps.LatLng(latlng[0], latlng[1])
+            //stopover: true
+          });
+        }
+      }
+      
+      if (Model.clientPointsTo) {
+        for (var i = 0; i < Model.clientPointsTo.length; i++) {
+          var latlng = Model.clientPointsTo[i].location.split(',');
+
+          waypoints.push({
+            location: new google.maps.LatLng(latlng[0], latlng[1])
+            //stopover: true
+          });
+        }
+      }
+      
       var request = {
             origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
             destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
             waypoints: waypoints,
+            optimizeWaypoints: short,
             provideRouteAlternatives: false,
-            travelMode: google.maps.DirectionsTravelMode.DRIVING
-          },
-          requestBackTrip = {
-            destination: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
-            origin: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
-            waypoints: waypoints,
-            provideRouteAlternatives: true,
             travelMode: google.maps.DirectionsTravelMode.DRIVING
           };
 
@@ -53,41 +69,18 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
           var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
           recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
-          for (i = 0; i < response.routes.length; i++) {
-            MapElements.routes.push(new google.maps.DirectionsRenderer({
-              map: Maps.map,
-              suppressMarkers: true,
-              directions: response,
-              routeIndex: i
-            }));
-          }
+          MapElements.routes.push(new google.maps.DirectionsRenderer({
+            map: Maps.map,
+            suppressMarkers: true,
+            directions: response,
+            routeIndex: 0
+          }));
           
-          for (i = 0; i < response.routes.length; i++) {
-            var temp = response.routes[i].overview_path;
+          var temp = response.routes[0].overview_path;
 
-            SafeWin.overviewPath.push(temp);
-          }
-          
-          directionsService.route(requestBackTrip, function(response, status) {
-            if (status === google.maps.DirectionsStatus.OK) {            
-              for (i = 0; i < response.routes.length; i++) {
-                MapElements.routes.push(new google.maps.DirectionsRenderer({
-                  map: Maps.map,
-                  suppressMarkers: true,
-                  directions: response,
-                  routeIndex: i
-                }));
-              }
-              for (i = 0; i < response.routes.length; i++) {
-                var temp = response.routes[i].overview_path;
-
-                SafeWin.overviewPath.push(temp);
-              }
-              Storage.lullModel(Model);
-              callback(recommended_cost);
-            }
-          });
-
+          SafeWin.overviewPath.push(temp);
+          Storage.lullModel(Model);
+          callback(recommended_cost);
         }
       });
     };

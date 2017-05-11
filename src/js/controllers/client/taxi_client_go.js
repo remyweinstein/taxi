@@ -1,7 +1,7 @@
 /* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
 
-define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage'], 
-function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage) {
+define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows'], 
+function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal) {
     
   var show_route   = false,
       isFollow     = Storage.getFollowOrder(),
@@ -11,8 +11,36 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       price, 
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
       dr_photo, dr_vehicle, dr_time, duration_time,
-      MyOrder;
+      MyOrder, global_el, finish = {};
 
+  function cbAddFavorites() {
+    Conn.clearCb('cbAddFavorites');
+    
+    var stars = Dom.selAll('[data-view="star"]');
+    
+    for (var i = 0; i < stars.length; i++) {
+      stars[i].classList.add('active');
+    }
+    
+    inActive(global_el);
+  }
+  
+  function cbAddToBlackList() {
+    Conn.clearCb('cbAddToBlackList');
+    
+    var stars = Dom.selAll('[data-view="star"]');
+    
+    for (var i = 0; i < stars.length; i++) {
+      stars[i].classList.remove('active');
+    }
+    
+    inActive(global_el);
+  }
+  
+  function cbAddRating() {
+    
+  }
+  
   function cbFinishOrder() {
     Conn.clearCb('cbFinishOrder');
     
@@ -35,7 +63,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     Storage.removeTripClient();
     Storage.removeActiveRoute();
     Storage.removeFollowOrder();
-    goToPage = '#agent_rating';
+    ratingOrder(finish.orderId, finish.agentId, 'client');
   }
   
   function cbCancelOrder() {
@@ -221,6 +249,18 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     }
   }
   
+  function ratingOrder(id, agentId, role) {
+    Modal.ratingOrder(id, function(response) {
+                              var type = Storage.getActiveTypeTaxi();
+
+                              if (type === "taxi") {
+                                type = "city";
+                              }
+
+                              goToPage = '#client_' + type;
+                          });
+  }
+  
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
@@ -268,7 +308,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                               '</div>' +
                             '</div>' +
                           '</div>';
-    Maps.drawRoute(MyOrder, true, function () {
+    Maps.drawRoute(MyOrder, true, false, function () {
       addEvents();
     });
     show_route = true;
@@ -322,6 +362,79 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           if (confirm('Отменить заказ?')) {
             Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
           }
+          
+          break;
+        }
+        
+        if (target && target.dataset.click === "tofavorites") {
+          global_el = target;
+          
+          if (confirm('Добавить в Избранные?')) {
+            Conn.request('addFavorites', global_el.dataset.agent_id, cbAddFavorites);
+          }
+          break;
+        }
+        
+        if (target && target.dataset.click === "toblacklist") {
+          global_el = target;
+          
+          if (confirm('Добавить в Черный список?')) {
+            Conn.request('addBlackList', global_el.dataset.agent_id, cbAddToBlackList);
+          }
+          break;
+        }
+        
+        if (target && target.dataset.click === "sharecard") {
+          el = target;
+          
+          if (confirm('Поделиться контактами?')) {
+            
+          }
+          break;
+        }
+
+        if (target && target.dataset.click === "tofeedback") {
+          el = target;
+          
+          if (confirm('Хотите пожаловаться?')) {
+            
+          }
+          break;
+        }
+        
+        if (target && target.dataset.click === "peoplescontrol") {
+          el = target;
+          
+          if (confirm('Перейти в Народный контроль?')) {
+            
+          }
+          
+          break;
+        }
+        
+        if (target && target.dataset.click === "claimcheck") {
+          el = target;
+          
+          if (confirm('Нужен чек?')) {
+            
+          }
+          
+          break;
+        }
+        
+        if (target && target.dataset.click === "save_rating") {
+          var data = {},
+              bl = Dom.sel('div.score-agent__stars'),
+              stars = bl.querySelectorAll('.active');
+
+          el = target;
+          data.rating = {};
+          data.rating.value = stars.length;
+          data.rating.comment = Dom.sel('.score-agent__text').value;
+          data.orderId = order_id;
+          
+          Conn.request('addRating', data, cbAddRating);
+          Modal.close();
           
           break;
         }

@@ -218,7 +218,7 @@ function (Dom, Modal, Storage, Dates) {
     }
     
     if (from_value !== '' && to_value !== '') {
-      Maps.drawRoute(Model, false, function (recomended) {
+      Maps.drawRoute(Model, false, false, function (recomended) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
         Model.recommended_cost = recomended;
         return Model;
@@ -299,7 +299,7 @@ function (Dom, Modal, Storage, Dates) {
       be_dead.parentNode.removeChild(be_dead);
       Storage.lullModel(Model);
       MapElements.clear();
-      Maps.drawRoute(Model, false, function (recomended) {
+      Maps.drawRoute(Model, false, false, function (recomended) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
         Model.recommended_cost = recomended;
         return Model;

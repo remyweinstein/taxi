@@ -18,7 +18,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
-                {hash:'#agent_rating', template:'PageAgentRating', controller:'ctrlPageAgentRating', title:'Оставьте свой отзыв', menu:'client', pageType: ''},
                 {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_choose_address', template:'TaxiClientChooseAddress', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_city', template:'TaxiClientCity', controller:'ctrlTaxiClientCity', title:'Город', menu:'client', pageType: ''},

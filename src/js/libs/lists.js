@@ -3,6 +3,7 @@
 define(['Dates', 'Dom', 'DriverOrders', 'PopupWindows', 'Storage'], 
 function(Dates, Dom, clDriverOrders, Popup, Storage) {
   var Orders = [],
+      old_list_bids,
       arr_filters = {},
       Model;
   
@@ -87,6 +88,16 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                     '</div>';
       }
       
+      if (old_list_bids !== JSON.stringify(orders) && Storage.getActiveTypeTaxi() === "intercity" && Storage.getActiveTypeModelTaxi() === "offer") {
+        if (window.location.hash !== "#client_offer") {
+          require(['ctrlTaxiDriverOffer'], function (controller) {
+            controller.redrawRoute(orders);
+          });
+        }
+      }
+      
+      old_list_bids = JSON.stringify(orders);
+      
       var startButton = Dom.sel('button[data-click="start-offer"]'),
           start = Model.start;
       
@@ -95,6 +106,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       }
       
     }
+    
     el.innerHTML = innText;
   }
   
@@ -284,6 +296,8 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     if (orders_result) {
       orders_result.innerHTML = Orders.length;
     }
+    
+    //if (prevList === '{"offers":[]}' || prevList === '{"orders":[]}' || !prevList) {
     
     if (prevList !== JSON.stringify(response)) {
       fillOrders(order, type);
@@ -745,6 +759,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   var Lists = {
     clear: function () {
       Storage.clearPrevListOrders();
+      Orders = [];
       MapElements.clear();
       Conn.request('stopGetOrders');
       Conn.clearCb('cbGetBids');

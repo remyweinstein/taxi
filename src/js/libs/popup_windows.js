@@ -154,7 +154,7 @@ orderBy[price]=0 - ASC
                   parentDiv.insertBefore(new_field, el);
                   //new_field.style.top = -height + 'px';
                   //new_field.style.display = 'block';
-                  new_field.style.top = '0';
+                  new_field.style.top = '1.5em';
                   
                   var buts = new_field.querySelectorAll('[data-sort]'),
                       keyka,

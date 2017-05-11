@@ -9,7 +9,7 @@ define(['Dom'], function (Dom) {
 
       while (target !== this) {
         
-        if (target.dataset.view === "star") {
+        if (target && target.dataset.view === "star") {
           var el = target,
               id = parseInt(el.dataset.id),
               i,
@@ -28,7 +28,7 @@ define(['Dom'], function (Dom) {
 
         }
         
-        if (target.dataset.click === "save_rating") {
+        if (target && target.dataset.click === "save_rating") {
           if (current_agent === 'driver') {
             goToPage = '#driver_city';
           }

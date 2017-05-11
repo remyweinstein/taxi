@@ -31,7 +31,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute(MyOrder, true, function(){});
+    Maps.drawRoute(MyOrder, true, false, function(){});
   }
   
   function addEvents() {

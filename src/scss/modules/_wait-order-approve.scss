@@ -55,6 +55,9 @@
     -moz-transition: top 0.5s ease-out 0.25s;
     -o-transition: top 0.5s ease-out 0.25s;
     transition: top 0.5s ease-out 0.25s;
+    .hidden{
+        opacity: 0.2;
+    }
     &__item{
         div{
             img{

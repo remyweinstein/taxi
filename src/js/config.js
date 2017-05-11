@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "version=0.51",
+  urlArgs: "v=0.52",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -58,7 +58,6 @@ requirejs.config({
     "ctrlPageOpenMessage" :     "controllers/pages/pages_open_message",
     "ctrlPageSettings" :        "controllers/pages/pages_settings",
     "ctrlPageSms" :             "controllers/pages/pages_sms",
-    "ctrlPageAgentRating" :     "controllers/pages/pages_agent_rating",
     "ctrlPageTrustedContacts":  "controllers/pages/pages_trusted_contacts",
     "ctrlPageFavorites" :       "controllers/pages/pages_favorites",
     "ctrlPageZones" :           "controllers/pages/pages_zones",

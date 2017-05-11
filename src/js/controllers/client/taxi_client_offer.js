@@ -4,7 +4,7 @@ define(['Dom', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'],
 function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
   var active_bid = false,
-      fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, ag_distanse,
+      fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
       name_client, photo_client, travelTime, agIndexes, auto_photo, auto_brand, auto_model,
       MyOrder;
   
@@ -94,8 +94,8 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     }
     
     waypoints = [];
-    MapElements.marker_to_2   = Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
-    MapElements.marker_from_2 = Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-blank.png', [32,32], function(){});
+    MapElements.marker_to_2   = Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-circle.png', [32,32], function(){});
+    MapElements.marker_from_2 = Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-circle.png', [32,32], function(){});
     setRoute();
     HideForms.init();
   }
@@ -174,7 +174,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                         auto_brand + ' ' + auto_model +
                       '</div>' +
                     '</div>';
-    Maps.drawRoute(MyOrder, false, function(){});
+    Maps.drawRoute(MyOrder, false, false, function(){});
   }
 
   function addEvents() {
@@ -203,7 +203,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
             data.toAddress    = MyOrder.toAddress;
             data.toLocation   = MyOrder.toCoords;
             data.price        = MyOrder.price;
-            data.offer        = order_id;
+            data.id           = offerId;
             
             Conn.request('agreeOffer', data, cbChangeState);
             active_bid = true;
@@ -271,13 +271,13 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function start() {
-    var _id = localStorage.getItem('_open_offer_id');
+    offerId = localStorage.getItem('_open_offer_id');
     
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();
     Maps.mapOn();
     initMap();
-    Conn.request('getOfferById', _id, cbGetOfferById);
+    Conn.request('getOfferById', offerId, cbGetOfferById);
     Conn.request('stopGetOffer');
     addEvents();
   }

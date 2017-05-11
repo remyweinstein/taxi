@@ -1,6 +1,6 @@
 /* global User, ymaps, MapGoogle, MapYandex, google, Parameters, MapElements, Conn, Settings */
 
-define(['jsts'], function(jsts) {
+define(['jsts', 'Storage'], function(jsts, Storage) {
 
   var clMaps = function () {
     var self = this;
@@ -29,19 +29,30 @@ define(['jsts'], function(jsts) {
       }
     },
 
-    this.drawRoute = function (Model, back, callback) {
-      var _addr_from, _addr_to;
+    this.drawRoute = function (Model, back, short, callback) {
+      var _addr_from, 
+          _addr_to,
+          path_icon = '//maps.google.com/mapfiles/kml/paddle/';
+          icon_from = path_icon + 'A.png',
+          icon_to   = path_icon + 'B.png';
+        
+      if (Storage.getActiveTypeTaxi() === "intercity" && Storage.getActiveTypeModelTaxi() === "offer") {
+        if (window.location.hash !== "#client_offer") {
+          icon_from = path_icon + 'wht-circle.png';
+          icon_to   = icon_from;
+        }
+      }
 
       if (!Model.fromCoords || !Model.toCoords) {
         return;
       }
       
-      _addr_from = Model.fromCoords.split(",");
-      _addr_to = Model.toCoords.split(",");
+      _addr_from              = Model.fromCoords.split(",");
+      _addr_to                = Model.toCoords.split(",");
       MapElements.marker_b    = null;
       MapElements.marker_a    = null;
-      MapElements.marker_from = self.addMarker(_addr_from[0], _addr_from[1], Model.fromAddress, '//maps.google.com/mapfiles/kml/paddle/A.png', [32,32], function(){});
-      MapElements.marker_to   = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, '//maps.google.com/mapfiles/kml/paddle/B.png', [32,32], function(){});
+      MapElements.marker_to   = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, icon_to, [32,32], function(){});
+      MapElements.marker_from = self.addMarker(_addr_from[0], _addr_from[1], Model.fromAddress, icon_from, [32,32], function(){});
 
       if (Model.toAddresses) {
         for (var i = 0; i < Model.toAddresses.length; i++) {
@@ -49,7 +60,7 @@ define(['jsts'], function(jsts) {
             var _wp = Model.toCoordses[i].split(","),
                 time = Model.times[i] ? Model.times[i] + ' мин.' : '';
             
-            self.addMarker(_wp[0], _wp[1], Model.toAddresses[i], '//maps.google.com/mapfiles/kml/paddle/' + (i + 1) + '.png', [32,32], function(mark){
+            self.addMarker(_wp[0], _wp[1], Model.toAddresses[i], path_icon + (i + 1) + '.png', [32,32], function(mark){
               self.addInfoForMarker(time, true, mark);
               MapElements.points.push(mark);
             });
@@ -57,13 +68,25 @@ define(['jsts'], function(jsts) {
         }
       }
       
-      self.renderRoute(Model, function (price) {
+      if (Model.clientPointsFrom) {
+        for (var i = 0; i < Model.clientPointsFrom.length; i++) {
+          _wp = Model.clientPointsFrom[i].location.split(',');
+          MapElements.points.push(self.addMarker(_wp[0], _wp[1], Model.clientPointsFrom[i].address, path_icon + (i + 1) + '.png', [32,32], function(){}));
+        }
+        
+        for (var i = 0; i < Model.clientPointsTo.length; i++) {
+          _wp = Model.clientPointsTo[i].location.split(',');
+          MapElements.points.push(self.addMarker(_wp[0], _wp[1], Model.clientPointsTo[i].address, path_icon + (i + 1) + '.png', [32,32], function(){}));
+        }
+      }
+      
+      self.renderRoute(Model, short, function (price) {
         callback(price);
       });      
     };
     
-    this.renderRoute = function (Model, callback) {
-      self.currentModel.renderRoute(Model, callback);
+    this.renderRoute = function (Model, short, callback) {
+      self.currentModel.renderRoute(Model, short, callback);
     };
 
     this.init = function() {

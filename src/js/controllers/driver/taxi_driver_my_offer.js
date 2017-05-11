@@ -1,4 +1,4 @@
-/* global User, Maps, SafeWin, Event, Conn */
+/* global User, Maps, SafeWin, Event, Conn, MapElements */
 
 define(['Dom', 'Dates', 'HideForms', 'Destinations', 'GetPositions', 'Lists', 'Storage', 'DriverOffer'], 
 function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clDriverOffer) {
@@ -20,14 +20,14 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute(MyOffer, false, function(){});
+    Maps.drawRoute(MyOffer, false, true, function(){});
   }
   
   function addTrucking() {
     var additional_info = Dom.sel('div[data-block="additional_info"]'),
-        innerText = '<i class="icon-box form-order-city__label"></i><span>Объем ' + MyOffer.volume + 'м3</span>' +
-                    '<i class="icon-balance-scale form-order-city__label"></i><span>Вес ' + MyOffer.weight + 'кг</span>' +
-                    '<i class="icon-hand-peace-o form-order-city__label"></i><span>Грузчики: ' + MyOffer.stevedores + '</span>';
+        innerText       = '<i class="icon-box form-order-city__label"></i><span>Объем ' + MyOffer.volume + 'м3</span>' +
+                          '<i class="icon-balance-scale form-order-city__label"></i><span>Вес ' + MyOffer.weight + 'кг</span>' +
+                          '<i class="icon-hand-peace-o form-order-city__label"></i><span>Грузчики: ' + MyOffer.stevedores + '</span>';
 
     additional_info.innerHTML = innerText;
   }
@@ -139,9 +139,16 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
     addEvents();
   }
   
+  function redrawRoute(response) {
+    MapElements.clear();
+    MyOffer.addPointsClients(response);
+    Maps.drawRoute(MyOffer, false, true, function(){});
+  }
+  
   return {
     start: start,
-    clear: stop
+    clear: stop,
+    redrawRoute: redrawRoute
   };
   
 });

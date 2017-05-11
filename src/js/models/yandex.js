@@ -50,7 +50,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
   var clYandex = function () {
     var self = this;
 
-    this.renderRoute = function (Model, callback) {
+    this.renderRoute = function (Model, short, callback) {
       var _addr_from = Model.fromCoords.split(","),
           _addr_to = Model.toCoords.split(","),
           points = [],
@@ -72,33 +72,57 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
         }
       }
       
+      if (Model.clientPointsFrom) {
+        for (var i = 0; i < Model.clientPointsFrom.length; i++) {
+          var latlng = Model.clientPointsFrom[i].location.split(',');
+          
+          points.push({
+            type: 'viaPoint', 
+            point: [latlng[0], latlng[1]]
+          });
+        }
+      }
+      
+      if (Model.clientPointsTo) {
+        for (var i = 0; i < Model.clientPointsTo.length; i++) {
+          var latlng = Model.clientPointsTo[i].location.split(',');
+          
+          points.push({
+            type: 'viaPoint', 
+            point: [latlng[0], latlng[1]]
+          });
+        }
+      }
+      
       points.push({ 
         type: 'wayPoint', 
         point: [_addr_to[0], _addr_to[1]] 
       });
+      
+      var opti = short ? {mapStateAutoApply: true,avoidTrafficJams: false} : {};
+      
+      ymaps.route(points, opti).then(function (route) {
+        var routa = route.getPaths();
 
-      ymaps.route(points).then(function (route) {
-          var routa = route.getPaths();
-          
-          routa.options.set({
-            hasBalloon: false,
-            strokeStyle: '',
-            strokeWidth: 5,
-            opacity: 0.7
-          });
-
-          Maps.map.geoObjects.add(routa);
-          MapElements.routes.push(routa);
-
-          Model.duration = Math.round(route.getTime()/60);
-          Model.length = Math.round(route.getLength());
-          
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
-          recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
-          
-          Storage.lullModel(Model);
-          callback(recommended_cost);
+        routa.options.set({
+          hasBalloon: false,
+          strokeStyle: '',
+          strokeWidth: 5,
+          opacity: 0.7
         });
+
+        Maps.map.geoObjects.add(routa);
+        MapElements.routes.push(routa);
+
+        Model.duration = Math.round(route.getTime()/60);
+        Model.length = Math.round(route.getLength());
+
+        var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
+        recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+
+        Storage.lullModel(Model);
+        callback(recommended_cost);
+      });
 
     };
     

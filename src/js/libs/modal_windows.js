@@ -1,6 +1,6 @@
 /* global Event */
 
-define(['Dom'], function(Dom) {
+define(['Dom', 'Stars'], function(Dom, Stars) {
   
   var block = 'dynamic',
       layer,
@@ -313,6 +313,34 @@ define(['Dom'], function(Dom) {
                 Dom.sel('.plusHalfHour .minus30').onclick = function () {
                   clock30(-30);
                 };
+    },
+    ratingOrder: function (id, agentId, role, callback) {
+                this.show('<div class="score-agent">' +
+                              '<div class="score-agent__but-box"></div>' +
+                              '<div class="score-agent__stars" data-view="stars">' +
+                                  '<i class="icon-star score-agent__stars__star active" data-id="0" data-view="star"></i>' +
+                                  '<i class="icon-star score-agent__stars__star active" data-id="1" data-view="star"></i>' +
+                                  '<i class="icon-star score-agent__stars__star active" data-id="2" data-view="star"></i>' +
+                                  '<i class="icon-star score-agent__stars__star active" data-id="3" data-view="star"></i>' +
+                                  '<i class="icon-star score-agent__stars__star active" data-id="4" data-view="star"></i>' +
+                              '</div>' +
+                              '<textarea class="score-agent__text"></textarea>' +
+                              '<button class="button_wide--yellow" data-agent-id="' + agentId + '" data-click="save_rating">Сохранить</button>' +
+                          '</div>', function () {
+                                        Stars.stop();
+                                        callback();
+                                      });
+
+                var bl = Dom.sel('.score-agent__but-box'),
+                    innertext = '<i class="icon-star" data-click="tofavorites"></i>' +
+                                '<i class="icon-block" data-click="toblacklist"></i>' +
+                                '<i class="icon-address-card-o" data-click="sharecard"></i>' +
+                                '<i class="icon-attention" data-click="tofeedback"></i>' +
+                                '<i class="icon-eye" data-click="peoplescontrol"></i>' +
+                                '<i class="icon-clipboard" data-click="claimcheck"></i>';
+                Stars.init(role);
+                bl.innerHTML = innertext;
+
     },
     calendar: function (callback) {
                 this.show('<table class="calendar">' +
