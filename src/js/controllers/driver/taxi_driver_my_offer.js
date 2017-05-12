@@ -20,7 +20,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute(MyOffer, false, true, function(){});
+    Maps.drawRoute(MyOffer, false, true, function(price, arrRoi){});
   }
   
   function addTrucking() {
@@ -142,7 +142,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   function redrawRoute(response) {
     MapElements.clear();
     MyOffer.addPointsClients(response);
-    Maps.drawRoute(MyOffer, false, true, function(){});
+    Maps.drawRoute(MyOffer, false, true, function(price, arrRoi){});
   }
   
   return {

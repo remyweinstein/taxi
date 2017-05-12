@@ -21,6 +21,7 @@ define(['Storage'], function(Storage) {
     this.toCity           = null;
     this.toCityLocation   = null;
     this.price            = 0;
+    this.route            = null;
     this.weight           = null;
     this.volume           = null;
     this.stevedores       = null;
@@ -70,6 +71,7 @@ define(['Storage'], function(Storage) {
         self.toCity           = ord.toCity;
         self.toCityLocation   = ord.toCityLocation;
         self.price            = ord.price;
+        self.route            = ord.route;
         self.comment          = ord.comment;
         self.weight           = ord.weight;
         self.volume           = ord.volume;
@@ -108,6 +110,7 @@ define(['Storage'], function(Storage) {
         self.toAddress        = ord.toAddress;
         self.toCoords         = ord.toCoords;
         self.price            = ord.price;
+        self.route            = ord.route;
         self.comment          = ord.comment;
         self.type             = ord.type;
         self.start            = ord.start;
@@ -186,6 +189,7 @@ define(['Storage'], function(Storage) {
       data.toAddress     = self.toAddress;
       data.toLocation    = self.toCoords;
       data.price         = self.price;
+      data.route         = self.route;
       data.comment       = self.comment;
       data.type          = self.type;
       data.weight        = self.weight;

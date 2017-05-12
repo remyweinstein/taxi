@@ -54,6 +54,15 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
 
       SafeWin.overviewPath = [];
       directionsService.route(request, function(response, status) {
+        var roi = response.routes[0].overview_path,
+            arrRoi = [];
+        
+        for (var i = 0; i < roi.length; i++) {
+          arrRoi.push([roi[i].lat(),roi[i].lng()]);
+        }
+        
+        //console.log('arrRoi = ', JSON.stringify(arrRoi));
+        
         if (status === google.maps.DirectionsStatus.OK) {
           var routes_dist = response.routes[0].legs,
               dura = 0, dist = 0,
@@ -80,7 +89,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
 
           SafeWin.overviewPath.push(temp);
           Storage.lullModel(Model);
-          callback(recommended_cost);
+          callback(recommended_cost, arrRoi);
         }
       });
     };

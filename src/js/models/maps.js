@@ -80,8 +80,8 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
         }
       }
       
-      self.renderRoute(Model, short, function (price) {
-        callback(price);
+      self.renderRoute(Model, short, function (price, arrRoi) {
+        callback(price, arrRoi);
       });      
     };
     

@@ -126,19 +126,27 @@ define(function () {
         }
       },
 
-      distance: function(lat1, lon1, lat2, lon2) {
-        var radlat1 = Math.PI * lat1 / 180,
-            radlat2 = Math.PI * lat2 / 180,
-            theta = lon1 - lon2,
-            radtheta = Math.PI * theta/180,
-            dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-        
-        dist = Math.acos(dist);
-        dist = dist * 180 / Math.PI;
-        dist = dist * 60 * 1.1515;
-        dist = dist * 1.609344;
-          
-        return dist;
+      distance: function(lat1, long1, lat2, long2) {
+        var R = 6372795;
+
+        lat1 *= Math.PI / 180;
+        lat2 *= Math.PI / 180;
+        long1 *= Math.PI / 180;
+        long2 *= Math.PI / 180;
+
+        var cl1 = Math.cos(lat1);
+        var cl2 = Math.cos(lat2);
+        var sl1 = Math.sin(lat1);
+        var sl2 = Math.sin(lat2);
+        var delta = long2 - long1;
+        var cdelta = Math.cos(delta);
+        var sdelta = Math.sin(delta);
+        var y = Math.sqrt(Math.pow(cl2 * sdelta, 2) + Math.pow(cl1 * sl2 - sl1 * cl2 * cdelta, 2));
+        var x = sl1 * sl2 + cl1 * cl2 * cdelta;
+        var ad = Math.atan2(y, x);
+        var dist = ad * R;
+
+        return (dist/1000).toFixed(2);
       }
       
   };

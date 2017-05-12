@@ -14,7 +14,8 @@ define(['User',
         'Dom', 
         'Funcs', 
         'domReady', 
-        'SafeWin', 
+        'SafeWin',
+        'SharingOrder',
         'Zones', 
         'MapElements',
         'Maps',
@@ -36,7 +37,8 @@ define(['User',
             Dom, 
             Funcs, 
             domReady, 
-            clSafeWin, 
+            clSafeWin,
+            clSharingOrder,
             clZones, 
             clMapElements,
             clMaps,
@@ -82,22 +84,21 @@ define(['User',
       domReady(function () {
         content = Dom.sel('.content');
         
-        SafeWin     = clSafeWin;
-        User        = new clUser();
-        Car         = new clCar();
-        Conn        = new clConn();
-        Event       = new clEvents();
-        MapElements = new clMapElements();
-        Maps        = new clMaps();
-        MapGoogle   = new clGoogle();
-        MapYandex   = new clYandex();
-        Zones       = new clZones();
-        Settings    = new clSettings();
-        Parameters  = new clParameters();
+        SafeWin      = clSafeWin;
+        SharingOrder = clSharingOrder;
+        User         = new clUser();
+        Car          = new clCar();
+        Conn         = new clConn();
+        Event        = new clEvents();
+        MapElements  = new clMapElements();
+        Maps         = new clMaps();
+        MapGoogle    = new clGoogle();
+        MapYandex    = new clYandex();
+        Zones        = new clZones();
+        Settings     = new clSettings();
+        Parameters   = new clParameters();
         
-        //Push.Permission.request(onPushGranted, onPushDenied);
-        
-        Router.start(App, function () {
+        Router.start(App, function() {
           App.afterConnection();
         });
 
@@ -120,6 +121,7 @@ define(['User',
     
     afterLoading: function () {
       Zones.get();
+      SharingOrder.init();
     },
 
     init: function () {

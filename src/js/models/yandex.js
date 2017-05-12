@@ -102,7 +102,23 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
       var opti = short ? {mapStateAutoApply: true,avoidTrafficJams: false} : {};
       
       ymaps.route(points, opti).then(function (route) {
-        var routa = route.getPaths();
+        var routa = route.getPaths(),
+            arrRoi = [];
+        
+        for (var i = 0; i < route.getPaths().getLength(); i++) {
+          var way = route.getPaths().get(i),
+              segments = way.getSegments();
+              
+          for (var j = 0; j < segments.length; j++) {
+            var street = segments[j].getCoordinates();
+            
+            for (var z = 0; z < street.length; z++) {
+              arrRoi.push([street[z][0],street[z][1]]);
+            }
+          }
+        }
+
+        //console.log('arrRoi = ', JSON.stringify(arrRoi));
 
         routa.options.set({
           hasBalloon: false,
@@ -121,7 +137,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
         recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
 
         Storage.lullModel(Model);
-        callback(recommended_cost);
+        callback(recommended_cost, arrRoi);
       });
 
     };

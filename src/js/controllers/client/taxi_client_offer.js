@@ -174,7 +174,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                         auto_brand + ' ' + auto_model +
                       '</div>' +
                     '</div>';
-    Maps.drawRoute(MyOrder, false, false, function(){});
+    Maps.drawRoute(MyOrder, false, false, function(price, arrRoi){});
   }
 
   function addEvents() {

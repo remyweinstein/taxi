@@ -38,6 +38,7 @@ define(['Storage'], function(Storage) {
     this.weight           = null;
     this.times            = [];
     this.price            = 0;
+    this.route            = null;
     this.seats            = 1;
     this.start            = null;
     this.zone             = null;
@@ -110,6 +111,7 @@ define(['Storage'], function(Storage) {
         self.start            = ord.start;
         self.times            = [];
         self.price            = ord.price;
+        self.route            = ord.route;
         self.type             = ord.type;
         self.zone             = ord.zone;
         
@@ -160,6 +162,7 @@ define(['Storage'], function(Storage) {
       self.start            = null;
       self.times            = [];
       self.price            = 0;
+      self.route            = null;
       self.seats            = 1;
       self.bags             = 0;
       self.type             = null;
@@ -240,6 +243,7 @@ define(['Storage'], function(Storage) {
       self.times            = [];
       self.start            = ord.start;
       self.price            = ord.price;
+      self.route            = ord.route;
       self.seats            = ord.seats;
       self.bags             = ord.bags;
       self.type             = ord.type;
@@ -290,6 +294,7 @@ define(['Storage'], function(Storage) {
       data.seats         = self.seats;
       data.start         = self.start;
       data.price         = self.price;
+      data.route         = self.route;
       data.type          = self.type;
       data.bags          = self.bags;
       data.zone          = self.zone;

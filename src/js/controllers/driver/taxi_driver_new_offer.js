@@ -190,14 +190,24 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
                                '<i class="icon-shopping-bag form-order-city__label"></i>' +
                                '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>';
 
-
     elForm.insertBefore(innerCityFrom, elFrom);
     elForm.insertBefore(innerCityTo, elTo);
     elForm.insertBefore(innerPlaces, elFormChildren);
   }
   
   function addTourism() {
+    var innerPlaces    = document.createElement('div'),
+        elForm         = Dom.sel('.form-order-city__top'),
+        elFormChildren = Dom.sel('input[name="description"]').parentNode.parentNode;
     
+    innerPlaces.className   += 'form-order-city__field';
+    
+    innerPlaces.innerHTML    = '<i class="icon-accessibility form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap_short3"><input type="text" name="seats" value="1" placeholder=""></span>' + 
+                               '<i class="icon-shopping-bag form-order-city__label"></i>' +
+                               '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>';
+
+    elForm.insertBefore(innerPlaces, elFormChildren);
   }
   
   function stop() {
@@ -219,7 +229,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     }
     
     if (activeTypeTaxi === "tourism") {
-      addInterCity();
+      addTourism();
     }
     
     Storage.setActiveTypeModelTaxi('offer');

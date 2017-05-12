@@ -100,6 +100,14 @@
                 display:block;
             }
         }
+        &__cancel{
+            display: inline-block;
+            text-align: center;
+            width: 20%;
+            button{
+                width: 6em;
+            }
+        }
         &__car{
             display: inline-block;
             text-align: center;

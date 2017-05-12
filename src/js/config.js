@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.52",
+  urlArgs: "v=0.55",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -46,6 +46,7 @@ requirejs.config({
     "Router" :       "libs/router",
     "Stars" :        "libs/stars",
     "SafeWin" :      "libs/safe_win",
+    "SharingOrder" : "libs/sharing_order",
     "Storage" :      "libs/storage",
     "Tabs" :         "libs/tabs",
     
@@ -122,7 +123,7 @@ var menus_arr = [];
       version = '48',
       MayLoading = false, isGeolocation = false,
       
-      User, Car, Event, Settings, Parameters, SafeWin, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
+      User, Car, Event, Settings, Parameters, SafeWin, SharingOrder, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
 
       driver_icon   = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
       men_icon      = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',

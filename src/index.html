@@ -6,9 +6,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link rel="manifest" href="/manifest.json">
-        <link href="assets/css/main.css?v=0.19" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?v=0.21" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.52" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.55" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -48,8 +48,9 @@
                 <div class="header__title"></div>
                 <div class="header__toggle"></div>
                 <div class="header__link">
-                    <i class="icon-share"></i><i class="icon-shield" data-click="openSafe"></i>
+                    <i class="icon-share" data-click="openShare"></i><i class="icon-shield" data-click="openSafe"></i>
                 </div>
+                <div class="sharing-window sharing-window--closed"></div>
                 <div class="safety-window safety-window--closed"></div>
                 <div data-click="goto_order" class="active_order_win closed"></div>
             </div>
@@ -1069,9 +1070,7 @@
                             <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
                             <p>Время по маршруту: <span data-view="duration">-</span></p>
                         </div>
-                        <div class="go-order__down__driver-panel__action">
-                            <button data-click="driver-arrived" class="button_wide--green" disabled>На месте</button>
-                        </div>
+                        <div class="go-order__down__driver-panel__action" data-button="action"></div>
                     </div>
                     <div class="go-order__down__messages">
                         <div class="go-order__down__messages__textarea"></div>
@@ -1279,11 +1278,32 @@
                 <p>
                     <label>Тип авто: 
                         <select name="type">
-                            <option value="auto">Легковой</option>
-                            <option value="moto">Мотоцикл</option>
-                            <option value="microbus">Микроавтобус</option>
-                            <option value="truck">Грузовик</option>
-                            <option value="bus">Автобус</option>
+                            <option value="auto">АВТОМОБИЛЬНЫЙ</option>
+                                <option value="car"> --Легковой</option>
+                                <option value="estate"> --Универсал</option> 
+                                <option value="minibus"> --Микроавтобус</option>
+                                <option value="truck"> --Грузовик</option>
+                                <option value="bus" selected> --Автобус</option>
+                            <option value="moto">МОТОТРАНСПОРТ</option>
+                                <option value="motorcicle"> --Мотоцикл</option>
+                                <option value="moped"> --Мопед</option>
+                                <option value="scooter"> --Скутер</option>
+                            <option value="water">ВОДНЫЙ</option>
+                                <option value="speedboat"> --Катер</option>
+                                <option value="yacht"> --Яхта</option>
+                                <option value="boat"> --Лодка</option>
+                                <option value="ferry"> --Паром</option>
+                            <option value="air">АВИА</option>
+                                <option value="aircraft"> --Самолет</option>
+                                <option value="helicopter"> --Вертолет</option>
+                            <option value="snowmobiles">СНЕГОТЕХНИКА</option>
+                                <option value="snowmobiles"> --Снегоход</option>
+                                <option value="crawler_cooter"> --Гус. самокат</option>
+                            <option value="cartage">ГУЖЕВОЙ</option>
+                                <option value="horses"> --Лошади</option>
+                                <option value="mules"> --Мулы</option>
+                                <option value="dogs"> --Собаки</option>
+                                <option value="reindeer"> --Олени</option>
                         </select>
                     </label>
                 </p>

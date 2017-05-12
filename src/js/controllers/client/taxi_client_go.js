@@ -11,7 +11,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       price, 
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
       dr_photo, dr_vehicle, dr_time, duration_time,
-      MyOrder, global_el, finish = {};
+      MyOrder, global_el, finish = {}, arrFinished = [];
 
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -38,7 +38,16 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
   
   function cbAddRating() {
+    Conn.clearCb('cbAddRating');
+
+    var type = Storage.getActiveTypeTaxi();
+
+    if (type === "taxi") {
+      type = "city";
+    }
     
+    MyOrder.clear();
+    goToPage = '#client_' + type;
   }
   
   function cbFinishOrder() {
@@ -93,7 +102,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       color_follow = isFollow ? 'green' : color_follow;
 
       if (ords.finished) {
-        cbFinishOrder();
+        if (arrFinished.indexOf(MyOrder.id) === -1) {
+          finish.orderId = MyOrder.id;
+          finish.agentId = ords.bids[0].offer.agent.id;
+          arrFinished.push(MyOrder.id);
+          cbFinishOrder();
+        }
       }
 
       var but,
@@ -110,7 +124,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           but_came              = Dom.sel('[data-click="client-came"]');
 
       if (ords.finishedByDriver) { //Add check safe zones
-        Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+        if (arrFinished.indexOf(MyOrder.id) === -1) {
+          finish.orderId = MyOrder.id;
+          finish.agentId = agnt.id;
+          arrFinished.push(MyOrder.id);
+          Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+        }
         
         return;
       } 
@@ -217,7 +236,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       if (ords.inCar) {
         if (incar_but) {
           var disabla = isFollow ? '' : ' disabled';
-          incar_but.parentNode.innerHTML = '<button data-click="client-came" class="button_wide--green"' + disabla + '>Приехали</button>';
+          incar_but.parentNode.innerHTML = '<button data-click="client-came" data-agent_id="' + agnt.id + '" class="button_wide--green"' + disabla + '>Приехали</button>';
         }
       }    
 
@@ -250,15 +269,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
   
   function ratingOrder(id, agentId, role) {
-    Modal.ratingOrder(id, function(response) {
-                              var type = Storage.getActiveTypeTaxi();
-
-                              if (type === "taxi") {
-                                type = "city";
-                              }
-
-                              goToPage = '#client_' + type;
-                          });
+    Modal.ratingOrder(id, agentId, role, function(){});
   }
   
   function initMap() {
@@ -308,7 +319,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                               '</div>' +
                             '</div>' +
                           '</div>';
-    Maps.drawRoute(MyOrder, true, false, function () {
+    Maps.drawRoute(MyOrder, true, false, function (price, arrRoi) {
       addEvents();
     });
     show_route = true;
@@ -320,7 +331,13 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
 
       while (target && target !== this) {
         if (target.dataset.click === "client-came") {
-          Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+          if (arrFinished.indexOf(MyOrder.id) === -1) {
+            finish.orderId = MyOrder.id;
+            finish.agentId = target.dataset.agent_id;
+            arrFinished.push(MyOrder.id);
+            Conn.request('finishOrder', MyOrder.id, cbFinishOrder);
+          }
+          
           break;
         }
         
@@ -431,7 +448,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           data.rating = {};
           data.rating.value = stars.length;
           data.rating.comment = Dom.sel('.score-agent__text').value;
-          data.orderId = order_id;
+          data.orderId = MyOrder.id;
           
           Conn.request('addRating', data, cbAddRating);
           Modal.close();
@@ -464,7 +481,6 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     var orderId = Storage.getTripClient();
     
     MyOrder = new clClientOrder();
-    //MyOrder.activateCurrent();
     MyOrder.getByID(orderId, function () {
       if (orderId) {
         show_route = false;

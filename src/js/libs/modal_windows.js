@@ -332,12 +332,12 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
                                       });
 
                 var bl = Dom.sel('.score-agent__but-box'),
-                    innertext = '<i class="icon-star" data-click="tofavorites"></i>' +
-                                '<i class="icon-block" data-click="toblacklist"></i>' +
-                                '<i class="icon-address-card-o" data-click="sharecard"></i>' +
-                                '<i class="icon-attention" data-click="tofeedback"></i>' +
-                                '<i class="icon-eye" data-click="peoplescontrol"></i>' +
-                                '<i class="icon-clipboard" data-click="claimcheck"></i>';
+                    innertext = '<i class="icon-star" data-click="tofavorites" data-agent_id="' + agentId + '"></i>' +
+                                '<i class="icon-block" data-click="toblacklist" data-agent_id="' + agentId + '"></i>' +
+                                '<i class="icon-address-card-o" data-click="sharecard" data-agent_id="' + agentId + '"></i>' +
+                                '<i class="icon-attention" data-click="tofeedback" data-agent_id="' + agentId + '"></i>' +
+                                '<i class="icon-eye" data-click="peoplescontrol" data-agent_id="' + agentId + '"></i>' +
+                                '<i class="icon-clipboard" data-click="claimcheck" data-agent_id="' + agentId + '"></i>';
                 Stars.init(role);
                 bl.innerHTML = innertext;
 
