@@ -125,6 +125,10 @@ define(function () {
           timerGetLocation = setInterval(geoFindMe, 5000);
         }
       },
+      
+      roundCoords: function(coord) {
+        return Math.round(coord * 1000000)/1000000;
+      },
 
       distance: function(lat1, long1, lat2, long2) {
         var R = 6372795;

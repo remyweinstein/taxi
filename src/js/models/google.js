@@ -1,6 +1,6 @@
 /* global google, SafeWin, User, Maps, MapElements, Conn, Parameters */
 
-define(['Dom', 'Storage'], function(Dom, Storage) {
+define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
   var clGoogle = function () {
     var self = this;
     
@@ -58,7 +58,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
             arrRoi = [];
         
         for (var i = 0; i < roi.length; i++) {
-          arrRoi.push([roi[i].lat(),roi[i].lng()]);
+          arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
         }
         
         //console.log('arrRoi = ', JSON.stringify(arrRoi));

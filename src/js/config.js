@@ -26,6 +26,7 @@ requirejs.config({
 		"Zones" :        "models/zones",
     
     "ActiveOrder" :  "libs/active_order_win",
+    "Calc" :         "libs/calc",
     "Chat" :         "libs/chat",
     "Conn" :         "libs/connection",
     "Dates" :        "libs/dates",

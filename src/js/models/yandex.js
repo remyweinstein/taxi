@@ -1,6 +1,6 @@
 /* global map, ymaps, User, SafeWin, Maps, MapElements, Parameters */
 
-define(['Dom', 'Storage'], function(Dom, Storage) {
+define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
   function objCoordsToArray (obj) {
     var newArr = [];
     
@@ -113,7 +113,7 @@ define(['Dom', 'Storage'], function(Dom, Storage) {
             var street = segments[j].getCoordinates();
             
             for (var z = 0; z < street.length; z++) {
-              arrRoi.push([street[z][0],street[z][1]]);
+              arrRoi.push([Geo.roundCoords(street[z][0]), Geo.roundCoords(street[z][1])]);
             }
           }
         }
