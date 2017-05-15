@@ -82,7 +82,9 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
         if (target) {
           
           if (target.dataset.click === "save-order") {
-            Destinations.saveOrderTrucking();
+            Destinations.saveOrderTrucking(function () {
+                goToPage = '#client_map';
+              });
 
             return;
           }

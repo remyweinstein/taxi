@@ -21,17 +21,13 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
 
-    var route = "auto";
+    var line = false;
     
     if (Storage.getActiveTypeTaxi() === "tourism" && MyOffer.route) {
-      route = "manual";
+      line = true;
     }
 
-    if (route === "auto") {
-      Maps.drawRoute(MyOffer, false, false, function(){});
-    } else {
-      Maps.drawLine(JSON.parse(MyOffer.route));
-    }
+    Maps.drawRoute(MyOffer, false, false, line, function(){});
   }
   
   function addTrucking() {
@@ -153,7 +149,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   function redrawRoute(response) {
     MapElements.clear();
     MyOffer.addPointsClients(response);
-    Maps.drawRoute(MyOffer, false, true, function(price, arrRoi){});
+    Maps.drawRoute(MyOffer, false, true, false, function(price, arrRoi){});
   }
   
   return {

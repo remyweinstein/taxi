@@ -102,7 +102,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
         }
           
         setRoute();
-        Maps.drawRoute(MyOrder, false, false, function(price, arrRoi){});
+        Maps.drawRoute(MyOrder, false, false, false, function(price, arrRoi){});
         HideForms.init();
       }
     } else {

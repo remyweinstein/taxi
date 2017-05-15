@@ -180,17 +180,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                       '</div>' +
                     '</div>';
                   
-    var route = "auto";
+    var line = false;
     
     if (activeTypeTaxi === "tourism" && MyOrder.route) {
-      route = "manual";
+      line = true;
     }
 
-    if (route === "auto") {
-      Maps.drawRoute(MyOrder, false, false, function(){});
-    } else {
-      Maps.drawLine(JSON.parse(MyOrder.route));
-    }
+    Maps.drawRoute(MyOrder, false, false, line, function(){});
+
   }
 
   function addEvents() {

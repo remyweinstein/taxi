@@ -121,7 +121,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           
           if (target.dataset.click === "save-order") {
             Storage.setActiveTypeModelTaxi('order');
-            Destinations.saveOrderTourism();
+            Destinations.saveOrderTourism(function () {
+                goToPage = '#client_map';
+              });
 
             return;
           }
@@ -467,6 +469,12 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     Storage.setActiveTypeFilters('offers');
     MyOrder = new clClientOrder();
     MyOrder.activateTourism();
+    
+    if (Storage.getChangeLocations()) {
+      Storage.removeChangeLocations();
+      MyOrder.route = null;
+    }
+    
     Lists.init(MyOrder);
     Maps.mapOn();
     eventOnChangeZoom = GetPositions.drivers();

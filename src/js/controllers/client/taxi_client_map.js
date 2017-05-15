@@ -24,6 +24,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
         add = 'city';
       }
       
+      MyOrder.clear();
       goToPage = '#client_' + add;
     }
   }
@@ -31,7 +32,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute(MyOrder, true, false, function(price, arrRoi){});
+    Maps.drawRoute(MyOrder, true, false, false, function(price, arrRoi){});
   }
   
   function addEvents() {

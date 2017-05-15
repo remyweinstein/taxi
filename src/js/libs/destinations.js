@@ -219,24 +219,21 @@ function (Dom, Modal, Storage, Dates) {
     
     if (from_value !== '' && to_value !== '') {
       
-      var route = "auto";
+      var line = false;
       
       if (Storage.getActiveTypeTaxi() === "tourism" && Model.route) {
-        route = "manual";
+        line = true;
       }
       
-      if (route === "auto") {
-        Maps.drawRoute(Model, false, false, function (recomended, arrRoi) {
-          Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
+      Maps.drawRoute(Model, false, false, line, function (recomended, arrRoi) {
+        Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
+        if (!line) {
           Model.route = JSON.stringify(arrRoi);
-          Model.recommended_cost = recomended;
-          return Model;
-        });
-      } else {
-        Maps.drawLine(JSON.parse(Model.route));
-        Model.recommended_cost = 0;
+        }
+        
+        Model.recommended_cost = recomended;
         return Model;
-      }
+      });
     }
   }
 
@@ -313,7 +310,7 @@ function (Dom, Modal, Storage, Dates) {
       be_dead.parentNode.removeChild(be_dead);
       Storage.lullModel(Model);
       MapElements.clear();
-      Maps.drawRoute(Model, false, false, function (recomended, arrRoi) {
+      Maps.drawRoute(Model, false, false, false, function (recomended, arrRoi) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
         Model.route = JSON.stringify(arrRoi);
         Model.recommended_cost = recomended;

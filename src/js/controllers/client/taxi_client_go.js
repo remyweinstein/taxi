@@ -319,7 +319,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                               '</div>' +
                             '</div>' +
                           '</div>';
-    Maps.drawRoute(MyOrder, true, false, function (price, arrRoi) {
+    Maps.drawRoute(MyOrder, true, false, false, function (price, arrRoi) {
       addEvents();
     });
     show_route = true;

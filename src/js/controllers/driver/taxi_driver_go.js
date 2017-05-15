@@ -115,7 +115,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     */
     
     render(response.orders);
-    Maps.drawRoute(MyOffer, true, true, function(price, arrRoi){});
+    Maps.drawRoute(MyOffer, true, true, false, function(price, arrRoi){});
     addEvents();
     HideForms.init();
   }

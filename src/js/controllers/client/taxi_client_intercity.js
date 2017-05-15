@@ -116,7 +116,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           
           if (target.dataset.click === "save-order") {
             Storage.setActiveTypeModelTaxi('order');
-            Destinations.saveOrderIntercity();
+            Destinations.saveOrderIntercity(function () {
+                goToPage = '#client_map';
+              });
 
             return;
           }

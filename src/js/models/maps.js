@@ -29,7 +29,7 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       }
     },
 
-    this.drawRoute = function (Model, back, short, callback) {
+    this.drawRoute = function (Model, back, short, line, callback) {
       var _addr_from, 
           _addr_to,
           path_icon = '//maps.google.com/mapfiles/kml/paddle/';
@@ -80,13 +80,13 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
         }
       }
       
-      self.renderRoute(Model, short, function (price, arrRoi) {
+      self.renderRoute(Model, short, line, function (price, arrRoi) {
         callback(price, arrRoi);
       });      
     };
     
-    this.renderRoute = function (Model, short, callback) {
-      self.currentModel.renderRoute(Model, short, callback);
+    this.renderRoute = function (Model, short, line, callback) {
+      self.currentModel.renderRoute(Model, short, line, callback);
     };
 
     this.init = function() {
@@ -228,10 +228,6 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
     
     this.newPolygon = function (coords) {
       return self.currentModel.newPolygon(coords);
-    };
-    
-    this.drawLine = function (coords) {
-      return self.currentModel.drawLine(coords);
     };
     
     this.addElOnMap = function (el) {

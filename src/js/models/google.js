@@ -4,95 +4,115 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
   var clGoogle = function () {
     var self = this;
     
-    this.renderRoute = function (Model, short, callback) {
-      var directionsService = new google.maps.DirectionsService(),
-          _addr_from = Model.fromCoords.split(","),
-          _addr_to = Model.toCoords.split(","),
-          waypoints = [];
-      
-      if (Model.toAddresses) {
-        for (var i = 0; i < Model.toAddresses.length; i++) {
-          var latlng = Model.toCoordses[i].split(',');
+    this.renderRoute = function (Model, short, line, callback) {
+      if (line) {
+        var  flightPlanCoordinates = [],
+             routa = JSON.parse(Model.route);
 
-          waypoints.push({
-            location: new google.maps.LatLng(latlng[0], latlng[1])
-            //stopover: true
-          });
+        for (var i = 0; i < routa.length; i++) {
+          flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
         }
-      }
-      
-      if (Model.clientPointsFrom) {
-        for (var i = 0; i < Model.clientPointsFrom.length; i++) {
-          var latlng = Model.clientPointsFrom[i].location.split(',');
 
-          waypoints.push({
-            location: new google.maps.LatLng(latlng[0], latlng[1])
-            //stopover: true
-          });
-        }
-      }
-      
-      if (Model.clientPointsTo) {
-        for (var i = 0; i < Model.clientPointsTo.length; i++) {
-          var latlng = Model.clientPointsTo[i].location.split(',');
+        var line = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: '#4286f4',
+                strokeOpacity: 0.5,
+                strokeWeight: 6
+              });
 
-          waypoints.push({
-            location: new google.maps.LatLng(latlng[0], latlng[1])
-            //stopover: true
-          });
-        }
-      }
-      
-      var request = {
-            origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
-            destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
-            waypoints: waypoints,
-            optimizeWaypoints: short,
-            provideRouteAlternatives: false,
-            travelMode: google.maps.DirectionsTravelMode.DRIVING
-          };
+        MapElements.routes.push(line);
+        Maps.addElOnMap(line);
 
-      SafeWin.overviewPath = [];
-      directionsService.route(request, function(response, status) {
-        
-        if (response.routes[0]) {
-          var roi = response.routes[0].overview_path,
-              arrRoi = [];
+        callback(0, null);
+      } else {
+        var directionsService = new google.maps.DirectionsService(),
+            _addr_from = Model.fromCoords.split(","),
+            _addr_to   = Model.toCoords.split(","),
+            waypoints  = [];
 
-          for (var i = 0; i < roi.length; i++) {
-            arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
+        if (Model.toAddresses) {
+          for (var i = 0; i < Model.toAddresses.length; i++) {
+            var latlng = Model.toCoordses[i].split(',');
+
+            waypoints.push({
+              location: new google.maps.LatLng(latlng[0], latlng[1])
+              //stopover: true
+            });
           }
         }
-        
-        if (status === google.maps.DirectionsStatus.OK) {
-          var routes_dist = response.routes[0].legs,
-              dura = 0, dist = 0,
-              i;
 
-          for (i = 0; i < routes_dist.length; i++) {
-            dura += routes_dist[i].duration.value;
-            dist += routes_dist[i].distance.value;
+        if (Model.clientPointsFrom) {
+          for (var i = 0; i < Model.clientPointsFrom.length; i++) {
+            var latlng = Model.clientPointsFrom[i].location.split(',');
+
+            waypoints.push({
+              location: new google.maps.LatLng(latlng[0], latlng[1])
+              //stopover: true
+            });
+          }
+        }
+
+        if (Model.clientPointsTo) {
+          for (var i = 0; i < Model.clientPointsTo.length; i++) {
+            var latlng = Model.clientPointsTo[i].location.split(',');
+
+            waypoints.push({
+              location: new google.maps.LatLng(latlng[0], latlng[1])
+              //stopover: true
+            });
+          }
+        }
+
+        var request = {
+              origin: new google.maps.LatLng(_addr_from[0], _addr_from[1]),
+              destination: new google.maps.LatLng(_addr_to[0], _addr_to[1]),
+              waypoints: waypoints,
+              optimizeWaypoints: short,
+              provideRouteAlternatives: false,
+              travelMode: google.maps.DirectionsTravelMode.DRIVING
+            };
+
+        directionsService.route(request, function(response, status) {
+
+          if (response.routes[0]) {
+            var roi = response.routes[0].overview_path,
+                arrRoi = [];
+
+            for (var i = 0; i < roi.length; i++) {
+              arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
+            }
           }
 
-          Model.duration = Math.round(dura / 60);
-          Model.length = dist;
-          var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
-          recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+          if (status === google.maps.DirectionsStatus.OK) {
+            var routes_dist = response.routes[0].legs,
+                dura = 0, dist = 0,
+                i;
 
-          MapElements.routes.push(new google.maps.DirectionsRenderer({
-            map: Maps.map,
-            suppressMarkers: true,
-            directions: response,
-            routeIndex: 0
-          }));
-          
-          var temp = response.routes[0].overview_path;
+            for (i = 0; i < routes_dist.length; i++) {
+              dura += routes_dist[i].duration.value;
+              dist += routes_dist[i].distance.value;
+            }
 
-          SafeWin.overviewPath.push(temp);
-          Storage.lullModel(Model);
-          callback(recommended_cost, arrRoi);
-        }
-      });
+            Model.duration = Math.round(dura / 60);
+            Model.length = dist;
+            var recommended_cost = 10 * Math.ceil( ((Model.length / 1000) * parseInt(Parameters.orderCostOfKm) + parseInt(Parameters.orderLandingPrice)) / 10 );
+            recommended_cost = recommended_cost < 50 ? 50 : recommended_cost;
+
+            MapElements.routes.push(new google.maps.DirectionsRenderer({
+              map: Maps.map,
+              suppressMarkers: true,
+              directions: response,
+              routeIndex: 0
+            }));
+
+            var temp = response.routes[0].overview_path;
+
+            Storage.lullModel(Model);
+            callback(recommended_cost, arrRoi);
+          }
+        });
+      }
     };
       
     this.init = function () {
@@ -264,27 +284,6 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
     
     this.newPolygon = function () {
       return new google.maps.Polygon({});
-    };
-    
-    this.drawLine = function (routa) {
-      var  flightPlanCoordinates = [];
-      
-      for (var i = 0; i < routa.length; i++) {
-        flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
-      }
-      
-      var line = new google.maps.Polyline({
-              path: flightPlanCoordinates,
-              geodesic: true,
-              strokeColor: '#FF0000',
-              strokeOpacity: 1.0,
-              strokeWeight: 2
-            });
-            
-      MapElements.routes.push(line);
-      Maps.addElOnMap(line);
-      
-      return line;
     };
     
     this.addElOnMap = function (el) {
