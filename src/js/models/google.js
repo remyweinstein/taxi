@@ -54,14 +54,15 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
 
       SafeWin.overviewPath = [];
       directionsService.route(request, function(response, status) {
-        var roi = response.routes[0].overview_path,
-            arrRoi = [];
         
-        for (var i = 0; i < roi.length; i++) {
-          arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
+        if (response.routes[0]) {
+          var roi = response.routes[0].overview_path,
+              arrRoi = [];
+
+          for (var i = 0; i < roi.length; i++) {
+            arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
+          }
         }
-        
-        //console.log('arrRoi = ', JSON.stringify(arrRoi));
         
         if (status === google.maps.DirectionsStatus.OK) {
           var routes_dist = response.routes[0].legs,
@@ -263,6 +264,27 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
     
     this.newPolygon = function () {
       return new google.maps.Polygon({});
+    };
+    
+    this.drawLine = function (routa) {
+      var  flightPlanCoordinates = [];
+      
+      for (var i = 0; i < routa.length; i++) {
+        flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
+      }
+      
+      var line = new google.maps.Polyline({
+              path: flightPlanCoordinates,
+              geodesic: true,
+              strokeColor: '#FF0000',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+            
+      MapElements.routes.push(line);
+      Maps.addElOnMap(line);
+      
+      return line;
     };
     
     this.addElOnMap = function (el) {

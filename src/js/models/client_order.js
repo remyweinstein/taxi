@@ -77,7 +77,7 @@ define(['Storage'], function(Storage) {
     function parse(type) {
       var myOrder = Storage.getTaxiOrderModel(type);
       
-      if (myOrder) {
+      if (myOrder && myOrder !== "undefined") {
         var ord = JSON.parse(myOrder);
         
         self.id               = ord.id;
@@ -206,67 +206,70 @@ define(['Storage'], function(Storage) {
     };
     
     this.setModel = function (response, offer) {
-      var ord      = !offer ? response.result.order : response.result.offer,
-          now      = new Date().getTime(),
-          start    = new Date(ord.start).getTime(),
-          pregnant = ord.seats === ord.occupiedSeats ? true : false,
-          active   = pregnant && start <= now ? true : false;
+      var ord      = !offer ? response.result.order : response.result.offer;
       
-      self.id               = ord.id;
-      self.fromCityLocation = ord.fromCityLocation;
-      self.fromFullAddress  = ord.fromFullAddress;
-      self.fromAddress      = ord.fromAddress;
-      self.fromCity         = ord.fromCity || User.city;
-      self.fromCoords       = ord.fromLocation;
-      self.toFullAddresses  = [];
-      self.toCityLocation   = ord.toCityLocation;
-      self.toFullAddress    = ord.toFullAddress;
-      self.toAddresses      = [];
-      self.toCoordses       = [];
-      self.toAddress        = ord.toAddress;
-      self.toCoords         = ord.toLocation;
-      self.toCities         = [];
-      self.toCity           = ord.toCity || User.city;
-      self.occupiedSeats    = ord.occupiedSeats;
-      self.stevedores       = ord.stevedores;
-      self.distance         = ord.distance;
-      //self.pregnant         = pregnant;
-      self.canceled         = ord.canceled;
-      self.duration         = ord.duration;
-      self.started          = ord.started;
-      self.comment          = ord.comment;
-      //self.active           = active;
-      self.cities           = [];
-      self.length           = ord.length;
-      self.weight           = ord.weight;
-      self.volume           = ord.volume;
-      self.times            = [];
-      self.start            = ord.start;
-      self.price            = ord.price;
-      self.route            = ord.route;
-      self.seats            = ord.seats;
-      self.bags             = ord.bags;
-      self.type             = ord.type;
-      self.zone             = ord.zone;
-      
-      if (ord.points) {
-        if (ord.points.length > 0) {
-          for (var i = 0; i < ord.points.length; i++) {
-            self.toFullAddresses[i] = ord.points[i].fullAddress || "";
-            self.toAddresses[i]     = ord.points[i].address || "";
-            self.toCoordses[i]      = ord.points[i].location || "";
-            self.cities[i]          = ord.points[i].city || "";
-            self.times[i]           = ord.points[i].stopTime || "";
+      if (ord) {
+        var now      = new Date().getTime(),
+            start    = new Date(ord.start).getTime(),
+            pregnant = ord.seats === ord.occupiedSeats ? true : false,
+            active   = pregnant && start <= now ? true : false;
+
+        self.id               = ord.id;
+        self.fromCityLocation = ord.fromCityLocation;
+        self.fromFullAddress  = ord.fromFullAddress;
+        self.fromAddress      = ord.fromAddress;
+        self.fromCity         = ord.fromCity || User.city;
+        self.fromCoords       = ord.fromLocation;
+        self.toFullAddresses  = [];
+        self.toCityLocation   = ord.toCityLocation;
+        self.toFullAddress    = ord.toFullAddress;
+        self.toAddresses      = [];
+        self.toCoordses       = [];
+        self.toAddress        = ord.toAddress;
+        self.toCoords         = ord.toLocation;
+        self.toCities         = [];
+        self.toCity           = ord.toCity || User.city;
+        self.occupiedSeats    = ord.occupiedSeats;
+        self.stevedores       = ord.stevedores;
+        self.distance         = ord.distance;
+        //self.pregnant         = pregnant;
+        self.canceled         = ord.canceled;
+        self.duration         = ord.duration;
+        self.started          = ord.started;
+        self.comment          = ord.comment;
+        //self.active           = active;
+        self.cities           = [];
+        self.length           = ord.length;
+        self.weight           = ord.weight;
+        self.volume           = ord.volume;
+        self.times            = [];
+        self.start            = ord.start;
+        self.price            = ord.price;
+        self.route            = ord.route;
+        self.seats            = ord.seats;
+        self.bags             = ord.bags;
+        self.type             = ord.type;
+        self.zone             = ord.zone;
+
+        if (ord.points) {
+          if (ord.points.length > 0) {
+            for (var i = 0; i < ord.points.length; i++) {
+              self.toFullAddresses[i] = ord.points[i].fullAddress || "";
+              self.toAddresses[i]     = ord.points[i].address || "";
+              self.toCoordses[i]      = ord.points[i].location || "";
+              self.cities[i]          = ord.points[i].city || "";
+              self.times[i]           = ord.points[i].stopTime || "";
+            }
           }
         }
+
+        if (self.active) {
+          Storage.setTripClient(self.id);
+        }
+
+        global_end_get_order = true;
+        Storage.lullModel(self);
       }
-      
-      if (self.active) {
-        Storage.setTripClient(self.id);
-      }
-      
-      global_end_get_order = true;
-      Storage.lullModel(self);
     };
     
     this.clear = function () {
@@ -318,6 +321,7 @@ define(['Storage'], function(Storage) {
       }
 
       Conn.request('createOrder', data, cbCreateOrder);
+      
       function st() {
         callback();
       };

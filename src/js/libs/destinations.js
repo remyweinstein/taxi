@@ -218,12 +218,25 @@ function (Dom, Modal, Storage, Dates) {
     }
     
     if (from_value !== '' && to_value !== '') {
-      Maps.drawRoute(Model, false, false, function (recomended, arrRoi) {
-        Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
-        Model.route = JSON.stringify(arrRoi);
-        Model.recommended_cost = recomended;
+      
+      var route = "auto";
+      
+      if (Storage.getActiveTypeTaxi() === "tourism" && Model.route) {
+        route = "manual";
+      }
+      
+      if (route === "auto") {
+        Maps.drawRoute(Model, false, false, function (recomended, arrRoi) {
+          Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
+          Model.route = JSON.stringify(arrRoi);
+          Model.recommended_cost = recomended;
+          return Model;
+        });
+      } else {
+        Maps.drawLine(JSON.parse(Model.route));
+        Model.recommended_cost = 0;
         return Model;
-      });
+      }
     }
   }
 

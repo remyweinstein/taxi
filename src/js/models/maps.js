@@ -230,6 +230,10 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       return self.currentModel.newPolygon(coords);
     };
     
+    this.drawLine = function (coords) {
+      return self.currentModel.drawLine(coords);
+    };
+    
     this.addElOnMap = function (el) {
       this.currentModel.addElOnMap(el);
     };

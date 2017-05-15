@@ -20,7 +20,18 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
-    Maps.drawRoute(MyOffer, false, true, function(price, arrRoi){});
+
+    var route = "auto";
+    
+    if (Storage.getActiveTypeTaxi() === "tourism" && MyOffer.route) {
+      route = "manual";
+    }
+
+    if (route === "auto") {
+      Maps.drawRoute(MyOffer, false, false, function(){});
+    } else {
+      Maps.drawLine(JSON.parse(MyOffer.route));
+    }
   }
   
   function addTrucking() {

@@ -6,7 +6,8 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   var active_bid = false,
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
       name_client, photo_client, travelTime, agIndexes, auto_photo, auto_brand, auto_model,
-      MyOrder;
+      MyOrder,
+      activeTypeTaxi;
   
   function cbChangeState(response) {
     Conn.clearCb('cbChangeState');
@@ -84,6 +85,8 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
       }
     }
     
+    MyOrder.route = ords.route;
+    
     ag_distanse = ords.agent.distance.toFixed(1);
     travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
 
@@ -94,8 +97,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     }
     
     waypoints = [];
+    
     MapElements.marker_to_2   = Maps.addMarker(fromCoords[0], fromCoords[1], fromAddress, '//maps.google.com/mapfiles/kml/paddle/wht-circle.png', [32,32], function(){});
     MapElements.marker_from_2 = Maps.addMarker(toCoords[0], toCoords[1], toAddress, '//maps.google.com/mapfiles/kml/paddle/wht-circle.png', [32,32], function(){});
+    
     setRoute();
     HideForms.init();
   }
@@ -174,7 +179,18 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                         auto_brand + ' ' + auto_model +
                       '</div>' +
                     '</div>';
-    Maps.drawRoute(MyOrder, false, false, function(price, arrRoi){});
+                  
+    var route = "auto";
+    
+    if (activeTypeTaxi === "tourism" && MyOrder.route) {
+      route = "manual";
+    }
+
+    if (route === "auto") {
+      Maps.drawRoute(MyOrder, false, false, function(){});
+    } else {
+      Maps.drawLine(JSON.parse(MyOrder.route));
+    }
   }
 
   function addEvents() {
@@ -196,12 +212,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           } else {
             var data = {};
             
-            data.fromCity     = MyOrder.fromCity;
-            data.fromAddress  = MyOrder.fromAddress;
-            data.fromLocation = MyOrder.fromCoords;
-            data.toCity       = MyOrder.toCity;
-            data.toAddress    = MyOrder.toAddress;
-            data.toLocation   = MyOrder.toCoords;
+            if (activeTypeTaxi !== "tourism") {
+              data.fromCity     = MyOrder.fromCity;
+              data.fromAddress  = MyOrder.fromAddress;
+              data.fromLocation = MyOrder.fromCoords;
+              data.toCity       = MyOrder.toCity;
+              data.toAddress    = MyOrder.toAddress;
+              data.toLocation   = MyOrder.toCoords;
+            }
             data.price        = MyOrder.price;
             data.id           = offerId;
             
@@ -271,7 +289,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function start() {
+    activeTypeTaxi = Storage.getActiveTypeTaxi();
+    
     offerId = localStorage.getItem('_open_offer_id');
+    
+    if (activeTypeTaxi === "tourism") {
+      Dom.sel('.order-city-from').style.display = 'none';
+      Dom.sel('.order-city-to').style.display = 'none';
+    }
     
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();

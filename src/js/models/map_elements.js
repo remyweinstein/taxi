@@ -20,6 +20,7 @@ define(function() {
     this.driver_marker = null;
     this.marker_client = null;
     this.marker_clients = [];
+    this.route_points = [];
     
     this.clear = function () {
       var i;
@@ -66,6 +67,10 @@ define(function() {
       for (i = 0; i < self.markers_driver_pos.length; i++) {
         Maps.removeElement(self.markers_driver_pos[i].marker);
       }
+      for (i = 0; i < self.route_points.length; i++) {
+        Maps.removeElement(self.route_points[i]);
+      }
+      
       self.driver_marker = null;
       self.route = null;
       self.routes = [];
@@ -81,6 +86,7 @@ define(function() {
       self.marker_mine = null;
       self.points = [];
       self.markers_driver_pos = [];
+      self.route_points = [];
 
     };
 

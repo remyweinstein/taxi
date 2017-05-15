@@ -10,6 +10,18 @@ define(['ActiveOrder'], function(ActiveOrder) {
       }
     },
     
+    setChangeLocations: function() {
+      localStorage.setItem('_update_location', true);
+    },
+    
+    removeChangeLocations: function() {
+      localStorage.removeItem('_update_location');
+    },
+    
+    getChangeLocations: function() {
+      return localStorage.getItem('_update_location');
+    },
+    
     setUpdateVersion: function(version) {
       localStorage.setItem('_update_version', version);
     },

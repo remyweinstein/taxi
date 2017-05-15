@@ -117,12 +117,31 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     content.addEventListener('click', Event.click);
   }
   
+  function findChanges() {
+    var old_Model,
+        model = Storage.getActiveTypeModelTaxi();
+    
+    if (model === "offer") {
+      old_Model = new clDriverOffer();
+    } else if (model === "order") {
+      old_Model = new clClientOrder();
+    }
+    
+    old_Model.activateCurrent();
+    
+    if (old_Model.fromCoords !== Model.fromCoords || old_Model.toCoords !== Model.toCoords) {
+      console.log('i change location');
+      Storage.setChangeLocations();
+    }
+  }
+  
   function stop() {
     var center_marker = Dom.sel('.centerMarker');
     
     center_marker.parentNode.removeChild(center_marker);
     Maps.removeEvent(dragEvent);
     dragEvent = null;
+    findChanges();
     Storage.lullModel(Model);
     Storage.removeTemporaryRoute();
     Storage.removeTemporaryCoords();

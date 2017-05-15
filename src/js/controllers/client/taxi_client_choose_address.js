@@ -81,10 +81,28 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     });
   }
   
+  function findChanges() {
+    var old_Model,
+        model = Storage.getActiveTypeModelTaxi();
+    
+    if (model === "offer") {
+      old_Model = new clDriverOffer();
+    } else if (model === "order") {
+      old_Model = new clClientOrder();
+    }
+    
+    old_Model.activateCurrent();
+    
+    if (old_Model.fromCoords !== Model.fromCoords || old_Model.toCoords !== Model.toCoords) {
+      Storage.setChangeLocations();
+    }
+  }
+  
   function stop() {
     Storage.lullModel(Model);
     Storage.removeTemporaryAddress();
     Storage.removeTemporaryRoute();
+    findChanges();
     //Storage.removeActiveTypeModelTaxi();
   }
   

@@ -447,6 +447,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("in-car", params);
   }
   
+  function transferedOrder(id) {
+    params.orderId = id;
+    params.transferred = true;
+    Conn.sendMessage("post-order-transferred", params);
+  }
+  
   function cancelOrder(id) {
     params.orderId = id;
     Conn.sendMessage("cancel-order", params);
@@ -642,6 +648,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "inCarClient":
           inCarClient(data);
+          break;
+        case "transferedOrder":
+          transferedOrder(data);
           break;
         case "arrivedDriver":
           arrivedDriver(data);

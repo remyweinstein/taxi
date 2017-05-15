@@ -1,14 +1,20 @@
-/* global User, Maps, Conn, Event, SafeWin */
+/* global User, Maps, Conn, Event, SafeWin, MapElements */
 
-define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder'], 
-function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder) {
+define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindows', 'Storage', 'ClientOrder', 'Geo'], 
+function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clClientOrder, Geo) {
   var content = Dom.sel('.content'),
       eventOnChangeZoom,
       global_el,
       global_item,
       MyOrder,
       _timer,
-      old_filters = Storage.getActiveFilters();
+      old_filters = Storage.getActiveFilters(),
+      eventOnClickMap = null,
+      eventOnClickMarker,
+      eventOnDragEndMarker,
+      flightPath,
+      routa = [],
+      edit_route = false;
 
   function cbDeleteOrder(response) {
     Conn.clearCb('cbDeleteOrder');
@@ -265,6 +271,34 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
               Conn.request('agreeOffer', data);
             }
           }
+          
+          if (target.dataset.click === 'clear-route') {
+            MyOrder.route = null;
+            Storage.lullModel(MyOrder);
+            MapElements.clear();
+            Maps.removeElement(flightPath);
+            flightPath = null;
+            routa = [];
+            Destinations.init(MyOrder);
+          }
+          
+          if (target.dataset.click === 'edit-route') {
+            el = target;
+            if (MyOrder.fromAddress && MyOrder.toAddress) {
+              if (!edit_route) {
+                edit_route = true;
+                el.innerHTML = 'Сохранить маршрут';
+                enableEditRoute();
+              } else {
+                edit_route = false;
+                el.innerHTML = 'Редактировать маршрут';
+                MyOrder.route = JSON.stringify(routa);
+                disableEditRoute();
+                Storage.lullModel(MyOrder);
+                reloadRoute();
+              }
+            }
+          } 
 
           //  =========== EVENTS FILTERS AND SORTS FOR OFFERS =============
           if (target.dataset.click === "fav-orders") {
@@ -316,7 +350,106 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     content.addEventListener('input', Event.input);
   }
   
+  function disableEditRoute() {
+    Maps.removeEvent(eventOnClickMap);
+    Maps.removeEvent(eventOnClickMarker);
+    Maps.removeEvent(eventOnDragEndMarker);
+    eventOnClickMap = null;
+    Maps.removeElement(flightPath);
+    flightPath = null;
+    
+    for (var i = 0; i < MapElements.route_points.length; i++) {
+      Maps.removeElement(MapElements.route_points[i]);
+    }
+    
+    MapElements.route_points = [];
+  }
+  
+  function enableEditRoute() {
+    eventOnClickMap = Maps.addEvent(Maps.map, 'click', addMarker);
+    
+    if (MyOrder.route) {
+      routa = JSON.parse(MyOrder.route);
+
+      for (var i = 0; i < routa.length; i++) {
+        MapElements.route_points.push(Maps.addMarker(routa[i][0], routa[i][1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){}));
+      }
+    }
+  }
+  
+  function addMarker(e) {
+    var LatLng = Maps.getLocationClick(e),
+        marker = Maps.addMarker(LatLng[0], LatLng[1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+    
+    if (routa.length > 0) {
+      var last_point = routa.length - 1,
+          dist_first = Geo.distance(LatLng[0], LatLng[1], routa[0][0], routa[0][1]), 
+          dist_last = Geo.distance(LatLng[0], LatLng[1], routa[last_point][0], routa[last_point][1]);
+      
+      if (dist_first > dist_last) {
+        MapElements.route_points.push(marker);
+        routa.push([LatLng[0], LatLng[1]]);
+      } else {
+        MapElements.route_points.splice(0, 0, marker);
+        routa.splice(0, 0, [LatLng[0], LatLng[1]]);
+      }
+      
+    } else {
+      MapElements.route_points.push(marker);
+      routa.push([LatLng[0], LatLng[1]]);
+    }
+    
+    bindMarkerEvents(marker);
+    reloadRoute();
+  }
+  
+  function removeMarker(marker) {
+    for (var i = 0; i < MapElements.route_points.length; i++) {
+      if (Maps.getDistance(Maps.getMarkerCoords(marker), Maps.getMarkerCoords(MapElements.route_points[i])) < 0.1) {
+        Maps.removeElement(MapElements.route_points[i]);
+        MapElements.route_points.splice(i, 1);
+        routa.splice(i, 1);
+      }
+    }
+    
+    reloadRoute();
+  }
+  
+  function bindMarkerEvents(marker) {
+    eventOnClickMarker = Maps.addEvent(marker, 'click', function () {
+      removeMarker(marker);
+    });
+    
+    /*
+    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
+      Maps.markerSetPosition(point[0], point[1], marker);
+      reloadRoute();
+    });
+    */
+  }
+  
+  function reloadRoute() {
+    var flightPlanCoordinates = [];
+    
+    Maps.removeElement(flightPath);
+    
+    for (var i = 0; i < routa.length; i++) {
+      flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
+    }
+    
+    flightPath = new google.maps.Polyline({
+          path: flightPlanCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+
+    Maps.addElOnMap(flightPath);
+  }
+  
   function stop() {
+    disableEditRoute();
     Lists.clear();
     GetPositions.clear();
     Destinations.clear();
@@ -348,6 +481,16 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     Conn.request('requestMyTourismOrders', '', cbGetMyTourismOrder);
     HideForms.init();
     addEvents();
+    
+    var innerRouteInfo = document.createElement('div'),
+        elForm         = Dom.sel('.form-order-city__top'),
+        elFormChildren = Dom.sel('input[name="description"]').parentNode.parentNode;
+    
+    innerRouteInfo.className += 'form-order-city__field';
+    innerRouteInfo.innerHTML  = '<button class="button_short--green" data-click="clear-route">Сбросить маршрут</button>' +
+                                '<button class="button_short--green" data-click="edit-route">Редактировать маршрут</button>';
+    elForm.insertBefore(innerRouteInfo, elFormChildren);
+
   }
   
   return {

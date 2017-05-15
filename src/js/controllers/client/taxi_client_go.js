@@ -295,7 +295,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     el_route.children[2].innerHTML = addCityTo + toAddress;
     el_price.innerHTML  = price + ' руб.';
     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
-                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать</button>';
+                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать груз</button>';
     el.innerHTML        = '<div class="wait-bids-approve__item">' +
                             '<div class="wait-bids-approve__item__distance">' +
                               'Автомобиль:<br/>' +
@@ -356,20 +356,17 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
               status = stat.replace("button_rounded--", "");
           
           if (status === "red") {
-            alert('Вы еще ничего не передали, нажмите "В машине"');
+            alert('Машина не подъехала еще!');
             break;
           }
           
-          if (isFollow) {
-            el.classList.remove('button_rounded--green');
-            el.classList.add('button_rounded--grey');
-            isFollow = false;
-            Storage.removeFollowOrder();
-          } else {
+          if (!isFollow) {
             el.classList.add('button_rounded--green');
             el.classList.remove('button_rounded--grey');
             isFollow = true;
             Storage.setFollowOrder();
+            Conn.request('inCarClient', MyOrder.id);
+            Conn.request('transferedOrder', MyOrder.id);
           }
           
           break;
@@ -479,34 +476,39 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   
   function start() {
     var orderId = Storage.getTripClient();
-    
-    MyOrder = new clClientOrder();
-    MyOrder.getByID(orderId, function () {
-      if (orderId) {
-        show_route = false;
-        isFollow = Storage.getFollowOrder();
-        Maps.mapOn();
-        initMap();
-        SafeWin.overviewPath = [];
-        GetPositions.my();
-        //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
-        Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
-        Chat.start('order', MyOrder.id);
-        HideForms.init();
 
-        if (MyOrder.zone) {
-          var poly = Maps.drawPoly(MyOrder.zone.polygon);
-          
-          SafeWin.polyRoute.push(poly);
-          SafeWin.enableButtonRoute();
-          Maps.addElOnMap(poly);
+    if (orderId) {
+      MyOrder = new clClientOrder();
+      MyOrder.getByID(orderId, function () {
+        if (orderId) {
+          show_route = false;
+          isFollow = Storage.getFollowOrder();
+          Maps.mapOn();
+          initMap();
+          SafeWin.overviewPath = [];
+          GetPositions.my();
+          //Conn.request('startOrdersByOffer', MyOrder.id, cbGetOrderById);
+          Conn.request('getOrderById', MyOrder.id, cbGetOrderById);
+          Chat.start('order', MyOrder.id);
+          HideForms.init();
+
+          if (MyOrder.zone) {
+            var poly = Maps.drawPoly(MyOrder.zone.polygon);
+
+            SafeWin.polyRoute.push(poly);
+            SafeWin.enableButtonRoute();
+            Maps.addElOnMap(poly);
+          }
+
+        } else {
+          Storage.removeTripClient();
+          goToPage = "#client_city";
         }
-
-      } else {
-        Storage.removeTripClient();
-        goToPage = "#client_city";
-      }
-    });
+      });
+    } else {
+      Storage.removeTripClient();
+      goToPage = "#client_city";
+    }
   }
   
   return {
