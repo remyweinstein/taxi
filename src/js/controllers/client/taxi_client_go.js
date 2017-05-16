@@ -11,7 +11,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       price, 
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
       dr_photo, dr_vehicle, dr_time, duration_time,
-      MyOrder, global_el, finish = {}, arrFinished = [];
+      MyOrder, global_el, finish = {}, arrFinished = [],
+      session, userAgent, options;
 
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -453,6 +454,18 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           break;
         }
         
+        if (target && target.dataset.click === "callSip") {
+          var but = Dom.sel('[data-click="callSip"]');
+          
+          if (but.style.color === "green") {
+            session = userAgent.invite('sip:indrivercopy@intt.onsip.com', options);
+            but.style.color = 'red';
+          } else {
+            session.bye();
+            but.style.color = 'green';
+          }
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -503,26 +516,42 @@ Outbound Proxy:	sip.onsip.com
    */
   
   function registerSIP() {
-    var userAgent = new Sip.UA({
-          uri: 'bob@example.onsip.com',
-          wsServers: ['wss://edge.sip.onsip.com'],
-          authorizationUser: 'intt_d_grebenyuk30',
-          password: 'cPHzhQtpeKBu4qX3'
-        }),
-        options = {
+    userAgent = new Sip.UA({
+      uri: 'd.grebenyuk30@intt.onsip.com',
+      wsServers: ['wss://edge.sip.onsip.com'],
+      authorizationUser: 'intt_d_grebenyuk30',
+      password: 'cPHzhQtpeKBu4qX3',
+      register: true
+    }),
+    options = {
+        media: {
+            constraints: {
+                audio: true,
+                video: false
+            },
+            render: {
+                remote: document.getElementById('remoteVideo'),
+                local: document.getElementById('localVideo')
+            }
+        }
+    };
+    
+    userAgent.on('registered', function() {
+      var but = Dom.sel('[data-click="callSip"]');
+      
+      but.style.color = 'green';
+    });
+    
+    userAgent.on('invite', function (session) {
+        session.accept({
             media: {
-                constraints: {
-                    audio: true,
-                    video: false
-                },
                 render: {
                     remote: document.getElementById('remoteVideo'),
                     local: document.getElementById('localVideo')
                 }
             }
-        };
-        
-    var session = userAgent.invite('sip:welcome@onsip.com', options);
+        });
+    });
   }
   
   function stop() {

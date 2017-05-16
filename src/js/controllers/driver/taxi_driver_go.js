@@ -1,13 +1,14 @@
 /* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters */
 
-define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows'],
-  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal) {
+define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'],
+  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, Sip) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
       price, name_client, photo_client, first_time = true, agIndexes,
       MyOffer, orderIds = [], global_el,
       countOrders, countFinishedOrders, countCanceledOrders,
-      finish = {}, arrFinished = [];
+      finish = {}, arrFinished = [],
+      session, userAgent, options;
   
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -179,7 +180,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         var order         = orders[i],
             agnt          = orders[i].agent,
             radius        = agnt.distance,
-            lost_diff     = Dates.diffTime(order.bids[0].approved, order.travelTime),
+            lost_diff     = order.bids[0] ? Dates.diffTime(order.bids[0].approved, order.travelTime) : 0,
             toLoc         = order.toLocation.split(','),
             loc           = agnt.location.split(','),
             dist          = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
@@ -376,6 +377,18 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           break;
         }
         
+        if (target && target.dataset.click === "callSip") {
+          var but = Dom.sel('[data-click="callSip"]');
+          
+          if (but.style.color === "green") {
+            session = userAgent.invite('sip:d.grebenyuk30@intt.onsip.com', options);
+            but.style.color = 'red';
+          } else {
+            session.bye();
+            but.style.color = 'green';
+          }
+        }
+        
         if (target) {
           target = target.parentNode;
         } else {
@@ -432,6 +445,45 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     el.innerHTML = temp_inner;
   }
   
+  function registerSIP() {
+    userAgent = new Sip.UA({
+      uri: 'indrivercopy@intt.onsip.com',
+      wsServers: ['wss://edge.sip.onsip.com'],
+      authorizationUser: 'intt_indrivercopy',
+      password: 'vywnpDXMc6nhzpUH',
+  register: true
+    }),
+    options = {
+        media: {
+            constraints: {
+                audio: true,
+                video: false
+            },
+            render: {
+                remote: document.getElementById('remoteVideo'),
+                local: document.getElementById('localVideo')
+            }
+        }
+    };
+    
+    userAgent.on('registered', function() {
+      var but = Dom.sel('[data-click="callSip"]');
+      
+      but.style.color = 'green';
+    });
+    
+    userAgent.on('invite', function (session) {
+        session.accept({
+            media: {
+                render: {
+                    remote: document.getElementById('remoteVideo'),
+                    local: document.getElementById('localVideo')
+                }
+            }
+        });
+    });
+  }
+  
   function stop() {
     GetPositions.clear();
     Destinations.clear();
@@ -449,6 +501,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     if (offerId) {
       MyOffer = new clDriverOffer();
       MyOffer.getByID(offerId, function () {
+        registerSIP();
         Maps.mapOn();
         initMap();
         SafeWin.overviewPath = [];
