@@ -54,15 +54,15 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       if (line) {
         var routa = JSON.parse(Model.route);
 
-        var lineRoute = new ymaps.Polyline(routa, {}, {
+        var routeLine = new ymaps.Polyline(routa, {}, {
                 balloonCloseButton: false,
                 strokeColor: "#4286f4",
                 strokeWidth: 6,
                 strokeOpacity: 0.5
             });
 
-        Maps.map.geoObjects.add(lineRoute);
-        MapElements.routes.push(lineRoute);
+        Maps.map.geoObjects.add(routeLine);
+        MapElements.routes.push(routeLine);
 
         callback(0, null);
         

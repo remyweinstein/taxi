@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.55",
+  urlArgs: "v=0.56",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -10,6 +10,8 @@ requirejs.config({
     "domReady" : "vendor/domReady",
     "push" :     "vendor/push.min",
     "mustache" : "vendor/mustache.min",
+    "sip":       "vendor/jssip",
+    "Sip":       "vendor/sip.min",
     
 		"Car" :          "models/car",
 		"ClientOrder" :  "models/client_order",

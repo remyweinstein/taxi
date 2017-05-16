@@ -43,6 +43,11 @@ define(['Dom'], function (Dom) {
 
             return;
             }
+            
+            if (target.dataset.click === 'form-submit-telegram') {
+              goToPage = '#sms';
+              window.location.href = "tg://resolve?domain=techagentbot";
+            }
 
             target = target.parentNode;
           }

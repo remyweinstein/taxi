@@ -1,8 +1,10 @@
 /* global Event, User, Conn, Car */
 
-define(['Dom'], function (Dom) {
+define(['Dom', 'Storage'], function (Dom, Storage) {
 
   function cbConfirmSms(response) {
+    var params = window.location.search;
+    
     Conn.clearCb('cbConfirmSms');
     
     if (!response.error) {
@@ -10,7 +12,17 @@ define(['Dom'], function (Dom) {
       User.id      = response.result.id;             
       User.is_auth = true;
       User.reloadData();
-      goToPage = '#client_city';
+    } else {
+      alert('Ошибка авторизации');
+    }
+    
+    Storage.clearHistoryPages();
+    Storage.clearLastPage();
+    goToPage = '#client_city';
+    
+    if (params !== "") {
+      //window.location.search = '';
+      //window.location.href = "https://indriver.ru/";
     }
   }
   
@@ -45,7 +57,7 @@ define(['Dom'], function (Dom) {
   function stop() {
 
   }
-  
+
   function start() {
     var params = window.location.search;
     

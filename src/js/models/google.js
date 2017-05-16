@@ -13,7 +13,7 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
           flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
         }
 
-        var line = new google.maps.Polyline({
+        var routeLine = new google.maps.Polyline({
                 path: flightPlanCoordinates,
                 geodesic: true,
                 strokeColor: '#4286f4',
@@ -21,10 +21,10 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
                 strokeWeight: 6
               });
 
-        MapElements.routes.push(line);
-        Maps.addElOnMap(line);
+        MapElements.routes.push(routeLine);
+        Maps.addElOnMap(routeLine);
 
-        callback(0, null);
+        callback(0, false);
       } else {
         var directionsService = new google.maps.DirectionsService(),
             _addr_from = Model.fromCoords.split(","),
@@ -105,8 +105,6 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
               directions: response,
               routeIndex: 0
             }));
-
-            var temp = response.routes[0].overview_path;
 
             Storage.lullModel(Model);
             callback(recommended_cost, arrRoi);

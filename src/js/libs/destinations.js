@@ -227,11 +227,13 @@ function (Dom, Modal, Storage, Dates) {
       
       Maps.drawRoute(Model, false, false, line, function (recomended, arrRoi) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
-        if (!line) {
+        
+        if (arrRoi) {
           Model.route = JSON.stringify(arrRoi);
         }
         
         Model.recommended_cost = recomended;
+        
         return Model;
       });
     }

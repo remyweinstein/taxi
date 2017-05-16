@@ -1,7 +1,7 @@
 /* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
 
-define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows'], 
-function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal) {
+define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'], 
+function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, Sip) {
     
   var show_route   = false,
       isFollow     = Storage.getFollowOrder(),
@@ -464,6 +464,67 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     content.addEventListener('click', Event.click);
   }
   
+  /*
+   * 
+Address of Record:	grebenyuk@intt.onsip.com
+SIP Password:	4GREG49SdE76ztDk
+Auth Username:	intt
+Username:	grebenyuk
+Domain:	intt.onsip.com
+Outbound Proxy:	sip.onsip.com
+  
+Address of Record:	d.grebenyuk30@intt.onsip.com
+SIP Password:	cPHzhQtpeKBu4qX3
+Auth Username:	intt_d_grebenyuk30
+Username:	d.grebenyuk30
+Domain:	intt.onsip.com
+Outbound Proxy:	sip.onsip.com  
+  
+Address of Record:	indrivercopy@intt.onsip.com
+SIP Password:	vywnpDXMc6nhzpUH
+Auth Username:	intt_indrivercopy
+Username:	indrivercopy
+Domain:	intt.onsip.com
+Outbound Proxy:	sip.onsip.com
+
+Address of Record:	e.sergeenko30@intt.onsip.com
+SIP Password:	agnQMe3YCo4uA3Kw
+Auth Username:	intt_e_sergeenko30
+Username:	e.sergeenko30
+Domain:	intt.onsip.com
+Outbound Proxy:	sip.onsip.com
+  
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
+   */
+  
+  function registerSIP() {
+    var userAgent = new Sip.UA({
+          uri: 'bob@example.onsip.com',
+          wsServers: ['wss://edge.sip.onsip.com'],
+          authorizationUser: 'intt_d_grebenyuk30',
+          password: 'cPHzhQtpeKBu4qX3'
+        }),
+        options = {
+            media: {
+                constraints: {
+                    audio: true,
+                    video: false
+                },
+                render: {
+                    remote: document.getElementById('remoteVideo'),
+                    local: document.getElementById('localVideo')
+                }
+            }
+        };
+        
+    var session = userAgent.invite('sip:welcome@onsip.com', options);
+  }
+  
   function stop() {
     GetPositions.clear();
     Destinations.clear();
@@ -481,6 +542,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       MyOrder = new clClientOrder();
       MyOrder.getByID(orderId, function () {
         if (orderId) {
+          registerSIP();
+          
           show_route = false;
           isFollow = Storage.getFollowOrder();
           Maps.mapOn();

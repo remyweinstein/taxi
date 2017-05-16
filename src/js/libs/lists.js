@@ -229,12 +229,23 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     Orders = [];
 
     if (ords) {
-      if (automat_driver) {
-        
-      }
-      
       if (Storage.getTripDriver()) {
         goToPage = '#driver_go';
+      }
+      
+      if (automat_driver) {
+        var max_bids = Math.min(ords.length, 20);
+
+        for (var i = 0; i < max_bids; i++) {
+          var data = {},
+              approved = ords[i].bids[0] ? true : false;
+          
+          data.id = ords[i].id;
+          
+          if (!approved) {
+            Conn.request('agreeOrder', data);
+          }
+        }
       }
       
       for (var i = 0; i < ords.length;) {

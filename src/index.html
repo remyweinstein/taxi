@@ -5,10 +5,15 @@
         <title>Tech Agent</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="application-name" content="TechAgent">
+        <meta name="apple-mobile-web-app-title" content="TechAgent">
+        <meta name="msapplication-starturl" content="/">
         <link rel="manifest" href="/manifest.json">
         <link href="assets/css/main.css?v=0.21" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.55" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.56" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -48,8 +53,12 @@
                 <div class="header__title"></div>
                 <div class="header__toggle"></div>
                 <div class="header__link">
-                    <i class="icon-share" data-click="openShare"></i><i class="icon-shield" data-click="openSafe"></i>
+                    <i class="icon-phone-circled" style="color: grey" data-click="callSip"></i>
+                    <i class="icon-share" data-click="openShare"></i>
+                    <i class="icon-shield" data-click="openSafe"></i>
                 </div>
+                    <video id="remoteVideo" style="display: none;"></video>
+                    <video id="localVideo" style="display: none;" muted="muted"></video>
                 <div class="sharing-window sharing-window--closed"></div>
                 <div class="safety-window safety-window--closed"></div>
                 <div data-click="goto_order" class="active_order_win closed"></div>
@@ -132,6 +141,7 @@
                 <ul>
                     <li data-tab="1" class="tab--active">По номеру телефона</li>
                     <li data-tab="2">По email</li>
+                    <li data-tab="3">Telegram</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper">
@@ -371,6 +381,12 @@
                         <p>Введите ваш email для входа</p>
                         <p><input type="email" name="email" placeholder="Ваш email" /></p>
                         <p><button class="button_rounded--green" data-click="form-submit-email">Далее</button></p>
+                    </form>
+                  </div>
+                  <div data-tab-content="3" class="tabs_content">
+                    <form data-submit="form-auth" data-controller="pages_login" onsubmit="return false;" class="form-login" action="" method="post">
+                        <p>Войти с помощью Telegram</p>
+                        <p><button class="button_rounded--green" data-click="form-submit-telegram">Далее</button></p>
                     </form>
                   </div>
               </div>

@@ -19,12 +19,12 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     if (!response.error) {
       var checkOffer = new clDriverOffer;
       
-      checkOffer.getByID(response.result.id, function () {});
+      checkOffer.getByID(response.result.id, function(){});
     }
   }
   
   function cbGetOrders(response) {
-    var stopStartOrders = function () {
+    var stopStartOrders = function() {
           Conn.request('stopGetOrders');
           Conn.clearCb('cbGetOrders');
           Conn.request('startGetOrders', '', cbGetOrders);
@@ -79,7 +79,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
               // = Menu my Orders Item GO order =
           if (target.dataset.click === 'myorders_item_menu_go') {
             id = target.dataset.id;
-            myOffer.getByID(id, function () {
+            myOffer.getByID(id, function(){
               localStorage.setItem('_open_offer_id', id);
               Storage.setActiveTypeModelTaxi('offer');
               Storage.setActiveTypeTaxi('taxi');
@@ -97,7 +97,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
           
           if (target.dataset.click === "open-offer") {
             id = target.dataset.id;
-            myOffer.getByID(id, function () {
+            myOffer.getByID(id, function(){
               localStorage.setItem('_open_offer_id', id);
               Storage.setActiveTypeModelTaxi('offer');
               Storage.setActiveTypeTaxi('taxi');
@@ -176,15 +176,19 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
               }
             }
           }
+          
           if (target.dataset.click === "time_minus") {
             Lists.timeMinus(target);
           }
+          
           if (target.dataset.click === "time_plus") {
             Lists.timePlus(target);
           }
+          
           if (target.dataset.click === "price_minus") {
             Lists.priceMinus(target);
           }
+          
           if (target.dataset.click === "price_plus") {
             Lists.pricePlus(target);
           }
