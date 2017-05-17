@@ -137,9 +137,11 @@ define(['Storage'], function(Storage) {
       self.clientPointsFrom = [];
       self.clientPointsTo = [];
       
-      for (var i = 0; i < orders.length; i++) {
-        self.clientPointsFrom.push({"location": orders[i].fromLocation, "address": orders[i].fromAddress, "city": orders[i].fromCity});
-        self.clientPointsTo.push({"location": orders[i].toLocation, "address": orders[i].toAddress, "city": orders[i].toCity});
+      if (orders.length > 1) {
+        for (var i = 0; i < orders.length; i++) {
+          self.clientPointsFrom.push({"location": orders[i].fromLocation, "address": orders[i].fromAddress, "city": orders[i].fromCity});
+          self.clientPointsTo.push({"location": orders[i].toLocation, "address": orders[i].toAddress, "city": orders[i].toCity});
+        }
       }
     };
     

@@ -51,6 +51,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   
   function drawPolygon(ids) {
     SafeWin.clearPolygonZones(ids);
+    
     for (var i = 0; i < ids.length; i++) {
       var arr_id = Funcs.findIdArray(Zones.list, ids[i]);
       
@@ -364,12 +365,15 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     enableZoneForRoute: function() {
       Storage.setActiveRoute(Settings.safeRadius);
       
-      var poly = Maps.showPoly(SafeWin.overviewPath);
+      var poly = Maps.showPoly(SafeWin.overviewPath),
+          path = poly.getPath();
+
+              console.log('poly = ', poly);
+
       
+      Maps.addElOnMap(poly);
       SafeWin.polyRoute.push(poly);
       
-      var path = poly.getPath();
-
       if (path) {
         for (var i = 0; i < path.b.length; i++) {
           s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});

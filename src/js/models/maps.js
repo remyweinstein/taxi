@@ -216,14 +216,11 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
     };
     
     this.drawPoly = function(Coords, color) {
-      var polygon = false;
-
       if (Coords) {
-        polygon = self.currentModel.drawPoly(Coords, color);
-        self.removeElement(polygon);
+        return self.currentModel.drawPoly(Coords, color);
+      } else {
+        return false;
       }
-
-      return polygon;
     };
     
     this.newPolygon = function (coords) {
@@ -248,14 +245,13 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
 
     this.showPoly = function(overviewPath) {
       var overviewPathGeo = [];
+      
+      overviewPathGeo[0] = [];
 
       for (var i = 0; i < overviewPath.length; i++) {
-        overviewPathGeo[i] = [];
-        for (var z = 0; z < overviewPath[i].length; z++) {
-          overviewPathGeo[i].push([overviewPath[i][z].lng(), overviewPath[i][z].lat()]);
-        }
+        overviewPathGeo[0].push([overviewPath[i][0], overviewPath[i][1]]);
       }
-
+      
       var distance = Settings.safeRadius / 500 / 111.12,
           geoInput = {
             type: "MultiLineString",
@@ -274,11 +270,7 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
         oLanLng.push({"lat":oItem[1], "lng":oItem[0]});
       }
       
-      var polygone = self.drawPoly(oLanLng);
-      
-      self.addElOnMap(polygone);
-      
-      return polygone;
+      return self.drawPoly(oLanLng);
     };
     
     this.getMarkerCoords = function (el) {

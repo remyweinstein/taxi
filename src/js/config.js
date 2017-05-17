@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.56",
+  urlArgs: "v=0.57",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -137,6 +137,8 @@ var menus_arr = [];
       ymaps,
       timerMyPos,
       timerCheckLoading,
+      
+      currentRoute,
       
       goToPage,
       

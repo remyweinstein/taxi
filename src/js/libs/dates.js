@@ -140,7 +140,7 @@ define(function() {
         start_time = start_time.split(":");
         start = new Date(start_date[0], (start_date[1] - 1), start_date[2], start_time[0], start_time[1], start_time[2]).valueOf();
 
-        return timer - (now / 60000 - start / 60000).toFixed(0);
+        return timer + 1 - (now / 60000 - start / 60000).toFixed(0);
       }
 
 

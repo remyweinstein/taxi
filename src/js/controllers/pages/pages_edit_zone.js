@@ -35,6 +35,7 @@ define(['Dom', 'Funcs'], function (Dom, Funcs) {
                   } else {
                     Zones.add(Coords, note, name);
                   }
+                  
                   Dom.historyBack();
                 }
 
@@ -195,9 +196,7 @@ define(['Dom', 'Funcs'], function (Dom, Funcs) {
     drawPoly();
   }
 
-  function initMap() {
-    id_edit_zone = localStorage.getItem('_edit_zone');
-    
+  function initMap() {    
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
 
@@ -264,6 +263,8 @@ define(['Dom', 'Funcs'], function (Dom, Funcs) {
   }
   
   function start() {
+    id_edit_zone = localStorage.getItem('_edit_zone');
+
     Maps.mapOn();
     initMap();
     fillName();

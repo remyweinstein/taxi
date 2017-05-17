@@ -53,6 +53,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
           
           Dom.toggle(target, 'active');
           Car.setData();
+          Car.id = target.dataset.id;
           Conn.request('setActiveAuto', target.dataset.id);
         }
 

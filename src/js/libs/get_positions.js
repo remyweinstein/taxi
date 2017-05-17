@@ -59,7 +59,7 @@ define(['Car'], function (Car) {
         i;
 
     for (i = 0; i < agnts.length; i++) {
-      console.log('searchArray(agnts[i].id, MapElements.markers_driver_pos) = ', searchArray(agnts[i].id, MapElements.markers_driver_pos), agnts[i].id);
+      
       if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
         var photo     = agnts[i].photo || User.default_avatar,
             photo_car = agnts[i].cars ? agnts[i].cars[0].photo : Car.default_vehicle,

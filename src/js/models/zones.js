@@ -1,61 +1,63 @@
-/* global User, SafeWin, Conn, Zones */
+/* global User, SafeWin, Conn */
 
-define(['Funcs', 'Storage'], function(Funcs, Storage) {
-  var new_polygon,
-      new_note,
-      new_name;
-  
-  function cbAddZones(response) {
-    Conn.clearCb('cbAddZones');
-    Zones.list.push({polygon:new_polygon, id:response.result.id, note:new_note, name:new_name});
-    win_reload();
-  }
-  function cbGetZones(response) {
-    Conn.clearCb('cbGetZones');
-    
-    if (!response.error) {
-      Zones.initSafeWin(response.result);
-    }
-  }
-  
-  function cbUpdateZone() {
-    Conn.clearCb('cbUpdateZone');
-    Zones.list[Zones.current_zone_id].name = new_name;
-    Zones.list[Zones.current_zone_id].note = new_note;
-    Zones.list[Zones.current_zone_id].polygon = new_polygon;
-    win_reload();
-  }
- 
-  function cbDeleteZone() {
-    Conn.clearCb('cbDeleteZone');
-    Zones.list.splice(Zones.current_zone_id, 1);
-    win_reload();
-  }
-  
-  function cbActiveZone() {
-    Conn.clearCb('cbActiveZone');
-    Zones.list[Zones.current_zone_id].isActive = true;
-  }
-  
-  function cbInactiveZone() {
-    Conn.clearCb('cbInactiveZone');
-    Zones.list[Zones.current_zone_id].isActive = false;
-  }
-  
-  function win_reload() {
-    SafeWin.reload();
-  }
-  
-  function win_init() {
-    SafeWin.initial();
-  }
-
-  
+define(['Funcs', 'Storage'], function(Funcs, Storage) {  
   var clZones = function () {
     var self = this;
   
+    function cbAddZones(response) {
+      Conn.clearCb('cbAddZones');
+      
+      self.list.push({"polygon":self.new_polygon, "id":response.result.id, "note":self.new_note, "name":self.new_name, "isActive":false});
+      win_reload();
+    }
+    function cbGetZones(response) {
+      Conn.clearCb('cbGetZones');
+
+      if (!response.error) {
+        self.initSafeWin(response.result);
+      }
+    }
+
+    function cbUpdateZone() {
+      Conn.clearCb('cbUpdateZone');
+      self.list[self.current_zone_id].name = self.new_name;
+      self.list[self.current_zone_id].note = self.new_note;
+      self.list[self.current_zone_id].polygon = self.new_polygon;
+
+      win_reload();
+    }
+
+    function cbDeleteZone() {
+      Conn.clearCb('cbDeleteZone');
+      self.list.splice(self.current_zone_id, 1);
+      win_reload();
+    }
+
+    function cbActiveZone() {
+      Conn.clearCb('cbActiveZone');
+      self.list[self.current_zone_id].isActive = true;
+    }
+
+    function cbInactiveZone() {
+      Conn.clearCb('cbInactiveZone');
+      self.list[self.current_zone_id].isActive = false;
+    }
+
+    function win_reload() {
+      SafeWin.reload();
+    }
+
+    function win_init() {
+      SafeWin.initial();
+    }
+    
+      
     this.list = [];
     this.current_zone_id;
+    
+    this.new_polygon;
+    this.new_note;
+    this.new_name;
     
     this.initSafeWin = function (response) {
       var active = [];
@@ -70,7 +72,7 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
         if (isActive) {
           active.push(id);
         }
-        self.list.push({polygon:polygon, id:id, note:note, name:name, isActive:isActive});
+        self.list.push({"polygon":polygon, "id":id, "note":note, "name":name, "isActive":isActive});
       }
       
       if (active.length > 0) {
@@ -93,9 +95,10 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
       data.name = name || 'Зона ' + self.list.length;
       data.note = note || '';
       
-      new_polygon = polygon;//JSON.stringify(polygon);
-      new_note = data.note;
-      new_name = data.name;
+      self.new_polygon = polygon;//JSON.stringify(polygon);
+      self.new_note = data.note;
+      self.new_name = data.name;
+      
       Conn.request('addZones', data, cbAddZones);
     };
     
@@ -107,9 +110,9 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
       data.note = note || '';
       data.id = id;
       
-      new_polygon = polygon;//JSON.stringify(polygon);
-      new_note = data.note;
-      new_name = data.name;
+      self.new_polygon = polygon;//JSON.stringify(polygon);
+      self.new_note = data.note;
+      self.new_name = data.name;
 
       Conn.request('addZones', data, cbUpdateZone);      
     };

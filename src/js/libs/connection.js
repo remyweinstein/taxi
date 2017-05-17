@@ -1,4 +1,4 @@
-/* global User, Zones, Conn, Funcs */
+/* global User, Zones, Conn, Funcs, currentRoute */
 /*
  * @param {type} Uries, Funcs, Storage, Notify
  * @returns {connectionL#5.clConn}
@@ -829,7 +829,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
       socket.onclose = function (event) {
         self.is_connect    = false;
         self.is_connecting = false;
-        timerReconnectionWebSocket = setTimeout(self.start, 2000);
+        timerReconnectionWebSocket = setTimeout(self.start(function(){
+          require([currentRoute.controller], function(controller) {
+            controller.clear();
+            controller.start();
+          });
+        }), 2000);
         if (event.wasClean) {
           viewLog('Соединение закрыто чисто, Код: ' + event.code);
         } else {

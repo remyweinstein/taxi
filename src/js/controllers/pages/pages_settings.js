@@ -36,7 +36,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
                 Conn.request('updateProfile', data);
               }
 
-              if (_key === "distanceToPoint" || 
+              if (_key === "orderRadius" || 
                   _key === "automatClientTime" ||
                   _key === "automatDriverTime" ||
                   _key === "blockDays" ||

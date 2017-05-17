@@ -12,6 +12,8 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
         for (var i = 0; i < routa.length; i++) {
           flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
         }
+        
+        SafeWin.overviewPath = routa;
 
         var routeLine = new google.maps.Polyline({
                 path: flightPlanCoordinates,
@@ -78,10 +80,14 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
           if (response.routes[0]) {
             var roi = response.routes[0].overview_path,
                 arrRoi = [];
+                
+            SafeWin.overviewPath = [];
 
             for (var i = 0; i < roi.length; i++) {
               arrRoi.push([Geo.roundCoords(roi[i].lat()), Geo.roundCoords(roi[i].lng())]);
             }
+            
+            SafeWin.overviewPath = arrRoi;
           }
 
           if (status === google.maps.DirectionsStatus.OK) {
@@ -267,7 +273,7 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
     this.drawPoly = function (Coords, color) {
       color = color || '#FF0088';
 
-      var poly = new google.maps.Polygon({
+      return new google.maps.Polygon({
                paths: Coords,
                strokeColor: '#FF0000',
                strokeOpacity: 0.8,
@@ -276,8 +282,6 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
                fillColor: color,
                fillOpacity: 0.35
              });
-      
-      return poly;
     };
     
     this.newPolygon = function () {

@@ -7,15 +7,15 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       arr_filters = {},
       Model;
   
-  function cbApproveOffer2(resp) {
-    Conn.clearCb('cbApproveOffer2');
+  function cbListApproveOffer(resp) {
+    Conn.clearCb('cbListApproveOffer');
     
     if (!resp.error) {
       Model.getByID(Model.id, function () {});
     }
   }
   
-  function cbGetClientBids(response) {
+  function cbListGetClientBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
         orders = response.result.orders,
         innText = '',
@@ -31,12 +31,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       
       if (orders.length > 0 && automat_driver_approve) {
         Lists.clear();
-        Conn.request('approveOrder', orders[0].id, cbApproveOffer2);
+        Conn.request('approveOrder', orders[0].id, cbListApproveOffer);
         return;
       }
       
       for (var i = 0; i < orders.length; i++) {
-        var agIndex = parseObj(getAgentIndexes(orders[i].agent)),
+        var agIndex = parseObj(getAgentIndexes(orders[i].agent, 'client')),
             approve = orders[i].bids[0] ? orders[i].bids[0].approved : false,
             vehicle = orders[i].agent.vehicle || Car.default_vehicle,
             active  = approve ? ' active' : ' inactive',
@@ -110,7 +110,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     el.innerHTML = innText;
   }
   
-  function cbGetBids(response) {
+  function cbListGetBids(response) {
     var el = Dom.sel('.wait-bids-approve'),
         offers = response.result.offers,
         innText = '',
@@ -129,12 +129,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       
       if (offers.length > 0 && automat_client_approve) {
         Lists.clear();
-        Conn.request('approveOffer', offers[0].id, cbApproveOffer2);
+        Conn.request('approveOffer', offers[0].id, cbListApproveOffer);
         return;
       }
       
       for (var i = 0; i < offers.length; i++) {
-        var agIndex = parseObj(getAgentIndexes(offers[i].agent)),
+        var agIndex = parseObj(getAgentIndexes(offers[i].agent, 'driver')),
             car     = offers[i].agent.cars[0],
             vehicle = car.photo || Car.default_vehicle,
             approve = offers[i].bids ? offers[i].bids[0].approved : false,
@@ -186,8 +186,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
     el.innerHTML = innText;
   }
   
-  function getAgentIndexes(agent) {
-    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
+  function getAgentIndexes(agent, role) {
+    if (role === "driver") {
+      return {'flag-checkered':agent.driverAccuracyIndex, 'block':agent.driverCancelIndex, 'thumbs-up':agent.driverDelayIndex, 'clock':agent.driverFinishIndex};
+    } else {
+      return {'flag-checkered':agent.clientAccuracyIndex, 'block':agent.clientCancelIndex, 'thumbs-up':agent.clientDelayIndex, 'clock':agent.clientFinishIndex};
+    }
   }
   
   function parseObj(obj) {
@@ -760,11 +764,11 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
   }
   
   function get_bid_drivers () {
-    Conn.request('startOffersByOrder', Model.id, cbGetBids);
+    Conn.request('startOffersByOrder', Model.id, cbListGetBids);
   }
   
   function get_bid_clients () {
-    Conn.request('startOrdersByOffer', Model.id, cbGetClientBids);
+    Conn.request('startOrdersByOffer', Model.id, cbListGetClientBids);
   }
   
   var Lists = {
@@ -773,8 +777,9 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       Orders = [];
       MapElements.clear();
       Conn.request('stopGetOrders');
-      Conn.clearCb('cbGetBids');
-      Conn.clearCb('cbGetClientBids');
+      Conn.clearCb('cbListGetBids');
+      Conn.clearCb('cbListGetClientBids');
+      Conn.clearCb('cbListApproveOffer');
     },
     
     init: function (model) {

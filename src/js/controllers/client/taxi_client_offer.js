@@ -106,7 +106,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function getAgentIndexes(agent) {
-    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
+    return {'flag-checkered':agent.driverAccuracyIndex, 'block':agent.driverCancelIndex, 'thumbs-up':agent.driverDelayIndex, 'clock':agent.driverFinishIndex};
   }
   
   function parseObj(obj) {

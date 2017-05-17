@@ -1,14 +1,14 @@
 /* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters */
 
-define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'],
-  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, Sip) {
+define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'sip'],
+  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, JsSIP) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
       price, name_client, photo_client, first_time = true, agIndexes,
       MyOffer, orderIds = [], global_el,
       countOrders, countFinishedOrders, countCanceledOrders,
       finish = {}, arrFinished = [],
-      session, userAgent, options;
+      session, coolPhone, onCall;
   
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -67,7 +67,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
 
   function getAgentIndexes(agent) {
-    return {'flag-checkered': agent.accuracyIndex, 'block': agent.cancelIndex, 'thumbs-up': agent.delayIndex, 'clock': agent.finishIndex};
+    return {'flag-checkered': agent.clientAccuracyIndex, 'block': agent.clientCancelIndex, 'thumbs-up': agent.clientDelayIndex, 'clock': agent.clientFinishIndex};
   }
   
   function parseObj(obj) {
@@ -116,7 +116,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     */
     
     render(response.orders);
-    Maps.drawRoute(MyOffer, true, true, false, function(price, arrRoi){});
+    Maps.drawRoute(MyOffer, true, true, false, function(){});
     addEvents();
     HideForms.init();
   }
@@ -180,7 +180,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         var order         = orders[i],
             agnt          = orders[i].agent,
             radius        = agnt.distance,
-            lost_diff     = order.bids[0] ? Dates.diffTime(order.bids[0].approved, order.travelTime) : 0,
+            lost_diff     = order.bids[0] ? Dates.diffTime(order.bids[0].approved, order.bids[0].offer.travelTime) : 0,
             toLoc         = order.toLocation.split(','),
             loc           = agnt.location.split(','),
             dist          = Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]),
@@ -234,13 +234,13 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         var toLoc = order.fromLocation.split(','),
             numberClient = countOrders===1 ? '' : ' ' + (i + 1);
         
-        if (!order.inCar && !order.arrived && Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]) < Parameters.distanceToPoint) {
+        if (!order.inCar && !order.arrived && Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]) < Parameters.orderRadius) {
           actionElement.innerHTML = '<button data-click="driver-arrived" data-order_id="' + order.id + '" class="button_wide--green">Ожидаю клиента' + numberClient + '</button>';
         }
         
         toLoc = order.toLocation.split(',');
 
-        if (order.inCar && order.arrived && Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]) < Parameters.distanceToPoint) {
+        if (order.inCar && order.arrived && Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]) < Parameters.orderRadius) {
           actionElement.innerHTML = '<button data-click="driver-came" data-agent_id="' + agnt.id + '" data-order_id="' + order.id + '" class="button_wide--green">Доставил клиента' + numberClient + '</button>';
         }
 
@@ -377,14 +377,35 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           break;
         }
         
-        if (target && target.dataset.click === "callSip") {
-          var but = Dom.sel('[data-click="callSip"]');
+        if (target.dataset.click === "callSip") {
+          var but = target;
           
           if (but.style.color === "green") {
-            session = userAgent.invite('sip:d.grebenyuk30@intt.onsip.com', options);
+            var eventHandlers = {
+              'progress': function(e) {
+                console.log('call is in progress');
+              },
+              'failed': function(e) {
+                console.log('call failed with cause: '+ e.data.cause);
+              },
+              'ended': function(e) {
+                console.log('call ended with cause: '+ e.data.cause);
+              },
+              'confirmed': function(e) {
+                console.log('call confirmed');
+              }
+            };
+
+            var options = {
+              'eventHandlers'    : eventHandlers,
+              'mediaConstraints' : { 'audio': true, 'video': false }
+            };
+
+            session = coolPhone.call('sip:indrivercopy@intt.onsip.com', options);
+            
             but.style.color = 'red';
           } else {
-            session.bye();
+            
             but.style.color = 'green';
           }
         }
@@ -446,42 +467,32 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
   
   function registerSIP() {
-    userAgent = new Sip.UA({
-      uri: 'indrivercopy@intt.onsip.com',
-      wsServers: ['wss://edge.sip.onsip.com'],
-      authorizationUser: 'intt_indrivercopy',
-      password: 'vywnpDXMc6nhzpUH',
-  register: true
-    }),
-    options = {
-        media: {
-            constraints: {
-                audio: true,
-                video: false
-            },
-            render: {
-                remote: document.getElementById('remoteVideo'),
-                local: document.getElementById('localVideo')
-            }
-        }
+    var socket = new JsSIP.WebSocketInterface('wss://edge.sip.onsip.com');
+    var configuration = {
+      sockets  : [ socket ],
+      uri      : 'sip:d.grebenyuk30@intt.onsip.com',
+      password : 'cPHzhQtpeKBu4qX3'
     };
     
-    userAgent.on('registered', function() {
-      var but = Dom.sel('[data-click="callSip"]');
-      
-      but.style.color = 'green';
+    coolPhone = new JsSIP.UA(configuration);
+    coolPhone.on('newRTCSession', function(e){ 
+        console.log('Входящий звонок');
     });
     
-    userAgent.on('invite', function (session) {
-        session.accept({
-            media: {
-                render: {
-                    remote: document.getElementById('remoteVideo'),
-                    local: document.getElementById('localVideo')
-                }
-            }
-        });
+    coolPhone.on('registered', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'green';
     });
+    
+    coolPhone.on('unregistered', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';
+    });
+    
+    coolPhone.on('registrationFailed', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';    
+    });
+    
+    coolPhone.start();
+    
   }
   
   function stop() {

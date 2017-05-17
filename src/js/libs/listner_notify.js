@@ -25,6 +25,10 @@ define(['push', 'Storage', 'ModalWindows'], function(Push, Storage, Modal) {
             }
           }
           
+          if (type === "sos") {
+            
+          }
+          
           Storage.setOpenNotify(notify[i].id);
           
           if (type === "invite") {

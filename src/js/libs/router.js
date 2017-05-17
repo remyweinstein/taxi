@@ -200,7 +200,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
         dynamic = document.createElement('div');
     
     //checkActiveOrder();
-    
+    currentRoute = route;
     Tabs.clear();
     HideForms.clear();
     

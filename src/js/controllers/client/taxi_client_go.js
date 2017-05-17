@@ -1,7 +1,7 @@
 /* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
 
-define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'], 
-function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, Sip) {
+define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'sip'], 
+function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, JsSIP) {
     
   var show_route   = false,
       isFollow     = Storage.getFollowOrder(),
@@ -10,9 +10,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       fromCoords, toCoords, fromAddress, toAddress,
       price, 
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
-      dr_photo, dr_vehicle, dr_time, duration_time,
+      dr_photo, dr_vehicle, car_brand, car_model, dr_time, duration_time,
       MyOrder, global_el, finish = {}, arrFinished = [],
-      session, userAgent, options;
+      session, coolPhone, onCall;
 
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -114,7 +114,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       var but,
           offer                 = ords.bids[0].offer,
           agnt                  = offer.agent,
-          car                   = agnt.cars[0],
+          car                   = agnt.cars ? agnt.cars[0] : null,
           toLoc                 = ords.toLocation,
           loc                   = agnt.location.split(','),
           lost_diff             = Dates.diffTime(ords.bids[0].approved, offer.travelTime),
@@ -139,28 +139,28 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         MyOrder.id = ords.id;
       }
       
-      dr_model    = car.brand + ' ' + car.model;
+      dr_model    = car ? car.brand + ' ' + car.model : '';
       dr_name     = agnt.name;
-      dr_color    = car.color;
-      dr_number   = car.number;
-      dr_distanse = ords.agent.distance.toFixed(1);
+      dr_color    = car ? car.color: '';
+      dr_number   = car ? car.number : '';
+      dr_distanse = ords.bids[0].offer.agent.distance && ords.bids[0].offer.agent.distance!=="undefined" ? ords.bids[0].offer.agent.distance.toFixed(1) : 'не опр.';
 
       if (lost_diff >= 0) {
         dr_time = lost_diff;
       } else {
         dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
         if (lost_diff < -10) {
-          but = Dom.sel('[data-click="cancel-order"]');
+          var but_cancel = Dom.sel('[data-click="cancel-order"]');
 
           if (!ords.arrived) {
-            if (but && but.classList.contains('button_rounded--red')) {
-              but.classList.remove('button_rounded--red');
-              but.classList.add('button_rounded--green');
+            if (but_cancel && but_cancel.classList.contains('button_rounded--red')) {
+              but_cancel.classList.remove('button_rounded--red');
+              but_cancel.classList.add('button_rounded--green');
             }
           } else {
-            if (but && but.classList.contains('button_rounded--green')) {
-              but.classList.remove('button_rounded--green');
-              but.classList.add('button_rounded--red');
+            if (but_cancel && but_cancel.classList.contains('button_rounded--green')) {
+              but_cancel.classList.remove('button_rounded--green');
+              but_cancel.classList.add('button_rounded--red');
             }
           }
         }
@@ -171,7 +171,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }
       
       dr_photo            = agnt.photo || User.avatar;
-      dr_vehicle          = car.photo || Car.default_vehicle;
+      dr_vehicle          = car ? car.photo || Car.default_vehicle : '';
+      car_brand           = car ? car.brand : '';
+      car_model           = car ? car.model : '';
       fromCoords          = ords.fromLocation.split(",");
       toCoords            = ords.toLocation.split(",");
       fromAddress         = ords.fromAddress;
@@ -221,7 +223,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         if(isFollow) {
           but_came.disabled = false;
         } else {
-          if (dist < Parameters.distanceToPoint) {
+          if (dist < Parameters.orderRadius) {
             but_came.disabled = false;
           }
         }
@@ -250,7 +252,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                             '<p>' + favorite + '</p>' +
                           '</div>' +
                           '<div style="width:50%;display:inline-block">' +
-                            '<p>' + car.brand + '<br>' + car.model + '</p>' +
+                            '<p>' + car_brand + '<br>' + car_model + '</p>' +
                             '<p><img class="avatar" src="' + dr_vehicle + '" alt=""/></p>' +
                             '<p><button data-id="' + agnt.id + '" data-click="addtoblack">Черный список</button></p>' +
                           '</div>' +
@@ -455,13 +457,34 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         }
         
         if (target && target.dataset.click === "callSip") {
-          var but = Dom.sel('[data-click="callSip"]');
+          var but = target;
           
           if (but.style.color === "green") {
-            session = userAgent.invite('sip:indrivercopy@intt.onsip.com', options);
+            var eventHandlers = {
+              'progress': function(e) {
+                console.log('call is in progress');
+              },
+              'failed': function(e) {
+                console.log('call failed with cause: '+ e.data.cause);
+              },
+              'ended': function(e) {
+                console.log('call ended with cause: '+ e.data.cause);
+              },
+              'confirmed': function(e) {
+                console.log('call confirmed');
+              }
+            };
+
+            var options = {
+              'eventHandlers'    : eventHandlers,
+              'mediaConstraints' : { 'audio': true, 'video': false }
+            };
+
+            session = coolPhone.call('sip:d.grebenyuk30@intt.onsip.com', options);
+            
             but.style.color = 'red';
           } else {
-            session.bye();
+            
             but.style.color = 'green';
           }
         }
@@ -516,42 +539,33 @@ Outbound Proxy:	sip.onsip.com
    */
   
   function registerSIP() {
-    userAgent = new Sip.UA({
-      uri: 'd.grebenyuk30@intt.onsip.com',
-      wsServers: ['wss://edge.sip.onsip.com'],
-      authorizationUser: 'intt_d_grebenyuk30',
-      password: 'cPHzhQtpeKBu4qX3',
-      register: true
-    }),
-    options = {
-        media: {
-            constraints: {
-                audio: true,
-                video: false
-            },
-            render: {
-                remote: document.getElementById('remoteVideo'),
-                local: document.getElementById('localVideo')
-            }
-        }
+    var socket = new JsSIP.WebSocketInterface('wss://edge.sip.onsip.com');
+    var configuration = {
+      sockets  : [ socket ],
+      uri      : 'sip:indrivercopy@intt.onsip.com',
+      password : 'vywnpDXMc6nhzpUH'
     };
     
-    userAgent.on('registered', function() {
-      var but = Dom.sel('[data-click="callSip"]');
-      
-      but.style.color = 'green';
+    coolPhone = new JsSIP.UA(configuration);
+    
+    coolPhone.on('newRTCSession', function(e){ 
+      console.log('Входящий звонок');
     });
     
-    userAgent.on('invite', function (session) {
-        session.accept({
-            media: {
-                render: {
-                    remote: document.getElementById('remoteVideo'),
-                    local: document.getElementById('localVideo')
-                }
-            }
-        });
+    coolPhone.on('registered', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'green';
     });
+    
+    coolPhone.on('unregistered', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';
+    });
+    
+    coolPhone.on('registrationFailed', function(e){ 
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';    
+    });
+    
+    coolPhone.start();
+    
   }
   
   function stop() {

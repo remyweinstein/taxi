@@ -52,15 +52,15 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
 
     this.renderRoute = function (Model, short, line, callback) {
       if (line) {
-        var routa = JSON.parse(Model.route);
-
-        var routeLine = new ymaps.Polyline(routa, {}, {
+        var routa = JSON.parse(Model.route),
+            routeLine = new ymaps.Polyline(routa, {}, {
                 balloonCloseButton: false,
                 strokeColor: "#4286f4",
                 strokeWidth: 6,
                 strokeOpacity: 0.5
             });
 
+        SafeWin.overviewPath = routa;
         Maps.map.geoObjects.add(routeLine);
         MapElements.routes.push(routeLine);
 
@@ -134,6 +134,8 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
               }
             }
           }
+          
+          SafeWin.overviewPath = arrRoi;
 
           routa.options.set({
             hasBalloon: false,
@@ -283,16 +285,14 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
     this.drawPoly = function (Coords, color) {
       color = color || '#FF0088';
 
-      var poly =  new ymaps.Polygon([
-                    objCoordsToArray(Coords)
-                  ],{
-                    fillColor: color,
-                    strokeColor: '#0000FF',
-                    opacity: 0.35,
-                    strokeWidth: 2
-                  });
-      
-      return poly;
+      return new ymaps.Polygon([
+                objCoordsToArray(Coords)
+              ],{
+                fillColor: color,
+                strokeColor: '#0000FF',
+                opacity: 0.35,
+                strokeWidth: 2
+              });
     };
     
     this.newPolygon = function () {

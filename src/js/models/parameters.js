@@ -5,7 +5,7 @@ define(function() {
   var clParameters = function () {
     var self = this;
 
-    this.distanceToPoint           = null;
+    this.orderRadius               = null;
     this.automatClientTime         = null;
     this.automatDriverTime         = null;
     this.blockDays                 = null;
@@ -32,9 +32,9 @@ define(function() {
         
         for (var i = 0; i < sets.length; i++) {
           if (sets[i].id === "orderRadius") {
-            self.distanceToPoint = sets[i].value;
-            self.label.distanceToPoint = sets[i].note;
-            self.type.distanceToPoint = 'number';
+            self.orderRadius = sets[i].value;
+            self.label.orderRadius = sets[i].note;
+            self.type.orderRadius = 'number';
           }
           
           if (sets[i].id === "automatClientTime") {

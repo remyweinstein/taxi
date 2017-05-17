@@ -116,7 +116,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
   }
   
   function getAgentIndexes(agent) {
-    return {'flag-checkered':agent.accuracyIndex, 'block':agent.cancelIndex, 'thumbs-up':agent.delayIndex, 'clock':agent.finishIndex};
+    return {'flag-checkered':agent.clientAccuracyIndex, 'block':agent.clientCancelIndex, 'thumbs-up':agent.clientDelayIndex, 'clock':agent.clientFinishIndex};
   }
   
   function parseObj(obj) {
