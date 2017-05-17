@@ -5,7 +5,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
   var active_bid = false,
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
-      name_client, photo_client, travelTime, agIndexes, auto_photo, auto_brand, auto_model,
+      name_client, photo_client, travelTime, agIndexes, agRating, auto_photo, auto_brand, auto_model,
       MyOrder,
       activeTypeTaxi;
   
@@ -34,6 +34,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     name_client  = ords.agent.name || User.default_name;
     photo_client = ords.agent.photo || User.default_avatar;
     agIndexes    = parseObj(getAgentIndexes(ords.agent));
+    agRating     = ords.agent.rating;
     //distanse     = (ords.length / 1000).toFixed(1);
     //duration     = ords.duration;
     if (ords.agent.cars) {
@@ -172,6 +173,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
                         '<div>' +
                           name_client +
                         '</div>' +
+                        '<div>Рейтинг: ' + agRating + '</div>' +
                         '<div>' + agIndexes + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve">' +

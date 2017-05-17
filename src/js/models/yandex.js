@@ -201,6 +201,14 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return handler.events.group().add(event, callback);
     };
     
+    this.addEventStartDrag = function (handler, callback) {
+      var event = handler.events.group().add('dragstart', function () {
+        callback(handler.geometry.getCoordinates());
+      });
+      
+      return event;
+    };
+
     this.addEventDrag = function (handler, callback) {
       var event = handler.events.group().add('dragend', function () {
         callback(handler.geometry.getCoordinates());

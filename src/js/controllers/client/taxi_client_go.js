@@ -465,10 +465,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                 console.log('call is in progress');
               },
               'failed': function(e) {
-                console.log('call failed with cause: '+ e.data.cause);
+                console.log('call failed with cause: '+ e.data);
               },
               'ended': function(e) {
-                console.log('call ended with cause: '+ e.data.cause);
+                console.log('call ended with cause: '+ e.data);
               },
               'confirmed': function(e) {
                 console.log('call confirmed');
@@ -549,18 +549,31 @@ Outbound Proxy:	sip.onsip.com
     coolPhone = new JsSIP.UA(configuration);
     
     coolPhone.on('newRTCSession', function(e){ 
-      console.log('Входящий звонок');
+      console.log('Входящий звонок', e);
     });
     
+    coolPhone.on('connected', function(e){
+      console.log('connected', e);
+      Dom.sel('[data-click="callSip"]').style.color = 'green';
+    });
+
+    coolPhone.on('disconnected', function(e){
+      console.log('disconnected', e);
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';
+    });
+
     coolPhone.on('registered', function(e){ 
+      console.log('registered', e);
       Dom.sel('[data-click="callSip"]').style.color = 'green';
     });
     
     coolPhone.on('unregistered', function(e){ 
+      console.log('unregistered', e);
       Dom.sel('[data-click="callSip"]').style.color = 'grey';
     });
     
     coolPhone.on('registrationFailed', function(e){ 
+      console.log('registrationFailed', e);
       Dom.sel('[data-click="callSip"]').style.color = 'grey';    
     });
     

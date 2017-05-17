@@ -171,6 +171,10 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       return self.currentModel.addZoomEvent(callback);
     };
     
+    this.addEventStartDrag = function (el, callback) {
+      return self.currentModel.addEventStartDrag(el, callback);
+    };
+      
     this.addEventDrag = function (el, callback) {
       return self.currentModel.addEventDrag(el, callback);
     };

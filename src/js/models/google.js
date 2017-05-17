@@ -162,6 +162,14 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return google.maps.event.addListener(el, event, callback);
     };
     
+    this.addEventStartDrag = function (el, callback) {
+      var event = google.maps.event.addListener(el, 'dragstart', function (marker) {
+        callback([marker.latLng.lat(), marker.latLng.lng()]);
+      });
+      
+      return event;
+    };
+          
     this.addEventDrag = function (el, callback) {
       var event = google.maps.event.addListener(el, 'dragend', function (marker) {
         callback([marker.latLng.lat(), marker.latLng.lng()]);

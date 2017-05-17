@@ -4,7 +4,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, JsSIP) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
-      price, name_client, photo_client, first_time = true, agIndexes,
+      price, name_client, photo_client, first_time = true, agIndexes, agRating,
       MyOffer, orderIds = [], global_el,
       countOrders, countFinishedOrders, countCanceledOrders,
       finish = {}, arrFinished = [],
@@ -386,10 +386,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
                 console.log('call is in progress');
               },
               'failed': function(e) {
-                console.log('call failed with cause: '+ e.data.cause);
+                console.log('call failed with cause: '+ e.data);
               },
               'ended': function(e) {
-                console.log('call ended with cause: '+ e.data.cause);
+                console.log('call ended with cause: '+ e.data);
               },
               'confirmed': function(e) {
                 console.log('call confirmed');
@@ -443,6 +443,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       photo_client = orders[i].agent.photo || User.default_avatar;
       name_client  = orders[i].agent.name || User.default_name;
       agIndexes    = parseObj(getAgentIndexes(orders[i].agent));
+      agRating     = orders[i].agent.rating;
     
       temp_inner += '<div class="wait-bids-approve__item" data-order-id="' + orders[i].id + '">' +
                         '<div class="wait-bids-approve__item__distance">' +
@@ -455,6 +456,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
                           '<div>' +
                             name_client +
                           '</div>' +
+                          '<div>Рейтинг: ' + agRating + '</div>' +
                           '<div>' + agIndexes + '</div>' +
                         '</div>' +
                         '<div class="wait-bids-approve__item__cancel">' +
@@ -471,23 +473,38 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     var configuration = {
       sockets  : [ socket ],
       uri      : 'sip:d.grebenyuk30@intt.onsip.com',
-      password : 'cPHzhQtpeKBu4qX3'
+      password : 'cPHzhQtpeKBu4qX3',
+      register : true
     };
     
     coolPhone = new JsSIP.UA(configuration);
+    
     coolPhone.on('newRTCSession', function(e){ 
-        console.log('Входящий звонок');
+      console.log('Входящий звонок', e);
     });
     
+    coolPhone.on('connected', function(e){
+      console.log('connected', e);
+      Dom.sel('[data-click="callSip"]').style.color = 'green';
+    });
+
+    coolPhone.on('disconnected', function(e){
+      console.log('disconnected', e);
+      Dom.sel('[data-click="callSip"]').style.color = 'grey';
+    });
+
     coolPhone.on('registered', function(e){ 
+      console.log('registered', e);
       Dom.sel('[data-click="callSip"]').style.color = 'green';
     });
     
     coolPhone.on('unregistered', function(e){ 
+      console.log('unregistered', e);
       Dom.sel('[data-click="callSip"]').style.color = 'grey';
     });
     
     coolPhone.on('registrationFailed', function(e){ 
+      console.log('registrationFailed', e);
       Dom.sel('[data-click="callSip"]').style.color = 'grey';    
     });
     

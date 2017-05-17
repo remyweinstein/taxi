@@ -37,6 +37,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       
       for (var i = 0; i < orders.length; i++) {
         var agIndex = parseObj(getAgentIndexes(orders[i].agent, 'client')),
+            agRating= orders[i].agent.rating,
             approve = orders[i].bids[0] ? orders[i].bids[0].approved : false,
             vehicle = orders[i].agent.vehicle || Car.default_vehicle,
             active  = approve ? ' active' : ' inactive',
@@ -66,6 +67,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<img src="' + photo + '" alt="" />' +
                         '</div>' +
                         '<div>' + orders[i].agent.name + '</div>' +
+                        '<div>Рейтинг: ' + agRating + '</div>' +
                         '<div>' + agIndex + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__car">' +

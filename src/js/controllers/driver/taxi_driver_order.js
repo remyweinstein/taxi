@@ -5,7 +5,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
 
   var active_bid = false, points = [], name_points =[],
       fromAddress, toAddress, fromCoords, toCoords, waypoints, price, order_id, distanse, ag_distanse, duration,
-      name_client, photo_client, travelTime, agIndexes, cargo_info = '',
+      name_client, photo_client, travelTime, agIndexes, agRating, cargo_info = '',
       global_el,
       MyOrder;
   
@@ -50,6 +50,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
         distanse = (ords.length / 1000).toFixed(1);
         duration = ords.duration;
         agIndexes = parseObj(getAgentIndexes(ords.agent));
+        agRating     = ords.agent.rating;
 
         if (ords.weight) {
           cargo_info += ' Вес: ' + ords.weight;
@@ -174,6 +175,7 @@ function (Dom, Dates, Modal, HideForms, Storage, clClientOrder, Destinations, cl
                         '<div>' +
                           name_client +
                         '</div>' +
+                        '<div>Рейтинг: ' + agRating + '</div>' +
                         '<div>' + agIndexes + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__approve"></div>' +

@@ -4,9 +4,11 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows', 'Storage', 
 function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, Dom, Geo) {
   var MyOffer,
       _timer,
+      temp_lat, temp_lng, 
       eventOnClickMap = null,
       eventOnClickMarker,
       eventOnDragEndMarker,
+      eventOnDragStartMarker,
       flightPath,
       routa = [],
       edit_route = false;
@@ -187,6 +189,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     Maps.removeEvent(eventOnClickMap);
     Maps.removeEvent(eventOnClickMarker);
     Maps.removeEvent(eventOnDragEndMarker);
+    Maps.removeEvent(eventOnDragStartMarker);
     eventOnClickMap = null;
     Maps.removeElement(flightPath);
     flightPath = null;
@@ -205,14 +208,25 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
       routa = JSON.parse(MyOffer.route);
 
       for (var i = 0; i < routa.length; i++) {
-        MapElements.route_points.push(Maps.addMarker(routa[i][0], routa[i][1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){}));
+        routa[i][0] = Geo.roundCoords(routa[i][0]);
+        routa[i][1] = Geo.roundCoords(routa[i][1]);
+        
+        var mark = Maps.addMarkerDrag(routa[i][0], routa[i][1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+        
+        MapElements.route_points.push(mark);
+        bindMarkerEvents(mark);
+
       }
     }
   }
   
   function addMarker(e) {
-    var LatLng = Maps.getLocationClick(e),
-        marker = Maps.addMarker(LatLng[0], LatLng[1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+    var LatLng = Maps.getLocationClick(e);
+    
+    LatLng[0] = Geo.roundCoords(LatLng[0]);
+    LatLng[1] = Geo.roundCoords(LatLng[1]);
+    
+    var marker = Maps.addMarkerDrag(LatLng[0], LatLng[1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
     
     if (routa.length > 0) {
       var last_point = routa.length - 1,
@@ -253,12 +267,28 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
       removeMarker(marker);
     });
     
-    /*
-    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
-      Maps.markerSetPosition(point[0], point[1], marker);
+    eventOnDragStartMarker = Maps.addEventStartDrag(marker, function (point) {
+      temp_lat = Geo.roundCoords(point[0]);
+      temp_lng = Geo.roundCoords(point[1]);
       reloadRoute();
     });
-    */
+    
+    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
+      point[0] = Geo.roundCoords(point[0]);
+      point[1] = Geo.roundCoords(point[1]);
+      Maps.markerSetPosition(point[0], point[1], marker);
+      
+      for (var i = 0; i < routa.length; i++) {
+        console.log('temp_lat, routa[i][0], temp_lng, routa[i][1]', temp_lat, routa[i][0], temp_lng, routa[i][1]);
+        
+        if (temp_lat === routa[i][0] && temp_lng === routa[i][1]) {
+          routa[i] = [point[0], point[1]];
+          break;
+        }
+      }
+      
+      reloadRoute();
+    });
   }
   
   function reloadRoute() {
@@ -277,6 +307,10 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
           strokeOpacity: 1.0,
           strokeWeight: 2
         });
+        
+    google.maps.event.addListener(flightPath, 'click', function(e) {
+      console.log(e.latLng.lat(), e.latLng.lng());
+    });
 
     Maps.addElOnMap(flightPath);
   }
