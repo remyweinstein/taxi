@@ -1,14 +1,13 @@
 /* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters */
 
-define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'sip'],
-  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, JsSIP) {
+define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'],
+  function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, Sip) {
   
   var order_id, fromAddress, toAddress, fromCoords, toCoords, 
       price, name_client, photo_client, first_time = true, agIndexes, agRating,
       MyOffer, orderIds = [], global_el,
       countOrders, countFinishedOrders, countCanceledOrders,
-      finish = {}, arrFinished = [],
-      session, coolPhone, onCall;
+      finish = {}, arrFinished = [];
   
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -97,6 +96,8 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       goToPage = '#driver_city';
     }
     
+    Dom.sel('.wait-order-approve__route-info__cancel').innerHTML = '<button data-click="watching-order" class="button_rounded--green">Поделиться</button>';
+
     fromAddress         = ords.fromAddress;
     fromCoords          = ords.fromLocation.split(",");
     toAddress           = ords.toAddress;
@@ -377,37 +378,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           break;
         }
         
-        if (target.dataset.click === "callSip") {
-          var but = target;
-          
-          if (but.style.color === "green") {
-            var eventHandlers = {
-              'progress': function(e) {
-                console.log('call is in progress');
-              },
-              'failed': function(e) {
-                console.log('call failed with cause: '+ e.data);
-              },
-              'ended': function(e) {
-                console.log('call ended with cause: '+ e.data);
-              },
-              'confirmed': function(e) {
-                console.log('call confirmed');
-              }
-            };
+        if (target && target.dataset.click === "watching-order") {
+          Modal.show('https://inll.ru/?offer=' + MyOffer.id + '&hash=' + MyOffer.hash + '#watching');
 
-            var options = {
-              'eventHandlers'    : eventHandlers,
-              'mediaConstraints' : { 'audio': true, 'video': false }
-            };
-
-            session = coolPhone.call('sip:indrivercopy@intt.onsip.com', options);
-            
-            but.style.color = 'red';
-          } else {
-            
-            but.style.color = 'green';
-          }
+          break;
         }
         
         if (target) {
@@ -468,51 +442,8 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     el.innerHTML = temp_inner;
   }
   
-  function registerSIP() {
-    var socket = new JsSIP.WebSocketInterface('wss://edge.sip.onsip.com');
-    var configuration = {
-      sockets  : [ socket ],
-      uri      : 'sip:d.grebenyuk30@intt.onsip.com',
-      password : 'cPHzhQtpeKBu4qX3',
-      register : true
-    };
-    
-    coolPhone = new JsSIP.UA(configuration);
-    
-    coolPhone.on('newRTCSession', function(e){ 
-      console.log('Входящий звонок', e);
-    });
-    
-    coolPhone.on('connected', function(e){
-      console.log('connected', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'green';
-    });
-
-    coolPhone.on('disconnected', function(e){
-      console.log('disconnected', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';
-    });
-
-    coolPhone.on('registered', function(e){ 
-      console.log('registered', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'green';
-    });
-    
-    coolPhone.on('unregistered', function(e){ 
-      console.log('unregistered', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';
-    });
-    
-    coolPhone.on('registrationFailed', function(e){ 
-      console.log('registrationFailed', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';    
-    });
-    
-    coolPhone.start();
-    
-  }
-  
   function stop() {
+    //Sip.stop();
     GetPositions.clear();
     Destinations.clear();
     Conn.request('stopOrdersByOffer');
@@ -529,7 +460,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     if (offerId) {
       MyOffer = new clDriverOffer();
       MyOffer.getByID(offerId, function () {
-        registerSIP();
+        //Sip.register('grebenyuk', 'grebenyuk@intt.onsip.com', '4GREG49SdE76ztDk');
         Maps.mapOn();
         initMap();
         SafeWin.overviewPath = [];

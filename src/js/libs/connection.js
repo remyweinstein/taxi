@@ -63,6 +63,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("get-offer", params);
   }
   
+  function getOfferByHash(data) {
+    params.offerId = data.id;
+    params.hash = data.hash;
+    Conn.sendMessage("get-offer", params);
+  }
+  
   function getNotifications() {
     Conn.sendMessage("get-notifications");
   }
@@ -112,22 +118,28 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
   
   function deleteBlackList(id) {
     params.id = id;
-    Conn.sendMessage("delete-black-list");
+    Conn.sendMessage("delete-black-list", params);
   }
   
   function deleteFavorites(id) {
     params.id = id;
-    Conn.sendMessage("delete-favorites");
+    Conn.sendMessage("delete-favorites", params);
+  }
+  
+  function transferOrder(data) {
+    params.orderId = data.orderId;
+    params.toAgentId = data.toAgentId;
+    Conn.sendMessage("transfer-order", params);
   }
   
   function addBlackList(id) {
     params.id = id;
-    Conn.sendMessage("post-black-list");
+    Conn.sendMessage("post-black-list", params);
   }
   
   function addFavorites(id) {
     params.id = id;
-    Conn.sendMessage("post-favorites");
+    Conn.sendMessage("post-favorites", params);
   }
   
   function deletePhoto() {
@@ -137,6 +149,20 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
   function updateProfile(data) {
     params.profile = data;
     Conn.sendMessage("post-profile", params);
+  }
+  
+  function addOrderToFav(id) {
+    params.orderId = id;
+    params.isFavorite = true;
+    
+    Conn.sendMessage("post-order-is-favorite", params);
+  }
+  
+  function addOrderFromFav(id) {
+    params.orderId = id;
+    params.isFavorite = false;
+    
+    Conn.sendMessage("post-order-is-favorite", params);
   }
   
   function setActiveAuto(data) {
@@ -589,6 +615,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         case "deleteFavorites":
           deleteFavorites(data);
           break;
+        case "transferOrder":
+          transferOrder(data);
+          break;
         case "addBlackList":
           addBlackList(data);
           break;
@@ -606,6 +635,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "getOfferById":
           getOfferById(data);
+          break;
+        case "getOfferByHash":
+          getOfferByHash(data);
           break;
         case "sendMessageChat":
           sendMessageChat(data);
@@ -639,6 +671,12 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "updateProfile":
           updateProfile(data);
+          break;
+        case "addOrderToFav":
+          addOrderToFav(data);
+          break;
+        case "addOrderFromFav":
+          addOrderFromFav(data);
           break;
         case "getProfile":
           getProfile();

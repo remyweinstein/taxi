@@ -83,8 +83,8 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
               MyOffer.fromCity         = el.innerHTML;
               MyOffer.fromCityLocation = el.dataset.latlng;
             } else {
-              MyOffer.toCity         = el.innerHTML;
-              MyOffer.toCityLocation = el.dataset.latlng;
+              MyOffer.toCity           = el.innerHTML;
+              MyOffer.toCityLocation   = el.dataset.latlng;
             }
           }
 
@@ -204,6 +204,12 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   function enableEditRoute() {
     eventOnClickMap = Maps.addEvent(Maps.map, 'click', addMarker);
     
+    for (i = 0; i < MapElements.routes.length; i++) {
+      Maps.removeElement(MapElements.routes[i]);
+    }
+    
+    MapElements.routes = [];
+    
     if (MyOffer.route) {
       routa = JSON.parse(MyOffer.route);
 
@@ -218,6 +224,8 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
 
       }
     }
+    
+    reloadRoute();
   }
   
   function addMarker(e) {
@@ -300,18 +308,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
       flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
     }
     
-    flightPath = new google.maps.Polyline({
-          path: flightPlanCoordinates,
-          geodesic: true,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 2
-        });
-        
-    google.maps.event.addListener(flightPath, 'click', function(e) {
-      console.log(e.latLng.lat(), e.latLng.lng());
-    });
-
+    flightPath = Maps.drawLine(flightPlanCoordinates);
     Maps.addElOnMap(flightPath);
   }
   

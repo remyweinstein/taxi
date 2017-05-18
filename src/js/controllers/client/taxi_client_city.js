@@ -67,6 +67,14 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
         Lists.myOrders(response.result);
       }
     }
+    
+    function cbChangeFavorites(response) {
+      Conn.clearCb('cbChangeFavorites');
+      
+      if (!response.error) {
+        Conn.request('requestMyOrders', '', cbGetMyOrder);
+      }
+    }
 
     function initMap() {
       Maps.setCenter(User.lat, User.lng);
@@ -182,16 +190,20 @@ define(['Dom', 'HideForms', 'GetPositions', 'Lists', 'Destinations', 'ModalWindo
             if (target.dataset.click === 'myorders_item_menu_delete') {
               global_item = target.parentNode.parentNode.parentNode;
               Conn.request('deleteOrderById', target.dataset.id, cbDeleteOrder);
-
-              return;
             }
               // = Menu my Orders Item GO order =
             if (target.dataset.click === 'myorders_item_menu_go') {
               MyOrder.getByID(target.dataset.id, function () {
                 goToPage = "#client_map";
               });
-
-              return;
+            }
+              // = Menu my Orders Item add to Favorites =
+            if (target.dataset.click === 'myorders_item_menu_add_fav') {
+              Conn.request('addOrderToFav', target.dataset.id, cbChangeFavorites);
+            }
+              // = Menu my Orders Item delete to Favorites =
+            if (target.dataset.click === 'myorders_item_menu_delete_fav') {
+              Conn.request('addOrderFromFav', target.dataset.id, cbChangeFavorites);
             }
             
             //  =============== EVENTS FOR LIST OF OFFERS ================

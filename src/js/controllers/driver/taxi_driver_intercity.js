@@ -227,6 +227,7 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('intercity');
     Storage.setActiveTypeFilters('orders');
+    Storage.clearPrevListOrders();
     old_filters = Storage.getActiveFilters();
     old_sortes  = Storage.getActiveSortFilters();
     Lists.filtersStart();

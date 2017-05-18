@@ -120,6 +120,30 @@ define(['ActiveOrder'], function(ActiveOrder) {
       localStorage.removeItem('_history_url');
     },
     
+    setWatchingTrip: function(offer) {
+      localStorage.setItem('_watching_trip', offer);
+    },
+    
+    setWatchingHash: function(hash) {
+      localStorage.setItem('_watching_hash', hash);
+    },
+    
+    getWatchingTrip: function() {
+      return localStorage.getItem('_watching_trip');
+    },
+    
+    getWatchingHash: function() {
+      return localStorage.getItem('_watching_hash');
+    },
+    
+    removeWatchingTrip: function() {
+      localStorage.removeItem('_watching_trip');
+    },
+    
+    removeWatchingHash: function() {
+      localStorage.removeItem('_watching_hash');
+    },
+    
     setStartLoading: function() {
       localStorage.setItem('_break_communication', true);
     },

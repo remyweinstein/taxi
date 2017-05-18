@@ -11,6 +11,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
         li = document.createElement('li'),
         type = message.type,
         text = message.text,
+        args = message.args,
         body = '';
     
     if (type === "invite") {
@@ -20,6 +21,15 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
               '<button class="button_rounded--grey" data-click="recept-invite">Отказать</button>' +
               '<button class="button_rounded--green" data-id="' + id + '" data-click="accept-invite">Принять</button>' +
              '</div>';
+    }
+    
+    if (type === "sos") {
+      var id = message.id,
+          isDr = args.isDriver ? 'Водитель ' : 'Клиент ';
+      
+      body = '<p>Внимание</p>' + 
+                        '<p>' + isDr + args.name + ' в опасности!</p>' +
+                        '<p>Текущие координаты: ' + args.location + '</p>';
     }
     
     li.dataset.id = message.id;

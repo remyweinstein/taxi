@@ -22,6 +22,7 @@ define(['Storage'], function(Storage) {
     this.toCityLocation   = null;
     this.price            = 0;
     this.route            = null;
+    this.hash             = null;
     this.weight           = null;
     this.volume           = null;
     this.stevedores       = null;
@@ -72,6 +73,7 @@ define(['Storage'], function(Storage) {
         self.toCityLocation   = ord.toCityLocation;
         self.price            = ord.price;
         self.route            = ord.route;
+        self.hash             = ord.hash;
         self.comment          = ord.comment;
         self.weight           = ord.weight;
         self.volume           = ord.volume;
@@ -110,6 +112,7 @@ define(['Storage'], function(Storage) {
         self.toAddress        = ord.toAddress;
         self.toCoords         = ord.toCoords;
         self.price            = ord.price;
+        self.hash             = ord.hash;
         self.route            = ord.route;
         self.comment          = ord.comment;
         self.type             = ord.type;
@@ -210,6 +213,22 @@ define(['Storage'], function(Storage) {
 
     this.getByID = function (id, callback) {
       Conn.request('getOfferById', id, cbgetOfferById);
+      global_end_get_order = false;
+      timerWaiterEndGetById = setInterval(function () {
+        if (global_end_get_order) {
+          timerWaiterEndGetById = clearInterval(timerWaiterEndGetById);
+          callback();
+        }
+      }, 250);
+    };
+
+    this.getByHash = function (id, hash, callback) {
+      var data = {};
+      
+      data.id = id;
+      data.hash = hash;
+      
+      Conn.request('getOfferByHash', data, cbgetOfferById);
       global_end_get_order = false;
       timerWaiterEndGetById = setInterval(function () {
         if (global_end_get_order) {

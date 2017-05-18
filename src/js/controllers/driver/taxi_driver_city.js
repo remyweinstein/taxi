@@ -218,6 +218,7 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer'], function (Modal, Lis
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('taxi');
     Storage.setActiveTypeFilters('orders');
+    Storage.clearPrevListOrders();
     old_filters = Storage.getActiveFilters();
     old_sortes  = Storage.getActiveSortFilters();
     Lists.filtersStart();

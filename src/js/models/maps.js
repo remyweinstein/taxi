@@ -219,11 +219,29 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       return self.currentModel.getLocationClick(event);
     };
     
+    this.getPath = function(poly) {
+      return self.currentModel.getPath(poly);
+    };
+    
     this.drawPoly = function(Coords, color) {
       if (Coords) {
         return self.currentModel.drawPoly(Coords, color);
       } else {
         return false;
+      }
+    };
+    
+    this.drawLine = function(Coords, color) {
+      color = color || '#FF0088';
+      
+      return self.currentModel.drawLine(Coords, color);
+    };
+    
+    this.drawPolyS = function(Coords, color, callback) {
+      if (Coords) {
+        self.currentModel.drawPolyS(Coords, color, callback);
+      } else {
+        callback;
       }
     };
     
@@ -247,7 +265,7 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       return self.currentModel.getDistance(point1, point2);
     };
 
-    this.showPoly = function(overviewPath) {
+    this.showPoly = function(overviewPath, callback) {
       var overviewPathGeo = [];
       
       overviewPathGeo[0] = [];
@@ -274,7 +292,7 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
         oLanLng.push({"lat":oItem[1], "lng":oItem[0]});
       }
       
-      return self.drawPoly(oLanLng);
+      self.drawPolyS(oLanLng, '#ffffff', callback);
     };
     
     this.getMarkerCoords = function (el) {

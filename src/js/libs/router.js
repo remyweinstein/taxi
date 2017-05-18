@@ -17,6 +17,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
+                {hash:'#watching', template:'PageWatching', controller:'ctrlPageWatching', title:'Наблюдение', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
                 {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_choose_address', template:'TaxiClientChooseAddress', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},

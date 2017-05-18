@@ -12,6 +12,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
       eventOnClickMap = null,
       eventOnClickMarker,
       eventOnDragEndMarker,
+      eventOnDragStartMarker,
       flightPath,
       routa = [],
       edit_route = false;
@@ -72,6 +73,14 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     old_filters = filters;
   }
     
+  function cbChangeFavorites(response) {
+    Conn.clearCb('cbChangeFavorites');
+
+    if (!response.error) {
+      Conn.request('requestMyOrders', '', cbGetMyTourismOrder);
+    }
+  }
+
   function onchange(el) {
     var list_parent  = el.srcElement ? el.srcElement.parentNode : el.parentNode,
         list_results = list_parent.querySelector('.form-order-city__hint'),
@@ -219,8 +228,6 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
           if (target.dataset.click === 'myorders_item_menu_delete') {
             global_item = target.parentNode.parentNode.parentNode;
             Conn.request('deleteOrderById', target.dataset.id, cbDeleteOrder);
-
-            return;
           }
 
             // = Menu my Orders Item GO order =
@@ -228,9 +235,16 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             MyOrder.getByID(target.dataset.id, function () {
               goToPage = "#client_map";
             });
-
-            return;
           }
+            // = Menu my Orders Item add to Favorites =
+          if (target.dataset.click === 'myorders_item_menu_add_fav') {
+            Conn.request('addOrderToFav', target.dataset.id, cbChangeFavorites);
+          }
+            // = Menu my Orders Item delete to Favorites =
+          if (target.dataset.click === 'myorders_item_menu_delete_fav') {
+            Conn.request('addOrderFromFav', target.dataset.id, cbChangeFavorites);
+          }
+                      
           //  = EVENTS FOR ADD FAV AND BLACK LIST FRON MARKER's DRIVER = 
           if (target.dataset.click === "addtofav") {
             global_el = target;
@@ -356,6 +370,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     Maps.removeEvent(eventOnClickMap);
     Maps.removeEvent(eventOnClickMarker);
     Maps.removeEvent(eventOnDragEndMarker);
+    Maps.removeEvent(eventOnDragStartMarker);
     eventOnClickMap = null;
     Maps.removeElement(flightPath);
     flightPath = null;
@@ -370,18 +385,36 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   function enableEditRoute() {
     eventOnClickMap = Maps.addEvent(Maps.map, 'click', addMarker);
     
+    for (i = 0; i < MapElements.routes.length; i++) {
+      Maps.removeElement(MapElements.routes[i]);
+    }
+    
+    MapElements.routes = [];
+    
     if (MyOrder.route) {
       routa = JSON.parse(MyOrder.route);
 
       for (var i = 0; i < routa.length; i++) {
-        MapElements.route_points.push(Maps.addMarker(routa[i][0], routa[i][1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){}));
+        routa[i][0] = Geo.roundCoords(routa[i][0]);
+        routa[i][1] = Geo.roundCoords(routa[i][1]);
+        
+        var mark = Maps.addMarkerDrag(routa[i][0], routa[i][1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+        
+        MapElements.route_points.push(mark);
+        bindMarkerEvents(mark);
       }
     }
+    
+    reloadRoute();
   }
   
   function addMarker(e) {
-    var LatLng = Maps.getLocationClick(e),
-        marker = Maps.addMarker(LatLng[0], LatLng[1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
+    var LatLng = Maps.getLocationClick(e);
+    
+    LatLng[0] = Geo.roundCoords(LatLng[0]);
+    LatLng[1] = Geo.roundCoords(LatLng[1]);
+    
+    var marker = Maps.addMarkerDrag(LatLng[0], LatLng[1], '', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAi0lEQVR42mNgQIAoIF4NxGegdCCSHAMzEC+NijL7v3p1+v8zZ6rAdGCg4X+g+EyYorS0NNv////PxMCxsRYghbEgRQcOHCjGqmjv3kKQor0gRQ8fPmzHquj27WaQottEmxQLshubopAQI5CiEJjj54N8t3FjFth369ZlwHw3jQENgMJpIzSc1iGHEwB8p5qDBbsHtAAAAABJRU5ErkJggg==', [10,10], function(){});
     
     if (routa.length > 0) {
       var last_point = routa.length - 1,
@@ -422,12 +455,26 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
       removeMarker(marker);
     });
     
-    /*
-    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
-      Maps.markerSetPosition(point[0], point[1], marker);
+    eventOnDragStartMarker = Maps.addEventStartDrag(marker, function (point) {
+      temp_lat = Geo.roundCoords(point[0]);
+      temp_lng = Geo.roundCoords(point[1]);
       reloadRoute();
     });
-    */
+    
+    eventOnDragEndMarker = Maps.addEventDrag(marker, function (point) {
+      point[0] = Geo.roundCoords(point[0]);
+      point[1] = Geo.roundCoords(point[1]);
+      Maps.markerSetPosition(point[0], point[1], marker);
+      
+      for (var i = 0; i < routa.length; i++) {        
+        if (temp_lat === routa[i][0] && temp_lng === routa[i][1]) {
+          routa[i] = [point[0], point[1]];
+          break;
+        }
+      }
+      
+      reloadRoute();
+    });
   }
   
   function reloadRoute() {
@@ -439,14 +486,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
       flightPlanCoordinates.push({"lat":routa[i][0], "lng":routa[i][1]});
     }
     
-    flightPath = new google.maps.Polyline({
-          path: flightPlanCoordinates,
-          geodesic: true,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 2
-        });
-
+    flightPath = Maps.drawLine(flightPlanCoordinates);
     Maps.addElOnMap(flightPath);
   }
   

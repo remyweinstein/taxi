@@ -446,11 +446,19 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         }
         
         for (var i = 0; i < ords.length; i++) {
-          var goto = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>',
-              del  = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
+          var goto     = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_go" onclick="return false;">Перейти</a>',
+              del      = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>',
+              fav      = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_add_fav" onclick="return false;">В избранное</a>',
+              from_fav = '<a href="#" data-id="' + ords[i].id + '" data-click="myorders_item_menu_delete_fav" onclick="return false;">Из избранного</a>',
+              star     = '';
 
-          if (!ords[i].canceled) {
+          if (!ords[i].canceled && !ords[i].finished) {
             del = '';
+          }
+          
+          if (ords[i].isFavorite) {
+            fav  = from_fav;
+            star = '<i class="icon-star score-agent__stars__star active"></i>';
           }
           
           if (ords[i].finished || ords[i].canceled) {
@@ -469,7 +477,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
         show('LI','<div>' +
                       '<p class="myorders__item__time">' +
-                        Dates.datetimeForPeople(ords[i].created) + //, "LEFT_TIME_OR_DATE") +
+                        Dates.datetimeForPeople(ords[i].created) + '<span>' + star + '</span>' + 
                       '</p>' +
                       '<p class="myorders__item__from">' +
                         ords[i].fromAddress +
@@ -487,7 +495,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                     '</div>' +
                     '<div class="myorders__item__menu">' +
                       '<i data-click="myorders_item_menu" class="icon-ellipsis-vert"></i>' +
-                      '<span>' + goto + del + '</span>' +
+                      '<span>' + goto + del + fav + '</span>' +
                     '</div>', toAppend);
         }
 

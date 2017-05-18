@@ -1,7 +1,7 @@
 /* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
 
-define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'sip'], 
-function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, JsSIP) {
+define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'], 
+function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, Sip) {
     
   var show_route   = false,
       isFollow     = Storage.getFollowOrder(),
@@ -12,8 +12,35 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
       dr_photo, dr_vehicle, car_brand, car_model, dr_time, duration_time,
       MyOrder, global_el, finish = {}, arrFinished = [],
-      session, coolPhone, onCall;
+      offerId, offerHash;
 
+  function cbTransferOrder(response) {
+    Conn.clearCb('cbTransferOrder');
+    
+    if (!response.error) {
+      Storage.removeFollowOrder();
+      Storage.removeTripClient();
+      Storage.setWatchingHash(offerHash);
+      Storage.setWatchingTrip(offerId);
+      goToPage = "#watching";
+    }
+  }
+  
+  function cbGetSosAgents(response) {
+    Conn.clearCb('cbGetSosAgents');
+    
+    if (!response.error) {
+      var agents = response.result.sosAgents,
+          innerBl = '';
+      
+      for (var i = 0; i < agents.length; i++) {
+        innerBl += '<p data-click="option-contact" data-agent_id="' + agents[i].id + '">' + agents[i].name + '</p>';
+      }
+      
+      Modal.show(innerBl);
+    } 
+  }
+  
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
     
@@ -123,7 +150,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           field_duration        = Dom.sel('[data-view="duration"]'),
           incar_but             = Dom.sel('button[data-click="client-incar"]'),
           but_came              = Dom.sel('[data-click="client-came"]');
-
+        
+      offerId = offer.id;
+      offerHash = offer.hash;
+      
       if (ords.finishedByDriver) { //Add check safe zones
         if (arrFinished.indexOf(MyOrder.id) === -1) {
           finish.orderId = MyOrder.id;
@@ -298,7 +328,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     el_route.children[2].innerHTML = addCityTo + toAddress;
     el_price.innerHTML  = price + ' руб.';
     el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
-                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать груз</button>';
+                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать груз</button>' +
+                          '<button data-click="watching-order" class="button_rounded--green">Поделиться</button>' + 
+                          '<button data-click="transfer-order" class="button_rounded--green">Передать</button>';
     el.innerHTML        = '<div class="wait-bids-approve__item">' +
                             '<div class="wait-bids-approve__item__distance">' +
                               'Автомобиль:<br/>' +
@@ -456,37 +488,24 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           break;
         }
         
-        if (target && target.dataset.click === "callSip") {
-          var but = target;
+        if (target && target.dataset.click === "watching-order") {
+          Modal.show('https://inll.ru/?offer=' + offerId + '&hash=' + offerHash + '#watching');
+
+          break;
+        }
+        
+        if (target && target.dataset.click === "transfer-order") {
+          Conn.request('getSosAgents', '', cbGetSosAgents);
+        }
+        
+        if (target && target.dataset.click === "option-contact") {
+          var el = target,
+              data = {};
           
-          if (but.style.color === "green") {
-            var eventHandlers = {
-              'progress': function(e) {
-                console.log('call is in progress');
-              },
-              'failed': function(e) {
-                console.log('call failed with cause: '+ e.data);
-              },
-              'ended': function(e) {
-                console.log('call ended with cause: '+ e.data);
-              },
-              'confirmed': function(e) {
-                console.log('call confirmed');
-              }
-            };
-
-            var options = {
-              'eventHandlers'    : eventHandlers,
-              'mediaConstraints' : { 'audio': true, 'video': false }
-            };
-
-            session = coolPhone.call('sip:d.grebenyuk30@intt.onsip.com', options);
-            
-            but.style.color = 'red';
-          } else {
-            
-            but.style.color = 'green';
-          }
+          data.orderId   = MyOrder.id;
+          data.toAgentId = el.dataset.agent_id;
+          Conn.request('transferOrder', data, cbTransferOrder);
+          Modal.close();
         }
         
         if (target) {
@@ -500,88 +519,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     content.addEventListener('click', Event.click);
   }
   
-  /*
-   * 
-Address of Record:	grebenyuk@intt.onsip.com
-SIP Password:	4GREG49SdE76ztDk
-Auth Username:	intt
-Username:	grebenyuk
-Domain:	intt.onsip.com
-Outbound Proxy:	sip.onsip.com
-  
-Address of Record:	d.grebenyuk30@intt.onsip.com
-SIP Password:	cPHzhQtpeKBu4qX3
-Auth Username:	intt_d_grebenyuk30
-Username:	d.grebenyuk30
-Domain:	intt.onsip.com
-Outbound Proxy:	sip.onsip.com  
-  
-Address of Record:	indrivercopy@intt.onsip.com
-SIP Password:	vywnpDXMc6nhzpUH
-Auth Username:	intt_indrivercopy
-Username:	indrivercopy
-Domain:	intt.onsip.com
-Outbound Proxy:	sip.onsip.com
-
-Address of Record:	e.sergeenko30@intt.onsip.com
-SIP Password:	agnQMe3YCo4uA3Kw
-Auth Username:	intt_e_sergeenko30
-Username:	e.sergeenko30
-Domain:	intt.onsip.com
-Outbound Proxy:	sip.onsip.com
-  
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   */
-  
-  function registerSIP() {
-    var socket = new JsSIP.WebSocketInterface('wss://edge.sip.onsip.com');
-    var configuration = {
-      sockets  : [ socket ],
-      uri      : 'sip:indrivercopy@intt.onsip.com',
-      password : 'vywnpDXMc6nhzpUH'
-    };
-    
-    coolPhone = new JsSIP.UA(configuration);
-    
-    coolPhone.on('newRTCSession', function(e){ 
-      console.log('Входящий звонок', e);
-    });
-    
-    coolPhone.on('connected', function(e){
-      console.log('connected', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'green';
-    });
-
-    coolPhone.on('disconnected', function(e){
-      console.log('disconnected', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';
-    });
-
-    coolPhone.on('registered', function(e){ 
-      console.log('registered', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'green';
-    });
-    
-    coolPhone.on('unregistered', function(e){ 
-      console.log('unregistered', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';
-    });
-    
-    coolPhone.on('registrationFailed', function(e){ 
-      console.log('registrationFailed', e);
-      Dom.sel('[data-click="callSip"]').style.color = 'grey';    
-    });
-    
-    coolPhone.start();
-    
-  }
-  
   function stop() {
+    //Sip.stop();
     GetPositions.clear();
     Destinations.clear();
     Conn.clearCb('cbGetOrderById');
@@ -598,8 +537,7 @@ Outbound Proxy:	sip.onsip.com
       MyOrder = new clClientOrder();
       MyOrder.getByID(orderId, function () {
         if (orderId) {
-          registerSIP();
-          
+          //Sip.register('Client', 'indrivercopy@intt.onsip.com', 'vywnpDXMc6nhzpUH');
           show_route = false;
           isFollow = Storage.getFollowOrder();
           Maps.mapOn();

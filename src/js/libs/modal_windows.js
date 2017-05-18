@@ -415,6 +415,9 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
                                         close();
                                       });
     },
+    selectContact: function () {
+                  
+    },
     show: function (content, callback) {
                   var el = Dom.sel('.' + block),
                       parentDiv = el.parentNode,

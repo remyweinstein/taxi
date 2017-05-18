@@ -290,6 +290,17 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return event.get('coords');
     };
     
+    this.getPath = function(poly) {
+      var path = poly.geometry.getCoordinates(),
+          arr = [];
+      
+      for (var i = 0; i < path.length; i++) {
+        arr.push({"lat":path[i][0],"lng":path[i][1]});
+      }
+      
+      return arr;
+    };
+    
     this.drawPoly = function (Coords, color) {
       color = color || '#FF0088';
 
@@ -301,6 +312,36 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
                 opacity: 0.35,
                 strokeWidth: 2
               });
+    };
+    
+    this.drawLine = function(Coords, color) {
+      var path = [];
+      
+      for (var i = 0; i < Coords.length; i++) {
+        path.push([Coords[i].lat, Coords[i].lng]);
+      }
+      
+      return routeLine = new ymaps.Polyline(path, {}, {
+                balloonCloseButton: false,
+                strokeColor: color,
+                strokeWidth: 6,
+                strokeOpacity: 0.5
+            });
+    };
+    
+    this.drawPolyS = function(Coords, color, callback) {
+      color = color || '#FF0088';
+
+      var poly = new ymaps.Polygon([
+                    objCoordsToArray(Coords)
+                  ],{
+                    fillColor: color,
+                    strokeColor: '#0000FF',
+                    opacity: 0.35,
+                    strokeWidth: 2
+                  });
+              
+      callback(poly);
     };
     
     this.newPolygon = function () {

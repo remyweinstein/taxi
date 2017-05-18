@@ -59,18 +59,13 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   }
 
   function start() {
-    var params = window.location.search;
+    var sms_code = localStorage.getItem('_temp_code');
     
     addEvents();
     
-    if (params !== "") {
-      params = (params.substr(1)).split('&');
-      
-      var authToken = params[0].split('='),
-          code      = params[1].split('=');
-      
-      User.authToken = authToken[1];
-      Dom.sel('input[name="sms"]').value = code[1];  
+    if (sms_code) {
+      Dom.sel('input[name="sms"]').value = sms_code;
+      localStorage.removeItem('_temp_code');
     }
   }
   

@@ -278,18 +278,57 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return [event.latLng.lat(),event.latLng.lng()];
     };
     
+    this.getPath = function(poly) {
+      var path = poly.getPath(),
+          arr = [];
+      
+      if (path) {
+        for (var i = 0; i < path.b.length; i++) {
+          arr.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
+        }
+      }
+      
+      return arr;
+    };
+    
     this.drawPoly = function (Coords, color) {
       color = color || '#FF0088';
+      
+      var poly = new google.maps.Polygon({
+                  paths: Coords,
+                  strokeColor: '#FF0000',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: color,
+                  fillOpacity: 0.35
+                });
 
-      return new google.maps.Polygon({
-               paths: Coords,
-               strokeColor: '#FF0000',
-               strokeOpacity: 0.8,
-               strokeWeight: 2,
-               //draggable: true,
-               fillColor: color,
-               fillOpacity: 0.35
+      return poly;
+    };
+    
+    this.drawLine = function(Coords, color) {
+      return new google.maps.Polyline({
+               path: Coords,
+               geodesic: true,
+               strokeColor: color,
+               strokeOpacity: 0.5,
+               strokeWeight: 6
              });
+    };
+    
+    this.drawPolyS = function(Coords, color, callback) {
+      color = color || '#FF0088';
+      
+      var poly = new google.maps.Polygon({
+                  paths: Coords,
+                  strokeColor: '#FF0000',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: color,
+                  fillOpacity: 0.35
+                });
+                
+      callback(poly);
     };
     
     this.newPolygon = function () {

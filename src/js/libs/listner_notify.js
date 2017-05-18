@@ -26,7 +26,12 @@ define(['push', 'Storage', 'ModalWindows'], function(Push, Storage, Modal) {
           }
           
           if (type === "sos") {
+            var isDr = args.isDriver ? 'Водитель ' : 'Клиент ';
             
+            Modal.show('<p>Внимание</p>' + 
+                        '<p>' + isDr + args.name + ' в опасности!</p>' +
+                        '<p>Текущие координаты: ' + args.location + '</p>' +
+                           '<p><button data-click="close" class="button_short--green">Перейти</button></p>', openMessage);
           }
           
           Storage.setOpenNotify(notify[i].id);

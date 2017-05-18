@@ -365,31 +365,26 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     enableZoneForRoute: function() {
       Storage.setActiveRoute(Settings.safeRadius);
       
-      var poly = Maps.showPoly(SafeWin.overviewPath),
-          path = poly.getPath();
+      Maps.showPoly(SafeWin.overviewPath, function(poly){
+        var path = Maps.getPath(poly);
+        
+        Maps.addElOnMap(poly);
+        SafeWin.polyRoute.push(poly);
 
-              console.log('poly = ', poly);
+        if (path) {
+          Storage.setSafeRoute(path);
+          if (window.location.hash === "#driver_go") {
+            var data = {};
 
-      
-      Maps.addElOnMap(poly);
-      SafeWin.polyRoute.push(poly);
-      
-      if (path) {
-        for (var i = 0; i < path.b.length; i++) {
-          s_route_to_Zone.push({"lat":path.b[i].lat(),"lng":path.b[i].lng()});
+            data.polygon  = path;
+            data.name     = 'temporary';
+            data.isActive = true;
+            data.orderId  = Storage.getTripDriver();
+            Conn.request('addZones', data);
+          }
         }
-
-        Storage.setSafeRoute(s_route_to_Zone);
-        if (window.location.hash === "#driver_go") {
-          var data = {};
-
-          data.polygon  = s_route_to_Zone;
-          data.name     = 'temporary';
-          data.isActive = true;
-          data.orderId  = Storage.getTripDriver();
-          Conn.request('addZones', data);
-        }
-      }
+      });
+      
     }
 
 

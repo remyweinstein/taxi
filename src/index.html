@@ -11,9 +11,9 @@
         <meta name="apple-mobile-web-app-title" content="TechAgent">
         <meta name="msapplication-starturl" content="/">
         <link rel="manifest" href="/manifest.json">
-        <link href="assets/css/main.css?v=0.22" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?v=0.23" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.57" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.59" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -134,6 +134,34 @@
                 <p class="social_network"></p>
                 <p><button class="button_rounded--green">Сохранить</button></p>
             </form>
+        </template>
+        <template id="PageWatching">
+            <div class="go-order" data-hide-form="enable">
+                <div class="go-order__top" data-hide-form="top">
+                    <div class="wait-order-approve" data-controller="taxi_driver_go">
+                        <div class="wait-order-approve__route-info">
+                            <div class="wait-order-approve__route-info__route">
+                                <div></div>
+                                <div>-</div>
+                                <div></div>
+                            </div>
+                            <div class="wait-order-approve__route-info__price"></div>
+                            <div class="wait-order-approve__route-info__cancel"></div>
+                            <div class="wait-bids-approve"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="go-order__down" data-hide-form="bottom">
+                    <div class="go-order__down__driver-panel">
+                        <div class="go-order__down__driver-panel__info">
+                            <p>До клиента: <span data-view="distance_to_car">-</span> км.</p>
+                            <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                            <p>Время по маршруту: <span data-view="duration">-</span></p>
+                        </div>
+                        <div class="go-order__down__driver-panel__action" data-button="action"></div>
+                    </div>
+                </div>
+            </div>
         </template>
         <template id="PageLogin">
             <nav class="tabs">

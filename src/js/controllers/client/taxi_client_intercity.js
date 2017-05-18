@@ -66,6 +66,14 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     old_filters = filters;
   }
     
+  function cbChangeFavorites(response) {
+    Conn.clearCb('cbChangeFavorites');
+
+    if (!response.error) {
+      Conn.request('requestMyOrders', '', cbGetMyIntercityOrder);
+    }
+  }
+
   function onchange(el) {
     var list_parent  = el.srcElement ? el.srcElement.parentNode : el.parentNode,
         list_results = list_parent.querySelector('.form-order-city__hint'),
@@ -231,7 +239,15 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
             global_el = target;
             Conn.addFavorites(target.dataset.id, cbAfterAddFav);
           }
-
+            // = Menu my Orders Item add to Favorites =
+          if (target.dataset.click === 'myorders_item_menu_add_fav') {
+            Conn.request('addOrderToFav', target.dataset.id, cbChangeFavorites);
+          }
+            // = Menu my Orders Item delete to Favorites =
+          if (target.dataset.click === 'myorders_item_menu_delete_fav') {
+            Conn.request('addOrderFromFav', target.dataset.id, cbChangeFavorites);
+          }
+            
           if (target.dataset.click === "deltofav") {
             global_el = target;
             Conn.deleteFavorites(target.dataset.id, cbAfterDeleteFav);
