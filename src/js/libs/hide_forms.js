@@ -70,17 +70,13 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
             winHeight = window.innerHeight;
 
         if (bottom_block) {
-          //if (top_block) {
-          //  coords_bottom_block = top_block.getBoundingClientRect().bottom;
-          //} else {
           coords_bottom_block = bottom_block.getBoundingClientRect().top;
-          //}
           height_bottom_block = Funcs.outerHeight(bottom_block);
-          ////bottom_block.style.bottom = '-' + (winHeight - coords_bottom_block - height_bottom_block - 26) + 'px';
         }
 
         if (parent_block) {
           var target_block = parent_block;
+          
           el = document.createElement('div');
           el.className += 'drop-down';
           el.dataset.click = 'drop-down';
@@ -107,6 +103,12 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
     },
     
     clear: function () {
+      var but = Dom.sel('div.drop-down');
+      
+      if (but) {
+        but.parentNode.removeChild(but);
+      }
+      
       Dom.sel('.content').removeEventListener('click', addNewEvents);
     }
   };

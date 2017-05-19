@@ -269,7 +269,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
 
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('intercity');
-            localStorage.setItem('_open_offer_id', el.dataset.id);
+            Storage.setOpenOfferId(el.dataset.id);
             goToPage = "#client_offer";
           }
 

@@ -1,7 +1,7 @@
 /* global User, Conn, Event, Car */
 
-define(['Lists', 'Storage', 'ModalWindows', 'ClientOrder', 'DriverOffer'], 
-function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
+define(['Lists', 'Storage', 'ModalWindows', 'ClientOrder', 'DriverOffer', 'Dom'], 
+function (Lists, Storage, Modal, clClientOrder, clDriverOffer, Dom) {
   var old_filters = Storage.getActiveFilters(),
       old_sortes  = Storage.getActiveSortFilters(),
       global_item,
@@ -91,7 +91,6 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
         if (target.dataset.click === 'myorders_item_menu_go') {
           id = target.dataset.id;
           myOffer.getByID(id, function () {
-            localStorage.setItem('_open_offer_id', id);
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('intercity');
             goToPage = '#driver_my_offer';
@@ -109,7 +108,6 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
         if (target.dataset.click === "open-offer") {
           id = target.dataset.id;
           myOffer.getByID(id, function () {
-            localStorage.setItem('_open_offer_id', id);
             Storage.setActiveTypeModelTaxi('offer');
             Storage.setActiveTypeTaxi('intercity');
             goToPage = '#driver_my_offer';
@@ -223,6 +221,12 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer) {
   }
   
   function start() {
+    var auto_button = Dom.sel('[data-click="automat-orders"]');
+    
+    if (auto_button && Storage.getDriverAutomat()) {
+      auto_button.classList.add('active');
+    }
+    
     myOffer = new clDriverOffer();
     Storage.setActiveTypeModelTaxi('offer');
     Storage.setActiveTypeTaxi('intercity');

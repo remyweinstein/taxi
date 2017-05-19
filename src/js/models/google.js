@@ -187,8 +187,12 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return Maps.map.getProjection().fromPointToLatLng(worldPoint);      
     };
     
-    this.addMarker = function (lat, lng, title, icon, iSize, callback) {
-      var marker = new google.maps.Marker({
+    this.addMarker = function (lat, lng, title, icon_url, iSize, callback) {
+      var icon = {
+            url: icon_url,
+            scaledSize: new google.maps.Size(iSize[0], iSize[1])
+          },
+          marker = new google.maps.Marker({
             position: new google.maps.LatLng(lat, lng),
             icon: icon,
             title: title,
@@ -200,14 +204,18 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       return marker;
     };
 
-    this.addMarkerDrag = function (lat, lng, title, icon, iSize, callback) {
-      var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(lat, lng),
-        draggable: true,
-        icon: icon,
-        title: title,
-        map: Maps.map
-      });
+    this.addMarkerDrag = function (lat, lng, title, icon_url, iSize, callback) {
+      var icon = {
+            url: icon_url,
+            scaledSize: new google.maps.Size(iSize[0], iSize[1])
+          },
+          marker = new google.maps.Marker({
+            position: new google.maps.LatLng(lat, lng),
+            draggable: true,
+            icon: icon,
+            title: title,
+            map: Maps.map
+          });
       
       callback(marker);
 

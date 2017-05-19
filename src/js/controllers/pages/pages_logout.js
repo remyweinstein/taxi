@@ -8,6 +8,7 @@ define(['Storage'], function (Storage) {
   
   function start() {
     User.clear();
+    Storage.clear();
     goToPage = '#client_city';
   }
   

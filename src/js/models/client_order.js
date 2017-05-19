@@ -29,11 +29,9 @@ define(['Storage'], function(Storage) {
     this.canceled         = false;
     this.distance         = 0;
     this.started          = null;
-    //this.pregnant         = false;
     this.comment          = null;
     this.duration         = 0;
     this.volume           = null;
-    //this.active           = false;
     this.length           = 0;
     this.weight           = null;
     this.times            = [];
@@ -101,9 +99,7 @@ define(['Storage'], function(Storage) {
         self.canceled         = ord.canceled;
         self.distance         = ord.distance;
         self.started          = ord.started;
-        //self.pregnant         = ord.pregnant;
         self.comment          = ord.comment;
-        //self.active           = ord.active;
         self.cities           = [];
         self.length           = ord.length;
         self.weight           = ord.weight;
@@ -152,12 +148,10 @@ define(['Storage'], function(Storage) {
       self.distance         = 0;
       self.canceled         = false;
       self.started          = null;
-      //self.pregnant         = false;
       self.comment          = null;
       self.length           = 0;
       self.volume           = null;
       self.toCity           = null;
-      //self.active           = false;
       self.weight           = null;
       self.start            = null;
       self.times            = [];
@@ -210,9 +204,7 @@ define(['Storage'], function(Storage) {
       
       if (ord) {
         var now      = new Date().getTime(),
-            start    = new Date(ord.start).getTime(),
-            pregnant = ord.seats === ord.occupiedSeats ? true : false,
-            active   = pregnant && start <= now ? true : false;
+            start    = new Date(ord.start).getTime();
 
         self.id               = ord.id;
         self.fromCityLocation = ord.fromCityLocation;
@@ -232,12 +224,10 @@ define(['Storage'], function(Storage) {
         self.occupiedSeats    = ord.occupiedSeats;
         self.stevedores       = ord.stevedores;
         self.distance         = ord.distance;
-        //self.pregnant         = pregnant;
         self.canceled         = ord.canceled;
         self.duration         = ord.duration;
         self.started          = ord.started;
         self.comment          = ord.comment;
-        //self.active           = active;
         self.cities           = [];
         self.length           = ord.length;
         self.weight           = ord.weight;
@@ -301,8 +291,6 @@ define(['Storage'], function(Storage) {
       data.type          = self.type;
       data.bags          = self.bags;
       data.zone          = self.zone;
-      //data.active        = self.active;
-      //data.pregnant      = self.pregnant;
 
       if (self.toAddresses) {
         if (self.toAddresses.length > 0) {

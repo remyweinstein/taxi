@@ -406,7 +406,7 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
     enterPhone: function (callback) {
                 this.show('<h4>Введите номер телефона:</h4>' +
                           '<div class="pin_window">' +
-                            '+7 <input type="text" data-keypress="input_only_digits" name="invite-agent-phone"/>' +
+                            '<input type="text" data-keypress="input_only_digits" name="invite-agent-phone"/>' +
                           '</div>' +
                           '<div style="position:relative;">' +
                             '<button data-click="invite-agent-send" class="button_short--green">Пригласить</button>' +
@@ -419,6 +419,7 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
                   
     },
     show: function (content, callback) {
+                  close();
                   var el = Dom.sel('.' + block),
                       parentDiv = el.parentNode,
                       new_field = document.createElement('div');

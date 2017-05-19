@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters */
+/* global User, SafeWin, Event, MapElements, Conn, Maps, Parameters, SharingOrder, cargo_icon */
 
 define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'DriverOffer', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'],
   function (Dom, Chat, Dates, Geo, HideForms, GetPositions, Destinations, clDriverOffer, clClientOrder, Storage, Modal, Sip) {
@@ -7,7 +7,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       price, name_client, photo_client, first_time = true, agIndexes, agRating,
       MyOffer, orderIds = [], global_el,
       countOrders, countFinishedOrders, countCanceledOrders,
-      finish = {}, arrFinished = [];
+      finish = {}, arrFinished = [], btWatchingOrder;
   
   function cbAddFavorites() {
     Conn.clearCb('cbAddFavorites');
@@ -96,8 +96,6 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       goToPage = '#driver_city';
     }
     
-    Dom.sel('.wait-order-approve__route-info__cancel').innerHTML = '<button data-click="watching-order" class="button_rounded--green">Поделиться</button>';
-
     fromAddress         = ords.fromAddress;
     fromCoords          = ords.fromLocation.split(",");
     toAddress           = ords.toAddress;
@@ -195,6 +193,14 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_clients[i]);
         }
         
+        if (orders[i].transferred) {
+          if (!MapElements.cargo_marker) {
+            MapElements.cargo_marker = Maps.addMarker(User.lat, User.lng, 'Груз', cargo_icon, [16,16], function(){});
+          } else {
+            Maps.markerSetPosition(User.lat, User.lng, MapElements.cargo_marker);
+          }
+        }
+
         if (order.finished) {
           if (arrFinished.indexOf(order.id) === -1) {
             finish.orderId = order.id;
@@ -242,7 +248,13 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
         toLoc = order.toLocation.split(',');
 
         if (order.inCar && order.arrived && Geo.distance(User.lat, User.lng, toLoc[0], toLoc[1]) < Parameters.orderRadius) {
-          actionElement.innerHTML = '<button data-click="driver-came" data-agent_id="' + agnt.id + '" data-order_id="' + order.id + '" class="button_wide--green">Доставил клиента' + numberClient + '</button>';
+          var clientName = 'клиента';
+          
+          if (order.transferred) {
+            clientName = 'груз';
+          }
+          
+          actionElement.innerHTML = '<button data-click="driver-came" data-agent_id="' + agnt.id + '" data-order_id="' + order.id + '" class="button_wide--green">Доставил ' + clientName + numberClient + '</button>';
         }
 
         if (order.finishedByClient) {
@@ -378,12 +390,6 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           break;
         }
         
-        if (target && target.dataset.click === "watching-order") {
-          Modal.show('https://inll.ru/?offer=' + MyOffer.id + '&hash=' + MyOffer.hash + '#watching');
-
-          break;
-        }
-        
         if (target) {
           target = target.parentNode;
         } else {
@@ -393,6 +399,10 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     };
     
     content.addEventListener('click', Event.click);
+  }
+  
+  function runWatchingOrder() {
+    Modal.show('https://inll.ru/?offer=' + MyOffer.id + '&hash=' + MyOffer.hash + '#watching');
   }
   
   function render(orders) {
@@ -444,6 +454,9 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   
   function stop() {
     //Sip.stop();
+    SharingOrder.enableWatching();
+    btWatchingOrder.removeEventListener('click', runWatchingOrder);
+          
     GetPositions.clear();
     Destinations.clear();
     Conn.request('stopOrdersByOffer');
@@ -461,6 +474,9 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
       MyOffer = new clDriverOffer();
       MyOffer.getByID(offerId, function () {
         //Sip.register('grebenyuk', 'grebenyuk@intt.onsip.com', '4GREG49SdE76ztDk');
+        SharingOrder.enableWatching();
+        btWatchingOrder = Dom.sel('[data-click="watching-order"]');
+        btWatchingOrder.addEventListener('click', runWatchingOrder);
         Maps.mapOn();
         initMap();
         SafeWin.overviewPath = [];

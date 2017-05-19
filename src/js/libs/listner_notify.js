@@ -13,7 +13,8 @@ define(['push', 'Storage', 'ModalWindows'], function(Push, Storage, Modal) {
         
         for(var i = 0; i < notify.length; i++) {
           var type = notify[i].type,
-              args = notify[i].args;
+              args = notify[i].args,
+              text = notify[i].text;
           
           if (type === "start") {
             if (args.offerId) {
@@ -39,8 +40,12 @@ define(['push', 'Storage', 'ModalWindows'], function(Push, Storage, Modal) {
           if (type === "invite") {
             Modal.show('<p>Вас приглашают в список контактов</p>' + 
                            '<p><button data-click="close" class="button_short--green">Перейти</button></p>', openMessage);
-            }
+          }
                          
+          if (type === "push") {
+            Modal.show('<p>' + text + '</p>');
+          }
+          
           Push.create(notify[i].text, {
               body: "",
               icon: 'icon.png',

@@ -34,8 +34,6 @@ define(['Storage'], function(Storage) {
     this.zone             = null;
     this.clientPointsFrom = [];
     this.clientPointsTo   = [];
-    //this.active           = false;
-    //this.pregnant         = false;
     
     function cbCreateOffer(response) {
       Conn.clearCb('cbCreateOffer');
@@ -54,9 +52,7 @@ define(['Storage'], function(Storage) {
 
         var ord      = response.result.offer,
             now      = new Date().getTime(),
-            start    = new Date(ord.start).getTime(),
-            pregnant = ord.seats === ord.occupiedSeats ? true : false,
-            active   = pregnant && start <= now ? true : false;
+            start    = new Date(ord.start).getTime();
 
         self.id               = ord.id;
         self.fromAddress      = ord.fromAddress;
@@ -84,8 +80,6 @@ define(['Storage'], function(Storage) {
         self.started          = ord.started;
         self.canceled         = ord.canceled;
         self.zone             = ord.zone;
-        //self.active           = active;
-        //self.pregnant         = pregnant;
 
         if (self.active) {
           Storage.setTripDriver(self.id);
@@ -126,8 +120,6 @@ define(['Storage'], function(Storage) {
         self.started          = ord.started;
         self.canceled         = ord.canceled;
         self.zone             = ord.zone;
-        //self.active           = ord.active;
-        //self.pregnant         = ord.pregnant;
       }
     }
     
@@ -205,8 +197,6 @@ define(['Storage'], function(Storage) {
       data.bags          = self.bags;
       data.start         = self.start;
       data.zone          = self.zone;
-      //data.active /      = self.active;   //far future
-      //data.pregnant /    = self.pregnant;
       
       Conn.request('createOffer', data, cbCreateOffer);
     };

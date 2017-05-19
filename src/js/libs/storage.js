@@ -1,6 +1,20 @@
 define(['ActiveOrder'], function(ActiveOrder) {
   
   var Storage = {
+    clear: function () {
+      removeActiveTypeModelTaxi();
+      clearActiveTypesTaxi();
+      removeActiveTypeFilters();
+      clearHistoryPages();
+      clearOpenNotify();
+      clearLastPage();
+      clearMyActiveOrder();
+      clearPrevListOrders();
+      removeOpenOfferId();
+      clearModels();
+      clearActiveFilters();
+    },
+    
     lullModel: function (Model) {
       var model = Storage.getActiveTypeModelTaxi(),
           type  = Storage.getActiveTypeTaxi();
@@ -8,6 +22,29 @@ define(['ActiveOrder'], function(ActiveOrder) {
       if (model && type) {
         localStorage.setItem('_my_' + model + '_' + type, JSON.stringify(Model));
       }
+    },
+    
+    clearModels: function () {
+      localStorage.removeItem('_my_order_trucking');
+      localStorage.removeItem('_my_order_tourism');
+      localStorage.removeItem('_my_order_taxi');
+      localStorage.removeItem('_my_order_intercity');
+      localStorage.removeItem('_my_offer_taxi');
+      localStorage.removeItem('_my_offer_intercity');
+      localStorage.removeItem('_my_offer_tourism');
+      localStorage.removeItem('_my_offer_trucking');
+    },
+    
+    removeOpenOfferId: function() {
+      localStorage.removeItem('_open_offer_id');
+    },
+    
+    getOpenOfferId: function() {
+      return localStorage.getItem('_open_offer_id');
+    },
+    
+    setOpenOfferId: function(id) {
+      localStorage.setItem('_open_offer_id', id);
     },
     
     setChangeLocations: function() {
@@ -40,6 +77,18 @@ define(['ActiveOrder'], function(ActiveOrder) {
     
     getMyActiveOrder: function() {
       return JSON.parse(localStorage.getItem('_my_active_orders'));
+    },
+    
+    getUserRole: function() {
+      return localStorage.getItem('_user_role');
+    },
+    
+    setUserRole: function(role) {
+      localStorage.setItem('_user_role', role);
+    },
+    
+    removeUserRole: function() {
+      localStorage.removeItem('_user_role');
     },
     
     setSafeRoute: function(points) {
@@ -95,6 +144,7 @@ define(['ActiveOrder'], function(ActiveOrder) {
       var urls = localStorage.getItem('_history_url'),
           def = '#client_city';
       
+      urls = urls.replace('#open_message|#messages', '#messages');      
       urls = urls || def;
       urls = urls.split('|');
       
@@ -280,6 +330,17 @@ define(['ActiveOrder'], function(ActiveOrder) {
       localStorage.removeItem('_filters_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters());
     },
     
+    clearActiveFilters: function () {
+      localStorage.removeItem('_filters_sort_active_trucking_offers');
+      localStorage.removeItem('_filters_sort_active_tourism_offers');
+      localStorage.removeItem('_filters_sort_active_intercity_offers');
+      localStorage.removeItem('_filters_sort_active_taxi_offers');
+      localStorage.removeItem('_filters_sort_active_trucking_orders');
+      localStorage.removeItem('_filters_sort_active_tourism_orders');
+      localStorage.removeItem('_filters_sort_active_intercity_orders');
+      localStorage.removeItem('_filters_sort_active_taxi_orders');
+    },
+    
     setActiveSortFilters: function (value) {
       localStorage.setItem('_filters_sort_active_' + Storage.getActiveTypeTaxi() + '_' + Storage.getActiveTypeFilters(), value);
     },
@@ -381,15 +442,15 @@ define(['ActiveOrder'], function(ActiveOrder) {
     },
     
     setDriverAutomat: function () {
-      localStorage.setItem('_automat_driver_orders', true);
+      localStorage.setItem('_automat_driver_orders_' + Storage.getActiveTypeTaxi(), true);
     },
 
     getDriverAutomat: function () {
-      return localStorage.getItem('_automat_driver_orders');
+      return localStorage.getItem('_automat_driver_orders_' + Storage.getActiveTypeTaxi());
     },
     
     removeDriverAutomat: function () {
-      localStorage.removeItem('_automat_driver_orders');
+      localStorage.removeItem('_automat_driver_orders_' + Storage.getActiveTypeTaxi());
     },
         
     setClientOfferAutomat: function () {

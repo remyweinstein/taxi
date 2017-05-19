@@ -101,12 +101,18 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
       var el_price       = Dom.sel('.wait-order-approve__route-info__price'),
           el_cancel      = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes      = Dom.selAll('.wait-order-approve__route-info__route'),
+          el_automat     = Dom.sel('button[data-click="automat"]'),
           color_automat  = Storage.getClientAutomat() ? 'green' : 'grey',
           addCityFrom    = '', 
           addCityTo      = '',
           disabled       = MyOrder.canceled ? ' disabled' : '',
           activeTypeTaxi = Storage.getActiveTypeTaxi();
         
+      if (el_automat && Storage.getClientAutomat()) {
+        el_automat.classList.remove('button_rounded--grey');
+        el_automat.classList.add('button_rounded--green');
+      }
+      
       if (activeTypeTaxi === "intercity" || activeTypeTaxi === "tourism") {
         addCityFrom = MyOrder.fromCity + ', ',
         addCityTo   = MyOrder.toCity + ', ';

@@ -14,7 +14,7 @@
     -moz-transition: right 0.5s ease-out 0.25s;
     -o-transition: right 0.5s ease-out 0.25s;
     &:before {
-        content: "КОНТРОЛЬ";
+        content: "ПЕРЕДАТЬ";
         top: 6em;
         left: -1.5em;
         display: inline-block;
@@ -36,6 +36,6 @@
     }
     button {
         display: block;
-        margin-bottom: 2em;
+        margin-bottom: 1em;
     }
 }

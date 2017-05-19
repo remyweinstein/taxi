@@ -210,7 +210,7 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
               
               Storage.setActiveTypeModelTaxi('offer');
               Storage.setActiveTypeTaxi('trucking');
-              localStorage.setItem('_open_offer_id', el.dataset.id);
+              Storage.setOpenOfferId(el.dataset.id);
               goToPage = "#client_offer";
             }
             

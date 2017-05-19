@@ -60,7 +60,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         
         innText += '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__distance">' +
-                        'Растояние до водителя, <span>' + dist + ' км</span>' +
+                        //'Растояние до водителя, <span>' + dist + ' км</span>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__driver">' +
                         '<div>' +
@@ -70,20 +70,20 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                         '<div>Рейтинг: ' + agRating + '</div>' +
                         '<div>' + agIndex + '</div>' +
                       '</div>' +
-                      '<div class="wait-bids-approve__item__car">' +
-                        '<div>' +
-                          '<img src="' + vehicle + '" alt="" />' +
-                        '</div>' +
-                        '<div>' +
-                          orders[i].agent.brand + ' ' + orders[i].agent.model +
-                        '</div>' +
-                      '</div>' +
+                      //'<div class="wait-bids-approve__item__car">' +
+                      //  '<div>' +
+                      //    '<img src="' + vehicle + '" alt="" />' +
+                      //  '</div>' +
+                      //  '<div>' +
+                      //    orders[i].agent.brand + ' ' + orders[i].agent.model +
+                      //  '</div>' +
+                      //'</div>' +
                       '<div class="wait-bids-approve__item__approve">' +
                         '<i data-click="taxi_client_bid" data-id="' + orders[i].id + '" class="icon-ok-circled' + active + '"></i>' +
                       '</div>' +
-                      '<div class="wait-bids-approve__item__bid-time">' +
-                        'Время подъезда: <span>' + orders[i].travelTime + ' мин</span>' +
-                      '</div>' +
+                      //'<div class="wait-bids-approve__item__bid-time">' +
+                      //  'Время подъезда: <span>' + orders[i].travelTime + ' мин</span>' +
+                      //'</div>' +
                       '<div class="wait-bids-approve__item__bid-price">' +
                         'Предложенная цена: <span>' + Math.round(orders[i].price) + ' руб</span>' +
                       '</div>' +

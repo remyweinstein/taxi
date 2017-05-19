@@ -1,4 +1,4 @@
-/* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters */
+/* global User, SafeWin, Event, driver_icon, MapElements, Conn, Maps, Zones, Car, Parameters, SharingOrder, cargo_icon */
 
 define(['Dom', 'Dates', 'Chat', 'Geo', 'HideForms', 'GetPositions', 'Destinations', 'ClientOrder', 'Storage', 'ModalWindows', 'Sip'], 
 function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClientOrder, Storage, Modal, Sip) {
@@ -12,7 +12,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       dr_model, dr_name, dr_color, dr_number, dr_distanse,
       dr_photo, dr_vehicle, car_brand, car_model, dr_time, duration_time,
       MyOrder, global_el, finish = {}, arrFinished = [],
-      offerId, offerHash;
+      offerId, offerHash, agIndexes, agRating, 
+      btTransferOrder, btWatchingOrder, btTransferCargo;
 
   function cbTransferOrder(response) {
     Conn.clearCb('cbTransferOrder');
@@ -22,6 +23,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       Storage.removeTripClient();
       Storage.setWatchingHash(offerHash);
       Storage.setWatchingTrip(offerId);
+      MyOrder.clear();
       goToPage = "#watching";
     }
   }
@@ -35,6 +37,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       
       for (var i = 0; i < agents.length; i++) {
         innerBl += '<p data-click="option-contact" data-agent_id="' + agents[i].id + '">' + agents[i].name + '</p>';
+      }
+      
+      if (innerBl === "") {
+        innerBl = '<p>Список доверенных контактов пуст</p>';
       }
       
       Modal.show(innerBl);
@@ -84,7 +90,6 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     var active_zones = Storage.getActiveZones();
     
     color_follow = isFollow ? 'green' : 'red';
-    localStorage.setItem('_rating_order', MyOrder.id);
     
     if (active_zones) {
       var list_active_zone = active_zones.split(',');
@@ -128,6 +133,11 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }
       
       color_follow = isFollow ? 'green' : color_follow;
+      
+      btTransferCargo.classList.remove('button_short--green');
+      btTransferCargo.classList.remove('button_short--grey');
+      btTransferCargo.classList.remove('button_short--red');
+      btTransferCargo.classList.add('button_short--' + color_follow);
 
       if (ords.finished) {
         if (arrFinished.indexOf(MyOrder.id) === -1) {
@@ -204,6 +214,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       dr_vehicle          = car ? car.photo || Car.default_vehicle : '';
       car_brand           = car ? car.brand : '';
       car_model           = car ? car.model : '';
+      agIndexes           = parseObj(getAgentIndexes(ords.agent));
+      agRating            = ords.agent.rating;
       fromCoords          = ords.fromLocation.split(",");
       toCoords            = ords.toLocation.split(",");
       fromAddress         = ords.fromAddress;
@@ -238,10 +250,10 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         if (incar_but) {
           incar_but.disabled = false;
           if (!isFollow) {
-            var el = Dom.sel('button[data-click="follow-order"]');
+            var el = Dom.sel('button[data-click="transfer-cargo"]');
             
-            el.classList.remove('button_rounded--red');
-            el.classList.add('button_rounded--grey');
+            el.classList.remove('button_short--red');
+            el.classList.add('button_short--grey');
           }
         }
       }
@@ -268,8 +280,14 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       
       if (ords.inCar) {
         if (incar_but) {
-          var disabla = isFollow ? '' : ' disabled';
-          incar_but.parentNode.innerHTML = '<button data-click="client-came" data-agent_id="' + agnt.id + '" class="button_wide--green"' + disabla + '>Приехали</button>';
+          var disabla = isFollow ? '' : ' disabled',
+              clientName = 'Приехали';
+            
+          if (ords.transferred) {
+            clientName = 'Груз получил';
+          }
+          
+          incar_but.parentNode.innerHTML = '<button data-click="client-came" data-agent_id="' + agnt.id + '" class="button_wide--green"' + disabla + '>' + clientName + '</button>';
         }
       }    
 
@@ -296,11 +314,33 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker);
       }
       
+      if (ords.transferred) {
+        if (!MapElements.cargo_marker) {
+          MapElements.cargo_marker = Maps.addMarker(loc[0], loc[1], 'Груз', cargo_icon, [16,16], function(){});
+        } else {
+          Maps.markerSetPosition(loc[0], loc[1], MapElements.cargo_marker);
+        }
+      }
+      
     } else {
       Storage.removeTripClient();
     }
   }
   
+  function getAgentIndexes(agent) {
+    return {'flag-checkered': agent.driverAccuracyIndex, 'block': agent.driverCancelIndex, 'thumbs-up': agent.driverDelayIndex, 'clock': agent.driverFinishIndex};
+  }
+  
+  function parseObj(obj) {
+    var content = '';
+    
+    for (var key in obj) {
+      content += '<span><i class="icon-' + key + '"></i> ' + obj[key] + ' </span>';
+    }
+    
+    return content;
+  }
+
   function ratingOrder(id, agentId, role) {
     Modal.ratingOrder(id, agentId, role, function(){});
   }
@@ -327,10 +367,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     el_route.children[0].innerHTML = addCityFrom + fromAddress;
     el_route.children[2].innerHTML = addCityTo + toAddress;
     el_price.innerHTML  = price + ' руб.';
-    el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>' + 
-                          '<button data-click="follow-order" class="button_rounded--' + color_follow + '">Передать груз</button>' +
-                          '<button data-click="watching-order" class="button_rounded--green">Поделиться</button>' + 
-                          '<button data-click="transfer-order" class="button_rounded--green">Передать</button>';
+    el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--red">Отмена</button>';
     el.innerHTML        = '<div class="wait-bids-approve__item">' +
                             '<div class="wait-bids-approve__item__distance">' +
                               'Автомобиль:<br/>' +
@@ -351,6 +388,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
                               '</div>' +
                               '<div>' +
                                 dr_name +
+                              '<div>Рейтинг: ' + agRating + '</div>' +
+                              '<div>' + agIndexes + '</div>' +
                               '</div>' +
                             '</div>' +
                           '</div>';
@@ -377,33 +416,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         }
         
         if (target.dataset.click === 'client-incar') {
-          var el = Dom.sel('button[data-click="follow-order"]');
-          
-          el.classList.remove('button_rounded--red');
-          el.classList.add('button_rounded--grey');
+          btTransferCargo.classList.remove('button_rounded--red');
+          btTransferCargo.classList.add('button_rounded--grey');
           Conn.request('inCarClient', MyOrder.id);
-          break;
-        }
-        
-        if (target.dataset.click === 'follow-order') {
-          var el = target,
-              stat = el.classList[0],
-              status = stat.replace("button_rounded--", "");
-          
-          if (status === "red") {
-            alert('Машина не подъехала еще!');
-            break;
-          }
-          
-          if (!isFollow) {
-            el.classList.add('button_rounded--green');
-            el.classList.remove('button_rounded--grey');
-            isFollow = true;
-            Storage.setFollowOrder();
-            Conn.request('inCarClient', MyOrder.id);
-            Conn.request('transferedOrder', MyOrder.id);
-          }
-          
           break;
         }
         
@@ -488,16 +503,6 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           break;
         }
         
-        if (target && target.dataset.click === "watching-order") {
-          Modal.show('https://inll.ru/?offer=' + offerId + '&hash=' + offerHash + '#watching');
-
-          break;
-        }
-        
-        if (target && target.dataset.click === "transfer-order") {
-          Conn.request('getSosAgents', '', cbGetSosAgents);
-        }
-        
         if (target && target.dataset.click === "option-contact") {
           var el = target,
               data = {};
@@ -506,6 +511,8 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
           data.toAgentId = el.dataset.agent_id;
           Conn.request('transferOrder', data, cbTransferOrder);
           Modal.close();
+          
+          break;
         }
         
         if (target) {
@@ -519,8 +526,43 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
     content.addEventListener('click', Event.click);
   }
   
+  function runTransferOrder() {
+    Conn.request('getSosAgents', '', cbGetSosAgents);
+  }
+  
+  function runWatchingOrder() {
+    Modal.show('https://inll.ru/?offer=' + offerId + '&hash=' + offerHash + '#watching');
+  }
+  
+  function runTransferCargo(e) {
+    var el = e.srcElement,
+        stat = el.classList[0],
+        status = stat.replace("button_short--", "");
+
+    if (status === "red") {
+      alert('Машина не подъехала еще!');
+      return;
+    }
+
+    if (!isFollow) {
+      el.classList.add('button_short--green');
+      el.classList.remove('button_short--grey');
+      isFollow = true;
+      Storage.setFollowOrder();
+      Conn.request('inCarClient', MyOrder.id);
+      Conn.request('transferedOrder', MyOrder.id);
+    }
+  }
+  
   function stop() {
     //Sip.stop();
+    SharingOrder.disableTransfer();
+    btTransferOrder.removeEventListener('click', runTransferOrder);
+    SharingOrder.disableWatching();
+    btWatchingOrder.removeEventListener('click', runWatchingOrder);
+    SharingOrder.disableTransferCargo();
+    btTransferCargo.removeEventListener('click', runTransferCargo);
+          
     GetPositions.clear();
     Destinations.clear();
     Conn.clearCb('cbGetOrderById');
@@ -538,6 +580,16 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       MyOrder.getByID(orderId, function () {
         if (orderId) {
           //Sip.register('Client', 'indrivercopy@intt.onsip.com', 'vywnpDXMc6nhzpUH');
+          SharingOrder.enableTransfer();
+          btTransferOrder = Dom.sel('[data-click="transfer-order"]');
+          btTransferOrder.addEventListener('click', runTransferOrder);
+          SharingOrder.enableWatching();
+          btWatchingOrder = Dom.sel('[data-click="watching-order"]');
+          btWatchingOrder.addEventListener('click', runWatchingOrder);
+          SharingOrder.enableTransferCargo();
+          btTransferCargo = Dom.sel('[data-click="transfer-cargo"]');
+          btTransferCargo.addEventListener('click', runTransferCargo);
+          
           show_route = false;
           isFollow = Storage.getFollowOrder();
           Maps.mapOn();

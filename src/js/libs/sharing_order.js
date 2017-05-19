@@ -1,9 +1,12 @@
+/* global currentRoute */
+
 define(['Dom'], function (Dom) {
   var sharing_win,
       btParentControl,
-      btLinkOrder,
       btPassOrder,
-      btOpenShare;
+      btOpenShare,
+      btWatching,
+      btTransferCargo;
   
   function swipeRight() {
     sharing_win.classList.remove('sharing-window--closed');
@@ -27,21 +30,19 @@ define(['Dom'], function (Dom) {
     swipeRight();
   }
   
-  function runLinkOrder() {
-    swipeRight();
-  }
-  
   function runPassOrder() {
     swipeRight();
   }
   
+  function runTransferCargo() {
+    swipeRight();
+  }
+  
   function AddEvents() {
-    btParentControl = Dom.sel('[data-click="parent-control"]');
-    btLinkOrder = Dom.sel('[data-click="link-order"]');
-    btPassOrder = Dom.sel('[data-click="pass-order"]');
     btParentControl.addEventListener('click', runParentControl);
-    btLinkOrder.addEventListener('click', runLinkOrder);
     btPassOrder.addEventListener('click', runPassOrder);
+    btWatching.addEventListener('click', runPassOrder);
+    btTransferCargo.addEventListener('click', runTransferCargo);
   }
   
   var SharingOrder = {
@@ -49,7 +50,7 @@ define(['Dom'], function (Dom) {
     init: function() {
       sharing_win = Dom.sel('.sharing-window');
       btOpenShare = Dom.sel('[data-click="openShare"]');
-
+      
       sharing_win.classList.add('sharing-window--closed');
       
       this.render();
@@ -65,13 +66,45 @@ define(['Dom'], function (Dom) {
 
       wrap.classList.add('sharing-window__wrap');
       wrap.innerHTML =  '<button class="button_short--green" data-click="parent-control">Родительский контроль</button>' +
-                        '<button class="button_short--green" data-click="link-order" disabled>Ссылка на заказ</button>' +
-                        '<button class="button_short--green" data-click="pass-order" disabled>Передать заказ</button>';
+                        '<button class="button_short--green" data-click="transfer-order" disabled>Передать заказ</button>' +
+                        '<button class="button_short--green" data-click="transfer-cargo" disabled>Передать груз</button>' +
+                        '<button class="button_short--green" data-click="watching-order" disabled>Ссылка на заказ</button>';
+
                       
       Dom.selAll('.sharing-window')[0].appendChild(wrap);
+      
+      btParentControl = Dom.sel('[data-click="parent-control"]');
+      btPassOrder     = Dom.sel('[data-click="transfer-order"]');
+      btWatching      = Dom.sel('[data-click="watching-order"]');
+      btTransferCargo = Dom.sel('[data-click="transfer-cargo"]');
+
       AddEvents();
       
       return;
+    },
+    
+    enableTransferCargo: function() {
+      btTransferCargo.disabled = false;
+    },
+
+    disableTransferCargo: function() {
+      btTransferCargo.disabled = true;
+    },
+
+    enableTransfer: function() {
+      btPassOrder.disabled = false;
+    },
+
+    disableTransfer: function() {
+      btPassOrder.disabled = true;
+    },
+
+    enableWatching: function() {
+      btWatching.disabled = false;
+    },
+
+    disableWatching: function() {
+      btWatching.disabled = true;
     }
 
   };

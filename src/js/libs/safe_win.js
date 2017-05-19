@@ -180,8 +180,9 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     }
   }
   
-  function onInputRange(el) {
-    var val = parseInt(this.value),
+  function onInputRange(e) {
+    var el = e.srcElement,
+        val = parseInt(this.value),
         parent = el.parentNode.parentNode;
     
     if (parent) {

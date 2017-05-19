@@ -93,12 +93,16 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
               }
 
               var substr = _route.substring(0, 7);
+              
               if (substr === "to_plus") {
                 var _index = _route.replace("to_plus", "");
                 Model.toAddresses[_index] = _address.address;
               }
 
-              Dom.historyBack();
+              var linkaType  = Storage.getActiveTypeTaxi()==="taxi"  ? "city" : Storage.getActiveTypeTaxi(),
+                  linka = Storage.getActiveTypeModelTaxi()==="order" ? "client_" + linkaType : Storage.getUserRole()==="driver" ? "driver_new_offer" : "client_offer";
+
+              goToPage = '#' + linka;
             });
           }
           
@@ -145,6 +149,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     Storage.lullModel(Model);
     Storage.removeTemporaryRoute();
     Storage.removeTemporaryCoords();
+    Storage.removeUserRole();
     //Storage.removeActiveTypeModelTaxi();
   }
   
@@ -156,6 +161,10 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
     if (model === "offer") {
       Model = new clDriverOffer();
     } else if (model === "order") {
+      Model = new clClientOrder();
+    }
+    
+    if (Storage.getUserRole() === "client" && model === "offer") {
       Model = new clClientOrder();
     }
     

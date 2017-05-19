@@ -18,6 +18,7 @@ define(function() {
     this.markers_driver_pos = [];
     this.marker_mine = null;
     this.driver_marker = null;
+    this.cargo_marker = null;
     this.marker_client = null;
     this.marker_clients = [];
     this.route_points = [];
@@ -30,6 +31,9 @@ define(function() {
       }
       if (self.marker_b) {
         Maps.removeElement(self.marker_b);
+      }
+      if (self.cargo_marker) {
+        Maps.removeElement(self.cargo_marker);
       }
       if (self.marker_a) {
         Maps.removeElement(self.marker_a);
@@ -79,6 +83,7 @@ define(function() {
       self.marker_clients = [];
       self.marker_b = null;
       self.marker_a = null;
+      self.cargo_marker = null;
       self.marker_from = null;
       self.marker_to = null;
       self.marker_from_2 = null;

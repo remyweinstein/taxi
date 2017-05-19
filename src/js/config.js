@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.59",
+  urlArgs: "v=0.63",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -10,7 +10,7 @@ requirejs.config({
     "domReady" : "vendor/domReady",
     "push" :     "vendor/push.min",
     "mustache" : "vendor/mustache.min",
-    "sipjs":       "vendor/sip.min",
+    "sipjs":     "vendor/sip.min",
     
 		"Car" :          "models/car",
 		"ClientOrder" :  "models/client_order",
@@ -68,17 +68,6 @@ requirejs.config({
     "ctrlPageZones" :          "controllers/pages/pages_zones",
     "ctrlPageEditZone" :       "controllers/pages/pages_edit_zone",
     
-    "ctrlTaxiClientChoiceLocationMap" : "controllers/client/taxi_client_choice_location_map",
-    "ctrlTaxiClientChooseAddress" :     "controllers/client/taxi_client_choose_address",
-    "ctrlTaxiClientCity" :              "controllers/client/taxi_client_city",
-    "ctrlTaxiClientGo" :                "controllers/client/taxi_client_go",
-    "ctrlTaxiClientIntercity" :         "controllers/client/taxi_client_intercity",
-    "ctrlTaxiClientTourism" :           "controllers/client/taxi_client_tourism",
-    "ctrlTaxiClientTrucking" :          "controllers/client/taxi_client_trucking",
-    "ctrlTaxiClientMap" :               "controllers/client/taxi_client_map",
-    "ctrlTaxiClientOffer" :             "controllers/client/taxi_client_offer",
-
-    
     "ctrlTaxiDriverCity" :      "controllers/driver/taxi_driver_city",
     "ctrlTaxiDriverNewOffer" :  "controllers/driver/taxi_driver_new_offer",
     "ctrlTaxiDriverOffer" :     "controllers/driver/taxi_driver_my_offer",
@@ -89,7 +78,17 @@ requirejs.config({
     "ctrlTaxiDriverIntercity" : "controllers/driver/taxi_driver_intercity",
     "ctrlTaxiDriverTourism" :   "controllers/driver/taxi_driver_tourism",
     "ctrlTaxiDriverMyAuto" :    "controllers/driver/taxi_driver_my_auto",
-    "ctrlTaxiDriverEditAuto" :  "controllers/driver/taxi_driver_edit_auto"
+    "ctrlTaxiDriverEditAuto" :  "controllers/driver/taxi_driver_edit_auto",
+    
+    "ctrlTaxiClientChoiceLocationMap" : "controllers/client/taxi_client_choice_location_map",
+    "ctrlTaxiClientChooseAddress" :     "controllers/client/taxi_client_choose_address",
+    "ctrlTaxiClientCity" :              "controllers/client/taxi_client_city",
+    "ctrlTaxiClientGo" :                "controllers/client/taxi_client_go",
+    "ctrlTaxiClientIntercity" :         "controllers/client/taxi_client_intercity",
+    "ctrlTaxiClientTourism" :           "controllers/client/taxi_client_tourism",
+    "ctrlTaxiClientTrucking" :          "controllers/client/taxi_client_trucking",
+    "ctrlTaxiClientMap" :               "controllers/client/taxi_client_map",
+    "ctrlTaxiClientOffer" :             "controllers/client/taxi_client_offer"
 	},
   shim: {
     "hammer" : {
@@ -130,6 +129,7 @@ var menus_arr = [];
       User, Car, Event, Settings, Parameters, SafeWin, SharingOrder, Zones, Maps, MapGoogle, MapYandex, MapElements, Conn = false,
 
       driver_icon   = '//maps.gstatic.com/mapfiles/ms2/micons/cabs.png',
+      cargo_icon    = '//maps.gstatic.com/mapfiles/ms2/micons/shopping.png',
       men_icon      = '//maps.gstatic.com/mapfiles/ms2/micons/man.png',
       default_city  = 'Хабаровск',
       average_speed = 40,

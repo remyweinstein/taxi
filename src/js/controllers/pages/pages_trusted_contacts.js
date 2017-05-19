@@ -48,7 +48,7 @@ define(['ModalWindows', 'PopupWindows', 'Dom', 'Dates'], function (Modal, Popup,
           while (target !== this && target) {
             if (target.dataset.click === 'invite-agent') {
               Modal.enterPhone(function (phone){
-                Conn.request('inviteSosAgent', '8' + phone, cbInviteSosAgent);
+                Conn.request('inviteSosAgent', phone, cbInviteSosAgent);
               });
               
               return;

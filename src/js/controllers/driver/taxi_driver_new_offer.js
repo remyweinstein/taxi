@@ -386,6 +386,8 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   }
   
   function start() {
+    Storage.setUserRole('driver');
+    
     var activeTypeTaxi = Storage.getActiveTypeTaxi();
     
     if (activeTypeTaxi === "intercity") {

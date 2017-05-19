@@ -219,6 +219,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
               data.toAddress    = MyOrder.toAddress;
               data.toLocation   = MyOrder.toCoords;
             }
+            
             data.price        = MyOrder.price;
             data.id           = offerId;
             
@@ -233,12 +234,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
           el = target;
           Storage.setTemporaryRoute(el.name);
           Storage.setTemporaryAddress(el.value);
-          Storage.setActiveTypeModelTaxi('order');
+          Storage.setActiveTypeModelTaxi('offer');
           goToPage = '#client_choose_address';
         }
         if (target.dataset.click === 'choice_location') {
           Storage.setTemporaryRoute(target.parentNode.querySelectorAll('input')[0].getAttribute('name'));
-          Storage.setActiveTypeModelTaxi('order');
+          Storage.setActiveTypeModelTaxi('offer');
           goToPage = '#client_choice_location_map';
           break;
         }
@@ -288,9 +289,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function start() {
+    Storage.setUserRole('client');
     activeTypeTaxi = Storage.getActiveTypeTaxi();
     
-    offerId = localStorage.getItem('_open_offer_id');
+    offerId = Storage.getOpenOfferId();
     
     if (activeTypeTaxi === "tourism") {
       Dom.sel('.order-city-from').style.display = 'none';
