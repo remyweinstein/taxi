@@ -18,6 +18,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
     
     Storage.clearHistoryPages();
     Storage.clearLastPage();
+    Storage.clear();
     goToPage = '#client_city';
     
     if (params !== "") {

@@ -17,7 +17,10 @@
         text-align: center;
         width: 10%;
         i{
+            display: inline-block;
             color: $active;
+            padding: 0;
+            margin: 0;
         }
         i:last-child{
             display: none;
@@ -26,7 +29,7 @@
     &__title{
         display: inline-block;
         font-weight: 600;
-        width: 55%;
+        width: 53%;
     }
     &__toggle{
         display: inline-block;
@@ -59,7 +62,7 @@
     &__link{
         display: inline-block;
         text-align: center;
-        width: 16%;
+        width: 17%;
         color: $active;
         a{
             color: $active;

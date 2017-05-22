@@ -11,9 +11,9 @@
         <meta name="apple-mobile-web-app-title" content="TechAgent">
         <meta name="msapplication-starturl" content="/">
         <link rel="manifest" href="/manifest.json">
-        <link href="assets/css/main.css?v=0.25" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?v=0.26" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.64" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.65" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -166,8 +166,8 @@
         <template id="PageLogin">
             <nav class="tabs">
                 <ul>
-                    <li data-tab="1" class="tab--active">По номеру телефона</li>
-                    <li data-tab="2">По email</li>
+                    <li data-tab="1" class="tab--active">Телефон</li>
+                    <li data-tab="2">email</li>
                     <li data-tab="3">Telegram</li>
                 </ul>
             </nav>
@@ -491,7 +491,7 @@
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
                                         <option value="car" selected> --Легковой</option>
-                                        <option value="estate"> --Универсал</option> 
+                                        <option value="universalis"> --Универсал</option> 
                                         <option value="minibus"> --Микроавтобус</option>
                                         <option value="truck"> --Грузовик</option>
                                         <option value="bus"> --Автобус</option>
@@ -517,7 +517,7 @@
                                         <option value="reindeer"> --Олени</option>
                                 </select>
                             </div>
-                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                            <button class="button_rounded--green" data-click="save-order" disabled>Заказать</button>
                         </div>
                     </div>
                   </div>
@@ -654,7 +654,7 @@
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
                                         <option value="car"> --Легковой</option>
-                                        <option value="estate"> --Универсал</option> 
+                                        <option value="universalis"> --Универсал</option> 
                                         <option value="minibus"> --Микроавтобус</option>
                                         <option value="truck" selected> --Грузовик</option>
                                         <option value="bus"> --Автобус</option>
@@ -680,7 +680,7 @@
                                         <option value="reindeer"> --Олени</option>
                                 </select>
                             </div>
-                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                            <button class="button_rounded--green" data-click="save-order" disabled>Заказать</button>
                         </div>
                     </div>
                 </div>
@@ -765,7 +765,7 @@
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
                                         <option value="car"> --Легковой</option>
-                                        <option value="estate"> --Универсал</option> 
+                                        <option value="universalis"> --Универсал</option> 
                                         <option value="minibus"> --Микроавтобус</option>
                                         <option value="truck"> --Грузовик</option>
                                         <option value="bus" selected> --Автобус</option>
@@ -791,7 +791,7 @@
                                         <option value="reindeer"> --Олени</option>
                                 </select>
                             </div>
-                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                            <button class="button_rounded--green" data-click="save-order" disabled>Заказать</button>
                         </div>
                     </div>
                 </div>
@@ -854,7 +854,7 @@
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
                                         <option value="car"> --Легковой</option>
-                                        <option value="estate"> --Универсал</option> 
+                                        <option value="universalis"> --Универсал</option> 
                                         <option value="minibus"> --Микроавтобус</option>
                                         <option value="truck"> --Грузовик</option>
                                         <option value="bus"> --Автобус</option>
@@ -880,7 +880,7 @@
                                         <option value="reindeer"> --Олени</option>
                                 </select>
                             </div>
-                            <button class="button_rounded--green" data-click="save-order">Заказать</button>
+                            <button class="button_rounded--green" data-click="save-order" disabled>Заказать</button>
                         </div>
                     </div>
                 </div>
@@ -914,7 +914,7 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои предложения</li>
+                    <li data-tab="2">Предложения</li>
                     <li data-tab="3">Архив</li>
                 </ul>
             </nav>
@@ -939,7 +939,7 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои предложения</li>
+                    <li data-tab="2">Предложения</li>
                     <li data-tab="3">Архив</li>
                 </ul>
             </nav>
@@ -964,7 +964,7 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои предложения</li>
+                    <li data-tab="2">Предложения</li>
                     <li data-tab="3">Архив</li>
                 </ul>
             </nav>
@@ -989,7 +989,7 @@
             <nav class="tabs">
                 <ul>
                     <li data-tab="1" class="tab--active">Заказы</li>
-                    <li data-tab="2">Мои предложения</li>
+                    <li data-tab="2">Предложения</li>
                     <li data-tab="3">Архив</li>
                 </ul>
             </nav>
@@ -1306,17 +1306,17 @@
                     </label>
                 </p>
                 <p>
-                    Есть кондиционер: <input type="radio" name="conditioner" value="0" checked /> Нет <input type="radio" name="conditioner" value="1" />Да
+                    Есть кондиционер: <input type="radio" name="conditioner" value="0" /> Нет <input type="radio" name="conditioner" value="1" checked />Да
                 </p>
                 <p>
                     <label>Тип авто: 
                         <select name="type">
                             <option value="auto">АВТОМОБИЛЬНЫЙ</option>
-                                <option value="car"> --Легковой</option>
-                                <option value="estate"> --Универсал</option> 
+                                <option value="car" selected> --Легковой</option>
+                                <option value="universalis"> --Универсал</option> 
                                 <option value="minibus"> --Микроавтобус</option>
                                 <option value="truck"> --Грузовик</option>
-                                <option value="bus" selected> --Автобус</option>
+                                <option value="bus"> --Автобус</option>
                             <option value="moto">МОТОТРАНСПОРТ</option>
                                 <option value="motorcicle"> --Мотоцикл</option>
                                 <option value="moped"> --Мопед</option>

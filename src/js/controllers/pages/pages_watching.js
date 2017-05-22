@@ -171,7 +171,7 @@ define(['Dom', 'Dates', 'HideForms', 'DriverOffer', 'Storage'],
       addCityFrom = MyOffer.fromCity + ', ',
       addCityTo   = MyOffer.toCity + ', ';
     }
-    
+
     el_route.children[0].innerHTML = addCityFrom + MyOffer.fromAddress;
     el_route.children[2].innerHTML = addCityTo + MyOffer.toAddress;
     el_price.innerHTML             = MyOffer.price + ' руб.';
@@ -181,24 +181,24 @@ define(['Dom', 'Dates', 'HideForms', 'DriverOffer', 'Storage'],
       name_client  = orders[i].agent.name || User.default_name;
       agIndexes    = parseObj(getAgentIndexes(orders[i].agent));
       agRating     = orders[i].agent.rating;
-    
+
       temp_inner += '<div class="wait-bids-approve__item" data-order-id="' + orders[i].id + '">' +
-                        '<div class="wait-bids-approve__item__distance">' +
-                          'Клиент:' +
+                      '<div class="wait-bids-approve__item__distance">' +
+                        'Клиент:' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__driver">' +
+                        '<div>' +
+                          '<img src="' + photo_client + '" alt="" />' +
                         '</div>' +
-                        '<div class="wait-bids-approve__item__driver">' +
-                          '<div>' +
-                            '<img src="' + photo_client + '" alt="" />' +
-                          '</div>' +
-                          '<div>' +
-                            name_client +
-                          '</div>' +
-                          '<div>Рейтинг: ' + agRating + '</div>' +
-                          '<div>' + agIndexes + '</div>' +
+                        '<div>' +
+                          name_client +
                         '</div>' +
-                        '<div class="wait-bids-approve__item__cancel">' +
-                        '</div>' +
-                      '</div>';
+                        '<div>Рейтинг: ' + agRating + '</div>' +
+                        '<div>' + agIndexes + '</div>' +
+                      '</div>' +
+                      '<div class="wait-bids-approve__item__cancel">' +
+                      '</div>' +
+                    '</div>';
     }
     
     el.innerHTML = temp_inner;

@@ -13,7 +13,9 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
         return this.getAttribute("value");
       }
     });
+    
     new_field.className += 'range-input';
+    
     new_field.innerHTML = '<input type="text" data-order="min" data-name="' + el.name + '" value="" class="range-input__text" />' +
       '<input type="text" data-order="max" data-name="' + el.name + '" value="" class="range-input__text" />' +
       '<div class="range-input__wrap">' +
@@ -22,6 +24,7 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       '<div data-value data-name="' + el.name + '" class="range-input__wrap__line__toddler"></div>' +
       '</div>' +
       '</div>';
+    
     el.parentNode.insertBefore(new_field, el);
     addEvents(parent);
     onstartValues(el.name);
@@ -192,7 +195,7 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
     }
 
     changeValueInput(name);
-    Multirange.reinit();
+    Multirange.reinit(el);
   }
 
   function changeValues(el) {
@@ -276,8 +279,8 @@ define(['hammer', 'Funcs'], function (Hammer, Funcs) {
       }
     },
 
-    reinit: function (el) {
-      var inputs = el.querySelectorAll("input[type=range][multiple]:not(.multirange)");
+    reinit: function (e) {
+      var inputs = e.srcElement.parentNode.parentNode.querySelectorAll("input[type=range][multiple]:not(.multirange)");
 
       for (var i = 0; i < inputs.length; i++) {
         onstartValues(inputs[i].name);

@@ -177,6 +177,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     Conn.sendMessage("post-car", params);
   }
   
+  function deleteAuto(id) {
+    params.id = id;
+    Conn.sendMessage("delete-car", params);
+  }
+  
   function getProfile() {
     Conn.sendMessage("get-profile");
   }
@@ -656,6 +661,9 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
           break;
         case "updateAuto":
           updateAuto(data);
+          break;
+        case "deleteAuto":
+          deleteAuto(data);
           break;
         case "setActiveAuto":
           setActiveAuto(data);

@@ -140,7 +140,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
       
       el_price.innerHTML  = Math.round(MyOrder.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green"' + disabled + '>Отмена</button>' + 
-                            '<button data-click="edit_order" class="button_rounded--green">Редактировать</button>' + 
+                            '<button data-click="edit_order" class="button_rounded--green">Редакт.</button>' + 
                             '<button data-click="automat" class="button_rounded--' + color_automat + '">Автомат</button>';
       HideForms.init();
       Lists.getBidsDriver();

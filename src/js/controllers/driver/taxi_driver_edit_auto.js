@@ -47,12 +47,14 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
 
         if (cars[i].type) {
           var type = Dom.sel('select[name="type"] option[value="' + cars[i].type + '"]');
-           type.selected = true;
+          
+          type.selected = true;
         }
 
         if (cars[i].brand) {
           var brand = Dom.sel('select[name="brand"] option[value="' + cars[i].brand + '"]');
-           brand.selected = true;
+          
+          brand.selected = true;
         }
 
         model = cars[i].model;
@@ -74,9 +76,11 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   function addEvents() {
     Event.submit = function (event) {
       var target = event.target;
+      
       while (target !== this) {
-        if (target.dataset.submit === 'form-edit-auto') {
-          // = Form edit auto =
+        if (target.dataset.submit === 'form-edit-auto' && !target.disabled) {
+          target.disabled = true;
+          
           var file = Dom.sel('input[name=ava_file]').files[0],
               reader = new FileReader();
             

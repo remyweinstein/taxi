@@ -94,6 +94,10 @@ function (Dom, Modal, Storage, Dates) {
       Model.toFullAddress = null;
     }
 
+    var saveBut = Dom.sel('[data-click="save-order"]');
+
+    saveBut.disabled = true;
+
     Dom.selAll('.adress_' + _field)[0].value = "";
     Destinations.clear();
     init(Model);
@@ -233,6 +237,10 @@ function (Dom, Modal, Storage, Dates) {
         }
         
         Model.recommended_cost = recomended;
+        
+        var saveBut = Dom.sel('[data-click="save-order"]');
+        
+        saveBut.disabled = false;
         
         return Model;
       });

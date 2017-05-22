@@ -144,7 +144,7 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
                 enableEditRoute();
               } else {
                 edit_route = false;
-                el.innerHTML = 'Редактировать маршрут';
+                el.innerHTML = 'Редакт.';
                 MyOffer.route = JSON.stringify(routa);
                 disableEditRoute();
                 Storage.lullModel(MyOffer);

@@ -27,13 +27,18 @@ orderBy[price]=0 - ASC
   }
 
   function clearLayer(el) {
-    el.parentNode.removeChild(el);
+    if (el && el !== "undefined" && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
   }
 
   function close() {
     clearLayer(layer);
-    cur_win.parentNode.removeChild(cur_win);
-    cur_win = null;
+
+    if (cur_win && cur_win !== "undefined" && cur_win.parentNode) {
+      cur_win.parentNode.removeChild(cur_win);
+      cur_win = null;
+    }
   }
   
   function onInputDoubleRange() {
@@ -147,7 +152,8 @@ orderBy[price]=0 - ASC
                       parentDiv = el.parentNode,
                       height = new_field.offsetHeight,
                       i, i_ranges;
-                  
+                    
+                  close();
                   layer = showLayer();
                   new_field.className += 'popup-window';
                   new_field.innerHTML = content;

@@ -1,6 +1,8 @@
 /* global User, Event, default_city, Conn, Car */
 
 define(['Dom', 'Storage'], function (Dom, Storage) {
+  var global_li;
+  
   
   function cbGetAutos(response) {
     Conn.clearCb('cbGetAutos');
@@ -9,6 +11,8 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
         
     if (cars) {
       var ul = Dom.sel('.list-cars');
+      
+      ul.innerHTML = '';
       
       for (var i = 0; i < cars.length; i++) {
         var li = document.createElement('li'),
@@ -20,9 +24,19 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
                        '</div>' +
                        '<div>' +
                         '<i data-id="' + cars[i].id + '" data-click="set-drive" class="icon-steering-wheel' + active + '"></i>' +
+                        '<i data-id="' + cars[i].id + '" data-click="delete-auto" class="icon-block"></i>' +
                        '</div>';
         ul.appendChild(li);
       }
+    }
+  }
+  
+  
+  function cbDeleteAuto(response) {
+    if (!response.error) {
+      var li = global_li.parentNode.parentNode;
+      
+      li.parentNode.removeChild(li);
     }
   }
   
@@ -56,6 +70,11 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
           Car.id = target.dataset.id;
           Conn.request('setActiveAuto', target.dataset.id);
         }
+        
+        if (target.dataset.click === "delete-auto") {
+          global_li = target;
+          Conn.request('deleteAuto', target.dataset.id, cbDeleteAuto);
+        }
 
         if (target) {
           target = target.parentNode;
@@ -73,7 +92,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   }
   
   function start() {
-    Conn.request('getAuto', '', cbGetAutos);      
+    Conn.request('getAuto', '', cbGetAutos);
     addEvents();
   }
   

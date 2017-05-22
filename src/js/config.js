@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.64",
+  urlArgs: "v=0.65",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",

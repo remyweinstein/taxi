@@ -307,7 +307,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
                 enableEditRoute();
               } else {
                 edit_route = false;
-                el.innerHTML = 'Редактировать маршрут';
+                el.innerHTML = 'Редакт.';
                 MyOrder.route = JSON.stringify(routa);
                 disableEditRoute();
                 Storage.lullModel(MyOrder);
