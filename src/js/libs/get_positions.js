@@ -5,7 +5,7 @@ define(['Car'], function (Car) {
   
   function cbGetAgents(response) {
     if (!response.error) {
-      GetPositions.getPositionDrivers(response.result);
+      get_pos_drivers(response.result);
     }
   }
   
@@ -43,24 +43,13 @@ define(['Car'], function (Car) {
   }
 
   function get_pos_drivers(response) {
-    
-    function searchArray(index, arr) {
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i].id === index) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    var new_markers = [],
-        agnts = response.agents,
-        loc,
+    var agnts = response.agents,
         i;
 
     for (i = 0; i < agnts.length; i++) {
-      
-      if (!searchArray(agnts[i].id, MapElements.markers_driver_pos)) {
+      var loc = agnts[i].location.split(',');
+
+      if (!MapElements.markers_driver_pos[agnts[i].id]) {
         var photo     = agnts[i].photo || User.default_avatar,
             photo_car = agnts[i].cars ? agnts[i].cars[0].photo : Car.default_vehicle,
             name      = agnts[i].name || '&nbsp;',
@@ -81,43 +70,34 @@ define(['Car'], function (Car) {
                           '</div>' +
                         '</div>';
 
-        loc = agnts[i].location.split(',');
-
-        Maps.addMarker(loc[0], loc[1], agnts[i].name, icon, [32,32], function (mark) {
+        Maps.addMarker(loc[0], loc[1], name, icon, [32,32], function(mark){
           Maps.addInfoForMarker(info, false, mark);
-          new_markers.push({'id': agnts[i].id, 'marker': mark});
+          MapElements.markers_driver_pos[agnts[i].id] = mark;
         });
       } else {
-        if (MapElements.markers_driver_pos[i]) {
-          loc = agnts[i].location.split(',');
-          Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[i].marker);
-          new_markers.push({'id': agnts[i].id, 'marker': MapElements.markers_driver_pos[i].marker});
-        }
+        Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[agnts[i].id]);
       }
     }
-    
-    var result = [];
 
-    for (i = 0; i < MapElements.markers_driver_pos.length; i++) {
-      var s = false;
-      
-      for (var y = 0; y < new_markers.length; y++) {
-        if (MapElements.markers_driver_pos[i].id === new_markers[y].id) {
-          s = true;
-        }
-      }
-      
-      if (!s) {
-        result.push(MapElements.markers_driver_pos[i]);
+    for (var key in MapElements.markers_driver_pos) {
+      if (MapElements.markers_driver_pos.hasOwnProperty(key) &&
+          /^0$|^[1-9]\d*$/.test(key) &&
+          key <= 4294967294) {
+          var sovp = false;
+
+          for (var i = 0; i < agnts.length; i++) {
+            if (agnts[i].id  === key) {
+              sovp = true;
+            }
+          }
+
+          if (!sovp) {
+            Maps.removeElement(MapElements.markers_driver_pos[key]);
+            delete MapElements.markers_driver_pos[key];
+          }
       }
     }
     
-    for (i = 0; i < result.length; i++) {
-      Maps.removeElement(result[i].marker);
-    }
-    
-    MapElements.markers_driver_pos = [];
-    MapElements.markers_driver_pos = new_markers;
   }
 
   var GetPositions = {
@@ -144,10 +124,6 @@ define(['Car'], function (Car) {
       Conn.request('startGetAgents', radiusSearch, cbGetAgents);
       
       return link;
-    },
-    
-    getPositionDrivers: function (response) {
-      get_pos_drivers(response);
     }
   };
 

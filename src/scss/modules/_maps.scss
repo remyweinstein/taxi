@@ -49,10 +49,27 @@
 .find-me {
     position: absolute;
     cursor: pointer;
-    bottom: 3em;
+    bottom: 6.5em;
     z-index: 1;
-    right: 0;
-    font-size: 3em;
-    color: #02C9A2;
-    opacity: 0.5;
+    right: -0.25em;
+    font-size: 2em;
+    color: $active;
+}
+.find-client {
+    position: absolute;
+    cursor: pointer;
+    bottom: 7.5em;
+    font-size: 1.5em;
+    right: -0.15em;
+    z-index: 1;
+    color: $active;
+}
+.find-driver {
+    position: absolute;
+    cursor: pointer;
+    bottom: 11.5em;
+    font-size: 1em;
+    right: 0.25em;
+    z-index: 1;
+    color: $active;
 }

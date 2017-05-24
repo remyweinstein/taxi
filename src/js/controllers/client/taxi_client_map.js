@@ -29,6 +29,22 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
     }
   }
   
+  function cbEditOrder(resp) {
+    Conn.clearCb('cbEditOrder');
+    
+    if (!resp.error) {
+      var add = Storage.getActiveTypeTaxi();
+      
+      Conn.request('deleteOrderById', global_id);
+      
+      if (add === "taxi") {
+        add = 'city';
+      }
+      
+      goToPage = '#client_' + add;
+    }
+  }
+  
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
@@ -53,7 +69,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
         if (target && target.dataset.click === "edit_order") {
           global_el = target;
           global_id = MyOrder.id;
-          Conn.request('cancelOrder', MyOrder.id, cbCancelOrder);
+          Conn.request('cancelOrder', MyOrder.id, cbEditOrder);
         }
         
         if (target && target.dataset.click === "automat") {
@@ -87,7 +103,6 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
     Destinations.clear();
     GetPositions.clear();
     Lists.clear();
-    Conn.clearCb('cbGetBids');
     //Storage.removeActiveTypeModelTaxi();
     Storage.lullModel(MyOrder);
     SafeWin.disableZoneForRoute();

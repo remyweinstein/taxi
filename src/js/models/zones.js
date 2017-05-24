@@ -10,6 +10,7 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
       self.list.push({"polygon":self.new_polygon, "id":response.result.id, "note":self.new_note, "name":self.new_name, "isActive":false});
       win_reload();
     }
+    
     function cbGetZones(response) {
       Conn.clearCb('cbGetZones');
 

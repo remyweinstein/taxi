@@ -150,6 +150,22 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
     this.setCenter = function (lat, lng) {
       self.currentModel.setCenter(lat, lng);
     };
+    
+    this.addFindClient = function () {
+      self.currentModel.addFindClient();
+    };
+    
+    this.removeFindClient = function () {
+      self.currentModel.removeFindClient();
+    };
+    
+    this.addFindDriver = function () {
+      self.currentModel.addFindDriver();
+    };
+    
+    this.removeFindDriver = function () {
+      self.currentModel.removeFindDriver();
+    };
 
     this.setZoom = function (zoom) {
       self.currentModel.setZoom(zoom);
@@ -289,10 +305,10 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       for (i = 0; i < oCoordinates.length; i++) {
         var oItem = oCoordinates[i];
 
-        oLanLng.push({"lat":oItem[1], "lng":oItem[0]});
+        oLanLng.push({"lat":oItem[0], "lng":oItem[1]});
       }
       
-      self.drawPolyS(oLanLng, '#ffffff', callback);
+      self.drawPolyS(oLanLng, '#000000', callback);
     };
     
     this.getMarkerCoords = function (el) {

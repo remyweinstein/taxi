@@ -36,7 +36,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   function cbAddRating() {
     Conn.clearCb('cbAddRating');
     
-    if ((countFinishedOrders + countCanceledOrders) === countOrders) {
+    if ((countFinishedOrders + countCanceledOrders) === countOrders || (countFinishedOrders + countCanceledOrders) === 0) {
       var type = Storage.getActiveTypeTaxi();
 
       if (type === "taxi") {
@@ -191,6 +191,12 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
           MapElements.marker_clients[i] = Maps.addMarker(loc[0], loc[1], 'Клиент', '//maps.google.com/mapfiles/kml/shapes/man.png',  [16, 16], function(){});
         } else {
           Maps.markerSetPosition(loc[0], loc[1], MapElements.marker_clients[i]);
+        }
+        
+        var findClientEl = Dom.sel('.find-client');
+        
+        if (findClientEl) {
+          findClientEl.dataset.location = agnt.location;
         }
         
         if (orders[i].transferred) {
@@ -402,7 +408,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   }
   
   function runWatchingOrder() {
-    Modal.show('https://inll.ru/?offer=' + MyOffer.id + '&hash=' + MyOffer.hash + '#watching');
+    Modal.show('https://inll.ru/watching.html?offer=' + MyOffer.id + '&hash=' + MyOffer.hash);
   }
   
   function render(orders) {
@@ -454,6 +460,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
   
   function stop() {
     //Sip.stop();
+    Maps.removeFindClient();
     SharingOrder.enableWatching();
     btWatchingOrder.removeEventListener('click', runWatchingOrder);
           
@@ -473,6 +480,7 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     if (offerId) {
       MyOffer = new clDriverOffer();
       MyOffer.getByID(offerId, function () {
+        Maps.addFindClient();
         //Sip.register('grebenyuk', 'grebenyuk@intt.onsip.com', '4GREG49SdE76ztDk');
         SharingOrder.enableWatching();
         btWatchingOrder = Dom.sel('[data-click="watching-order"]');

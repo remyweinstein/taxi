@@ -33,6 +33,8 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   
   
   function cbDeleteAuto(response) {
+    Conn.clearCb('cbDeleteAuto');
+    
     if (!response.error) {
       var li = global_li.parentNode.parentNode;
       

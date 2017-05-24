@@ -21,6 +21,8 @@ define(['Dates'], function(Dates) {
     this.stevedores     = null;
     this.length         = 0;
     this.duration       = 0;
+    this.start          = null;
+    this.offset         = 0;
     this.name           = null;
     this.created        = null;
     this.order_in_offer = null;
@@ -67,6 +69,8 @@ define(['Dates'], function(Dates) {
       self.stops       = self.toAddresses.length || 0;
       self.length      = order.length || 0;
       self.duration    = order.duration || 0;
+      self.start       = order.start;
+      self.offset      = order.offset;
       self.name        = order.agent.name || User.default_name;
       self.created     = Dates.datetimeForPeople(order.created);
       self.photo       = order.agent.photo || User.default_avatar;

@@ -86,7 +86,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   
   function cbFinishOrder() {
     Conn.clearCb('cbFinishOrder');
-    
+    Conn.clearCb('cbGetOrderById');
+    Conn.request('stopGetOrder');
+
     var active_zones = Storage.getActiveZones();
     
     color_follow = isFollow ? 'green' : 'red';
@@ -102,6 +104,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       Storage.removeActiveZones();
     }
     
+    MyOrder.clear();
     Storage.removeTripClient();
     Storage.removeActiveRoute();
     Storage.removeFollowOrder();
@@ -111,6 +114,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   function cbCancelOrder() {
     Conn.clearCb('cbCancelOrder');
     
+    MyOrder.clear();
     Storage.removeFollowOrder();
     Storage.removeTripClient();
     goToPage = '#client_city';
@@ -189,7 +193,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         dr_time = lost_diff;
       } else {
         dr_time = '<span style="color:black">Опоздание</span> ' + Math.abs(lost_diff);
-        if (lost_diff < -10) {
+        if (lost_diff < -1 * (Parameters.t2)) {
           var but_cancel = Dom.sel('[data-click="cancel-order"]');
 
           if (!ords.arrived) {
@@ -312,6 +316,12 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
         });
       } else {
         Maps.markerSetPosition(loc[0], loc[1], MapElements.driver_marker);
+      }
+      
+      var findDriverEl = Dom.sel('.find-driver');
+      
+      if (findDriverEl) {
+        findDriverEl.dataset.location = agnt.location;
       }
       
       if (ords.transferred) {
@@ -528,10 +538,11 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   
   function runTransferOrder() {
     Conn.request('getSosAgents', '', cbGetSosAgents);
+    Conn.request('stopGetSosAgents');
   }
   
   function runWatchingOrder() {
-    Modal.show('https://inll.ru/?offer=' + offerId + '&hash=' + offerHash + '#watching');
+    Modal.show('https://inll.ru/watching.html?offer=' + offerId + '&hash=' + offerHash);
   }
   
   function runTransferCargo(e) {
@@ -555,6 +566,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
   }
   
   function stop() {
+    Maps.removeFindDriver();
     //Sip.stop();
     SharingOrder.disableTransfer();
     btTransferOrder.removeEventListener('click', runTransferOrder);
@@ -579,6 +591,7 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       MyOrder = new clClientOrder();
       MyOrder.getByID(orderId, function () {
         if (orderId) {
+          Maps.addFindDriver();
           //Sip.register('Client', 'indrivercopy@intt.onsip.com', 'vywnpDXMc6nhzpUH');
           SharingOrder.enableTransfer();
           btTransferOrder = Dom.sel('[data-click="transfer-order"]');

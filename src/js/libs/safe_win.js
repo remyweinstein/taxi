@@ -114,7 +114,25 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     }
   }
   
+  function runParentZone() {
+    var el = event && event.target ? event.target : event,
+        activeZones = el.dataset.active;
+    
+    if (Dom.toggle(el, 'active')) {
+      //for inactive
+      
+    } else {
+      //for active
+      
+    }
+  }
+  
   function runZone(event) {
+    if (window.location.hash !== "#client_offer") {
+      runParentZone();
+      return;
+    }
+    
     var el = event && event.target ? event.target : event;
     
     var active = el.dataset.active,
@@ -130,6 +148,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
             disableZones();
             Dom.toggle(el, 'active');
           }
+          
           Conn.clearCb('cbCheckPin');
         };
     
@@ -137,6 +156,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
 
     if (active !== "") {
       list_active_zone = active.split(',');
+      
       if (Dom.toggle(el, 'active')) {
         if (!User.hasPin) {
           disableZones();
@@ -275,7 +295,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
                           '<div data-click="runZone" data-active="" class="safety-window__round">Зона</div>' + 
                             zones + 
                         '</div>' + 
-                        '<div class="safety-window__grid-all safe_by_route">' + 
+                        '<div class="safety-window__grid-all safe_by_route hidden">' + 
                           '<div data-click="runRoute" class="safety-window__round--left">Маршрут</div>' + 
                           '<form>' + 
                             '<input name="safeRadius" type="range" min="0" max="2000" step="50" value="' + Settings.safeRadius + '">' +
@@ -366,7 +386,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     enableZoneForRoute: function() {
       Storage.setActiveRoute(Settings.safeRadius);
       
-      Maps.showPoly(SafeWin.overviewPath, function(poly){
+      Maps.showPoly(SafeWin.overviewPath, function(poly) {
         var path = Maps.getPath(poly);
         
         Maps.addElOnMap(poly);

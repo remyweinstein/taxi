@@ -5,6 +5,7 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   var content = Dom.sel('.content'),
       eventOnChangeZoom,
       global_el,
+      globals_el,
       global_item,
       MyOrder,
       _timer,
@@ -74,13 +75,34 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     }
   }
 
+  function cbSearchCity(results) {
+    Conn.clearCb('cbSearchCity');
+    
+    var list_parent  = globals_el.srcElement ? globals_el.srcElement.parentNode : globals_el.parentNode,
+        list_results = list_parent.querySelector('.form-order-city__hint'),
+        input        = globals_el.srcElement || globals_el,
+        route        = input.dataset.route,
+        innText      = '';
+      
+    var cities = results.result.city;
+
+    if (cities) {
+      for (var i = 0; i < cities.length; i++) {
+        innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
+      }
+
+      list_results.innerHTML = innText;
+      list_results.style.display = 'block';
+    }
+  }
+    
   function onchange(el) {
     var list_parent  = el.srcElement ? el.srcElement.parentNode : el.parentNode,
         list_results = list_parent.querySelector('.form-order-city__hint'),
         input        = el.srcElement || el,
-        query        = input.value,
-        route        = input.dataset.route,
-        innText      = '';
+        query        = input.value;
+      
+    globals_el = el;
     
     list_results.style.display = 'none';
     list_results.innerHTML = "";
@@ -92,20 +114,6 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
 
     function startSearch() {
       Conn.request('searchCity', query, cbSearchCity);
-    }
-
-    function cbSearchCity(results) {
-      var cities = results.result.city;
-      
-      if (cities) {
-        for (var i = 0; i < cities.length; i++) {
-          innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
-        }
-        
-        list_results.innerHTML = innText;
-        list_results.style.display = 'block';
-      }
-      Conn.clearCb('cbSearchCity');
     }
   }
 

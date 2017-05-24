@@ -3,10 +3,10 @@
 define(['ModalWindows', 'PopupWindows', 'Dom', 'Dates'], function (Modal, Popup, Dom, Dates) {
   
   function cbGetSosAgents(response) {
+    Conn.clearCb('cbGetSosAgents');
+    
     var agents = response.result.sosAgents,
         ul = Dom.sel('ul.trusted-contacts');
-    
-    Conn.clearCb('cbGetSosAgents');
     
     for (var i = 0; i < agents.length; i++) {
       var li = document.createElement('li');

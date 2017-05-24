@@ -119,13 +119,27 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
           el_cancel = Dom.sel('.wait-order-approve__route-info__cancel'),
           el_routes = Dom.selAll('.wait-order-approve__route-info__route');
       
+      var startTime = '';
+
+        var timeOffset = '';
+
+        if (MyOffer.offset > 0) {
+          timeOffset = ' &plusmn;' + MyOffer.offset + ' мин.';
+        }
+        var start = MyOffer.start ? Dates.datetimeForPeople(MyOffer.start) : 'Сейчас';
+        startTime = '<div class="list-orders_route_additional">' +
+                      'Время старта: ' +
+                      '<span>' + start + timeOffset + '</span>' +
+                    '</div>';
+
+      
       Maps.mapOn();
       SafeWin.overviewPath = [];
       initMap();
       GetPositions.my();
       el_routes[0].children[0].innerHTML = addCityFrom + MyOffer.fromAddress;
       el_routes[0].children[2].innerHTML = addCityTo + MyOffer.toAddress;
-      el_routes[0].children[3].innerHTML = 'В пути: ' +
+      el_routes[0].children[3].innerHTML = startTime + 'В пути: ' +
                                            (MyOffer.length / 1000).toFixed(1) +
                                            ' км / ' +
                                            Dates.minToHours(MyOffer.duration);

@@ -1,12 +1,12 @@
-/* global User, Zones, Conn, Funcs, currentRoute */
+/* global User, Zones, Conn, Funcs, currentRoute, HideForms */
 /*
  * @param {type} Uries, Funcs, Storage, Notify
  * @returns {connectionL#5.clConn}
  */
-define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, Notify) {
+define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Funcs, Storage, Notify, HideForms) {
   var timerReconnectionWebSocket,
       socket,
-      global_id = null;
+      global_cb = null;
   
   function viewLog(text) {
     console.log(text);
@@ -45,513 +45,30 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     }
   }
   
-  function requestToken() {
-    Conn.sendMessage("get-token");
-  }
-  
-  function getOrderById(id) {
-    params.orderId = id;
-    Conn.sendMessage("get-order", params);
-  }
-  
-  function stopGetOrder() {
-    Conn.sendMessage("stop-get-order");
-  }
-  
-  function getOfferById(id) {
-    params.offerId = id;
-    Conn.sendMessage("get-offer", params);
-  }
-  
-  function getOfferByHash(data) {
-    params.offerId = data.id;
-    params.hash = data.hash;
-    Conn.sendMessage("get-offer", params);
-  }
-  
-  function getNotifications() {
-    Conn.sendMessage("get-notifications");
-  }
-  
-  function readNotification(id) {
-    params.notificationId = id;
-    Conn.sendMessage("read-notification", params);
-  }
-  
-  function removeNotification(id) {
-    params.notificationId = id;
-    Conn.sendMessage("delete-notification", params);
-  }
-  
-  function inviteSosAgent(phone) {
-    params.agentPhone = phone;
-    Conn.sendMessage("invite-sos-agent", params);
-  }
-  
-  function acceptInviteSosAgent(id) {
-    params.notificationId = id;
-    Conn.sendMessage("accept-invite-sos-agent", params);
-  }
-  
-  function acceptInviteSosAgent(id) {
-    params.notificationId = id;
-    Conn.sendMessage("accept-invite-sos-agent", params);
-  }
-  
-  function removeSosAgent(id) {
-    params.agentId = id;
-    Conn.sendMessage("remove-sos-agent", params);
-  }
-  
-  function getSosAgents() {
-    Conn.sendMessage("get-sos-agents");
-  }
-  
-  function searchCity(city) {
-    params.city = city;
-    Conn.sendMessage("get-city", params);
-  }
-  
-  function requestFavorites() {
-    Conn.sendMessage("get-favorites");
-  }
-  
-  function deleteBlackList(id) {
-    params.id = id;
-    Conn.sendMessage("delete-black-list", params);
-  }
-  
-  function deleteFavorites(id) {
-    params.id = id;
-    Conn.sendMessage("delete-favorites", params);
-  }
-  
-  function transferOrder(data) {
-    params.orderId = data.orderId;
-    params.toAgentId = data.toAgentId;
-    Conn.sendMessage("transfer-order", params);
-  }
-  
-  function addBlackList(id) {
-    params.id = id;
-    Conn.sendMessage("post-black-list", params);
-  }
-  
-  function addFavorites(id) {
-    params.id = id;
-    Conn.sendMessage("post-favorites", params);
-  }
-  
-  function deletePhoto() {
-    Conn.sendMessage("post-clear-photo");
-  }
-
-  function updateProfile(data) {
-    params.profile = data;
-    Conn.sendMessage("post-profile", params);
-  }
-  
-  function addOrderToFav(id) {
-    params.orderId = id;
-    params.isFavorite = true;
-    
-    Conn.sendMessage("post-order-is-favorite", params);
-  }
-  
-  function addOrderFromFav(id) {
-    params.orderId = id;
-    params.isFavorite = false;
-    
-    Conn.sendMessage("post-order-is-favorite", params);
-  }
-  
-  function setActiveAuto(data) {
-    params.car = {};
-    params.car.id = data;
-    params.car.isActive = 1;
-    Conn.sendMessage("post-car", params);
-  }
-  
-  function updateAuto(data) {
-    params.car = data;
-    Conn.sendMessage("post-car", params);
-  }
-  
-  function deleteAuto(id) {
-    params.id = id;
-    Conn.sendMessage("delete-car", params);
-  }
-  
-  function getProfile() {
-    Conn.sendMessage("get-profile");
-  }
-
-  function deleteOrderById(id) {
-    params.orderId = id;
-    Conn.sendMessage("delete-order", params);
-  }
-  
-  function startGetOrdersById(id) {
-    params.filter = {};
-    params.filter.orderId = id;
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function startGetOrders(type) {
-    var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
-        orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
-
-    params.filter = {};
-    params = Funcs.extendObj(filters, params);
-    params = Funcs.extendObj(orders, params);
-    params.filter.type = type;
-    params.filter.fromCity = User.city;
-    Conn.sendMessage("get-orders", params);
-  }
-
-  function stopGetOrders() {
-    Conn.sendMessage("stop-get-orders");
-  }
-
-  function startGetOffers(type) {
-    var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
-        orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {},
-        typer   = type || "taxi";
-    
-    params.filter = {};
-    params = Funcs.extendObj(filters, params);
-    params = Funcs.extendObj(orders, params);
-    params.filter.type = typer;
-    //if (type !== "intercity") {
-      params.filter.fromCity = User.city;
-    //}
-    Conn.sendMessage("get-offers", params);
-  }
-
-  function stopGetOffers() {
-    Conn.sendMessage("stop-get-offers");
-  }
-
-  function agreeOrder(data) {
-    params.offer             = {};
-    params.offer.order       = data.id;
-    params.offer.travelTime  = data.travelTime;
-    params.offer.price       = data.price;
-    delete params.offer.zone;
-    Conn.sendMessage("post-offer", params);
-  }
-  
-  function disagreeOrder(id) {
-    params.orderId = id;
-    Conn.sendMessage("delete-offer", params);
-  }
-
-  function deleteOffer(id) {
-    params.offerId = id;
-    Conn.sendMessage("delete-offer", params);
-  }
-
-  function agreeOffer(data) {
-    params.offerId            = data.id;
-    params.order              = {};
-    
-    if (data.fromCity) {
-      params.order.fromCity     = data.fromCity;
-    }
-    
-    if (data.fromLocation) {
-      params.order.fromLocation = data.fromLocation;
-    }
-    
-    if (data.fromAddress) {
-      params.order.fromAddress  = data.fromAddress;
-    }
-    
-    if (data.toCity) {
-      params.order.toCity       = data.toCity;
-    }
-    
-    if (data.toLocation) {
-      params.order.toLocation   = data.toLocation;
-    }
-    
-    if (data.toAddress) {
-      params.order.toAddress    = data.toAddress;
-    }
-    
-    if (data.price) {
-      params.order.price        = data.price;
-    }
-    
-    if (data.seats) {
-      params.order.seats        = data.seats;
-    } else {
-      params.order.seats        = 1;
-    }
-
-    Conn.sendMessage("post-order", params);
-  }
-
-  function disagreeOffer(data) {
-    //params.offerId = id;
-    params.orderId = data;
-    Conn.sendMessage("delete-order", params);
-  }
-
-  function createOrder(data) {
-    params.order = data;
-    delete params.order.zone;
-    Conn.sendMessage("post-order", params);
-  }
-  
-  function startChatMessages(data) {
-    params = data;
-    Conn.sendMessage("get-messages", params);
-  }
-
-  function stopChatMessages() {
-    Conn.sendMessage("stop-get-messages");
-  }
-  
-  function sendMessageChat(data) {
-    params = data;
-    Conn.sendMessage('post-message', params);
-  }
-  
-  function createOffer(data) {
-    params.offer = data;
-    delete params.offer.zone;
-    Conn.sendMessage("post-offer", params);
-  }
-
-  function requestMyOrders() {
-    params.filter      = {};
-    params.filter.type = "taxi";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function requestMyTruckingOrders() {
-    params.filter      = {};
-    params.filter.type = "trucking";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function requestMyIntercityOrders() {
-    params.filter      = {};
-    params.filter.type = "intercity";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function requestMyTourismOrders() {
-    params.filter      = {};
-    params.filter.type = "tourism";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function getSettings() {
-    Conn.sendMessage("get-settings");
-  }
-  
-  function setSettings(data) {
-    params.settings = [];
-    params.settings.push(data);
-    Conn.sendMessage("post-settings", params);
-  }
-  
-  function approveOffer(id) {
-    params.offerId = id;
-    Conn.sendMessage("approve-offer", params);
-  }
-
-  function approveOrder(id) {
-    params.orderId = id;
-    Conn.sendMessage("approve-order", params);
-  }
-
-  function requestMyOffers() {
-    params.filter      = {};
-    params.filter.type = "taxi";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-offers", params);
-  }
-  
-  function requestMyTruckingOffers() {
-    params.filter      = {};
-    params.filter.type = "trucking";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-offers", params);
-  }
-  
-  function requestMyIntercityOffers() {
-    params.filter      = {};
-    params.filter.type = "intercity";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-offers", params);
-  }
-  
-  function requestMyTourismOffers() {
-    params.filter      = {};
-    params.filter.type = "intercity";
-    params.filter.my   = 1;
-    Conn.sendMessage("get-offers", params);
-  }
-  
-  function requestSos() {
-    Conn.sendMessage("sos");
-  }
-  
-  function startOffersByOrder(id) {
-    params.filter         = {};
-    params.filter.orderId = id;
-    //params.filter.type    = "taxi";
-    Conn.sendMessage("get-offers", params);
-  }
-  
-  function stopOffersByOrder() {
-    Conn.sendMessage("stop-get-offers", params);
-  }
-  
-  function startOrdersByOffer(id) {
-    params.filter         = {};
-    params.filter.offerId = id;
-    //params.filter.type    = "taxi";
-    Conn.sendMessage("get-orders", params);
-  }
-  
-  function stopOrdersByOffer() {
-    Conn.sendMessage("stop-get-orders", params);
-  }
-
-  function startGetAgents(radius) {
-    params.radius = radius;
-    Conn.sendMessage("get-agents");
-  }
-
-  function stopGetAgents() {
-    Conn.sendMessage("stop-get-agents");
-  }
-
-  function requestProfile() {
-    Conn.sendMessage("get-profile");
-  }
-  
-  function addRating(data) {
-    params = data;
-    Conn.sendMessage("post-rating", params);
-  }
-  
-  function checkPin(pin) {
-    params.pin = pin;
-    Conn.sendMessage("check-pin", params);
-  }
-  
-  function changePin(data) {
-    params = data;
-    Conn.sendMessage("post-profile", params);
-  }
-  
-  function requestZones() {
-    Conn.sendMessage("get-zones");
-  }
-  
-  function deleteZones(id) {
-    params.id = id;
-    Conn.sendMessage("delete-zone", params);
-  }
-  
-  function arrivedDriver(id) {
-    params.orderId = id;
-    Conn.sendMessage("arrived", params);
-  }
-  
-  function finishOrder(id) {
-    params.orderId = id;
-    Conn.sendMessage("finish", params);
-  }
-  
-  function inCarClient(id) {
-    params.orderId = id;
-    Conn.sendMessage("in-car", params);
-  }
-  
-  function transferedOrder(id) {
-    params.orderId = id;
-    params.transferred = true;
-    Conn.sendMessage("post-order-transferred", params);
-  }
-  
-  function cancelOrder(id) {
-    params.orderId = id;
-    Conn.sendMessage("cancel-order", params);
-  }
-
-  function cancelOffer(id) {
-    params.offerId = id;
-    Conn.sendMessage("cancel-offer", params);
-  }
-
-  function updateUserLocation() {
-    params.location = User.lat + ',' + User.lng;
-    Conn.sendMessage("post-location", params);
-  }
-  
-  function registerUser(data) {
-    params = data;
-    Conn.sendMessage("register", params);
-  }
-  
-  function confirmSms(data) {
-    params = data;
-    Conn.sendMessage("confirm", params);
-  }
-  
-  function startOffer(id) {
-    params.offerId = id;
-    Conn.sendMessage("start-order", params);
-  }
-  
-  function getModels(brand) {
-    params.brand = brand;
-    Conn.sendMessage("get-models", params);
-  }
-  
-  function getAuto() {
-    Conn.sendMessage("get-cars");
-  }
-  
-  function addZones(data) {
-    params.zone = data;
-    Conn.sendMessage("post-zone", params);
-  }
-  
-  function ulogin(data) {
-    params = data;
-    Conn.sendMessage("ulogin", params);
-  }
   
   var clConn = function () {
     var self = this;
     
     function addCbFunc(cb) {
+      if (!cb) {
+        return null;
+      }
+      
       var sovp = false,
           name = getFnName(cb);
         
       for (var i = 0; i < self.callback.length; i++) {
         if (getFnName(self.callback[i]) === name) {
           sovp = true;
-          
           break;
         }
       }
       
       if (!sovp) {
         self.callback.push(cb);
-        global_id = name;
       }
+      
+      return name;      
     }
     
     this.is_connect    = false;
@@ -561,292 +78,550 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     
     this.clearCb = function(name) {
       for (var i = 0; i < self.callback.length; i++) {
-        if (typeof self.callback[i] === 'function') {
-          if (getFnName(self.callback[i]) === name) {
-            self.callback.splice(i, 1);
-            break;
-          }
+        if (typeof self.callback[i] === 'function' && getFnName(self.callback[i]) === name) {
+          self.callback.splice(i, 1);
+          return;
         }
       }
     };
     
     this.request = function(func, data, cb) {
-      params = {};
+      var method = false, 
+          params = {};
       
       if (User.initialization_token) {
         return;
       }
       
-      if (cb) {
-        addCbFunc(cb);
-      } else {
-        global_id = null;
-      }
+      global_cb = addCbFunc(cb);
+      
+      var funcs = {
+        "ulogin": function () {
+          params = data;
+          method = "ulogin";
+        },
+        
+        "getNotifications": function () {
+          method = "get-notifications";
+        },
+        
+        "readNotification": function () {
+          params.notificationId = data;
+          method = "read-notification";
+        },
+        
+        "inviteSosAgent": function () {
+          params.agentPhone = data;
+          method = "invite-sos-agent";
+        },
+        
+        "removeNotification": function () {
+          params.notificationId = data;
+          method = "delete-notification";
+        },
+        
+        "acceptInviteSosAgent": function () {
+          params.notificationId = data;
+          method = "accept-invite-sos-agent";
+        },
+        
+        "removeSosAgent": function () {
+          params.agentId = data;
+          method = "remove-sos-agent";
+        },
+        
+        "getSosAgents": function () {
+          method = "get-sos-agents";
+        },
+        
+        "stopGetSosAgents": function () {
+          method = "stop-get-sos-agents";
+        },
+        
+        "derful": function() {
+          params.agentId = data.agentId;
+          params.zoneIds  = data.zoneIds;
+          method = "";
+        },
+        
+        "searchCity": function () {
+          params.city = data;
+          method = "get-city";
+        },
+        
+        "requestFavorites": function () {
+          method = "get-favorites";
+        },
+        
+        "addFavorites": function () {
+          params.id = data;
+          method = "post-favorites";
+        },
+        
+        "deleteFavorites": function () {
+          params.id = data;
+          method = "delete-favorites";
+        },
+        
+        "transferOrder": function () {
+          params.orderId = data.orderId;
+          params.toAgentId = data.toAgentId;
+          method = "transfer-order";
+        },
+        
+        "addBlackList": function () {
+          params.id = data;
+          method = "post-black-list";
+        },
+        
+        "deleteBlackList": function () {
+          params.id = data;
+          method = "delete-black-list";
+        },
+        
+        "cancelOrder": function () {
+          params.orderId = data;
+          method = "cancel-order";
+        },
+        
+        "getOrderById": function () {
+          params.orderId = data;
+          method = "get-order";
+        },
+        
+        "stopGetOrder": function () {
+          method = "stop-get-order";
+        },
+        
+        "getOfferById": function () {
+          params.offerId = data;
+          method = "get-offer";
+        },
+        
+        "getOfferByHash": function () {
+          params.offerId = data.id;
+          params.hash = data.hash;
+          method = "get-offer";
+        },
+        
+        "sendMessageChat": function () {
+          params = data;
+          method = "post-message";
+        },
+        
+        "startChatMessages": function () {
+          params = data;
+          method = "get-messages";
+        },
+        
+        "stopChatMessages": function () {
+          method = "stop-get-messages";
+        },
+        
+        "getAuto": function () {
+          method = "get-cars";
+        },
+        
+        "getModels": function () {
+          params.brand = data;
+          method = "get-models";
+        },
+        
+        "updateAuto": function () {
+          params.car = data;
+          method = "post-car";
+        },
+        "deleteAuto": function () {
+          params.id = data;
+          method = "delete-car";
+        },
+        
+        "setActiveAuto": function () {
+          params.car = {};
+          params.car.id = data;
+          params.car.isActive = 1;
+          method = "post-car";
+        },
+        
+        "addZones": function () {
+          params.zone = data;
+          method = "post-zone";
+        },
+        
+        "requestToken": function () {
+          method = "get-token";
+        },
+        
+        "deletePhoto": function () {
+          method = "post-clear-photo";
+        },
+        
+        "updateProfile": function () {
+          params.profile = data;
+          method = "post-profile";
+        },
+        
+        "addOrderToFav": function () {
+          params.orderId = data;
+          params.isFavorite = true;    
+          method = "post-order-is-favorite";
+        },
+        
+        "addOrderFromFav": function () {
+          params.orderId = data;
+          params.isFavorite = false;    
+          method = "post-order-is-favorite";
+        },
+        
+        "getProfile": function () {
+          method = "get-profile";
+        },
+        
+        "finishOrder": function () {
+          params.orderId = data;
+          method = "finish";
+        },
+        
+        "inCarClient": function () {
+          params.orderId = data;
+          method = "in-car";
+        },
+        
+        "transferedOrder": function () {
+          params.orderId = data;
+          params.transferred = true;
+          method = "post-order-transferred";
+        },
+        
+        "arrivedDriver": function () {
+          params.orderId = data;
+          method = "arrived";
+        },
+        
+        "deleteOrderById": function () {
+          params.orderId = data;
+          method = "delete-order";
+        },
+        
+        "startGetOrdersById": function () {
+          params.filter = {};
+          params.filter.orderId = data;
+          method = "get-orders";
+        },
+        
+        "startGetOrders": function () {
+          var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+              orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
 
-      switch (func) {
-        case "ulogin":
-          ulogin(data);
-          break;
-        case "getNotifications":
-          getNotifications();
-          break;
-        case "readNotification":
-          readNotification(data);
-          break;
-        case "inviteSosAgent":
-          inviteSosAgent(data);
-          break;
-        case "removeNotification":
-          removeNotification(data);
-          break;
-        case "acceptInviteSosAgent":
-          acceptInviteSosAgent(data);
-          break;
-        case "removeSosAgent":
-          removeSosAgent(data);
-          break;
-        case "getSosAgents":
-          getSosAgents();
-          break;
-        case "searchCity":
-          searchCity(data);
-          break;
-        case "requestFavorites":
-          requestFavorites();
-          break;
-        case "addFavorites":
-          addFavorites(data);
-          break;
-        case "deleteFavorites":
-          deleteFavorites(data);
-          break;
-        case "transferOrder":
-          transferOrder(data);
-          break;
-        case "addBlackList":
-          addBlackList(data);
-          break;
-        case "deleteBlackList":
-          deleteBlackList(data);
-          break;
-        case "cancelOrder":
-          cancelOrder(data);
-          break;
-        case "getOrderById":
-          getOrderById(data);
-          break;
-        case "stopGetOrder":
-          stopGetOrder();
-          break;
-        case "getOfferById":
-          getOfferById(data);
-          break;
-        case "getOfferByHash":
-          getOfferByHash(data);
-          break;
-        case "sendMessageChat":
-          sendMessageChat(data);
-          break;
-        case "startChatMessages":
-          startChatMessages(data);
-          break;
-        case "stopChatMessages":
-          stopChatMessages();
-          break;
-        case "getAuto":
-          getAuto();
-          break;
-        case "getModels":
-          getModels(data);
-          break;
-        case "updateAuto":
-          updateAuto(data);
-          break;
-        case "deleteAuto":
-          deleteAuto(data);
-          break;
-        case "setActiveAuto":
-          setActiveAuto(data);
-          break;
-        case "addZones":
-          addZones(data);
-          break;
-        case "requestToken":
-          requestToken();
-          break;          
-        case "deletePhoto":
-          deletePhoto();
-          break;
-        case "updateProfile":
-          updateProfile(data);
-          break;
-        case "addOrderToFav":
-          addOrderToFav(data);
-          break;
-        case "addOrderFromFav":
-          addOrderFromFav(data);
-          break;
-        case "getProfile":
-          getProfile();
-          break;
-        case "finishOrder":
-          finishOrder(data);
-          break;
-        case "inCarClient":
-          inCarClient(data);
-          break;
-        case "transferedOrder":
-          transferedOrder(data);
-          break;
-        case "arrivedDriver":
-          arrivedDriver(data);
-          break;
-        case "deleteOrderById":
-          deleteOrderById(data);
-          break;
-        case "startGetOrdersById":
-          startGetOrdersById(data);
-          break;
-        case "startGetOrders":
-          startGetOrders('taxi');
-          break;
-        case "startGetOrdersTrucking":
-          startGetOrders('trucking');
-          break;
-        case "startGetIntercityOrders":
-          startGetOrders('intercity');
-          break;
-        case "startGetTourismOrders":
-          startGetOrders('tourism');
-          break;
-        case "stopGetOrders":
-          stopGetOrders();
-          break;
-        case "startGetOffers":
-          startGetOffers(data);
-          break;
-        case "stopGetOffers":
-          stopGetOffers();
-          break;
-        case "stopOffersByOrder":
-          stopOffersByOrder(data);
-          break;
-        case "stopOrdersByOffer":
-          stopOrdersByOffer(data);
-          break;
-        case "cancelOffer":
-          cancelOffer(data);
-          break;
-        case "agreeOrder":
-          agreeOrder(data);
-          break;
-        case "startOffersByOrder":
-          startOffersByOrder(data);
-          break;
-        case "startOrdersByOffer":
-          startOrdersByOffer(data);
-          break;
-        case "disagreeOrder":
-          disagreeOrder(data);
-          break;
-        case "deleteOffer":
-          deleteOffer(data);
-          break;
-        case "getSettings":
-          getSettings();
-          break;
-        case "setSettings":
-          setSettings(data);
-          break;
-        case "approveOffer":
-          approveOffer(data);
-          break;
-        case "approveOrder":
-          approveOrder(data);
-          break;
-        case "agreeOffer":
-          agreeOffer(data);
-          break;
-        case "disagreeOffer":
-          disagreeOffer(data);
-          break;
-        case "createOrder":
-          createOrder(data);
-          break;
-        case "createOffer":
-          createOffer(data);
-          break;
-        case "requestMyOrders":
-          requestMyOrders();
-          break;
-        case "requestMyIntercityOrders":
-          requestMyIntercityOrders();
-          break;
-        case "requestMyTourismOrders":
-          requestMyTourismOrders();
-          break;
-        case "requestMyTruckingOrders":
-          requestMyTruckingOrders();
-          break;
-        case "requestMyOffers":
-          requestMyOffers();
-          break;
-        case "requestMyTruckingOffers":
-          requestMyTruckingOffers();
-          break;
-        case "requestMyIntercityOffers":
-          requestMyIntercityOffers();
-          break;
-        case "requestMyTourismOffers":
-          requestMyTourismOffers();
-          break;
-        case "startGetAgents":
-          startGetAgents(data);
-          break;
-        case "requestSos":
-          requestSos();
-          break;
-        case "stopGetAgents":
-          stopGetAgents();
-          break;
-        case "requestProfile":
-          requestProfile();
-          break;
-        case "addRating":
-          addRating(data);
-          break;
-        case "checkPin":
-          checkPin(data);
-          break;
-        case "changePin":
-          changePin(data);
-          break;
-        case "requestZones":
-          requestZones();
-          break;
-        case "deleteZones":
-          deleteZones(data);
-          break;
-        case "updateUserLocation":
-          updateUserLocation();
-          break;
-        case "updateProfile":
-          updateProfile(data);
-          break;
-        case "registerUser":
-          registerUser(data);
-          break;
-        case "confirmSms":
-          confirmSms(data);
-          break;
-        case "startOffer":
-          startOffer(data);
-          break;
+          params.filter = {};
+          params = Funcs.extendObj(filters, params);
+          params = Funcs.extendObj(orders, params);
+          params.filter.type = 'taxi';
+          params.filter.fromCity = User.city;
+          method = "get-orders";
+        },
+        
+        "startGetOrdersTrucking": function () {
+          var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+              orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
+
+          params.filter = {};
+          params = Funcs.extendObj(filters, params);
+          params = Funcs.extendObj(orders, params);
+          params.filter.type = 'trucking';
+          params.filter.fromCity = User.city;
+          method = "get-orders";
+        },
+        
+        "startGetIntercityOrders": function () {
+          var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+              orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
+
+          params.filter = {};
+          params = Funcs.extendObj(filters, params);
+          params = Funcs.extendObj(orders, params);
+          params.filter.type = 'intercity';
+          params.filter.fromCity = User.city;
+          method = "get-orders";
+        },
+        
+        "startGetTourismOrders": function () {
+          var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+              orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {};
+
+          params.filter = {};
+          params = Funcs.extendObj(filters, params);
+          params = Funcs.extendObj(orders, params);
+          params.filter.type = 'tourism';
+          params.filter.fromCity = User.city;
+          method = "get-orders";
+        },
+        
+        "stopGetOrders": function () {
+          method = "stop-get-orders";
+        },
+        
+        "startGetOffers": function () {
+          var filters = Storage.getActiveFilters() ? JSON.parse(Storage.getActiveFilters()) : {},
+              orders  = Storage.getActiveSortFilters() ? JSON.parse(Storage.getActiveSortFilters()) : {},
+              typer   = data || "taxi";
+
+          params.filter = {};
+          params = Funcs.extendObj(filters, params);
+          params = Funcs.extendObj(orders, params);
+          params.filter.type = typer;
+          params.filter.fromCity = User.city;
+          method = "get-offers";
+        },
+        
+        "stopGetOffers": function () {
+          method = "stop-get-offers";
+        },
+        
+        "stopOffersByOrder": function () {
+          method = "stop-get-offers";
+        },
+        
+        "stopOrdersByOffer": function () {
+          method = "stop-get-orders";
+        },
+        
+        "cancelOffer": function () {
+          params.offerId = data;
+          method = "cancel-offer";
+        },
+        
+        "agreeOrder": function () {
+          params.offer             = {};
+          params.offer.order       = data.id;
+          params.offer.travelTime  = data.travelTime;
+          params.offer.price       = data.price;
+          delete params.offer.zone;
+          method = "post-offer";
+        },
+        
+        "startOffersByOrder": function () {
+          params.filter         = {};
+          params.filter.orderId = data;
+          method = "get-offers";
+        },
+        
+        "startOrdersByOffer": function () {
+          params.filter         = {};
+          params.filter.offerId = data;
+          method = "get-orders";
+        },
+        
+        "disagreeOrder": function () {
+          params.orderId = data;
+          method = "delete-offer";
+        },
+        
+        "deleteOffer": function () {
+          params.offerId = data;
+          method = "delete-offer";
+        },
+        
+        "getSettings": function () {
+          method = "get-settings";
+        },
+        
+        "setSettings": function () {
+          params.settings = [];
+          params.settings.push(data);
+          method = "post-settings";
+        },
+        
+        "approveOffer": function () {
+          params.offerId = data;
+          method = "approve-offer";
+        },
+        
+        "approveOrder": function () {
+          params.orderId = data;
+          method = "approve-order";
+        },
+        
+        "agreeOffer": function () {
+          params.offerId            = data.id;
+          params.order              = {};
+
+          if (data.fromCity) {
+            params.order.fromCity     = data.fromCity;
+          }
+          if (data.fromLocation) {
+            params.order.fromLocation = data.fromLocation;
+          }
+          if (data.fromAddress) {
+            params.order.fromAddress  = data.fromAddress;
+          }
+          if (data.toCity) {
+            params.order.toCity       = data.toCity;
+          }
+          if (data.toLocation) {
+            params.order.toLocation   = data.toLocation;
+          }
+          if (data.toAddress) {
+            params.order.toAddress    = data.toAddress;
+          }
+          if (data.price) {
+            params.order.price        = data.price;
+          }
+          if (data.seats) {
+            params.order.seats        = data.seats;
+          } else {
+            params.order.seats        = 1;
+          }
+
+          method = "post-order";
+        },
+        
+        "disagreeOffer": function () {
+          params.orderId = data;
+          method = "delete-order";
+        },
+        
+        "createOrder": function () {
+          params.order = data;
+          delete params.order.zone;
+          method = "post-order";
+        },
+        
+        "createOffer": function () {
+          params.offer = data;
+          delete params.offer.zone;
+          method = "post-offer";
+        },
+        
+        "requestMyOrders": function () {
+          params.filter      = {};
+          params.filter.type = "taxi";
+          params.filter.my   = 1;
+          method = "get-orders";
+        },
+        
+        "requestMyIntercityOrders": function () {
+          params.filter      = {};
+          params.filter.type = "intercity";
+          params.filter.my   = 1;
+          method = "get-orders";
+        },
+        
+        "requestMyTourismOrders": function () {
+          params.filter      = {};
+          params.filter.type = "tourism";
+          params.filter.my   = 1;
+          method = "get-orders";
+        },
+        
+        "requestMyTruckingOrders": function () {
+          params.filter      = {};
+          params.filter.type = "trucking";
+          params.filter.my   = 1;
+          method = "get-orders";
+        },
+        
+        "requestMyOffers": function () {
+          params.filter      = {};
+          params.filter.type = "taxi";
+          params.filter.my   = 1;
+          method = "get-offers";
+        },
+        
+        "requestMyTruckingOffers": function () {
+          params.filter      = {};
+          params.filter.type = "trucking";
+          params.filter.my   = 1;
+          method = "get-offers";
+        },
+        
+        "requestMyIntercityOffers": function () {
+          params.filter      = {};
+          params.filter.type = "intercity";
+          params.filter.my   = 1;
+          method = "get-offers";
+        },
+        
+        "requestMyTourismOffers": function () {
+          params.filter      = {};
+          params.filter.type = "intercity";
+          params.filter.my   = 1;
+          method = "get-offers";
+        },
+        
+        "startGetAgents": function () {
+          params.radius = data;
+          method = "get-agents";
+        },
+        
+        "requestSos": function () {
+          method = "sos";
+        },
+        
+        "stopGetAgents": function () {
+          method = "stop-get-agents";
+        },
+        
+        "requestProfile": function () {
+          method = "get-profile";
+        },
+        
+        "addRating": function () {
+          params = data;
+          method = "post-rating";
+        },
+        
+        "checkPin": function () {
+          params.pin = data;
+          method = "check-pin";
+        },
+        
+        "changePin": function () {
+          params = data;
+          method = "post-profile";
+        },
+        
+        "requestZones": function () {
+          method = "get-zones";
+        },
+        
+        "deleteZones": function () {
+          params.id = data;
+          method = "delete-zone";
+        },
+        
+        "updateUserLocation": function () {
+          params.location = User.lat + ',' + User.lng;
+          method = "post-location";
+        },
+        
+        "registerUser": function () {
+          params = data;
+          method = "register";
+        },
+        
+        "confirmSms": function () {
+          params = data;
+          method = "confirm";
+        },
+        
+        "startOffer": function () {
+          params.offerId = data;
+          method = "start-order";
+        }
+      };
+      
+      funcs[func]();
+
+      if (method) {
+        self.sendMessage(method, params);
       }
+      
+      return;
     };
           
     this.start = function (callback) {
-      socket = new WebSocket("wss://" + Uries.server_uri + ":4443");
+      socket = new WebSocket('wss://' + Uries.server_uri + ':4443');
       self.is_connecting = true;
       
       socket.onopen = function () {
@@ -876,11 +651,13 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
         self.is_connect    = false;
         self.is_connecting = false;
         timerReconnectionWebSocket = setTimeout(self.start(function(){
+          HideForms.clear();
           require([currentRoute.controller], function(controller) {
             controller.clear();
             controller.start();
           });
         }), 2000);
+        
         if (event.wasClean) {
           viewLog('Соединение закрыто чисто, Код: ' + event.code);
         } else {
@@ -896,11 +673,13 @@ define(['Uries', 'Funcs', 'Storage', 'Notify'], function(Uries, Funcs, Storage, 
     this.sendMessage = function (method, params) {
       var req = {};
       
-      req.method = method;
-      req.id = global_id || method;
-      req.params = params || {};
+      req.method       = method;
+      req.id           = global_cb || method;
+      req.params       = params || {};
       req.params.token = User.token;
-      viewLog(JSON.stringify(req));      
+      
+      viewLog(JSON.stringify(req));
+      
       if (self.is_connect) {
         socket.send(JSON.stringify(req));
       }

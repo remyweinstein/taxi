@@ -12,6 +12,8 @@ define(['Storage'], function(Storage) {
     this.fromCoords       = null;
     this.toCoords         = null;
     this.start            = null;
+    this.length           = 0;
+    this.duration         = 0;
     this.fromFullAddress  = null;
     this.toFullAddress    = null;
     this.length           = 0;
@@ -23,6 +25,7 @@ define(['Storage'], function(Storage) {
     this.price            = 0;
     this.route            = null;
     this.hash             = null;
+    this.offset           = null;
     this.weight           = null;
     this.volume           = null;
     this.stevedores       = null;
@@ -69,7 +72,10 @@ define(['Storage'], function(Storage) {
         self.toCityLocation   = ord.toCityLocation;
         self.price            = ord.price;
         self.route            = ord.route;
+        self.length           = ord.length || 0;
+        self.duration         = ord.duration || 0;
         self.hash             = ord.hash;
+        self.offset           = ord.offset;
         self.comment          = ord.comment;
         self.weight           = ord.weight;
         self.volume           = ord.volume;
@@ -111,7 +117,10 @@ define(['Storage'], function(Storage) {
         self.comment          = ord.comment;
         self.type             = ord.type;
         self.start            = ord.start;
+        self.offset           = ord.offset;
         self.weight           = ord.weight;
+        self.length           = ord.length || 0;
+        self.duration         = ord.duration || 0;
         self.volume           = ord.volume;
         self.stevedores       = ord.stevedores;
         self.seats            = ord.seats;
@@ -173,7 +182,33 @@ define(['Storage'], function(Storage) {
     };
     
     this.clear = function () {
-      self = null;
+        self.id               = null;
+        self.fromCity         = null;
+        self.fromCityLocation = null;
+        self.fromAddress      = null;
+        self.fromCoords       = null;
+        self.toCity           = null;
+        self.toCityLocation   = null;
+        self.toAddress        = null;
+        self.toCoords         = null;
+        self.price            = null;
+        self.hash             = null;
+        self.route            = null;
+        self.offset           = null;
+        self.length           = 0;
+        self.duration         = 0;
+        self.comment          = null;
+        self.type             = null;
+        self.start            = null;
+        self.weight           = null;
+        self.volume           = null;
+        self.stevedores       = null;
+        self.seats            = null;
+        self.occupiedSeats    = null;
+        self.bags             = null;
+        self.started          = null;
+        self.canceled         = null;
+        self.zone             = null;
     };
     
     this.save = function () {
@@ -189,6 +224,9 @@ define(['Storage'], function(Storage) {
       data.route         = self.route;
       data.comment       = self.comment;
       data.type          = self.type;
+      data.offset        = self.offset;
+      data.length        = self.length;
+      data.duration      = self.duration;
       data.weight        = self.weight;
       data.volume        = self.volume;
       data.stevedores    = self.stevedores;

@@ -11,6 +11,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
                 {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPageTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
+                {hash:'#parent_control', template:'PageParentControl', controller:'ctrlPageParentControl', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
                 {hash:'#admin', template:'PageAdmin', controller:'ctrlPageAdmin', title:'Параметры', menu:'client', pageType: ''},
@@ -171,16 +172,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
         list.insertBefore(newLi, list.firstChild);
       }
     }
-    
-    var win_route = Dom.selAll('.safe_by_route')[0];
-    
-    if (win_route) {
-      if (route.hash === "#driver_go" || route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_trucking" || route.hash === "#client_intercity") {
-        win_route.classList.remove('hidden');
-      } else {
-        win_route.classList.add('hidden');
-      }
-    }
   }
   
   function clearVars() {
@@ -204,6 +195,16 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     currentRoute = route;
     Tabs.clear();
     HideForms.clear();
+    
+    var win_route = Dom.selAll('.safe_by_route')[0];
+    
+    if (win_route) {
+      if (route.hash === "#driver_go" || route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_trucking" || route.hash === "#client_intercity") {
+        win_route.classList.remove('hidden');
+      } else {
+        win_route.classList.add('hidden');
+      }
+    }
     
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);

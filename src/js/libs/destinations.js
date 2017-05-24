@@ -58,10 +58,15 @@ function (Dom, Modal, Storage, Dates) {
         seats  = Dom.sel('input[name="seats"]'),
         bags   = Dom.sel('input[name="bags"]'),
         stevedores = Dom.sel('input[name="loaders"]'),
-        now   = new Date();
+        offset = Dom.sel('select[name="offsetTime"]'),
+        now    = new Date();
       
     if (now.valueOf() > Date.parse(Model.start)) {
       Model.start = now.getFullYear() + '-' + (now.getMonth()+ 1)   + '-' + now.getDate() + ' ' +  now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+    }
+    
+    if (offset) {
+      Model.offset = offset.value;
     }
     
     Model.stevedores = stevedores ? stevedores.value : null;

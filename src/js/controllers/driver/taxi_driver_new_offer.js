@@ -4,6 +4,7 @@ define(['Destinations', 'GetPositions', 'HideForms', 'ModalWindows', 'Storage', 
 function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, Dom, Geo) {
   var MyOffer,
       _timer,
+      globals_el,
       temp_lat, temp_lng, 
       eventOnClickMap = null,
       eventOnClickMarker,
@@ -13,6 +14,25 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
       routa = [],
       edit_route = false;
   
+  function cbSearchCity(results) {
+    Conn.clearCb('cbSearchCity');
+    
+    var list_results = globals_el.parentNode.querySelector('.form-order-city__hint'),
+        input   = globals_el,
+        route   = input.dataset.route,
+        innText = '';
+    var cities = results.result.city;
+
+    if (cities) {
+      for (var i = 0; i < cities.length; i++) {
+        innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
+      }
+
+      list_results.innerHTML     = innText;
+      list_results.style.display = 'block';
+    }
+  }
+    
   function initMap() {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(15);
@@ -21,10 +41,9 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
   function onchange(el) {
     var list_results = el.parentNode.querySelector('.form-order-city__hint'),
         input   = el,
-        query   = input.value,
-        route   = input.dataset.route,
-        innText = '';
+        query   = input.value;
     
+    globals_el = el;
     list_results.style.display = 'none';
     list_results.innerHTML = "";
     clearTimeout(_timer);    
@@ -35,20 +54,6 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
 
     function startSearch() {
       Conn.request('searchCity', query, cbSearchCity);
-    }
-
-    function cbSearchCity(results) {
-      Conn.clearCb('cbSearchCity');
-      var cities = results.result.city;
-      
-      if (cities) {
-        for (var i = 0; i < cities.length; i++) {
-          innText += '<p data-route="' + route + '" data-click="add_hint_city" data-latlng="' + cities[i].location + '">' + cities[i].city + '</p>';
-        }
-        
-        list_results.innerHTML     = innText;
-        list_results.style.display = 'block';
-      }
     }
   }
   
@@ -351,7 +356,19 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     innerPlaces.innerHTML    = '<i class="icon-accessibility form-order-city__label"></i>' +
                                '<span class="form-order-city__wrap_short3"><input type="text" name="seats" value="1" placeholder=""></span>' + 
                                '<i class="icon-shopping-bag form-order-city__label"></i>' +
-                               '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>';
+                               '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>' + 
+                             '<i class="icon-flag-checkered form-order-city__label"></i>' +
+                               '<span>' + 
+                               '<select name="offsetTime">' +
+                                 '<option value="0">0</option>' +
+                                 '<option value="5">&plusmn;5</option>' +
+                                 '<option value="15">&plusmn;15</option>' +
+                                 '<option value="30">&plusmn;30</option>' +
+                                 '<option value="45">&plusmn;45</option>' +
+                                 '<option value="60">&plusmn;60</option>' +
+                               '</select>' + 
+                               '</span>';
+                             
 
     elForm.insertBefore(innerCityFrom, elFrom);
     elForm.insertBefore(innerCityTo, elTo);
@@ -368,7 +385,19 @@ function (Destinations, GetPositions, HideForms, Modal, Storage, clDriverOffer, 
     innerPlaces.innerHTML  = '<i class="icon-accessibility form-order-city__label"></i>' +
                              '<span class="form-order-city__wrap_short3"><input type="text" name="seats" value="1" placeholder=""></span>' + 
                              '<i class="icon-shopping-bag form-order-city__label"></i>' +
-                             '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>';
+                             '<span class="form-order-city__wrap_short3"><input type="text" name="bags" value="3" placeholder=""></span>' +
+                             '<i class="icon-flag-checkered form-order-city__label"></i>' +
+                            '<span>' + 
+                             '<select name="offsetTime">' +
+                               '<option value="0">0</option>' +
+                               '<option value="5">&plusmn;5</option>' +
+                               '<option value="15">&plusmn;15</option>' +
+                               '<option value="30">&plusmn;30</option>' +
+                               '<option value="45">&plusmn;45</option>' +
+                               '<option value="60">&plusmn;60</option>' +
+                             '</select>' + 
+                             '</span>';
+
     elForm.insertBefore(innerPlaces, elFormChildren);
     
     innerRouteInfo.className += 'form-order-city__field';

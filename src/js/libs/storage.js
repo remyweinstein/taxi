@@ -2,17 +2,17 @@ define(['ActiveOrder'], function(ActiveOrder) {
   
   var Storage = {
     clear: function () {
-      removeActiveTypeModelTaxi();
-      clearActiveTypesTaxi();
-      removeActiveTypeFilters();
-      clearHistoryPages();
-      clearOpenNotify();
-      clearLastPage();
-      clearMyActiveOrder();
-      clearPrevListOrders();
-      removeOpenOfferId();
-      clearModels();
-      clearActiveFilters();
+      Storage.removeActiveTypeModelTaxi();
+      Storage.clearActiveTypesTaxi();
+      Storage.removeActiveTypeFilters();
+      Storage.clearHistoryPages();
+      Storage.clearOpenNotify();
+      Storage.clearLastPage();
+      Storage.clearMyActiveOrder();
+      Storage.clearPrevListOrders();
+      Storage.removeOpenOfferId();
+      Storage.clearModels();
+      Storage.clearActiveFilters();
     },
     
     lullModel: function (Model) {

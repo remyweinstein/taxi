@@ -36,13 +36,16 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       }
       
       for (var i = 0; i < orders.length; i++) {
-        var agIndex = parseObj(getAgentIndexes(orders[i].agent, 'client')),
-            agRating= orders[i].agent.rating,
-            approve = orders[i].bids[0] ? orders[i].bids[0].approved : false,
-            vehicle = orders[i].agent.vehicle || Car.default_vehicle,
-            active  = approve ? ' active' : ' inactive',
-            photo   = orders[i].agent.photo || User.avatar,
-            loc     = orders[i].agent.location;
+        var agIndex  = parseObj(getAgentIndexes(orders[i].agent, 'client')),
+            agRating = orders[i].agent.rating,
+            approve  = orders[i].bids[0] ? orders[i].bids[0].approved : false,
+            vehicle  = orders[i].agent.vehicle || Car.default_vehicle,
+            active   = approve ? ' active' : ' inactive',
+            photo    = orders[i].agent.photo || User.avatar,
+            loc      = orders[i].agent.location,
+            favorite = !orders[i].agent.isFavorite ? '<button data-id="' + orders[i].agent.id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + orders[i].agent.id + '" data-click="deltofav">Удалить из Избранного</button>',
+            brand    = orders[i].agent.cars ? orders[i].agent.cars[0].brand : '&nbsp;',
+            model    = orders[i].agent.cars ? orders[i].agent.cars[0].model : '&nbsp;';
         
         if (!gl_active && approve) {
           gl_active = true;
@@ -51,7 +54,23 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         loc = loc.split(',');
 
         if (!MapElements.markers_driver_pos[orders[i].agent.id]) {
-          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], orders[i].agent.name, driver_icon, [32,32], function(){});
+          var info =  '<div style="text-align:center;">' +
+                        '<div style="width:50%;display:inline-block;float: left;">' +
+                          '<p>id' + orders[i].agent.id + '<br>' + orders[i].agent.name + '</p>' +
+                          '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
+                          '<p>' + favorite + '</p>' +
+                        '</div>' +
+                        '<div style="width:50%;display:inline-block">' +
+                          '<p>' + brand + '<br>' + model + '</p>' +
+                          '<p><img class="avatar" src="' + vehicle + '" alt=""/></p>' +
+                          '<p><button data-id="' + orders[i].agent.id + '" data-click="addtoblack">Черный список</button></p>' +
+                        '</div>' +
+                      '</div>';
+                    
+          Maps.addMarker(loc[0], loc[1], orders[i].agent.name, driver_icon, [32,32], function(mark){
+            Maps.addInfoForMarker(info, false, mark);
+            MapElements.markers_driver_pos[orders[i].agent.id] = mark;
+          });
         } else {
           Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[orders[i].agent.id]);
         }
@@ -90,6 +109,25 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                     '</div>';
       }
       
+      for (var key in MapElements.markers_driver_pos) {
+          if (MapElements.markers_driver_pos.hasOwnProperty(key) &&
+              /^0$|^[1-9]\d*$/.test(key) &&
+              key <= 4294967294) {
+              var sovp = false;
+              
+              for (var i = 0; i < orders.length; i++) {
+                if (orders[i].agent.id  === key) {
+                  sovp = true;
+                }
+              }
+              
+              if (!sovp) {
+                Maps.removeElement(MapElements.markers_driver_pos[key]);
+                delete MapElements.markers_driver_pos[key];
+              }
+          }
+      }
+      
       if (old_list_bids !== JSON.stringify(orders) && Storage.getActiveTypeTaxi() === "intercity" && Storage.getActiveTypeModelTaxi() === "offer") {
         if (window.location.hash !== "#client_offer") {
           require(['ctrlTaxiDriverOffer'], function (controller) {
@@ -117,7 +155,11 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
         offers = response.result.offers,
         innText = '',
         automat_client_approve = Storage.getClientAutomat();
-      
+    
+    if (!el) {
+      return;
+    }
+    
     el.innerHTML = "";
     
     if (!offers || offers === "undefined") {
@@ -136,18 +178,38 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
       }
       
       for (var i = 0; i < offers.length; i++) {
-        var agIndex = parseObj(getAgentIndexes(offers[i].agent, 'driver')),
-            car     = offers[i].agent.cars[0],
-            vehicle = car.photo || Car.default_vehicle,
-            approve = offers[i].bids ? offers[i].bids[0].approved : false,
-            active  = approve ? ' active' : ' inactive',
-            photo   = offers[i].agent.photo || User.avatar,
-            loc     = offers[i].agent.location;
+        var agIndex  = parseObj(getAgentIndexes(offers[i].agent, 'driver')),
+            agRating = offers[i].agent.rating,
+            car      = offers[i].agent.cars[0],
+            vehicle  = car.photo || Car.default_vehicle,
+            approve  = offers[i].bids ? offers[i].bids[0].approved : false,
+            active   = approve ? ' active' : ' inactive',
+            photo    = offers[i].agent.photo || User.avatar,
+            favorite = !offers[i].agent.isFavorite ? '<button data-id="' + offers[i].agent.id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + offers[i].agent.id + '" data-click="deltofav">Удалить из Избранного</button>',
+            loc      = offers[i].agent.location,
+            brand    = offers[i].agent.cars ? offers[i].agent.cars[0].brand : '&nbsp;',
+            model    = offers[i].agent.cars ? offers[i].agent.cars[0].model : '&nbsp;';
 
         loc = loc.split(',');
         
         if (!MapElements.markers_driver_pos[offers[i].agent.id]) {
-          MapElements.marker_client = Maps.addMarker(loc[0], loc[1], offers[i].agent.name, driver_icon, [32,32], function(){});
+          var info =  '<div style="text-align:center;">' +
+                        '<div style="width:50%;display:inline-block;float: left;">' +
+                          '<p>id' + offers[i].agent.id + '<br>' + offers[i].agent.name + '</p>' +
+                          '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
+                          '<p>' + favorite + '</p>' +
+                        '</div>' +
+                        '<div style="width:50%;display:inline-block">' +
+                          '<p>' + brand + '<br>' + model + '</p>' +
+                          '<p><img class="avatar" src="' + vehicle + '" alt=""/></p>' +
+                          '<p><button data-id="' + offers[i].agent.id + '" data-click="addtoblack">Черный список</button></p>' +
+                        '</div>' +
+                      '</div>';
+
+          Maps.addMarker(loc[0], loc[1], offers[i].agent.name, driver_icon, [32,32], function(mark){
+            Maps.addInfoForMarker(info, false, mark);
+            MapElements.markers_driver_pos[offers[i].agent.id] = mark;
+          });
         } else {
           Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_driver_pos[offers[i].agent.id]);
         }
@@ -163,6 +225,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<img src="' + photo + '" alt="" />' +
                         '</div>' +
                         '<div>' + offers[i].agent.name + '</div>' +
+                        '<div>Рейтинг: ' + agRating + '</div>' +
                         '<div>' + agIndex + '</div>' +
                       '</div>' +
                       '<div class="wait-bids-approve__item__car">' +
@@ -183,6 +246,25 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                         'Предложенная цена: <span>' + Math.round(offers[i].price) + ' руб</span>' +
                       '</div>' +
                     '</div>';
+      }
+      
+      for (var key in MapElements.markers_driver_pos) {
+          if (MapElements.markers_driver_pos.hasOwnProperty(key) &&
+              /^0$|^[1-9]\d*$/.test(key) &&
+              key <= 4294967294) {
+              var sovp = false;
+              
+              for (var i = 0; i < offers.length; i++) {
+                if (offers[i].agent.id  === key) {
+                  sovp = true;
+                }
+              }
+              
+              if (!sovp) {
+                Maps.removeElement(MapElements.markers_driver_pos[key]);
+                delete MapElements.markers_driver_pos[key];
+              }
+          }
       }
     }
     el.innerHTML = innText;
@@ -373,6 +455,31 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             fromCity = Orders[key].fromCity + ', ';
             toCity = Orders[key].toCity + ', ';
           }
+          
+          var travelTime = '';
+          
+          if (order === "order") {
+            travelTime = '<div class="list-orders_route_time">' +
+                          'Время подъезда: ' + time_minus +
+                          '<span>' + Orders[key].travelTime + ' мин.</span>' + time_plus +
+                          safety +
+                        '</div>';
+          }
+          
+          var startTime = '';
+          
+          if (order === "offer") {
+            var timeOffset = '';
+            
+            if (Orders[key].offset > 0) {
+              timeOffset = ' &plusmn;' + Orders[key].offset + ' мин.';
+            }
+            
+            startTime = '<div class="list-orders_route_additional">' +
+                          'Время старта: ' +
+                          '<span>' + Dates.datetimeForPeople(Orders[key].start) + timeOffset + '</span>' +
+                        '</div>';
+          }
 
           show('LI', '<div class="list-orders_route">' +
                        '<div data-click="open-' + order + '" data-id="' + Orders[key].id + '">' +
@@ -387,6 +494,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           Orders[key].comment +
                         '</div>' +
                         cargo_info +
+                        startTime +
                         '<div class="list-orders_route_info">' +
                           'До адреса: ' + Orders[key].distance + ' км' +
                         '</div>' +
@@ -402,11 +510,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<span>' + Orders[key].price + ' руб.</span>' +
                           price_plus +
                         '</div>' +
-                        '<div class="list-orders_route_time">' +
-                          'Время подъезда: ' + time_minus +
-                          '<span>' + Orders[key].travelTime + ' мин.</span>' + time_plus +
-                          safety +
-                        '</div>' +
+                        travelTime +
                       '</div>' +
                       '<div class="list-orders_personal">' +
                         '<img src="' + Orders[key].photo + '" alt="" /><br/>' +

@@ -28,6 +28,7 @@ define(['Dom'], function (Dom) {
   
   function runParentControl() {
     swipeRight();
+    goToPage = "#parent_control";
   }
   
   function runPassOrder() {

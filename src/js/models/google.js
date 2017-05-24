@@ -142,6 +142,44 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
       Maps.map.setCenter(new google.maps.LatLng(lat, lng));
     };
     
+    function findClient(e) {
+      var el = e.srcElement || e.target,
+          location = el.dataset.location.split(',');
+      
+      self.setCenter(location[0], location[1]);
+    }
+    
+    this.addFindClient = function () {
+      self.insertHtml('beforeend', '<i class="icon-pitch find-client" data-click="find-client"></i>');
+      Dom.sel('.find-client').addEventListener('click', findClient);
+    };
+    
+    this.removeFindClient = function () {
+      var target = Dom.sel('.find-client');
+      
+      target.removeEventListener('click', findClient);
+      target.parentNode.removeChild(target);
+    };
+    
+    function findDriver(e) {
+      var el = e.srcElement || e.target,
+          location = el.dataset.location.split(',');
+      
+      self.setCenter(location[0], location[1]);
+    }
+    
+    this.addFindDriver = function () {
+      self.insertHtml('beforeend', '<i class="icon-taxi find-driver" data-click="find-driver"></i>');
+      Dom.sel('.find-driver').addEventListener('click', findDriver);
+    };
+    
+    this.removeFindDriver = function () {
+      var target = Dom.sel('.find-driver');
+      
+      target.removeEventListener('click', findDriver);
+      target.parentNode.removeChild(target);
+    };
+    
     this.setZoom = function (zoom) {
       Maps.map.setZoom(zoom);
     };
