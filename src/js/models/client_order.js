@@ -15,17 +15,15 @@ define(['Storage'], function(Storage) {
     this.fromCity         = null;
     this.fromCoords       = null;
     this.stevedores       = null;
-    this.toFullAddresses  = [];
     this.toCityLocation   = null;
     this.toFullAddress    = null;
-    this.toAddresses      = [];
-    this.toCoordses       = [];
     this.toAddress        = null;
     this.toCoords         = null;
-    this.toCities         = [];
     this.toCity           = null;
+    this.points           = [];
     this.recommended_cost = null;
     this.occupiedSeats    = 0;
+    this.isConstant       = false;
     this.canceled         = false;
     this.distance         = 0;
     this.started          = null;
@@ -34,7 +32,6 @@ define(['Storage'], function(Storage) {
     this.volume           = null;
     this.length           = 0;
     this.weight           = null;
-    this.times            = [];
     this.price            = 0;
     this.route            = null;
     this.seats            = 1;
@@ -84,42 +81,28 @@ define(['Storage'], function(Storage) {
         self.fromAddress      = ord.fromAddress;
         self.fromCoords       = ord.fromCoords;
         self.fromCity         = ord.fromCity || User.city;
-        self.toFullAddresses  = [];
         self.toCityLocation   = ord.toCityLocation;
         self.toFullAddress    = ord.toFullAddress;
-        self.toAddresses      = [];
-        self.toCoordses       = [];
         self.toAddress        = ord.toAddress;
-        self.toCities         = [];
         self.toCoords         = ord.toCoords;
         self.toCity           = ord.toCity || User.city;
+        self.points           = ord.points;
         self.occupiedSeats    = ord.occupiedSeats;
+        self.isConstant       = ord.isConstant;
         self.stevedores       = ord.stevedores;
         self.duration         = ord.duration;
         self.canceled         = ord.canceled;
         self.distance         = ord.distance;
         self.started          = ord.started;
         self.comment          = ord.comment;
-        self.cities           = [];
         self.length           = ord.length;
         self.weight           = ord.weight;
         self.volume           = ord.volume;
         self.start            = ord.start;
-        self.times            = [];
         self.price            = ord.price;
         self.route            = ord.route;
         self.type             = ord.type;
         self.zone             = ord.zone;
-        
-        if (ord.toAddresses) {
-          for (var i = 0; i < ord.toAddresses.length; i++) {
-            self.toFullAddresses[i] = ord.toFullAddresses[i];
-            self.toAddresses[i]     = ord.toAddresses[i];
-            self.toCoordses[i]      = ord.toCoordses[i];
-            self.cities[i]          = ord.cities[i];
-            self.times[i]           = ord.times[i];
-          }
-        }
       }
     }
     
@@ -134,16 +117,15 @@ define(['Storage'], function(Storage) {
       self.fromAddress      = null;
       self.fromCoords       = null;
       self.fromCity         = null;
-      self.toFullAddresses  = [];
       self.toCityLocation   = null;
       self.toFullAddress    = null;
-      self.toAddresses      = [];
-      self.toCoordses       = [];
       self.toAddress        = null;
       self.toCoords         = null;
-      self.toCities         = [];
+      self.toCity           = null;
+      self.points           = [];
       self.occupiedSeats    = 0;
       self.stevedores       = null;
+      self.isConstant       = false;
       self.duration         = 0;
       self.distance         = 0;
       self.canceled         = false;
@@ -151,10 +133,8 @@ define(['Storage'], function(Storage) {
       self.comment          = null;
       self.length           = 0;
       self.volume           = null;
-      self.toCity           = null;
       self.weight           = null;
       self.start            = null;
-      self.times            = [];
       self.price            = 0;
       self.route            = null;
       self.seats            = 1;
@@ -212,27 +192,23 @@ define(['Storage'], function(Storage) {
         self.fromAddress      = ord.fromAddress;
         self.fromCity         = ord.fromCity || User.city;
         self.fromCoords       = ord.fromLocation;
-        self.toFullAddresses  = [];
         self.toCityLocation   = ord.toCityLocation;
         self.toFullAddress    = ord.toFullAddress;
-        self.toAddresses      = [];
-        self.toCoordses       = [];
         self.toAddress        = ord.toAddress;
         self.toCoords         = ord.toLocation;
-        self.toCities         = [];
         self.toCity           = ord.toCity || User.city;
+        self.points           = ord.points;
         self.occupiedSeats    = ord.occupiedSeats;
         self.stevedores       = ord.stevedores;
+        self.isConstant       = ord.isConstant;
         self.distance         = ord.distance;
         self.canceled         = ord.canceled;
         self.duration         = ord.duration;
         self.started          = ord.started;
         self.comment          = ord.comment;
-        self.cities           = [];
         self.length           = ord.length;
         self.weight           = ord.weight;
         self.volume           = ord.volume;
-        self.times            = [];
         self.start            = ord.start;
         self.price            = ord.price;
         self.route            = ord.route;
@@ -240,18 +216,6 @@ define(['Storage'], function(Storage) {
         self.bags             = ord.bags;
         self.type             = ord.type;
         self.zone             = ord.zone;
-
-        if (ord.points) {
-          if (ord.points.length > 0) {
-            for (var i = 0; i < ord.points.length; i++) {
-              self.toFullAddresses[i] = ord.points[i].fullAddress || "";
-              self.toAddresses[i]     = ord.points[i].address || "";
-              self.toCoordses[i]      = ord.points[i].location || "";
-              self.cities[i]          = ord.points[i].city || "";
-              self.times[i]           = ord.points[i].stopTime || "";
-            }
-          }
-        }
 
         if (self.active) {
           Storage.setTripClient(self.id);
@@ -275,8 +239,10 @@ define(['Storage'], function(Storage) {
       data.toLocation    = self.toCoords;
       data.toAddress     = self.toAddress;
       data.toCity        = self.toCity || User.city;
+      data.points        = self.points;
       data.occupiedSeats = self.occupiedSeats;
       data.stevedores    = self.stevedores;
+      data.isConstant    = self.isConstant;
       data.babyChair     = 0;
       data.duration      = self.duration;
       data.minibus       = 0;
@@ -291,22 +257,6 @@ define(['Storage'], function(Storage) {
       data.type          = self.type;
       data.bags          = self.bags;
       data.zone          = self.zone;
-
-      if (self.toAddresses) {
-        if (self.toAddresses.length > 0) {
-          data.points = [];
-          for (var i = 0; i < self.toAddresses.length; i++) {
-            var time = self.times[i] || 0;
-            
-            data.points[i]             = {};
-            data.points[i].fullAddress = '';
-            data.points[i].location    = self.toCoordses[i];
-            data.points[i].stopTime    = time;
-            data.points[i].address     = self.toAddresses[i];
-            data.points[i].city        = User.city;
-          }
-        }
-      }
 
       Conn.request('createOrder', data, cbCreateOrder);
       

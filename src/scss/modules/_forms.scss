@@ -34,7 +34,7 @@
     -moz-transition: top 0.5s ease-out 0.25s;
     -o-transition: top 0.5s ease-out 0.25s;
     transition: top 0.5s ease-out 0.25s;
-    input{
+    input[type="text"]{
         width: 90%;
         border:0;
         font-size: 0.75em;

@@ -139,10 +139,10 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
       GetPositions.my();
       el_routes[0].children[0].innerHTML = addCityFrom + MyOffer.fromAddress;
       el_routes[0].children[2].innerHTML = addCityTo + MyOffer.toAddress;
-      el_routes[0].children[3].innerHTML = startTime + 'В пути: ' +
-                                           (MyOffer.length / 1000).toFixed(1) +
-                                           ' км / ' +
-                                           Dates.minToHours(MyOffer.duration);
+      el_routes[0].children[3].innerHTML = startTime; //+ 'В пути: ' +
+                                           //(MyOffer.length / 1000).toFixed(1) +
+                                           //' км / ' +
+                                           //Dates.minToHours(MyOffer.duration);
 
       el_price.innerHTML  = Math.round(MyOffer.price) + ' руб';
       el_cancel.innerHTML = '<button data-click="cancel-order" class="button_rounded--green">Отмена</button>' + 

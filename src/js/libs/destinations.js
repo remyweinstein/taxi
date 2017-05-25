@@ -6,8 +6,12 @@ function (Dom, Modal, Storage, Dates) {
   var Model, price, comment;
 
   function AddNewZaezd(just_add) {
-    var time = Model.times[just_add] ? Model.times[just_add] + " мин" : "",
-        addr = Model.toAddresses[just_add] || "",
+    if (!Model.points[just_add]) {
+      Model.points[just_add] = {};
+    }
+    
+    var time = Model.points[just_add].stopTime ? Model.points[just_add].stopTime + " мин" : "",
+        addr = Model.points[just_add].address || "",
         el,
         new_field = document.createElement('div'),
         activeTypeTaxi = Storage.getActiveTypeTaxi();
@@ -44,8 +48,8 @@ function (Dom, Modal, Storage, Dates) {
       rem_old_stops[i].parentNode.removeChild(rem_old_stops[i]);
     }
     
-    if (Model.toAddresses) {
-      for (i = 0; i < Model.toAddresses.length; i++) {
+    if (Model.points) {
+      for (i = 0; i < Model.points.length; i++) {
         AddNewZaezd(i);
       }
     }
@@ -59,7 +63,12 @@ function (Dom, Modal, Storage, Dates) {
         bags   = Dom.sel('input[name="bags"]'),
         stevedores = Dom.sel('input[name="loaders"]'),
         offset = Dom.sel('select[name="offsetTime"]'),
-        now    = new Date();
+        now    = new Date(),
+        isConstantEl = Dom.sel('input[name="isConstant"]');
+      
+    if (isConstantEl) {
+      Model.isConstant = isConstantEl.checked;
+    } 
       
     if (now.valueOf() > Date.parse(Model.start)) {
       Model.start = now.getFullYear() + '-' + (now.getMonth()+ 1)   + '-' + now.getDate() + ' ' +  now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
@@ -80,6 +89,7 @@ function (Dom, Modal, Storage, Dates) {
     Model.type    = typeOf || 'taxi';
     Model.price   = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
+    
     Model.save(callback);
     Storage.lullModel(Model);
   }
@@ -174,7 +184,7 @@ function (Dom, Modal, Storage, Dates) {
       '<p><button class="button_rounded--green" data-response="20">20 мин</button></p>' +
       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>',
       function (response) {
-        eval("Model.times[" + id + "] = " + response);
+        eval("Model.points[" + id + "].stopTime = " + response);
         Destinations.clear();
         init(Model);
         Storage.lullModel(Model);
@@ -319,18 +329,18 @@ function (Dom, Modal, Storage, Dates) {
       var be_dead = target.parentNode,
           id = target.dataset.id;
 
-      Model.toAddresses.splice(id, 1);
-      Model.toCoordses.splice(id, 1);
-      Model.times.splice(id, 1);
+      Model.points.splice(id, 1);
       be_dead.parentNode.removeChild(be_dead);
       Storage.lullModel(Model);
       MapElements.clear();
+      
       Maps.drawRoute(Model, false, false, false, function (recomended, arrRoi) {
         Dom.selAll('[name="cost"]')[0].placeholder = 'Рекомендуем ' + recomended + ' руб.';
         Model.route = JSON.stringify(arrRoi);
         Model.recommended_cost = recomended;
         return Model;
       });
+      
       reloadPoints(Model);
     },
 

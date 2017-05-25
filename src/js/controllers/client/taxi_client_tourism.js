@@ -499,16 +499,16 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
   }
   
   function stop() {
-    disableEditRoute();
     Lists.clear();
+    disableEditRoute();
     GetPositions.clear();
     Destinations.clear();
     Maps.removeEvent(eventOnChangeZoom);
+    Storage.lullModel(MyOrder);
+    SafeWin.disableZoneForRoute();
+    Modal.close();
     Conn.clearCb('cbGetOffers');
     Conn.request('stopGetOffers');
-    Storage.lullModel(MyOrder);
-    Modal.close();
-    SafeWin.disableZoneForRoute();
   }
   
   function start() {
@@ -528,16 +528,9 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     eventOnChangeZoom = GetPositions.drivers();
     GetPositions.my();
     initMap();
-    // = Draw Offers of Drivers =
-    Lists.filtersStart();
-    Conn.request('startGetOffers', 'tourism', cbGetOffers);
     // ===== Draw New Order =====
     Destinations.init(MyOrder);
-    // ===== Draw My Orders =====
-    Conn.request('requestMyTourismOrders', '', cbGetMyTourismOrder);
     HideForms.init();
-    addEvents();
-    
     var innerRouteInfo = document.createElement('div'),
         elForm         = Dom.sel('.form-order-city__top'),
         elFormChildren = Dom.sel('input[name="description"]').parentNode.parentNode;
@@ -547,6 +540,12 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
                                 '<button class="button_short--green" data-click="edit-route">Редактировать маршрут</button>';
     elForm.insertBefore(innerRouteInfo, elFormChildren);
 
+    // ===== Draw My Orders =====
+    Conn.request('requestMyTourismOrders', '', cbGetMyTourismOrder);
+    // = Draw Offers of Drivers =
+    Lists.filtersStart();
+    Conn.request('startGetOffers', 'tourism', cbGetOffers);
+    addEvents();
   }
   
   return {

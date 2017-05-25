@@ -105,13 +105,9 @@ define(['Dom', 'Chat', 'Dates', 'Geo', 'HideForms', 'GetPositions', 'Destination
     MyOffer.addPointsClients(response.orders);
     
     /*
-    MyOffer.fromAddress = ords.fromAddress;
-    MyOffer.toAddresses = ords.toAddresses;
-    MyOffer.fromCoords  = ords.fromLocation;
-    MyOffer.toCoordses  = ords.toLocationes;
-    MyOffer.toAddress   = ords.toAddress;
-    MyOffer.toCoords    = ords.toLocation;
-    MyOffer.times       = ords.toTimes;
+    MyOffer.points            = ords.points;
+    MyOffer.points.location   = ords.toLocationes;
+    MyOffer.points.stopTime   = ords.toTimes;
     */
     
     render(response.orders);

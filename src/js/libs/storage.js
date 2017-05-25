@@ -47,6 +47,18 @@ define(['ActiveOrder'], function(ActiveOrder) {
       localStorage.setItem('_open_offer_id', id);
     },
     
+    removeZoneSosAgent: function() {
+      localStorage.removeItem('_zone_sos_agent');
+    },
+    
+    getZoneSosAgent: function() {
+      return localStorage.getItem('_zone_sos_agent');
+    },
+    
+    setZoneSosAgent: function(id) {
+      localStorage.setItem('_zone_sos_agent', id);
+    },
+    
     setChangeLocations: function() {
       localStorage.setItem('_update_location', true);
     },

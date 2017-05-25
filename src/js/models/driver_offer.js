@@ -12,16 +12,16 @@ define(['Storage'], function(Storage) {
     this.fromCoords       = null;
     this.toCoords         = null;
     this.start            = null;
-    this.length           = 0;
-    this.duration         = 0;
+    //this.length           = 0;
+    //this.duration         = 0;
     this.fromFullAddress  = null;
     this.toFullAddress    = null;
-    this.length           = 0;
     this.recommended_cost = null;
     this.fromCity         = null;
     this.fromCityLocation = null;
     this.toCity           = null;
     this.toCityLocation   = null;
+    this.isConstant       = false;
     this.price            = 0;
     this.route            = null;
     this.hash             = null;
@@ -44,8 +44,8 @@ define(['Storage'], function(Storage) {
       var targetLink = Storage.getActiveTypeTaxi();
       
       targetLink = targetLink==="taxi" ? "city" : targetLink;
-      self.id = response.result.id;
-      goToPage = '#driver_my_offer'; //+ targetLink;
+      self.id    = response.result.id;
+      goToPage   = '#driver_my_offer'; //+ targetLink;
     }
     
     function cbgetOfferById(response) {
@@ -63,7 +63,6 @@ define(['Storage'], function(Storage) {
         self.fromCoords       = ord.fromLocation;
         self.toCoords         = ord.toLocation;
         self.start            = ord.start;
-        self.length           = ord.length;
         self.fromFullAddress  = ord.fromFullAddress;
         self.toFullAddress    = ord.toFullAddress;
         self.fromCity         = ord.fromCity;
@@ -72,8 +71,9 @@ define(['Storage'], function(Storage) {
         self.toCityLocation   = ord.toCityLocation;
         self.price            = ord.price;
         self.route            = ord.route;
-        self.length           = ord.length || 0;
-        self.duration         = ord.duration || 0;
+        self.isConstant       = ord.isConstant;
+        //self.length           = ord.length || 0;
+        //self.duration         = ord.duration || 0;
         self.hash             = ord.hash;
         self.offset           = ord.offset;
         self.comment          = ord.comment;
@@ -114,13 +114,14 @@ define(['Storage'], function(Storage) {
         self.price            = ord.price;
         self.hash             = ord.hash;
         self.route            = ord.route;
+        self.isConstant       = ord.isConstant;
         self.comment          = ord.comment;
         self.type             = ord.type;
         self.start            = ord.start;
         self.offset           = ord.offset;
         self.weight           = ord.weight;
-        self.length           = ord.length || 0;
-        self.duration         = ord.duration || 0;
+        //self.length           = ord.length || 0;
+        //self.duration         = ord.duration || 0;
         self.volume           = ord.volume;
         self.stevedores       = ord.stevedores;
         self.seats            = ord.seats;
@@ -195,8 +196,9 @@ define(['Storage'], function(Storage) {
         self.hash             = null;
         self.route            = null;
         self.offset           = null;
-        self.length           = 0;
-        self.duration         = 0;
+        self.isConstant       = false;
+        //self.length           = 0;
+        //self.duration         = 0;
         self.comment          = null;
         self.type             = null;
         self.start            = null;
@@ -225,8 +227,9 @@ define(['Storage'], function(Storage) {
       data.comment       = self.comment;
       data.type          = self.type;
       data.offset        = self.offset;
-      data.length        = self.length;
-      data.duration      = self.duration;
+      data.isConstant    = self.isConstant;
+      //data.length        = self.length;
+      //data.duration      = self.duration;
       data.weight        = self.weight;
       data.volume        = self.volume;
       data.stevedores    = self.stevedores;

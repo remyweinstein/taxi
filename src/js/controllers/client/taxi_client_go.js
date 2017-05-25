@@ -228,11 +228,9 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       duration_time       = Dates.minToHours(ords.duration);
       MyOrder.fromCoords  = ords.fromLocation;
       MyOrder.toCoords    = ords.toLocation;
-      MyOrder.toAddresses = ords.toAddresses;
-      MyOrder.toCoordses  = ords.toLocationes;
+      MyOrder.points      = ords.points;
       MyOrder.fromAddress = ords.fromAddress;
       MyOrder.toAddress   = ords.toAddress;
-      MyOrder.times       = ords.toTimes;
       
       if (field_distance_to_car) {
         field_distance_to_car.innerHTML = dr_distanse;
@@ -296,19 +294,19 @@ function (Dom, Dates, Chat, Geo, HideForms, GetPositions, Destinations, clClient
       }    
 
       if (!MapElements.driver_marker) {
-        var favorite  = !agnt.isFavorite ? '<button data-id="' + agnt.id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnt.id + '" data-click="deltofav">Удалить из Избранного</button>',
-            info      = '<div style="text-align:center;">' +
-                          '<div style="width:50%;display:inline-block;float: left;">' +
-                            '<p>id' + agnt.id + '<br>' + dr_name + '</p>' +
-                            '<p><img class="avatar" src="' + dr_photo + '" alt=""/></p>' +
-                            '<p>' + favorite + '</p>' +
-                          '</div>' +
-                          '<div style="width:50%;display:inline-block">' +
-                            '<p>' + car_brand + '<br>' + car_model + '</p>' +
-                            '<p><img class="avatar" src="' + dr_vehicle + '" alt=""/></p>' +
-                            '<p><button data-id="' + agnt.id + '" data-click="addtoblack">Черный список</button></p>' +
-                          '</div>' +
-                        '</div>';
+        var favorite = !agnt.isFavorite ? '<button data-id="' + agnt.id + '" data-click="addtofav">Избранное</button>' : '<button data-id="' + agnt.id + '" data-click="deltofav">Удалить из Избранного</button>',
+            info     = '<div style="text-align:center;">' +
+                         '<div style="width:50%;display:inline-block;float: left;">' +
+                           '<p>id' + agnt.id + '<br>' + dr_name + '</p>' +
+                           '<p><img class="avatar" src="' + dr_photo + '" alt=""/></p>' +
+                           '<p>' + favorite + '</p>' +
+                         '</div>' +
+                         '<div style="width:50%;display:inline-block">' +
+                           '<p>' + car_brand + '<br>' + car_model + '</p>' +
+                           '<p><img class="avatar" src="' + dr_vehicle + '" alt=""/></p>' +
+                           '<p><button data-id="' + agnt.id + '" data-click="addtoblack">Черный список</button></p>' +
+                         '</div>' +
+                       '</div>';
 
         Maps.addMarker(loc[0], loc[1], 'Водитель', driver_icon, [32,32], function(mark) {
           Maps.addInfoForMarker(info, false, mark);

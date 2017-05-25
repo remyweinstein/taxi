@@ -16,7 +16,7 @@ function (Lists, Storage, Modal, clClientOrder, clDriverOffer, Dom) {
   }
   
   function cbDeleteOffer(response) {
-    Conn.clearCb('cbMyOffers');
+    Conn.clearCb('cbDeleteOffer');
     
     if (!response.error) {
       global_item.style.display = 'none';

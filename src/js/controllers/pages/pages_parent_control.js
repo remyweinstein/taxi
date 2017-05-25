@@ -1,59 +1,39 @@
-/* global Maps, User, Event, Conn, men_icon, MapElements */
+/* global Event, Conn */
 
-define(function () {
-
-
+define(['Dom', 'Storage'], function (Dom, Storage) {
 
   function cbGetSosAgents(response) {
+    Conn.clearCb('cbGetSosAgents');
+    var ul = Dom.sel('ul.list-message');
+    
+    ul.innerHTML = '';
+    
     if (!response.error) {
       var agents = response.result.sosAgents;
-      
-      for (var i = 0; i < agents.length; i++) {
-        var loc   = agents[i].location.split(','),
-            photo = agents[i].photo || User.avatar,
-            info  =  '<div style="text-align:center;">' +
-                      '<div style="width:100%;display:inline-block;float: left;">' +
-                        '<p>id' + agents[i].id + '<br>' + agents[i].name + '</p>' +
-                        '<p><img class="avatar" src="' + photo + '" alt=""/></p>' +
-                      '</div>' +
-                    '</div>';
-        
-        if (!MapElements.markers_agent_pos[agents.id]) {
-          Maps.addMarker(loc[0], loc[1], agents[i].name, men_icon, [32,32], function(mark){
-            Maps.addInfoForMarker(info, false, mark);
-            MapElements.markers_agent_pos[agents[i].id] = mark;
-          });
-        } else {
-          Maps.markerSetPosition(loc[0], loc[1], MapElements.markers_agent_pos[agents[i].id]);
-        }
 
+      for (var i = 0; i < agents.length; i++) {
+        var li    = document.createElement('li'),
+            name  = agents[i].name || 'Гость',
+            zones = agents[i].zones ? '<i class="icon-ok active"></i>': '';
+
+        li.dataset.id = agents[i].id;
+        li.innerHTML  = '<div data-click="open-map" data-id="' + agents[i].id + '">' +
+                          name +
+                        '</div>' +
+                        '<div>' +
+                          zones + 
+                        '</div>';
+                      
+        ul.appendChild(li);
       }
       
-      for (var key in MapElements.markers_agent_pos) {
-          if (MapElements.markers_agent_pos.hasOwnProperty(key) &&
-              /^0$|^[1-9]\d*$/.test(key) &&
-              key <= 4294967294) {
-              var sovp = false;
-              
-              for (var i = 0; i < agents.length; i++) {
-                if (agents[i].id  === key) {
-                  sovp = true;
-                }
-              }
-              
-              if (!sovp) {
-                Maps.removeElement(MapElements.markers_agent_pos[key]);
-                delete MapElements.markers_agent_pos[key];
-              }
-          }
+      if (agents.length === 0) {
+        var li = document.createElement('li');
+        
+        li.innerHTML  = '<div style="text-align: center">Агенты не найдены</div>';
+        ul.appendChild(li);
       }
-            
     } 
-  }
-  
-  function initMap() {    
-    Maps.setCenter(User.lat, User.lng);
-    Maps.setZoom(12);
   }
 
   function addEvents() {
@@ -62,9 +42,14 @@ define(function () {
 
           while (target !== this) {
             if (target) {
-              //if (target.dataset.click === 'save-zone') {
-              //  return;
-              //}
+              if (target.dataset.click === 'open-map') {
+                var el = target;
+                
+                Storage.setZoneSosAgent(el.dataset.id);
+                goToPage = "#parent_map";
+                
+                return;
+              }
             }
 
             if (target) {
@@ -81,16 +66,13 @@ define(function () {
   }
   
   function stop() {
-    Conn.clearCb('cbGetSosAgents');
-    Conn.request('stopGetSosAgents');
-    MapElements.clear();
+    
   }
   
   function start() {
-    Maps.mapOn();
-    initMap();
     addEvents();
     Conn.request('getSosAgents', '', cbGetSosAgents);
+    Conn.request('stopGetSosAgents');
   }
   
   return {

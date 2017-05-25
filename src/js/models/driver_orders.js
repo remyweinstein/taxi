@@ -10,12 +10,10 @@ define(['Dates'], function(Dates) {
     this.fromCity       = null;
     this.toAddress      = null;
     this.toCity         = null;
-    this.toAddresses    = [];
-    this.totimes        = [];
-    this.toLocations    = [];
-    this.stops          = 0;
+    this.points         = [];
     this.distance       = 0;
     this.weight         = null;
+    this.isConstant     = false;
     this.volume         = null;
     this.type           = null;
     this.stevedores     = null;
@@ -39,16 +37,6 @@ define(['Dates'], function(Dates) {
     this.comment        = null;
 
     this.constructor = function (callback) {
-      if (order.points) {
-        for (var i = 0; i < order.points.length; i++) {
-          self.toAddresses.push(order.points[i].address);
-          self.toLocations.push(order.points[i].location);
-          //self.fromCities.push(order.points[i].city);
-          //self.fromCities.push(order.points[i].city);
-          self.totimes.push(order.points[i].stopTime);  
-        }
-      }
-
       var travelTime = ((self.distance / average_speed) * 60).toFixed(0);
       
       if (travelTime < 5) {
@@ -66,7 +54,8 @@ define(['Dates'], function(Dates) {
       self.type        = order.type;
       self.stevedores  = order.stevedores;      
       self.travelTime  = Old_Orders && Old_Orders !== "undefined" ? Old_Orders.travelTime : travelTime;
-      self.stops       = self.toAddresses.length || 0;
+      self.points      = order.points;
+      self.isConstant  = order.isConstant;
       self.length      = order.length || 0;
       self.duration    = order.duration || 0;
       self.start       = order.start;

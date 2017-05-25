@@ -12,6 +12,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
                 {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPageTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
                 {hash:'#parent_control', template:'PageParentControl', controller:'ctrlPageParentControl', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
+                {hash:'#parent_map', template:'PageParentMap', controller:'ctrlPageParentMap', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
                 {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
                 {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
                 {hash:'#admin', template:'PageAdmin', controller:'ctrlPageAdmin', title:'Параметры', menu:'client', pageType: ''},

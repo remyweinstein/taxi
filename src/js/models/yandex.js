@@ -78,9 +78,9 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
           point: [_addr_from[0], _addr_from[1]]
         });
 
-        if (Model.toAddresses && Model.toAddresses.length > 0) {
-          for (var i = 0; i < Model.toAddresses.length; i++) {
-            var latlng = Model.toCoordses[i].split(',');
+        if (Model.points && Model.points.length > 0) {
+          for (var i = 0; i < Model.points.length; i++) {
+            var latlng = Model.points[i].location.split(',');
 
             points.push({
               type: 'viaPoint', 

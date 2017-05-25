@@ -145,12 +145,10 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clC
                                             ' км / ' + 
                                             Dates.minToHours(MyOrder.duration);
 
-      if (MyOrder.toAddresses) {
-        if (MyOrder.toAddresses.length > 0) {
-          el_routes[0].children[1].innerHTML = 'Заездов ' + MyOrder.toAddresses.length;
-        } else {
-          el_routes[0].children[1].style.display = 'none';
-        }
+      if (MyOrder.points && MyOrder.points.length > 0) {
+        el_routes[0].children[1].innerHTML = 'Заездов ' + MyOrder.points.length;
+      } else {
+        el_routes[0].children[1].style.display = 'none';
       }
       
       el_price.innerHTML  = Math.round(MyOrder.price) + ' руб';

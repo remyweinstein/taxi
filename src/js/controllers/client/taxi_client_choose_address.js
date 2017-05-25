@@ -64,9 +64,9 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
           
           if (substr === "to_plus") {
             var _index = _route.replace("to_plus", "");
-
-            Model.toAddresses[_index] = target.children[0].innerHTML;
-            Model.toCoordses[_index] = target.dataset.latlng;
+            
+            Model.points[_index].address = target.children[0].innerHTML;
+            Model.points[_index].location = target.dataset.latlng;
           }
           
           var linkaType  = Storage.getActiveTypeTaxi()==="taxi"  ? "city" : Storage.getActiveTypeTaxi(),

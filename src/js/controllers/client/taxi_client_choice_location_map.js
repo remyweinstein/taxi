@@ -71,7 +71,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
             if (substr === "to_plus") {
               var _index = _route.replace("to_plus", "");
 
-              Model.toCoordses[_index] = latlng;
+              Model.points[_index].location = latlng;
             }
 
             MapGoogle.geocoder(latl[0], latl[1], function (results) {
@@ -96,7 +96,7 @@ define(['Dom', 'Storage', 'DriverOffer', 'ClientOrder'], function (Dom, Storage,
               
               if (substr === "to_plus") {
                 var _index = _route.replace("to_plus", "");
-                Model.toAddresses[_index] = _address.address;
+                Model.points[_index].address = _address.address;
               }
 
               var linkaType  = Storage.getActiveTypeTaxi()==="taxi"  ? "city" : Storage.getActiveTypeTaxi(),

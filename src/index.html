@@ -11,9 +11,9 @@
         <meta name="apple-mobile-web-app-title" content="TechAgent">
         <meta name="msapplication-starturl" content="/">
         <link rel="manifest" href="/manifest.json">
-        <link href="assets/css/main.css?v=0.27" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?v=0.30" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.75" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.79" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -97,12 +97,14 @@
             <ul class="list-zone"></ul>
         </template>
         <template id="PageParentControl">
-            
+            <ul class="list-message"></ul>
+        </template>
+        <template id="PageParentMap">            
         </template>
         <template id="PageEditZone">
             <div style="position:fixed;top:3em;">
-                <div><input type="text" name="name_edit_zone" value="" placeholder="Имя зоны" /></div>
-                <div><input type="text" name="note_edit_zone" value="" placeholder="Описание" /></div>
+                <div><input type="text" name="name_edit_zone" value="" placeholder="Имя зоны" autocomplete="off" /></div>
+                <div><input type="text" name="note_edit_zone" value="" placeholder="Описание" autocomplete="off" /></div>
             </div>
             <button style="position:fixed;bottom:1em;" class="button_rounded--green" data-click="save-zone">Сохранить</button>
         </template>
@@ -117,8 +119,8 @@
                     <input type="file" name="ava_file" /><br/>
                     <span data-click="clear_photo">удалить</span>
                 </p>
-                <p><input type="text" name="myname" value="" /></p>
-                <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" /></p>
+                <p><input type="text" name="myname" value="" autocomplete="off" /></p>
+                <p><input type="text" data-keypress="input_only_date" name="dob" value="" placeholder="дд.мм.ГГГГ" autocomplete="off" /></p>
                 <p>
                     <select name="sex">
                         <option value="1">Мужской</option>
@@ -402,7 +404,7 @@
                             <option value="1876">Ямайка</option>
                             <option value="81">Япония</option>
                         </select>
-                        <p><span class="phone_code">7</span><input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" /></p>
+                        <p><span class="phone_code">7</span><input type="text" data-keypress="input_only_digits" name="phone" placeholder="Ваш номер телефона" autocomplete="off" /></p>
                         <p><button class="button_rounded--green" data-click="form-submit-phone">Далее</button></p>
                     </form>
                   </div>
@@ -434,7 +436,7 @@
         <template id="PageSms">
             <form data-controller="pages_sms" data-submit="form-auth-sms" onsubmit="return false;" class="form-login">
                 <p>Введите полученный код</p>
-                <p><input type="text" name="sms" placeholder="Код" /></p>
+                <p><input type="text" name="sms" placeholder="Код" autocomplete="off" /></p>
                 <p><button class="button_rounded--green">Далее</button></p>
             </form>
         </template>
@@ -446,7 +448,7 @@
         <template id="TaxiClientChooseAddress">
             <div class="choice-location">
                 <p data-controller="taxi_client_choose_address">
-                    <input type="text" name="enter-address" value="" placeholder="Введите адрес" />
+                    <input type="text" name="enter-address" value="" placeholder="Введите адрес" autocomplete="off" />
                 </p>
                 <div class="choice-location__results-search"></div>
             </div>
@@ -475,7 +477,7 @@
                             <div class="form-order-city__field order-city-to">
                                 <i class="icon-left-circled form-order-city__label"></i>
                                 <span class="form-order-city__wrap">
-                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда" autocomplete="off" />
                                     <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                                 </span>
                                 <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
@@ -483,13 +485,13 @@
                             </div>
                             <div class="form-order-city__field">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий"/></span>
+                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Подъезд, комментарий" autocomplete="off" /></span>
                             </div>
                         </div>
                         <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"  autocomplete="off"/></span>
                                 <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
@@ -566,7 +568,7 @@
                     <div class="go-order__down__messages">
                         <div class="go-order__down__messages__textarea"></div>
                         <div class="go-order__down__messages__textinput">
-                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" autocomplete="off" />
                             <button class="button_rounded--green" data-click="send_message">Отправить</button>
                         </div>
                     </div>
@@ -580,7 +582,7 @@
                         <div class="wait-order-approve__route-info">
                             <div class="wait-order-approve__route-info__route">
                                 <div data-click="change-address" data-route="from"></div>
-                                <div class="form-order-city__field order-city-from">
+                                <div class="form-order-city__field order-city-from hidden-forms">
                                     <i class="icon-right-circled form-order-city__label"></i>
                                     <span class="form-order-city__wrap">
                                         <input id="autocomplete" class="adress_from" type="text" data-click="choose_address" name="from" value="" placeholder="Откуда" autocomplete="off" />
@@ -589,10 +591,10 @@
                                     <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                                 </div>
                                 <div data-click="change-address" data-route="to"></div>
-                                <div class="form-order-city__field order-city-to">
+                                <div class="form-order-city__field order-city-to hidden-forms">
                                     <i class="icon-left-circled form-order-city__label"></i>
                                     <span class="form-order-city__wrap">
-                                        <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                        <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда" autocomplete="off" />
                                         <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                                     </span>
                                     <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
@@ -600,6 +602,7 @@
                             </div>
                             <div class="wait-order-approve__route-info__price"></div>
                             <div class="wait-order-approve__route-info__cancel"></div>
+                            <div class="wait-order-approve__route-info__addinfo add_for_intercity"></div>
                             <div class="wait-bids-approve"></div>
                         </div>
                     </div>
@@ -630,7 +633,7 @@
                             <div class="form-order-city__field order-city-to">
                                 <i class="icon-left-circled form-order-city__label"></i>
                                 <span class="form-order-city__wrap">
-                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"  autocomplete="off"/>
                                     <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                                 </span>
                                 <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
@@ -638,21 +641,21 @@
                             </div>
                             <div class="form-order-city__field">
                                 <i class="icon-box form-order-city__label"></i>
-                                <span class="form-order-city__wrap_short3"><input type="text" name="volume" value="" placeholder="Объем, м3"/></span>
+                                <span class="form-order-city__wrap_short3"><input type="text" name="volume" value="" placeholder="Объем, м3" autocomplete="off"/></span>
                                 <i class="icon-balance-scale form-order-city__label"></i>
-                                <span class="form-order-city__wrap_short3"><input type="text" name="weight" value="" placeholder="Вес, кг"/></span>
+                                <span class="form-order-city__wrap_short3"><input type="text" name="weight" value="" placeholder="Вес, кг" autocomplete="off" /></span>
                                 <i class="icon-hand-peace-o form-order-city__label"></i>
-                                <span class="form-order-city__wrap_short3"><input type="text" name="loaders" value="" placeholder="Грузчики"/></span>
+                                <span class="form-order-city__wrap_short3"><input type="text" name="loaders" value="" placeholder="Грузчики" autocomplete="off" /></span>
                             </div>
                             <div class="form-order-city__field">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий" autocomplete="off" /></span>
                             </div>
                         </div>
                         <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену" autocomplete="off" /></span>
                                 <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
@@ -718,7 +721,7 @@
                         <div class="form-order-city__top" data-hide-form="top">
                             <div class="form-order-city__field">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка..."/>
+                                <span class="form-order-city__wrap"><input data-route="from" type="text" name="city_from" value="" placeholder="Загрузка..."  autocomplete="off"/>
                                     <span class="form-order-city__hint"></span>
                                 </span>
                             </div>
@@ -732,14 +735,14 @@
                             </div>
                             <div class="form-order-city__field order-Namecity-from">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."/>
+                                <span class="form-order-city__wrap"><input data-route="to" type="text" name="city_to" value="" placeholder="Загрузка..."  autocomplete="off"/>
                                     <span class="form-order-city__hint"></span>
                                 </span>
                             </div>
                             <div class="form-order-city__field order-city-to">
                                 <i class="icon-left-circled form-order-city__label"></i>
                                 <span class="form-order-city__wrap">
-                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"  autocomplete="off"/>
                                     <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                                 </span>
                                 <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
@@ -748,22 +751,22 @@
                             <div class="form-order-city__field">
                                 <i class="icon-accessibility form-order-city__label"></i>
                                 <span class="form-order-city__wrap_short3">
-                                    <input type="text" name="seats" value="1" placeholder="">
+                                    <input type="text" name="seats" value="1" placeholder=""  autocomplete="off"/>
                                 </span>
                                 <i class="icon-shopping-bag form-order-city__label"></i>
                                 <span class="form-order-city__wrap_short3">
-                                    <input type="text" name="bags" value="3" placeholder="">
+                                    <input type="text" name="bags" value="3" placeholder="" autocomplete="off" />
                                 </span>
                             </div>
                             <div class="form-order-city__field">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий" autocomplete="off" /></span>
                             </div>
                         </div>
                         <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom" style="position:static;">
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену" autocomplete="off" /></span>
                                 <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
@@ -807,14 +810,19 @@
         <template id="TaxiClientTourism">
             <nav class="tabs">
                 <ul>
-                    <li data-tab="1" class="tab--active">Заказать</li>
-                    <li data-tab="2">Преложения</li>
+                    <li data-tab="1" class="tab--active">Преложения</li>
+                    <li data-tab="2">Заказать</li>
                     <li data-tab="3">Мои заказы</li>
                 </ul>
             </nav>
             <div class="tabs__wrapper" data-controller="taxi_client_tourism">
               <div class="tabs__viewport">
-                <div data-tab-content="1" data-map="enable" class="tabs_content">
+                <div data-tab-content="1" class="tabs_content">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" data-map="enable" class="tabs_content">
                     <div class="form-order-city" data-hide-form="enable">
                         <div class="form-order-city__top" data-hide-form="top">
                             <div class="form-order-city__field order-city-from">
@@ -828,7 +836,7 @@
                             <div class="form-order-city__field order-city-to">
                                 <i class="icon-left-circled form-order-city__label"></i>
                                 <span class="form-order-city__wrap">
-                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"/>
+                                    <input class="adress_to" type="text" data-click="choose_address" name="to" value="" placeholder="Куда"  autocomplete="off"/>
                                     <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                                 </span>
                                 <span data-click="field_add" class="form-order-city__field_add"><i class="icon-plus-circle"></i></span>
@@ -837,22 +845,22 @@
                             <div class="form-order-city__field">
                                 <i class="icon-accessibility form-order-city__label"></i>
                                 <span class="form-order-city__wrap_short3">
-                                    <input type="text" name="seats" value="1" placeholder="">
+                                    <input type="text" name="seats" value="1" placeholder="" autocomplete="off" />
                                 </span>
                                 <i class="icon-shopping-bag form-order-city__label"></i>
                                 <span class="form-order-city__wrap_short3">
-                                    <input type="text" name="bags" value="3" placeholder="">
+                                    <input type="text" name="bags" value="3" placeholder="" autocomplete="off" />
                                 </span>
                             </div>
                             <div class="form-order-city__field">
                                 <i class="icon-commerical-building form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                                <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий" autocomplete="off"/></span>
                             </div>
                         </div>
                         <div data-controller="taxi_client_city_bottom" data-hide-form="bottom" class="form-order-city__bottom">
                             <div class="form-order-city__field">
                                 <i class="icon-rouble form-order-city__label"></i>
-                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                                <span class="form-order-city__wrap"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену" autocomplete="off"/></span>
                                 <button data-click="date_order" class="button_short--green">Сейчас</button>
                                 <select name="type_of_transport" class="form-order-city__wrap__typeoftransport">
                                     <option value="auto">АВТОМОБИЛЬНЫЙ</option>
@@ -886,11 +894,6 @@
                             <button class="button_rounded--green" data-click="save-order" disabled>Заказать</button>
                         </div>
                     </div>
-                </div>
-                <div data-tab-content="2" class="tabs_content">
-                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span></div>
-                    <div class="list-orders__result">Найдено <span></span> заявок</div>
-                    <ul class="list-orders" data-model="list-orders"></ul>
                 </div>
                 <div data-tab-content="3" class="tabs_content">
                     <ul class="myorders"></ul>
@@ -1027,20 +1030,23 @@
                     <div class="form-order-city__field order-city-to">
                         <i class="icon-left-circled form-order-city__label"></i>
                         <span class="form-order-city__wrap">
-                            <input class="adress_to" type="text" name="to" data-click="choose_address" value="" placeholder="Куда"/>
+                            <input class="adress_to" type="text" name="to" data-click="choose_address" value="" placeholder="Куда"  autocomplete="off"/>
                             <i data-field="to" data-click="clean-field" class="icon-cancel-circled form-order-city__field_clean"></i>
                         </span>
                         <i data-click="choice_location" class="icon-street-view form-order-city__add-button"></i>
                     </div>
                     <div class="form-order-city__field order-city-comment">
+                        <label><input type="checkbox" name="isConstant"> Маршрут без изменений</label>
+                    </div>
+                    <div class="form-order-city__field order-city-comment">
                         <i class="icon-commerical-building form-order-city__label"></i>
-                        <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий"/></span>
+                        <span class="form-order-city__wrap"><input type="text" name="description" value="" placeholder="Комментарий" autocomplete="off" /></span>
                     </div>
                 </div>
                 <div data-controller="taxi_client_city_bottom" class="form-order-city__bottom" data-hide-form="bottom">
                     <div class="form-order-city__field">
                         <i class="icon-rouble form-order-city__label"></i>
-                        <span class="form-order-city__wrap_two_thirds"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену"/></span>
+                        <span class="form-order-city__wrap_two_thirds"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену" autocomplete="off" /></span>
                         <button data-click="date_offer" class="button_short--green">Сейчас</button>
                     </div>
                     <button class="button_rounded--green" data-click="save-order">Предложить</button>
@@ -1111,7 +1117,7 @@
                     <div class="go-order__down__messages">
                         <div class="go-order__down__messages__textarea"></div>
                         <div class="go-order__down__messages__textinput">
-                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" />
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" autocomplete="off" />
                             <button class="button_rounded--green" data-click="send_message">Отправить</button>
                         </div>
                     </div>
@@ -1286,17 +1292,17 @@
                         <select name="model">
                             <option value="">Загрузка...</option>
                         </select>
-                        <!--<input type="text" name="model" value="" placeholder="Модель автомобиля" />-->
+                        <!--<input type="text" name="model" value="" placeholder="Модель автомобиля" autocomplete="off" />-->
                     </label>
                 </p>
                 <p>
                     <label>Цвет авто:
-                        <input type="text" name="color" value="" placeholder="Цвет авто" />
+                        <input type="text" name="color" value="" placeholder="Цвет авто" autocomplete="off" />
                     </label>
                 </p>
                 <p>
                     <label>Гос номер:
-                        <input type="text" name="number" value="" placeholder="Гос. Номер" />
+                        <input type="text" name="number" value="" placeholder="Гос. Номер" autocomplete="off" />
                     </label>
                 </p>
                 <p>
@@ -1305,7 +1311,7 @@
                 </p>
                 <p>
                     <label>Доп. инфо:
-                        <input type="text" name="tonnage" value="" placeholder="Доп. инфо грузового авто"/>
+                        <input type="text" name="tonnage" value="" placeholder="Доп. инфо грузового авто" autocomplete="off" />
                     </label>
                 </p>
                 <p>

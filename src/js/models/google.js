@@ -33,9 +33,9 @@ define(['Dom', 'Storage', 'Geo'], function(Dom, Storage, Geo) {
             _addr_to   = Model.toCoords.split(","),
             waypoints  = [];
 
-        if (Model.toAddresses) {
-          for (var i = 0; i < Model.toAddresses.length; i++) {
-            var latlng = Model.toCoordses[i].split(',');
+        if (Model.points) {
+          for (var i = 0; i < Model.points.length; i++) {
+            var latlng = Model.points[i].location.split(',');
 
             waypoints.push({
               location: new google.maps.LatLng(latlng[0], latlng[1])

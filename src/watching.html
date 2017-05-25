@@ -95,6 +95,17 @@
         }
         
         function changePositions(response) {
+            var canceled = response.offer.canceled,
+                finished = response.offer.finished;
+            
+            if (canceled) {
+                alert('Заказ отменен');
+            }
+            
+            if (finished) {
+                alert('Заказ завершен');
+            }
+            
             var driverLocation = response.offer.agent.location.split(",");
             var driverName     = response.offer.agent.name;
             var clientLocation = response.offer.bids[0].order.agent.location.split(",");

@@ -422,10 +422,12 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
               clas       = Orders[key].deactived ? 'deactivate' : false,
               forClick   =  !Orders[key].deactived ? 'data-click="taxi_bid"' : '';
 
-          if (Orders[key].stops > 0) {
-            zaezdy = '<div class="list-orders_route_to">' +
-                        'Остановок по пути ' + Orders[key].stops +
-                      '</div>';
+          if (Orders[key].points) {
+            if (Orders[key].points.length > 0) {
+              zaezdy = '<div class="list-orders_route_to">' +
+                         'Остановок по пути ' + Orders[key].points.length +
+                       '</div>';
+            }
           }
 
           var price_minus = active_bid === "" && !Orders[key].deactived ? '<i class="icon-minus-circled for-click" data-key="' + key + '" data-click="price_minus"></i>' : '',
@@ -480,6 +482,17 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                           '<span>' + Dates.datetimeForPeople(Orders[key].start) + timeOffset + '</span>' +
                         '</div>';
           }
+          
+          var dataRoute = '';
+          
+          if (order === "order") {
+            dataRoute = '<div class="list-orders_route_info">' +
+                          'Длина маршрута: ' + Math.round(Orders[key].length / 1000, 2) + ' км' +
+                        '</div>' +
+                        '<div class="list-orders_route_info">' +
+                          'Время по маршруту: ' + Dates.minToHours(Orders[key].duration) +
+                        '</div>';
+          }
 
           show('LI', '<div class="list-orders_route">' +
                        '<div data-click="open-' + order + '" data-id="' + Orders[key].id + '">' +
@@ -498,12 +511,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
                         '<div class="list-orders_route_info">' +
                           'До адреса: ' + Orders[key].distance + ' км' +
                         '</div>' +
-                        '<div class="list-orders_route_info">' +
-                          'Длина маршрута: ' + Math.round(Orders[key].length / 1000, 2) + ' км' +
-                        '</div>' +
-                        '<div class="list-orders_route_info">' +
-                          'Время по маршруту: ' + Dates.minToHours(Orders[key].duration) +
-                        '</div>' +
+                        dataRoute +
                        '</div>' +
                        '<div class="list-orders_route_price">' +
                           price_minus +
@@ -707,9 +715,9 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
             del = '<a href="#" data-id="' + arrOffers[key].id + '" data-click="myorders_item_menu_delete" onclick="return false;">Удалить</a>';
           }
 
-          if (arrOffers[key].stops > 0) {
+          if (arrOffers[key].points.length > 0) {
             zaezdy = '<div class="list-orders_route_to">' +
-                        'Остановок по пути ' + arrOffers[key].stops +
+                        'Остановок по пути ' + arrOffers[key].points.length +
                       '</div>';
           }
 

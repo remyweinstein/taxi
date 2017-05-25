@@ -3,13 +3,22 @@
 define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer', 'Dom'], function (Modal, Lists, Storage, clDriverOffer, Dom) {
   var old_filters,
       old_sortes,
-      myOffer;
+      myOffer,
+      global_item;
   
   function cbMyOffers(response) {
     Conn.clearCb('cbMyOffers');
     
     if (!response.error) {
       Lists.myOffers(response.result);
+    }
+  }
+  
+  function cbDeleteOffer(response) {
+    Conn.clearCb('cbDeleteOffer');
+    
+    if (!response.error) {
+      global_item.style.display = 'none';
     }
   }
   
@@ -72,8 +81,9 @@ define(['ModalWindows', 'Lists', 'Storage', 'DriverOffer', 'Dom'], function (Mod
           }
               // = Menu my Orders Item DELETE order =
           if (target.dataset.click === 'myorders_item_menu_delete') {
-            Lists.Delete(target);
-            
+            global_item = target.parentNode.parentNode.parentNode;
+            Conn.request('deleteOffer', target.dataset.id, cbDeleteOffer);
+
             return;
           }
               // = Menu my Orders Item GO order =

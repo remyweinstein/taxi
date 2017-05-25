@@ -6,7 +6,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   var active_bid = false,
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
       name_client, photo_client, travelTime, agIndexes, agRating, auto_photo, auto_brand, auto_model,
-      MyOrder,
+      MyOrder, isConstant = false,
       activeTypeTaxi;
   
   function cbChangeState(response) {
@@ -28,6 +28,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     fromCity     = ords.fromCity;
     toAddress    = ords.toAddress;
     toCity       = ords.toCity;
+    isConstant   = ords.isConstant;
     fromCoords   = ords.fromLocation.split(",");
     toCoords     = ords.toLocation.split(",");
     price        = Math.round(ords.price);
@@ -37,6 +38,17 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     agRating     = ords.agent.rating;
     //distanse     = (ords.length / 1000).toFixed(1);
     //duration     = ords.duration;
+    
+    if (!isConstant) {
+      var elChangeFromAddress = Dom.sel('div.order-city-from'),
+          elChangeToAddress   = Dom.sel('div.order-city-to');
+        
+      if (elChangeFromAddress && elChangeToAddress) {
+        elChangeFromAddress.classList.remove('hidden-forms');
+        elChangeToAddress.classList.remove('hidden-forms');
+      }
+    }
+    
     if (ords.agent.cars) {
       auto_photo   = ords.agent.cars[0].photo || Car.default_vehicle;
       auto_brand   = ords.agent.cars[0].brand;
@@ -124,20 +136,36 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     Maps.setCenter(User.lat, User.lng);
     Maps.setZoom(12);
   }
+  
+  function addTourism() {
+    var fields =  '<i class="icon-accessibility form-order-city__label"></i>' +
+                      '<span class="form-order-city__wrap_short3">' +
+                          '<input type="text" name="seats" value="1" placeholder="">' +
+                      '</span>' +
+                  '<i class="icon-shopping-bag form-order-city__label"></i>' +
+                      '<span class="form-order-city__wrap_short3">' + 
+                          '<input type="text" name="bags" value="0" placeholder="">' +
+                      '</span>',
+        el_for_intercity = Dom.sel('div.add_for_intercity');
+    
+    if (el_for_intercity) {
+      el_for_intercity.innerHTML = fields;
+    }
+  }
 
   function setRoute() {
-    var _active_bid = active_bid ? ' active' : '',
-        price_minus = !active_bid ? '<i class="icon-minus-circled for-click" data-click="price_minus"></i>' : '',
-        price_plus  = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '',
-        time_minus  = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '',
-        time_plus   = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '',
-        add_button  = '<i data-click="taxi_bid" class="font2 icon-ok-circled' + _active_bid + '"></i>',
-        intt        = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
-        el_route    = Dom.sel('.wait-order-approve__route-info__route'),
-        el_price    = Dom.sel('.wait-order-approve__route-info__price'),
-        el          = Dom.sel('.wait-bids-approve'),
-        addCityFrom = '',
-        addCityTo   = '',
+    var _active_bid    = active_bid ? ' active' : '',
+        price_minus    = !active_bid ? '<i class="icon-minus-circled for-click" data-click="price_minus"></i>' : '',
+        price_plus     = !active_bid ? '<i class="icon-plus-circle for-click" data-click="price_plus"></i>' : '',
+        time_minus     = !active_bid ? '<i class="icon-minus-circled for-click" data-click="time_minus"></i>' : '',
+        time_plus      = !active_bid ? '<i class="icon-plus-circle for-click" data-click="time_plus"></i>' : '',
+        add_button     = '<i data-click="taxi_bid" class="font2 icon-ok-circled' + _active_bid + '"></i>',
+        intt           = Dom.selAll('.wait-order-approve__route-info__cancel')[0],
+        el_route       = Dom.sel('.wait-order-approve__route-info__route'),
+        el_price       = Dom.sel('.wait-order-approve__route-info__price'),
+        el             = Dom.sel('.wait-bids-approve'),
+        addCityFrom    = '',
+        addCityTo      = '',
         activeTypeTaxi = Storage.getActiveTypeTaxi();
       
     if (intt) {
@@ -165,6 +193,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     Dom.sel('input.adress_from').value          = MyOrder.fromAddress;
     Dom.sel('input.adress_to').value            = MyOrder.toAddress;
     el_price.innerHTML = price_minus + '<span>' + price + '</span> руб.' + price_plus;
+    
     el.innerHTML = '<div class="wait-bids-approve__item">' +
                       '<div class="wait-bids-approve__item__driver">' +
                         '<div>' +
@@ -297,6 +326,11 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     if (activeTypeTaxi === "tourism") {
       Dom.sel('.order-city-from').style.display = 'none';
       Dom.sel('.order-city-to').style.display = 'none';
+      addTourism();
+    }
+    
+    if (activeTypeTaxi === "intercity") {
+      addTourism();
     }
     
     MyOrder = new clClientOrder();

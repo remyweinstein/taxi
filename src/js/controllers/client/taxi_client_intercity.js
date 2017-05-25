@@ -349,11 +349,11 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     GetPositions.clear();
     Destinations.clear();
     Maps.removeEvent(eventOnChangeZoom);
+    Storage.lullModel(MyOrder);
+    SafeWin.disableZoneForRoute();
     Conn.clearCb('cbGetOffers');
     Conn.request('stopGetOffers');
-    Storage.lullModel(MyOrder);
     Modal.close();
-    SafeWin.disableZoneForRoute();
   }
   
   function start() {
@@ -367,14 +367,14 @@ function (Dom, GetPositions, Destinations, Lists, HideForms, Modal, Storage, clC
     eventOnChangeZoom = GetPositions.drivers();
     GetPositions.my();
     initMap();
+    // ===== Draw New Order =====
+    Destinations.init(MyOrder);
+    HideForms.init();
+    // ===== Draw My Orders =====
+    Conn.request('requestMyIntercityOrders', '', cbGetMyIntercityOrder);
     // = Draw Offers of Drivers =
     Lists.filtersStart();
     Conn.request('startGetOffers', 'intercity', cbGetOffers);
-    // ===== Draw New Order =====
-    Destinations.init(MyOrder);
-    // ===== Draw My Orders =====
-    Conn.request('requestMyIntercityOrders', '', cbGetMyIntercityOrder);
-    HideForms.init();
     addEvents();
   }
   

@@ -1,5 +1,5 @@
 requirejs.config({
-  urlArgs: "v=0.75",
+  urlArgs: "v=0.79",
 	paths: {
 		"App" :   "app",
     "Uries" : "uries",
@@ -68,6 +68,7 @@ requirejs.config({
     "ctrlPageZones" :          "controllers/pages/pages_zones",
     "ctrlPageEditZone" :       "controllers/pages/pages_edit_zone",
     "ctrlPageParentControl" :  "controllers/pages/pages_parent_control",
+    "ctrlPageParentMap" :      "controllers/pages/pages_parent_map",
     
     "ctrlTaxiDriverCity" :      "controllers/driver/taxi_driver_city",
     "ctrlTaxiDriverNewOffer" :  "controllers/driver/taxi_driver_new_offer",

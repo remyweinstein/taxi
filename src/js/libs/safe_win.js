@@ -119,16 +119,22 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
         activeZones = el.dataset.active;
     
     if (Dom.toggle(el, 'active')) {
-      //for inactive
+      var params = {};
       
+      params.agentId = Storage.getZoneSosAgent();
+      params.zones   = activeZones ? activeZones.split(',') : [];
+      Conn.request('deactivateTrackZone', params);
     } else {
-      //for active
+      var params = {};
       
+      params.agentId = Storage.getZoneSosAgent();
+      params.zones   = activeZones ? activeZones.split(',') : [];
+      Conn.request('activateTrackZone', params);
     }
   }
   
   function runZone(event) {
-    if (window.location.hash !== "#client_offer") {
+    if (window.location.hash === "#parent_map") {
       runParentZone();
       return;
     }
@@ -394,6 +400,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
 
         if (path) {
           Storage.setSafeRoute(path);
+          
           if (window.location.hash === "#driver_go") {
             var data = {};
 

@@ -54,13 +54,13 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
       MapElements.marker_to   = self.addMarker(_addr_to[0], _addr_to[1], Model.toAddress, icon_to, [32,32], function(){});
       MapElements.marker_from = self.addMarker(_addr_from[0], _addr_from[1], Model.fromAddress, icon_from, [32,32], function(){});
 
-      if (Model.toAddresses) {
-        for (var i = 0; i < Model.toAddresses.length; i++) {
-          if (Model.toAddresses[i] && Model.toAddresses[i] !== "") {
-            var _wp = Model.toCoordses[i].split(","),
-                time = Model.times[i] ? Model.times[i] + ' мин.' : '';
+      if (Model.points) {
+        for (var i = 0; i < Model.points.length; i++) {
+          if (Model.points[i].address && Model.points[i].address !== "") {
+            var _wp = Model.points[i].location.split(","),
+                time = Model.points[i].stopTime ? Model.points[i].stopTime + ' мин.' : '';
             
-            self.addMarker(_wp[0], _wp[1], Model.toAddresses[i], path_icon + (i + 1) + '.png', [32,32], function(mark){
+            self.addMarker(_wp[0], _wp[1], Model.points[i].address, path_icon + (i + 1) + '.png', [32,32], function(mark){
               self.addInfoForMarker(time, true, mark);
               MapElements.points.push(mark);
             });

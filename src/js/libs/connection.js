@@ -101,6 +101,16 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
           method = "ulogin";
         },
         
+        "activateTrackZone": function () {
+          params = data;
+          method = "track-zones";
+        },
+        
+        "deactivateTrackZone": function () {
+          params = data;
+          method = "track-zones";
+        },
+        
         "getNotifications": function () {
           method = "get-notifications";
         },
@@ -130,18 +140,17 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
           method = "remove-sos-agent";
         },
         
+        "getSosAgentsById": function () {
+          params.agentId = data;
+          method = "get-sos-agents";
+        },
+        
         "getSosAgents": function () {
           method = "get-sos-agents";
         },
         
         "stopGetSosAgents": function () {
           method = "stop-get-sos-agents";
-        },
-        
-        "derful": function() {
-          params.agentId = data.agentId;
-          params.zoneIds  = data.zoneIds;
-          method = "";
         },
         
         "searchCity": function () {
