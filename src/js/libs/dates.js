@@ -14,6 +14,10 @@ define(function() {
   var Dates = {
 
       datetimeForPeople: function (date, options) {
+        if (!date) {
+          return;
+        }
+        
         if (!options) {
             options = "TIME_AND_TODAY";
         }

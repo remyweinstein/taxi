@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps, goToPage, isGeolocation */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps, goToPage, isGeolocation, SafeWin */
 
 define(['Dom', 'Chat', 'Tabs', 'HideForms', 'Redirect', 'Storage'], 
 function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
@@ -168,7 +168,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
           
         newLi.innerHTML = '<a href="' + menus_arr[route.menu][i].url + '">' +
                             '<i class="icon-'+ menus_arr[route.menu][i].icon + '"></i>' +
-                            menus_arr[route.menu][i].name + add_icon +
+                             menus_arr[route.menu][i].name + add_icon +
                           '</a>';
         list.insertBefore(newLi, list.firstChild);
       }
@@ -189,23 +189,14 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
   function loadController(route) {
     var content_el = Dom.sel('.content'),
         dynamic_el = Dom.sel('.dynamic'),
-        content = document.querySelector('#' + route.template).innerHTML,
-        dynamic = document.createElement('div');
+        content    = document.querySelector('#' + route.template).innerHTML,
+        dynamic    = document.createElement('div');
     
     //checkActiveOrder();
     currentRoute = route;
     Tabs.clear();
     HideForms.clear();
-    
-    var win_route = Dom.selAll('.safe_by_route')[0];
-    
-    if (win_route) {
-      if (route.hash === "#driver_go" || route.hash === "#client_city" || route.hash === "#client_tourism" || route.hash === "#client_trucking" || route.hash === "#client_intercity") {
-        win_route.classList.remove('hidden');
-      } else {
-        win_route.classList.add('hidden');
-      }
-    }
+    SafeWin.reloadPage();
     
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);

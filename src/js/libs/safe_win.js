@@ -1,4 +1,4 @@
-/* global Zones, Settings, Maps, Conn, User */
+/* global Zones, Settings, Maps, Conn, User, MapElements */
 
 define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], function (Dom, Hammer, Funcs, Multirange, Modal, Storage) {
   
@@ -45,7 +45,13 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     }
   }
   
-  function gotoNewZone() {
+  function gotoNewZone(event) {
+    var el = event.target;
+
+    if (el.parentNode.parentNode.classList.contains('hidden')) {
+      return;
+    }
+
     goToPage = '#edit_zone';
   }
   
@@ -73,7 +79,11 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
               isActiveRunZone = but_run_zone.classList.contains('active'),
               arr = but_run_zone.dataset.active,
               arr_id = false;
-
+      
+          if (el.parentNode.parentNode.classList.contains('hidden')) {
+            return;
+          }
+          
           list_active_zone = arr !== "" ? arr.split(',') : [];
             
           if (isActiveRunZone) {
@@ -114,15 +124,18 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     }
   }
   
-  function runParentZone() {
-    var el = event && event.target ? event.target : event,
-        activeZones = el.dataset.active;
+  function runParentZone(el) {
+    var activeZones = el.dataset.active;
+    
+    if (!activeZones || activeZones === "") {
+      return;
+    }
     
     if (Dom.toggle(el, 'active')) {
       var params = {};
       
       params.agentId = Storage.getZoneSosAgent();
-      params.zones   = activeZones ? activeZones.split(',') : [];
+      params.zones   = [];
       Conn.request('deactivateTrackZone', params);
     } else {
       var params = {};
@@ -134,13 +147,17 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
   }
   
   function runZone(event) {
-    if (window.location.hash === "#parent_map") {
-      runParentZone();
-      return;
-    }
-    
     var el = event && event.target ? event.target : event;
     
+    if (el && el.parentNode.classList.contains('hidden')) {
+      return;
+    }
+
+    if (window.location.hash === "#parent_map") {
+      runParentZone(el);
+      return;
+    }
+        
     var active = el.dataset.active,
         disableZones = function () {
           for (var i = 0; i < list_active_zone.length; i++) {
@@ -228,6 +245,37 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     polyRoute: [],
     overviewPath: [],
     
+    reloadPage: function () {
+      var win_route = Dom.selAll('.safe_by_route')[0],
+          win_zone  = Dom.selAll('.list-zones')[0],
+          hash      = window.location.hash;
+
+      if (win_route) {
+        if (hash === "#driver_go" || 
+            hash === "#client_city" || 
+            hash === "#client_tourism" || 
+            hash === "#client_trucking" || 
+            hash === "#client_intercity") {
+              win_route.classList.remove('hidden');
+            } else {
+              win_route.classList.add('hidden');
+            }
+      }
+      
+      if (win_zone) {
+        if (hash === "#parent_control") {
+          win_zone.classList.add('hidden');
+        } else {
+          win_zone.classList.remove('hidden');
+          if (hash !== "#parent_map") {
+            SafeWin.reload();
+          } else {
+            MapElements.clear();
+          }
+        } 
+      }
+    },
+    
     initial: function () {
       var enable_safe_route = Storage.getActiveRoute();
       
@@ -282,6 +330,8 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
       Dom.sel('[data-click="runRoute"]').addEventListener('click', runRoute);
       Dom.sel('[data-click="new_zone"]').addEventListener('click', gotoNewZone);
       Dom.sel('input[name="safeRadius"]').addEventListener('change', onInputRange);
+      
+      this.reloadPage();
     },
     
     render: function() {

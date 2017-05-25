@@ -14,7 +14,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
       for (var i = 0; i < agents.length; i++) {
         var li    = document.createElement('li'),
             name  = agents[i].name || 'Гость',
-            zones = agents[i].zones ? '<i class="icon-ok active"></i>': '';
+            zones = agents[i].sosZones ? '<i class="icon-ok active"></i>' : '';
 
         li.dataset.id = agents[i].id;
         li.innerHTML  = '<div data-click="open-map" data-id="' + agents[i].id + '">' +

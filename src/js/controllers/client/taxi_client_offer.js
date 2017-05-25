@@ -1,19 +1,32 @@
 /* global User, average_speed, Event, MapElements, Conn, Maps, Car */
 
-define(['Dom', 'HideForms', 'Storage', 'ClientOrder', 'Destinations'], 
-function (Dom, HideForms, Storage, clClientOrder, Destinations) {
+define(['Dom', 'HideForms', 'Storage', 'ClientOrder', 'Destinations', 'Dates'], 
+function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
 
   var active_bid = false,
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
       name_client, photo_client, travelTime, agIndexes, agRating, auto_photo, auto_brand, auto_model,
       MyOrder, isConstant = false,
-      activeTypeTaxi;
+      activeTypeTaxi, 
+      seatsVal, startVal, offsetVal, occupiedSeatsVal, bagsVal;
   
   function cbChangeState(response) {
     Conn.clearCb('cbChangeState');
     
     if (!response.error) {
       MyOrder.id = response.result.id;
+      Conn.request('getOfferById', offerId, cbGetOfferById);
+      Conn.request('stopGetOffers');
+    }
+  }
+  
+  function cbDisagreeOffer(response) {
+    Conn.clearCb('cbDisagreeOffer');
+    
+    if (!response.error) {
+      MyOrder.id = null;
+      Conn.request('getOfferById', offerId, cbGetOfferById);
+      Conn.request('stopGetOffers');
     }
   }
   
@@ -36,6 +49,11 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     photo_client = ords.agent.photo || User.default_avatar;
     agIndexes    = parseObj(getAgentIndexes(ords.agent));
     agRating     = ords.agent.rating;
+    seatsVal         = ords.seats;
+    startVal         = ords.start;
+    offsetVal        = ords.offset ? ' ' + ords.offset + ' мин.' : '';
+    occupiedSeatsVal = ords.occupiedSeats;
+    bagsVal          = ords.bags;
     //distanse     = (ords.length / 1000).toFixed(1);
     //duration     = ords.duration;
     
@@ -138,7 +156,9 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
   }
   
   function addTourism() {
-    var fields =  '<i class="icon-accessibility form-order-city__label"></i>' +
+    var fields =  '<div>Мест: ' + seatsVal + ' / ' + occupiedSeatsVal + ', Багаж: ' + bagsVal + ' мест</div>' + 
+                  '<div>Время старта: ' + Dates.datetimeForPeople(startVal) + offsetVal + '</div>' + 
+                  '<i class="icon-accessibility form-order-city__label"></i>' +
                       '<span class="form-order-city__wrap_short3">' +
                           '<input type="text" name="seats" value="1" placeholder="">' +
                       '</span>' +
@@ -230,17 +250,21 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
 
             // Click taxi_bid
         if (target.dataset.click === "taxi_bid") {
+          var elSeats = Dom.sel('input[name="seats"]'),
+              elBags  = Dom.sel('input[name="bags"]');
+          
           el = target;
 
           if (el.classList.contains('active')) {
-            Conn.request('disagreeOffer', MyOrder.id);
+            Conn.request('disagreeOffer', MyOrder.id, cbDisagreeOffer);
             el.classList.remove('active');
             active_bid = false;
             setRoute();
           } else {
             var data = {};
             
-            if (activeTypeTaxi !== "tourism") {
+            //isConstant
+            if (activeTypeTaxi !== "tourism" && !isConstant) {
               data.fromCity     = MyOrder.fromCity;
               data.fromAddress  = MyOrder.fromAddress;
               data.fromLocation = MyOrder.fromCoords;
@@ -249,6 +273,8 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
               data.toLocation   = MyOrder.toCoords;
             }
             
+            data.seats        = elSeats ? elSeats.value : 1;
+            data.bags         = elBags ? elBags : 0;
             data.price        = MyOrder.price;
             data.id           = offerId;
             
@@ -338,7 +364,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations) {
     Maps.mapOn();
     initMap();
     Conn.request('getOfferById', offerId, cbGetOfferById);
-    Conn.request('stopGetOffer');
+    Conn.request('stopGetOffers');
     addEvents();
   }
   

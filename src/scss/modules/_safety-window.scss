@@ -32,6 +32,9 @@
         display: inline-block;
         vertical-align: top;
         line-height: 0.5em;
+        &.hidden{
+            opacity: 0.2;
+        }
         input{
             width: 60%;
         }
