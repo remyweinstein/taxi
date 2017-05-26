@@ -187,22 +187,22 @@ define(['Dom', 'GetPositions', 'Destinations', 'Lists', 'HideForms', 'ModalWindo
           //  = EVENTS FOR ADD FAV AND BLACK LIST FRON MARKER's DRIVER = 
           if (target.dataset.click === "addtofav") {
             global_el = target;
-            Conn.addFavorites(target.dataset.id, cbAfterAddFav);
+            Conn.request('addFavorites', target.dataset.id, cbAfterAddFav);
           }
 
           if (target.dataset.click === "deltofav") {
             global_el = target;
-            Conn.deleteFavorites(target.dataset.id, cbAfterDeleteFav);
+            Conn.request('deleteFavorites', target.dataset.id, cbAfterDeleteFav);
           }
 
           if (target.dataset.click === "addtoblack") {
             global_el = target;
-            Conn.addBlackList(target.dataset.id, cbAfterAddBlackList);
+            Conn.request('addBlackList', target.dataset.id, cbAfterAddBlackList);
           }
 
           if (target.dataset.click === "deltoblack") {
             global_el = target;
-            Conn.deleteBlackList(target.dataset.id, cbAfterDeleteBlackList);
+            Conn.request('deleteBlackList', target.dataset.id, cbAfterDeleteBlackList);
           }
             //  =============== EVENTS FOR LIST OF OFFERS ================
             if (target.dataset.click === "open-offer") {

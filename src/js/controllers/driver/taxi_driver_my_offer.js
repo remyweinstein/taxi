@@ -8,7 +8,9 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
     Conn.clearCb('cbOnApproveOrder');
     
     if (!response.error) {
-      MyOffer.getByID(MyOffer.id, function () {});
+      MyOffer.getByID(MyOffer.id, function () {
+        Lists.init(MyOffer);
+      });
     }
   }
   
@@ -41,8 +43,8 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
   
   function addInterCity() {
     var additional_info = Dom.sel('div[data-block="additional_info"]'),
-        innerText = '<i class="icon-accessibility form-order-city__label"></i><span>Мест: ' + MyOffer.seats + '</span>' + 
-                    '<i class="icon-shopping-bag form-order-city__label"></i><span>Багаж: ' + MyOffer.bags + '</span>';
+        innerText       = '<i class="icon-accessibility form-order-city__label"></i><span>Мест: ' + MyOffer.seats + '</span>' + 
+                          '<i class="icon-shopping-bag form-order-city__label"></i><span>Багаж: ' + MyOffer.bags + '</span>';
     
     additional_info.innerHTML = innerText;
   }
@@ -54,7 +56,7 @@ function (Dom, Dates, HideForms, Destinations, GetPositions, Lists, Storage, clD
       while (target !== this) {
         if (target && target.dataset.click === "taxi_client_bid") {
           if (target.classList.contains('active')) {
-            Conn.request('disagreeOffer', target.dataset.id, cbOnApproveOrder);
+            Conn.request('disapproveOrder', target.dataset.id, cbOnApproveOrder);
           } else {
             Conn.request('approveOrder', target.dataset.id, cbOnApproveOrder);
           }

@@ -51,7 +51,7 @@ define(function() {
     //SEARCH ELEMENT OF ARRAY FOR 'ID'
     findIdArray: function (arr, find) {
       for (var i = 0; i < arr.length; i++) {
-        if (arr[i].id === find) {
+        if (parseInt(arr[i].id) === parseInt(find)) {
           return i;
         }
       }

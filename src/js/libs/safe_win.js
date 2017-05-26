@@ -59,10 +59,12 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
     SafeWin.clearPolygonZones(ids);
     
     for (var i = 0; i < ids.length; i++) {
-      var arr_id = Funcs.findIdArray(Zones.list, ids[i]);
       
-      SafeWin.polygons[i] = Maps.drawPoly(Zones.list[arr_id].polygon);
-      Maps.addElOnMap(SafeWin.polygons[i]);
+      var arr_id = Funcs.findIdArray(Zones.list, ids[i]),
+          poly = Maps.drawPoly(Zones.list[arr_id].polygon);
+      
+      SafeWin.polygons.push(poly);
+      Maps.addElOnMap(poly);
     }  
   }
 
@@ -261,19 +263,70 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
               win_route.classList.add('hidden');
             }
       }
-      
+
       if (win_zone) {
         if (hash === "#parent_control") {
           win_zone.classList.add('hidden');
         } else {
           win_zone.classList.remove('hidden');
+          
           if (hash !== "#parent_map") {
-            SafeWin.reload();
+            var enableSafeZone = Storage.getActiveZones();
+            
+            if (SafeWin.polygons.length === 0 && enableSafeZone) {
+              var button_zone = Dom.sel('[data-click="runZone"]'),
+                  arr_active = enableSafeZone.split(','),
+                  dom_arr = Dom.selAll('[data-click="zone"]');
+
+              button_zone.dataset.active = enableSafeZone;
+
+              for (var i = 0; i < arr_active.length; i++) {
+                for (var y = 0; y < dom_arr.length; y++) {
+                  if (dom_arr[y].dataset.id === arr_active[i]) {
+                    Dom.toggle(dom_arr[y], 'active-bg');
+                  }
+                }
+              }
+
+              drawPolygon(arr_active);
+              runZone(button_zone);
+            }
           } else {
-            MapElements.clear();
+            SafeWin.clearPolygonZones();
+            var but = Dom.sel('[data-click="runZone"]');
+            
+            but.classList.remove('active');
+            but.dataset.active = '';
+            
+            var lZonesBut = Dom.selAll('[data-click="zone"]');
+            
+            for (var z = 0; z < lZonesBut.length; z++) {
+              lZonesBut[z].classList.remove('active-bg');
+            }
           }
         } 
       }
+    },
+    
+    markChildren: function (ids) {
+      var lZonesBut = Dom.selAll('[data-click="zone"]'),
+          activeZones = [];
+      
+      for (var i = 0; i < ids.length; i++) {
+        activeZones.push(ids[i]);
+        
+        for (var z = 0; z < lZonesBut.length; z++) {
+          if (parseInt(lZonesBut[z].dataset.id) === parseInt(ids[i])) {
+            lZonesBut[z].classList.add('active-bg');
+          }
+        }
+        
+      }
+      
+      var but = Dom.sel('[data-click="runZone"]');
+      but.classList.add('active');
+      but.dataset.active = activeZones.join(',');
+      drawPolygon(ids);
     },
     
     initial: function () {
@@ -295,8 +348,8 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
           enable_safe_zone = Storage.getActiveZones();
       
       hammer.add([longpress],[tap]);
-      
-      if (enable_safe_zone) {
+
+      if (enable_safe_zone && window.location.hash !== "#parent_map") {
         var button_zone = Dom.sel('[data-click="runZone"]'),
             arr_active = enable_safe_zone.split(','),
             dom_arr = Dom.selAll('[data-click="zone"]');
@@ -359,6 +412,7 @@ define(['Dom', 'hammer', 'Funcs', 'Multirange', 'ModalWindows', 'Storage'], func
                           '</form>' + 
                           '<div><button class="button_short--grey" data-click="add_to_zones">Добавить в Зоны</button></div>' + 
                         '</div>';
+
       Dom.selAll('.safety-window')[0].appendChild(wrap);
       
       return;

@@ -11,9 +11,9 @@
         <meta name="apple-mobile-web-app-title" content="TechAgent">
         <meta name="msapplication-starturl" content="/">
         <link rel="manifest" href="/manifest.json">
-        <link href="assets/css/main.css?v=0.30" type="text/css" rel="stylesheet" />
+        <link href="assets/css/main.css?v=0.32" type="text/css" rel="stylesheet" />
         <script src="//ulogin.ru/js/ulogin.js"></script>
-        <script data-main="assets/js/config.js?v=0.79" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/config.js?v=0.82" src="assets/js/vendor/require.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSC865M_6PnMKScURizBAegCpZXBKzMRs&libraries=places"></script>
         <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite-beta.js"></script>-->
@@ -577,7 +577,7 @@
         </template>
         <template id="TaxiClientOffer">
             <div class="go-order" data-hide-form="enable">
-                <div class="go-order__top">
+                <div class="go-order__top" data-hide-form="top">
                     <div class="wait-order-approve" data-controller="taxi_driver_go">
                         <div class="wait-order-approve__route-info">
                             <div class="wait-order-approve__route-info__route">
@@ -604,6 +604,7 @@
                             <div class="wait-order-approve__route-info__cancel"></div>
                             <div class="wait-order-approve__route-info__addinfo add_for_intercity"></div>
                             <div class="wait-bids-approve"></div>
+                            <div class="wait-bids-approve__lists"></div>
                         </div>
                     </div>
                 </div>
@@ -1049,7 +1050,7 @@
                         <span class="form-order-city__wrap_two_thirds"><input class="input_only_digits" type="text" name="cost" value="" placeholder="Предложите цену" autocomplete="off" /></span>
                         <button data-click="date_offer" class="button_short--green">Сейчас</button>
                     </div>
-                    <button class="button_rounded--green" data-click="save-order">Предложить</button>
+                    <button class="button_rounded--green" data-click="save-order" disabled>Предложить</button>
                 </div>
             </div>
         </template>

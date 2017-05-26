@@ -43,7 +43,7 @@
             float: right;
         }
         &__addinfo{
-            width: 35%;
+            width: 100%;
             float: both;
         }
     }
@@ -128,6 +128,13 @@
                 color: green;
                 font-size: 1.5em;
             }
+        }
+    }
+    &__lists{
+        margin-top: 3em;
+        width: 100%;
+        div{
+            border: 1px dotted;
         }
     }
 }

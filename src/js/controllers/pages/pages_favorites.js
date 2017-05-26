@@ -82,15 +82,19 @@ define(['Dom'], function (Dom) {
           
         if (target) {
           if (target.dataset.click === "remove-favorite") {
-            var el = target;
-            
-            alert('Типа удалили агента с  id ' + el.dataset.id + ' из избранных');
+            var el = target,
+                li = el.parentNode.parentNode;
+              
+            li.parentNode.removeChild(li);
+            Conn.request('deleteFavorites', el.dataset.id);
           }
           
           if (target.dataset.click === "remove-black-list") {
-            var el = target;
-            
-            alert('Типа удалили агента с  id ' + el.dataset.id + ' из черного списка');
+            var el = target,
+                li = el.parentNode.parentNode;
+              
+            li.parentNode.removeChild(li);
+            Conn.request('deleteBlackList', el.dataset.id);
           }
         }        
 

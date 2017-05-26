@@ -64,7 +64,9 @@ function (Dom, Modal, Storage, Dates) {
         stevedores = Dom.sel('input[name="loaders"]'),
         offset = Dom.sel('select[name="offsetTime"]'),
         now    = new Date(),
-        isConstantEl = Dom.sel('input[name="isConstant"]');
+        isConstantEl = Dom.sel('input[name="isConstant"]'),
+        elSaveOrder = Dom.sel('[data-click="save-order"]'),
+        elSaveOffer = Dom.sel('[data-click="save-offer"]');
       
     if (isConstantEl) {
       Model.isConstant = isConstantEl.checked;
@@ -85,7 +87,15 @@ function (Dom, Modal, Storage, Dates) {
     Model.occupiedSeats = 0;
     Model.bags       = bags ? bags.value : null;
     //event.preventDefault();
-    Dom.sel('[data-click="save-order"]').disabled = true;
+    
+    if (elSaveOrder) {
+      elSaveOrder.disabled = true;
+    }
+    
+    if (elSaveOffer) {
+      elSaveOffer.disabled = true;
+    }
+    
     Model.type    = typeOf || 'taxi';
     Model.price   = _price === "" ? Model.recommended_cost : _price;
     Model.comment = Dom.sel('[name="description"]').value;
@@ -109,9 +119,16 @@ function (Dom, Modal, Storage, Dates) {
       Model.toFullAddress = null;
     }
 
-    var saveBut = Dom.sel('[data-click="save-order"]');
+    var saveBut = Dom.sel('[data-click="save-order"]'),
+        saveOfferBut = Dom.sel('[data-click="save-offer"]');
 
-    saveBut.disabled = true;
+    if (saveBut) {
+      saveBut.disabled = true;
+    }
+
+    if (saveOfferBut) {
+      saveOfferBut.disabled = true;
+    }
 
     Dom.selAll('.adress_' + _field)[0].value = "";
     Destinations.clear();
@@ -253,9 +270,16 @@ function (Dom, Modal, Storage, Dates) {
         
         Model.recommended_cost = recomended;
         
-        var saveBut = Dom.sel('[data-click="save-order"]');
+        var saveBut = Dom.sel('[data-click="save-order"]'),
+            saveOfferBut = Dom.sel('[data-click="save-offer"]');
         
-        saveBut.disabled = false;
+        if (saveBut) {
+          saveBut.disabled = false;
+        }
+        
+        if (saveOfferBut) {
+          saveOfferBut.disabled = false;
+        }
         
         return Model;
       });

@@ -60,6 +60,8 @@ define(['Dom', 'Funcs', 'domReady'], function (Dom, Funcs, domReady) {
   var HideForms = {
     init: function() {
       domReady(function () {
+        HideForms.clear();
+        
         var bottom_block = Dom.sel('div[data-hide-form=bottom]'),
             parent_block = Dom.sel('[data-hide-form=enable]'),
             top_block = Dom.sel('[data-hide-form=top]'),

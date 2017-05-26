@@ -7,7 +7,7 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
       fromAddress, toAddress, fromCity, toCity, fromCoords, toCoords, waypoints, price, order_id, offerId, ag_distanse,
       name_client, photo_client, travelTime, agIndexes, agRating, auto_photo, auto_brand, auto_model,
       MyOrder, isConstant = false,
-      activeTypeTaxi, 
+      activeTypeTaxi,
       seatsVal, startVal, offsetVal, occupiedSeatsVal, bagsVal;
   
   function cbChangeState(response) {
@@ -15,9 +15,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
     
     if (!response.error) {
       MyOrder.id = response.result.id;
-      Conn.request('getOfferById', offerId, cbGetOfferById);
-      Conn.request('stopGetOffers');
+      active_bid = true;
+    } else {
+      active_bid = false;
     }
+    
+    //setRoute();
   }
   
   function cbDisagreeOffer(response) {
@@ -25,37 +28,43 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
     
     if (!response.error) {
       MyOrder.id = null;
-      Conn.request('getOfferById', offerId, cbGetOfferById);
-      Conn.request('stopGetOffers');
+      active_bid = false;
+    } else {
+      active_bid = true;
     }
+    
+    //setRoute();
   }
-  
+    
   function cbGetOfferById(response) {
-    Conn.clearCb('cbGetOfferById');
+    //  var lists = Dom.sel('.wait-bids-approve__lists');
+    //  for (var i = 0; i < response.order; i++) {
+    //    
+    //  }
     
-    var ords = response.result.offer;
-    
+    var offer = response.result.offer;
+
     //MyOrder.setModel(response, true);
-    order_id     = ords.id;
-    fromAddress  = ords.fromAddress;
-    fromCity     = ords.fromCity;
-    toAddress    = ords.toAddress;
-    toCity       = ords.toCity;
-    isConstant   = ords.isConstant;
-    fromCoords   = ords.fromLocation.split(",");
-    toCoords     = ords.toLocation.split(",");
-    price        = Math.round(ords.price);
-    name_client  = ords.agent.name || User.default_name;
-    photo_client = ords.agent.photo || User.default_avatar;
-    agIndexes    = parseObj(getAgentIndexes(ords.agent));
-    agRating     = ords.agent.rating;
-    seatsVal         = ords.seats;
-    startVal         = ords.start;
-    offsetVal        = ords.offset ? ' ' + ords.offset + ' мин.' : '';
-    occupiedSeatsVal = ords.occupiedSeats;
-    bagsVal          = ords.bags;
-    //distanse     = (ords.length / 1000).toFixed(1);
-    //duration     = ords.duration;
+    order_id     = offer.id;
+    fromAddress  = offer.fromAddress;
+    fromCity     = offer.fromCity;
+    toAddress    = offer.toAddress;
+    toCity       = offer.toCity;
+    isConstant   = offer.isConstant;
+    fromCoords   = offer.fromLocation.split(",");
+    toCoords     = offer.toLocation.split(",");
+    price        = Math.round(offer.price);
+    name_client  = offer.agent.name  || User.default_name;
+    photo_client = offer.agent.photo || User.default_avatar;
+    agIndexes    = parseObj(getAgentIndexes(offer.agent));
+    agRating     = offer.agent.rating;
+    seatsVal         = offer.seats;
+    startVal         = offer.start;
+    offsetVal        = offer.offset ? ' ' + offer.offset + ' мин.' : '';
+    occupiedSeatsVal = offer.occupiedSeats;
+    bagsVal          = offer.bags;
+    //distanse         = (offer.length / 1000).toFixed(1);
+    //duration         = offer.duration;
     
     if (!isConstant) {
       var elChangeFromAddress = Dom.sel('div.order-city-from'),
@@ -67,36 +76,39 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
       }
     }
     
-    if (ords.agent.cars) {
-      auto_photo   = ords.agent.cars[0].photo || Car.default_vehicle;
-      auto_brand   = ords.agent.cars[0].brand;
-      auto_model   = ords.agent.cars[0].model;  
+    if (offer.agent.cars) {
+      auto_photo   = offer.agent.cars[0].photo || Car.default_vehicle;
+      auto_brand   = offer.agent.cars[0].brand;
+      auto_model   = offer.agent.cars[0].model;  
     } else {
       auto_photo   = Car.default_vehicle;
       auto_brand   = '';
       auto_model   = '';  
     }
     
-    if (ords.bids) {
+    if (offer.bids) {
       var bid_num = -1;
       
-      for (var i = 0; i < ords.bids.length; i++) {
-        if (ords.bids[i].order.agent.id === User.id) {
+      for (var i = 0; i < offer.bids.length; i++) {
+        if (offer.bids[i].order.agent.id === User.id) {
           bid_num = i;
+          break;
         }
       }
       
       if (bid_num > -1) {
         active_bid          = true;
-        MyOrder.price       = ords.bids[bid_num].order.price;
+        MyOrder.price       = offer.bids[bid_num].order.price;
         price               = MyOrder.price;
-        MyOrder.id          = ords.bids[bid_num].order.id;
-        MyOrder.fromAddress = ords.bids[bid_num].order.fromAddress;
-        MyOrder.fromCoords  = ords.bids[bid_num].order.fromLocation;
-        MyOrder.fromCity    = ords.bids[bid_num].order.fromCity;
-        MyOrder.toCity      = ords.bids[bid_num].order.toCity;
-        MyOrder.toAddress   = ords.bids[bid_num].order.toAddress;
-        MyOrder.toCoords    = ords.bids[bid_num].order.toLocation;
+        MyOrder.id          = offer.bids[bid_num].order.id;
+        MyOrder.fromAddress = offer.bids[bid_num].order.fromAddress;
+        MyOrder.fromCoords  = offer.bids[bid_num].order.fromLocation;
+        MyOrder.fromCity    = offer.bids[bid_num].order.fromCity;
+        MyOrder.toCity      = offer.bids[bid_num].order.toCity;
+        MyOrder.toAddress   = offer.bids[bid_num].order.toAddress;
+        MyOrder.toCoords    = offer.bids[bid_num].order.toLocation;
+        MyOrder.seats       = offer.bids[bid_num].order.seats;
+        MyOrder.bags        = offer.bids[bid_num].order.bags;
       }
     } else {
       if (MyOrder.price === 0) {
@@ -107,18 +119,32 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
 
       if (!MyOrder.fromAddress) {
         MyOrder.fromAddress = fromAddress;
-        MyOrder.fromCoords  = ords.fromLocation;
+        MyOrder.fromCoords  = offer.fromLocation;
       }
 
       if (!MyOrder.toAddress) {
         MyOrder.toAddress = toAddress;
-        MyOrder.toCoords  = ords.toLocation;
+        MyOrder.toCoords  = offer.toLocation;
       }
     }
     
-    MyOrder.route = ords.route;
+    var listsEl = Dom.sel('div.wait-bids-approve__lists'),
+        innerTxt = '';
+
+    for (var y = 0; y < offer.bids.length; y++) {
+      if (offer.bids[y].approved) {
+        innerTxt += '<div>' +
+                      (offer.bids[y].order.agent.name || 'Гость') + ', ' +
+                      'Мест: ' + offer.bids[y].order.seats +
+                    '</div>';
+      }
+    }
     
-    ag_distanse = ords.agent.distance.toFixed(1);
+    listsEl.innerHTML = innerTxt;
+    
+    MyOrder.route = offer.route;
+    
+    ag_distanse = offer.agent.distance.toFixed(1);
     travelTime = ((ag_distanse / average_speed) * 60).toFixed(0);
 
     if (travelTime < 5) {
@@ -160,11 +186,11 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
                   '<div>Время старта: ' + Dates.datetimeForPeople(startVal) + offsetVal + '</div>' + 
                   '<i class="icon-accessibility form-order-city__label"></i>' +
                       '<span class="form-order-city__wrap_short3">' +
-                          '<input type="text" name="seats" value="1" placeholder="">' +
+                          '<input type="text" name="seats" value="' + (MyOrder.seats || 1) + '" placeholder="" autocomplete="off">' +
                       '</span>' +
                   '<i class="icon-shopping-bag form-order-city__label"></i>' +
                       '<span class="form-order-city__wrap_short3">' + 
-                          '<input type="text" name="bags" value="0" placeholder="">' +
+                          '<input type="text" name="bags" value="' + (MyOrder.bags || 0) + '" placeholder="" autocomplete="off">' +
                       '</span>',
         el_for_intercity = Dom.sel('div.add_for_intercity');
     
@@ -236,6 +262,10 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
     if (activeTypeTaxi === "tourism" && MyOrder.route) {
       line = true;
     }
+    
+    if (activeTypeTaxi === "tourism" || activeTypeTaxi === "intercity") {
+      addTourism();
+    }
 
     Maps.drawRoute(MyOrder, false, false, line, function(){});
 
@@ -254,16 +284,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
               elBags  = Dom.sel('input[name="bags"]');
           
           el = target;
-
+          
           if (el.classList.contains('active')) {
             Conn.request('disagreeOffer', MyOrder.id, cbDisagreeOffer);
-            el.classList.remove('active');
-            active_bid = false;
-            setRoute();
           } else {
             var data = {};
             
-            //isConstant
             if (activeTypeTaxi !== "tourism" && !isConstant) {
               data.fromCity     = MyOrder.fromCity;
               data.fromAddress  = MyOrder.fromAddress;
@@ -273,14 +299,12 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
               data.toLocation   = MyOrder.toCoords;
             }
             
-            data.seats        = elSeats ? elSeats.value : 1;
-            data.bags         = elBags ? elBags : 0;
-            data.price        = MyOrder.price;
-            data.id           = offerId;
+            data.seats = elSeats ? elSeats.value : 1;
+            data.bags  = elBags ? elBags : 0;
+            data.price = MyOrder.price;
+            data.id    = offerId;
             
             Conn.request('agreeOffer', data, cbChangeState);
-            active_bid = true;
-            setRoute();
           }
         }
 
@@ -338,6 +362,8 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
   }
   
   function stop() {
+    Conn.clearCb('cbGetOrders');
+    Conn.request('stopOfferById');
     //GetPositions.clear();
     Destinations.clear();
     Storage.lullModel(MyOrder);
@@ -351,20 +377,14 @@ function (Dom, HideForms, Storage, clClientOrder, Destinations, Dates) {
     
     if (activeTypeTaxi === "tourism") {
       Dom.sel('.order-city-from').style.display = 'none';
-      Dom.sel('.order-city-to').style.display = 'none';
-      addTourism();
-    }
-    
-    if (activeTypeTaxi === "intercity") {
-      addTourism();
+      Dom.sel('.order-city-to').style.display   = 'none';
     }
     
     MyOrder = new clClientOrder();
     MyOrder.activateCurrent();
     Maps.mapOn();
     initMap();
-    Conn.request('getOfferById', offerId, cbGetOfferById);
-    Conn.request('stopGetOffers');
+    Conn.request('startOfferById', offerId, cbGetOfferById);
     addEvents();
   }
   

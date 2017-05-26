@@ -178,6 +178,10 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
           method = "transfer-order";
         },
         
+        "requestBlackList": function () {
+          method = "get-black-list";
+        },
+        
         "addBlackList": function () {
           params.id = data;
           method = "post-black-list";
@@ -205,6 +209,16 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
         "getOfferById": function () {
           params.offerId = data;
           method = "get-offer";
+        },
+        
+        "startOfferById": function () {
+          params.offerId = data;
+          method = "start-get-offer";
+        },
+        
+        "stopOfferById": function () {
+          params.offerId = data;
+          method = "stop-start-get-offer";
         },
         
         "getOfferByHash": function () {
@@ -488,6 +502,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
         "disagreeOffer": function () {
           params.orderId = data;
           method = "delete-order";
+        },
+        
+        "disapproveOrder": function () {
+          params.orderId = data;
+          method = "disapprove";
         },
         
         "createOrder": function () {
