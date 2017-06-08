@@ -16,32 +16,32 @@ var gulp = require('gulp'),
    
 var path = {
   build: {
-    html: 'build/',
-    php: 'build/',
-    comp: 'build/assets/js/',
-    js: 'build/assets/js/',
-    css: 'build/assets/css/',
-    img: 'build/assets/images/',
+    html:  'build/',
+    php:   'build/',
+    htm:  'build/assets/js/',
+    js:    'build/assets/js/',
+    css:   'build/assets/css/',
+    img:   'build/assets/images/',
     fonts: 'build/assets/font/'
   },
 
   src: {
-    html: 'src/**/*.html',
-    php: 'src/**/*.php',
-    comp: 'src/js/**/*.html',
-    js: 'src/js/**/*.js',
+    html:  'src/**/*.html',
+    php:   'src/**/*.php',
+    htm:  'src/js/**/*.htm',
+    js:    'src/js/**/*.js',
     style: 'src/scss/main.scss',
-    img: 'src/images/**/*.*',
+    img:   'src/images/**/*.*',
     fonts: 'src/font/**/*.*'
   },
 
   watch: {
-    html: 'src/**/*.html',
-    php: 'src/**/*.php',
-    comp: 'src/js/**/*.html',
-    js: 'src/js/**/*.js',
+    html:  'src/**/*.html',
+    php:   'src/**/*.php',
+    htm:  'src/js/**/*.htm',
+    js:    'src/js/**/*.js',
     style: 'src/scss/**/*.scss',
-    img: 'src/img/**/*.*',
+    img:   'src/img/**/*.*',
     fonts: 'src/font/**/*.*'
   },
 
@@ -58,9 +58,9 @@ gulp.task('php:build', function () {
     .pipe(gulp.dest(path.build.php));
 });
 
-gulp.task('comp:build', function () {
-  gulp.src(path.src.comp)
-    .pipe(gulp.dest(path.build.comp));
+gulp.task('htm:build', function () {
+  gulp.src(path.src.htm)
+    .pipe(gulp.dest(path.build.htm));
 });
 
 gulp.task('js:build', function () {
@@ -107,7 +107,7 @@ gulp.task('clean', function (cb) {
 gulp.task('build', [
   'html:build',
   'php:build',
-  'comp:build',
+  'htm:build',
   'js:build',
   'css:build',
   'fonts:build',
@@ -121,8 +121,8 @@ gulp.task('watch', function(){
   watch([path.watch.php], function(event, cb) {
     gulp.start('php:build');
   });
-  watch([path.watch.comp], function(event, cb) {
-    gulp.start('comp:build');
+  watch([path.watch.htm], function(event, cb) {
+    gulp.start('htm:build');
   });
   watch([path.watch.style], function(event, cb) {
     gulp.start('css:build');

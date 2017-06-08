@@ -202,7 +202,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     
         var request = new XMLHttpRequest();
         
-        request.open('GET', 'js/templates/' + template + '.html', true);
+        request.open('GET', 'assets/js/templates/' + template + '.html', true);
 
         request.onload = function() {
           if (request.status >= 200 && request.status < 400) {
