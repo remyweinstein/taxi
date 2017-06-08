@@ -16,7 +16,7 @@ define(['Storage'], function (Storage) {
                         '<p><img class="avatar" src="' + photo + '" alt=""/></p>' + 
                       '</div>' + 
                     '</div>',
-             zoneIds = agents[i].sosZones;
+             zoneIds = agents[i].sosZones || [];
         
         if (firstTime && zoneIds.length > 0) {
           DrawZones(zoneIds);

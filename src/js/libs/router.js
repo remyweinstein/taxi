@@ -19,7 +19,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
                 {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
                 {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
-                {hash:'#watching', template:'PageWatching', controller:'ctrlPageWatching', title:'Наблюдение', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
                 {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
                 {hash:'#client_choose_address', template:'TaxiClientChooseAddress', controller:'ctrlTaxiClientChooseAddress', title:'Выбор адреса', menu:'client', pageType: 'back-arrow'},
@@ -186,28 +185,55 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     //content.removeEventListener('keypress');
   }
   
-  function loadController(route) {
-    var content_el = Dom.sel('.content'),
-        dynamic_el = Dom.sel('.dynamic'),
-        content    = document.querySelector('#' + route.template).innerHTML,
-        dynamic    = document.createElement('div');
-    
-    //checkActiveOrder();
-    currentRoute = route;
-    Tabs.clear();
-    HideForms.clear();
-    SafeWin.reloadPage();
+  function render(template) {
+    var content_el      = Dom.sel('.content'),
+        dynamic_el      = Dom.sel('.dynamic'),
+        templateEl      = document.createElement('div'),
+        dynamic         = document.createElement('div'),
+        componentHtml   = document.createDocumentFragment(),
+        componentScript = document.createElement('script');
+
     
     if (dynamic_el) {
       dynamic_el.parentNode.removeChild(dynamic_el);
     }
     
     dynamic.classList.add('dynamic');
-    dynamic.innerHTML = content;
-    content_el.appendChild(dynamic);
+    
+        var request = new XMLHttpRequest();
+        
+        request.open('GET', 'js/templates/' + template + '.html', true);
+
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            content_el.appendChild(dynamic);
+            templateEl.innerHTML = request.responseText;
+
+            componentHtml.appendChild(templateEl.querySelector('template').content);
+            var scriptNode = templateEl.querySelector('script');
+            
+            dynamic.appendChild(componentHtml);
+            
+            if (scriptNode) {
+              componentScript.innerHTML = scriptNode.innerHTML;
+              dynamic.appendChild(componentScript);
+            }
+          }
+        };
+
+        request.send();
+  }
+  
+  function loadController(route) {
+    currentRoute = route;
+    Tabs.clear();
+    HideForms.clear();
+    SafeWin.reloadPage();
+    
     renderMenu(route);
     Maps.mapOff();
     clearVars();
+    render(route.template);
     
     if (old_controller) {
       require([old_controller.controller], function(controller) {

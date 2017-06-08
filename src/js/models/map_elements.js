@@ -121,7 +121,7 @@ define(function() {
       self.markers_driver_pos = [];
       self.markers_agent_pos  = [];
       self.route_points       = [];
-
+console.log('try clear maps');
     };
 
   };

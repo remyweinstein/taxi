@@ -1,0 +1,38 @@
+<template>
+            <div class="go-order" data-hide-form="enable">
+                <div class="go-order__top" data-hide-form="top">
+                    <div class="wait-order-approve" data-controller="taxi_client_go">
+                        <div class="wait-order-approve__route-info">
+                            <div class="wait-order-approve__route-info__route">
+                                <div></div>
+                                <div>-</div>
+                                <div></div>
+                            </div>
+                            <div class="wait-order-approve__route-info__price"></div>
+                            <div class="wait-order-approve__route-info__cancel"></div>
+                            <i class="icon-phone-circled" style="color: grey; font-size:3em; cursor: pointer;" data-click="callSip"></i>
+                            <div class="wait-bids-approve"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="go-order__down" data-hide-form="bottom">
+                    <div class="go-order__down__driver-panel">
+                        <div class="go-order__down__driver-panel__info">
+                            <p>До водителя: <span data-view="distance_to_car">-</span> км.</p>
+                            <p>Время подъезда: <span data-view="while_car">-</span> мин.</p>
+                            <p>Время по маршруту: <span data-view="duration">-</span></p>
+                        </div>
+                        <div class="go-order__down__driver-panel__action">
+                            <button disabled data-click="client-incar" class="button_wide--green">В машине</button>
+                        </div>
+                    </div>
+                    <div class="go-order__down__messages">
+                        <div class="go-order__down__messages__textarea"></div>
+                        <div class="go-order__down__messages__textinput">
+                            <input type="text" name="message" data-text="new_message" placeholder="Ваше сообщение" autocomplete="off" />
+                            <button class="button_rounded--green" data-click="send_message">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </template>

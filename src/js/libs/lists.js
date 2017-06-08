@@ -815,7 +815,7 @@ function(Dates, Dom, clDriverOrders, Popup, Storage) {
 
       if (response !== "") {
         arr_filters.orderBy = {};
-        eval('arr_filters.orderBy.' + response.sort + ' = ' + response.r + ';');
+        arr_filters.orderBy[response.sort] = response.r;
       }
     }); 
   }

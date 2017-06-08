@@ -6,6 +6,6 @@ define(function() {
     
   };
   
-	return Calc;
+  return Calc;
   
 });

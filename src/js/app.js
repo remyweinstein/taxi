@@ -110,6 +110,10 @@ define(['User',
       return User;
     },
     
+    renderComponent: function () {
+        
+    },
+    
     afterConnection: function () {
       User.load();
       Parameters.getParameters();

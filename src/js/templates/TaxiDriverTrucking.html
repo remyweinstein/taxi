@@ -1,0 +1,25 @@
+<template>
+            <nav class="tabs">
+                <ul>
+                    <li data-tab="1" class="tab--active">Заказы</li>
+                    <li data-tab="2">Предложения</li>
+                    <li data-tab="3">Архив</li>
+                </ul>
+            </nav>
+            <div class="tabs__wrapper">
+              <div class="tabs__viewport">
+                <div data-tab-content="1" class="tabs_content" data-controller="taxi_driver_city">
+                    <div class="filters-orders"><span data-click="sort-orders">Сортировка</span> / <span data-click="filter-orders">Фильтры</span> / <span data-click="fav-orders">Избранное</span> / <span data-click="automat-orders">Автомат</span></div>
+                    <div class="list-orders__result">Найдено <span></span> заявок</div>
+                    <ul class="list-orders" data-model="list-orders"></ul>
+                </div>
+                <div data-tab-content="2" class="tabs_content">
+                    <p><button class="button_wide--green" data-click="new-offer">Создать предложение</button></p>
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+                <div data-tab-content="3" class="tabs_content">
+                    <ul class="list-orders" data-model="list-offers"></ul>
+                </div>
+              </div>
+            </div>
+    </template>

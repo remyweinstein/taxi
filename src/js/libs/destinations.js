@@ -201,7 +201,7 @@ function (Dom, Modal, Storage, Dates) {
       '<p><button class="button_rounded--green" data-response="20">20 мин</button></p>' +
       '<p><button class="button_rounded--green" data-response="30">30 мин</button></p>',
       function (response) {
-        eval("Model.points[" + id + "].stopTime = " + response);
+        Model.points[id].stopTime = response;
         Destinations.clear();
         init(Model);
         Storage.lullModel(Model);

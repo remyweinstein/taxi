@@ -13,12 +13,12 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           el = target;
           _key = el.dataset.key;
           
-          Modal.show('<input type="text" name="val" value="' + eval("Parameters." + _key) + '" />' + 
+          Modal.show('<input type="text" name="val" value="' + Parameters[_key] + '" />' + 
                      '<button class="button_rounded--green" data-getvalue="val">Сохранить</button>', 
             function (response) {
               var data= {};
               
-              eval('Parameters.' + _key + ' = ' + response);
+              Parameters[_key] = response;
               
               if (_key === "safeRadius") {
                 User.routeGuardZoneRadius = response;
@@ -70,7 +70,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
               var val = response === "true" ? true : false,
                   data = {};
               
-              eval('Parameters.' + _key + ' = ' + val);
+              Parameters[_key] = val;
               
               if (_key === "disableSafeZoneByPIN") {
                 User.isDisableZoneByPin = val;

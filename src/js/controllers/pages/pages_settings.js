@@ -23,12 +23,12 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
           el = target;
           _key = el.dataset.key;
           
-          Modal.show('<input type="text" name="val" value="' + eval("Settings." + _key) + '" />' + 
+          Modal.show('<input type="text" name="val" value="' + Settings[_key] + '" />' + 
                      '<button class="button_rounded--green" data-getvalue="val">Сохранить</button>', 
             function (response) {
               var data= {};
               
-              eval('Settings.' + _key + ' = ' + response);
+              Settings[_key] = response;
               
               if (_key === "safeRadius") {
                 User.routeGuardZoneRadius = response;
@@ -86,7 +86,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
               Conn.request('updateProfile', data);
               User.map = response;
               User.save();
-              eval('Settings.' + _key + ' = "' + response + '"');
+              Settings[_key] = response;
               Maps.init();
               SafeWin.reinit();
               var str = response;
@@ -104,7 +104,7 @@ define(['Dom', 'ModalWindows'], function (Dom, Modal) {
               var val = response === "true" ? true : false,
                   data = {};
               
-              eval('Settings.' + _key + ' = ' + val);
+              Settings[_key] = val;
               
               if (_key === "disableSafeZoneByPIN") {
                 User.isDisableZoneByPin = val;

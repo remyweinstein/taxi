@@ -64,7 +64,6 @@ requirejs.config({
     "ctrlPageSms" :            "controllers/pages/pages_sms",
     "ctrlPageTrustedContacts": "controllers/pages/pages_trusted_contacts",
     "ctrlPageFavorites" :      "controllers/pages/pages_favorites",
-    "ctrlPageWatching" :       "controllers/pages/pages_watching",
     "ctrlPageZones" :          "controllers/pages/pages_zones",
     "ctrlPageEditZone" :       "controllers/pages/pages_edit_zone",
     "ctrlPageParentControl" :  "controllers/pages/pages_parent_control",

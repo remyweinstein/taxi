@@ -94,7 +94,11 @@ define(['jsts', 'Storage'], function(jsts, Storage) {
     };
 
     this.mapOff = function () {
-      document.getElementById('map_canvas').classList.add("hidden");
+      var map = document.getElementById('map_canvas');
+      
+      if (map) {
+        map.classList.add("hidden");
+      }
     };
 
     this.mapOn = function () {

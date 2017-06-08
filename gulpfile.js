@@ -4,11 +4,11 @@ var gulp = require('gulp'),
   watch = require('gulp-watch'),
   prefixer = require('gulp-autoprefixer'),
   uglify = require('gulp-uglify'),
-  //sourcemaps = require('gulp-sourcemaps'),
-  //gutil = require('gulp-util'),
+  sourcemaps = require('gulp-sourcemaps'),
+  gutil = require('gulp-util'),
   //rjs = require("gulp-rjs"),
   //amdOptimize = require('amd-optimize'),
-  //concat = require('gulp-concat'),
+  concat = require('gulp-concat'),
   //plumber = require('gulp-plumber'),
   //imagemin = require('gulp-imagemin');
   sass = require('gulp-sass'),
@@ -18,6 +18,7 @@ var path = {
   build: {
     html: 'build/',
     php: 'build/',
+    comp: 'build/assets/js/',
     js: 'build/assets/js/',
     css: 'build/assets/css/',
     img: 'build/assets/images/',
@@ -27,6 +28,7 @@ var path = {
   src: {
     html: 'src/**/*.html',
     php: 'src/**/*.php',
+    comp: 'src/js/**/*.html',
     js: 'src/js/**/*.js',
     style: 'src/scss/main.scss',
     img: 'src/images/**/*.*',
@@ -36,6 +38,7 @@ var path = {
   watch: {
     html: 'src/**/*.html',
     php: 'src/**/*.php',
+    comp: 'src/js/**/*.html',
     js: 'src/js/**/*.js',
     style: 'src/scss/**/*.scss',
     img: 'src/img/**/*.*',
@@ -53,6 +56,11 @@ gulp.task('html:build', function () {
 gulp.task('php:build', function () {
   gulp.src(path.src.php)
     .pipe(gulp.dest(path.build.php));
+});
+
+gulp.task('comp:build', function () {
+  gulp.src(path.src.comp)
+    .pipe(gulp.dest(path.build.comp));
 });
 
 gulp.task('js:build', function () {
@@ -99,6 +107,7 @@ gulp.task('clean', function (cb) {
 gulp.task('build', [
   'html:build',
   'php:build',
+  'comp:build',
   'js:build',
   'css:build',
   'fonts:build',
@@ -111,6 +120,9 @@ gulp.task('watch', function(){
   });
   watch([path.watch.php], function(event, cb) {
     gulp.start('php:build');
+  });
+  watch([path.watch.comp], function(event, cb) {
+    gulp.start('comp:build');
   });
   watch([path.watch.style], function(event, cb) {
     gulp.start('css:build');
