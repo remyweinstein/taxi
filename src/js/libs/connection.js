@@ -172,6 +172,11 @@ define(['Uries', 'Funcs', 'Storage', 'Notify', 'HideForms'], function(Uries, Fun
           method = "delete-favorites";
         },
         
+        "deleteProfile": function (){
+            params = data.reason;
+            method = "delete";
+        },
+        
         "transferOrder": function () {
           params.orderId = data.orderId;
           params.toAgentId = data.toAgentId;

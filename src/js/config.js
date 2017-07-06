@@ -1,16 +1,27 @@
 requirejs.config({
-  urlArgs: "v=0.82",
-	paths: {
-		"App" :   "app",
+      jsx: {
+        fileExtension: '.jsx',
+        harmony: true,
+        stripTypes: true
+      },
+    
+  paths: {
+    "App" :   "app",
     "Uries" : "uries",
     
-    "hammer" :   "vendor/hammer.min",
-    "jsutil" :   "vendor/jsutil",
-    "jsts" :     "vendor/jsts",
-    "domReady" : "vendor/domReady",
-    "push" :     "vendor/push.min",
-    "mustache" : "vendor/mustache.min",
-    "sipjs":     "vendor/sip.min",
+    "jsx":          "vendor/jsx",
+    "react":          "vendor/react",
+    "ReactDOM":          "vendor/react-dom",
+    "text":          "vendor/text",
+    "JSXTransformer": "vendor/jsx-transformer",
+    
+    "hammer" :        "vendor/hammer.min",
+    "jsutil" :        "vendor/jsutil",
+    "jsts" :          "vendor/jsts",
+    "domReady" :      "vendor/domReady",
+    "push" :          "vendor/push.min",
+    "mustache" :      "vendor/mustache.min",
+    "sipjs":          "vendor/sip.min",
     
 		"Car" :          "models/car",
 		"ClientOrder" :  "models/client_order",
@@ -92,6 +103,9 @@ requirejs.config({
     "ctrlTaxiClientOffer" :             "controllers/client/taxi_client_offer"
 	},
   shim: {
+    "JSXTransformer": {
+      exports: "JSXTransformer"
+    },
     "hammer" : {
       exports: "hammer"
     },
@@ -101,10 +115,12 @@ requirejs.config({
     "push" : {
       exports: "push"
     }
-  }
+  },
+  urlArgs: "v=0.83",
 });
 
-var menus_arr = [];
+var urlArgs = 'v=0.83',
+    menus_arr = [];
     menus_arr['client'] = [{name: 'Город', url: '#client_city', icon: 'commerical-building'},
                            {name: 'Межгород', url: '#client_intercity', icon: 'suitcase'},
                            {name: 'Грузовые', url: '#client_trucking', icon: 'truck'},

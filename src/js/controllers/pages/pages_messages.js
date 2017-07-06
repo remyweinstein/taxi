@@ -1,48 +1,31 @@
 /* global Event, User, Conn */
 
-define(['Dom', 'Storage', 'Dates'], function (Dom, Storage, Dates) {
-  var id_li_delete;
+define(['Storage', 'Funcs', 'react', 'ReactDOM', 'jsx!components/MessageList'], function (Storage, Funcs, React, ReactDOM, List) {
+  var id_li_delete, FactoryList, storeList;
   
   function cbGetNotify(response) {
     Conn.clearCb('cbGetNotify');
     
-    var ul = Dom.sel('ul.list-message'),
-        messages = response.result.notifications;
-    
-    for (var i = 0; i < messages.length; i++) {
-      var li = document.createElement('li'),
-          text = messages[i].text;
-      //agentId, args.agentId, created, delivered, created, type
-      
-      text = messages[i].type==="invite" ? "Приглашение от агента" : text;
-      
-      if (!messages[i].read) {
-        li.classList.add('unread');
-      }
-      
-      li.dataset.id = messages[i].id;
-      li.innerHTML = '<div data-click="open-notify" data-id="' + messages[i].id + '">' +
-                       '<span>' + Dates.datetimeForPeople(messages[i].created) + '</span><br/>' + 
-                       text +
-                      '</div>' +
-                      '<div>' +
-                       '<i class="icon-cancel-circled" data-click="delete-notify" data-id="' + messages[i].id + '"></i>' +
-                     '</div>';
-      ul.appendChild(li);
-    }
+    storeList = response.result.notifications;
+    renderList();
   }
   
   function cbDeleteNotify(response) {
     Conn.clearCb('cbDeleteNotify');
     
     if (!response.error) {
-      var ul   = Dom.sel('ul.list-message'),
-          elem = Dom.sel('li[data-id="' + id_li_delete + '"]');
-
-      ul.removeChild(elem);
+      storeList = Funcs.deleteArrayByID(storeList, id_li_delete);
+      renderList();
     }
   }
   
+  function renderList() {
+    ReactDOM.render(
+      FactoryList({list: storeList}),
+      document.querySelector('.dynamic')
+    );
+  }
+
   function addEvents() {
     Event.click = function (event) {
       var target = event.target;
@@ -74,6 +57,7 @@ define(['Dom', 'Storage', 'Dates'], function (Dom, Storage, Dates) {
   }
   
   function start() {
+    FactoryList = React.createFactory(List);
     Conn.request('getNotifications', '', cbGetNotify);
     addEvents();
   }

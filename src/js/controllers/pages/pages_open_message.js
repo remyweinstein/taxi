@@ -1,41 +1,21 @@
 /* global Conn, Event */
 
-define(['Storage', 'Dom'], function (Storage, Dom) {
+define(['Storage', 'react', 'ReactDOM', 'jsx!components/MessagePage'], function (Storage, React, ReactDOM, MessagePage) {
+  var FactoryMessagePage, storeMessagePage;
+
+  function renderMessagePage() {
+    ReactDOM.render(
+      FactoryMessagePage({message: storeMessagePage}),
+      document.querySelector('.dynamic')
+    );
+  }
 
   function cbReadOpenNotify(response) {
     Conn.clearCb('cbReadOpenNotify');
     Storage.clearOpenNotify();
     
-    var ul = Dom.sel('ul.list-message'),
-        message = response.result.notification,
-        li = document.createElement('li'),
-        type = message.type,
-        text = message.text,
-        args = message.args,
-        body = '';
-    
-    if (type === "invite") {
-      var id = message.id;
-      
-      body = '<div>' +
-              '<button class="button_rounded--grey" data-click="recept-invite">Отказать</button>' +
-              '<button class="button_rounded--green" data-id="' + id + '" data-click="accept-invite">Принять</button>' +
-             '</div>';
-    }
-    
-    if (type === "sos") {
-      var id = message.id,
-          isDr = args.isDriver ? 'Водитель ' : 'Клиент ';
-      
-      body = '<p>Внимание</p>' + 
-                        '<p>' + isDr + args.name + ' в опасности!</p>' +
-                        '<p>Текущие координаты: ' + args.location + '</p>';
-    }
-    
-    li.dataset.id = message.id;
-    li.dataset.click = "open-notify";
-    li.innerHTML = text + body;
-    ul.appendChild(li);
+    storeMessagePage = response.result.notification;
+    renderMessagePage();
   }
   
   function cbAcceptInvite(resp) {
@@ -79,6 +59,7 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
     
     if (id) {
       Conn.request('readNotification', id, cbReadOpenNotify);
+      FactoryMessagePage = React.createFactory(MessagePage);
       addEvents();
     } else {
       goToPage = '#messages';

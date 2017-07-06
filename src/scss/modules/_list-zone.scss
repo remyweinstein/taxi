@@ -7,6 +7,10 @@
         position: relative;
         padding: 0.5em;
         cursor: pointer;
+        p{
+            margin: 0;
+            display: inline;
+        }
         i{
             position: absolute;
             right: 2em;

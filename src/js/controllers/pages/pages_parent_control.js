@@ -1,39 +1,19 @@
 /* global Event, Conn */
 
-define(['Dom', 'Storage'], function (Dom, Storage) {
+define(['Storage', 'react', 'ReactDOM', 'jsx!components/ParentPage'], function (Storage, React, ReactDOM, List) {
+  var FactoryList, storeList;
+
+  function renderList() {
+    ReactDOM.render(
+      FactoryList({list: storeList}),
+      document.querySelector('.dynamic')
+    );
+  }
 
   function cbGetSosAgents(response) {
     Conn.clearCb('cbGetSosAgents');
-    var ul = Dom.sel('ul.list-message');
-    
-    ul.innerHTML = '';
-    
-    if (!response.error) {
-      var agents = response.result.sosAgents;
-
-      for (var i = 0; i < agents.length; i++) {
-        var li    = document.createElement('li'),
-            name  = agents[i].name || 'Гость',
-            zones = agents[i].sosZones ? '<i class="icon-ok active"></i>' : '';
-
-        li.dataset.id = agents[i].id;
-        li.innerHTML  = '<div data-click="open-map" data-id="' + agents[i].id + '">' +
-                          name +
-                        '</div>' +
-                        '<div>' +
-                          zones + 
-                        '</div>';
-                      
-        ul.appendChild(li);
-      }
-      
-      if (agents.length === 0) {
-        var li = document.createElement('li');
-        
-        li.innerHTML  = '<div style="text-align: center">Агенты не найдены</div>';
-        ul.appendChild(li);
-      }
-    } 
+    storeList = response.result.sosAgents;
+    renderList();
   }
 
   function addEvents() {
@@ -70,6 +50,7 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
   }
   
   function start() {
+    FactoryList = React.createFactory(List);
     addEvents();
     Conn.request('getSosAgents', '', cbGetSosAgents);
     Conn.request('stopGetSosAgents');

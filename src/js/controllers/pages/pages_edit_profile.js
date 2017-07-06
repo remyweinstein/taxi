@@ -1,12 +1,33 @@
 /* global Event, User, Conn, uLogin */
 
-define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
+define(['Dom', 'Dates', 'ModalWindows', 'Storage'], function (Dom, Dates, Modal, Storage) {
+  var globals_el,
+      _timer;
+  
+  function cbSearchCity(results) {
+    Conn.clearCb('cbSearchCity');
+    
+    var list_parent  = globals_el.srcElement ? globals_el.srcElement.parentNode : globals_el.parentNode,
+        list_results = list_parent.querySelector('.form-order-city__hint'),
+        innText      = '';
+      
+    var cities = results.result.city;
+
+    if (cities) {
+      for (var i = 0; i < cities.length; i++) {
+        innText += '<p data-click="add_hint_city">' + cities[i].city + '</p>';
+      }
+
+      list_results.innerHTML = innText;
+      list_results.style.display = 'block';
+    }
+  }
   
   function cbFillFields(response) {
     Conn.clearCb('cbFillFields');
     
     var sex = response.result.profile.sex ? 1: 0,
-        city = response.result.profile.city ? Dom.sel('select[name="city"] option[value="' + response.result.profile.city + '"]') : Dom.sel('select[name="city"] option[value="' + User.city + '"]'),
+        city = response.result.profile.city || User.city,
         listOfSocials =[],
         prof = response.result.profile;
     
@@ -59,7 +80,7 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     Dom.sel('input[name="myname"]').value = User.name || response.result.profile.name;
     Dom.sel('input[name="dob"]').value = response.result.profile.birthday ? Dates.dateFromBase(response.result.profile.birthday) : '';
     sex.selected = true;
-    city.selected = true;
+    Dom.sel('input[name=city]').value = city;
     Dom.sel('.avatar').src = response.result.profile.photo || User.avatar;
   }
   
@@ -82,20 +103,41 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
       var target = event.target;
 
       while (target && target !== this) {
+        if (target.dataset.click === "add_hint_city") {
+          var parent,
+              el = target;
+      
+          el.parentNode.style.display = 'none';
+          parent                      = el.parentNode.parentNode.querySelector('input');
+          parent.value                = el.innerHTML;
+        }
+          
         if (target.dataset.click === 'clear_photo') {
           Conn.request('deletePhoto', '', cbClearPhoto);
+        }
+        
+        if (target.dataset.click === "deleteProfile") {
+          Modal.deleteProfile(function(response) {
+            if (response) {
+                var data = {};
+
+                data.reason = response;
+                Conn.request('deleteProfile', data);
+                goToPage = '#logout';
+            }
+          });
         }
         
         if (target.dataset.click === "change-pin") {
           Modal.changePin(function(response) {
             var data = {};
             
-            data.profile = {};
+            data.profile     = {};
             data.profile.pin = response.newPin;
-            data.pin = response.oldPin;
+            data.pin         = response.oldPin;
+            
             Conn.request('changePin', data);
           });
-            
         }
 
         if (target.dataset.click === "create-pin") {
@@ -168,7 +210,47 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     };
 
     content.addEventListener('submit', Event.submit);
-  }  
+    
+    Event.input = function (event) {
+      var target = event.target;
+
+      while (target !== this) {
+        if (target) {
+          if (target.name === "city") {
+            onchange(target);
+          }
+        }
+
+        if (target) {
+          target = target.parentNode;
+        } else {
+          break;
+        }
+      }
+    };
+    
+    content.addEventListener('input', Event.input);  }  
+  
+  function onchange(el) {
+    var list_parent  = el.srcElement ? el.srcElement.parentNode : el.parentNode,
+        list_results = list_parent.querySelector('.form-order-city__hint'),
+        input        = el.srcElement || el,
+        query        = input.value;
+      
+    globals_el = el;
+    
+    list_results.style.display = 'none';
+    list_results.innerHTML = "";
+    clearTimeout(_timer);    
+
+    if (query !== "") {
+      _timer = setTimeout(startSearch, 1000);
+    }
+
+    function startSearch() {
+      Conn.request('searchCity', query, cbSearchCity);
+    }
+  }
   
   function SaveProfile(file) {
     var data = {};
@@ -184,8 +266,14 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
     
     data.name = Dom.sel('input[name=myname]').value;
     data.birthday = Dates.dateToBase(Dom.sel('input[name=dob]').value);
-    data.city = Dom.sel('select[name=city]').value;
+    data.city = Dom.sel('input[name=city]').value;
     data.sex = Dom.sel('select[name=sex]').value;
+    
+    User.city = data.city;
+    User.name = data.name;
+    User.sex  = data.sex;
+    
+    Storage.lullModel(User);
 
     Conn.request('updateProfile', data, cbUpdateProfile);
 
@@ -198,6 +286,10 @@ define(['Dom', 'Dates', 'ModalWindows'], function (Dom, Dates, Modal) {
   function start() {
     Conn.request('getProfile', '', cbFillFields);
     addEvents();
+    
+    if (User.is_auth) {
+        Dom.sel('p.deleteProfile').innerHTML = '<button class="button_rounded--red" data-click="deleteProfile">Удалить профиль</button>';
+    }
   }
   
   return {

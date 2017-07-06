@@ -1,4 +1,4 @@
-/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps, goToPage, isGeolocation, SafeWin */
+/* global User, menus_arr, timerCheckLoading, Event, Conn, Maps, goToPage, isGeolocation, SafeWin, urlArgs */
 
 define(['Dom', 'Chat', 'Tabs', 'HideForms', 'Redirect', 'Storage'], 
 function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
@@ -6,18 +6,18 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
   var App, 
       old_controller,
       routes = [{hash:'#edit_profile', template:'PageEditProfile', controller:'ctrlPageEditProfile', title:'Мой профиль', menu:'', pageType: 'back-arrow'},
-                {hash:'#start', template:'PageStart', controller:'ctrlPageStart', title:'Добро пожаловать', menu:'', pageType: ''},
+                {hash:'#start', controller:'ctrlPageStart', title:'Добро пожаловать', menu:'', pageType: ''},
                 {hash:'#login', template:'PageLogin', controller:'ctrlPageLogin', title:'Авторизация', menu:'', pageType: 'back-arrow'},
-                {hash:'#logout', template:'PageLogout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
+                {hash:'#logout', controller:'ctrlPageLogout', title:'Выход', menu:'', pageType: 'back-arrow'},
                 {hash:'#edit_zone', template:'PageEditZone', controller:'ctrlPageEditZone', title:'Зона на карте', menu:'', pageType: 'back-arrow'},
-                {hash:'#trusted_contacts', template:'PageTrustedContacts', controller:'ctrlPageTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
-                {hash:'#parent_control', template:'PageParentControl', controller:'ctrlPageParentControl', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
+                {hash:'#trusted_contacts', controller:'ctrlPageTrustedContacts', title:'Доверенные', menu:'', pageType: 'back-arrow'},
+                {hash:'#parent_control', controller:'ctrlPageParentControl', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
                 {hash:'#parent_map', template:'PageParentMap', controller:'ctrlPageParentMap', title:'Род. контроль', menu:'', pageType: 'back-arrow'},
-                {hash:'#zones', template:'PageZones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
-                {hash:'#messages', template:'PageMessages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
+                {hash:'#zones', controller:'ctrlPageZones', title:'Зоны', menu:'', pageType: 'back-arrow'},
+                {hash:'#messages', controller:'ctrlPageMessages', title:'Сообщения', menu:'', pageType: 'back-arrow'},
                 {hash:'#admin', template:'PageAdmin', controller:'ctrlPageAdmin', title:'Параметры', menu:'client', pageType: ''},
-                {hash:'#open_message', template:'PageMessages', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
-                {hash:'#sms', template:'PageSms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
+                {hash:'#open_message', controller:'ctrlPageOpenMessage', title:'Сообщение', menu:'', pageType: 'back-arrow'},
+                {hash:'#sms', controller:'ctrlPageSms', title:'Введите код', menu:'', pageType: 'back-arrow'},
                 {hash:'#settings', template:'PageSettings', controller:'ctrlPageSettings', title:'Настройки', menu:'', pageType: 'back-arrow'},
                 {hash:'#favorites', template:'PageFavorites', controller:'ctrlPageFavorites', title:'Избранные', menu:'', pageType: 'back-arrow'},
                 {hash:'#client_choice_location_map', template:'TaxiClientChoiceLocationMap', controller:'ctrlTaxiClientChoiceLocationMap', title:'Выбор на карте', menu:'client', pageType: 'back-arrow'},
@@ -185,7 +185,7 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     //content.removeEventListener('keypress');
   }
   
-  function render(template) {
+  function render(template, callback) {
     var content_el      = Dom.sel('.content'),
         dynamic_el      = Dom.sel('.dynamic'),
         templateEl      = document.createElement('div'),
@@ -199,14 +199,15 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     }
     
     dynamic.classList.add('dynamic');
+    content_el.appendChild(dynamic);
     
+    if (template) {
         var request = new XMLHttpRequest();
         
-        request.open('GET', 'assets/js/templates/' + template + '.html', true);
+        request.open('GET', 'assets/js/templates/' + template + '.htm?' + urlArgs, true);
 
         request.onload = function() {
           if (request.status >= 200 && request.status < 400) {
-            content_el.appendChild(dynamic);
             templateEl.innerHTML = request.responseText;
 
             componentHtml.appendChild(templateEl.querySelector('template').content);
@@ -218,10 +219,15 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
               componentScript.innerHTML = scriptNode.innerHTML;
               dynamic.appendChild(componentScript);
             }
+            
+            callback();
           }
         };
 
         request.send();
+    } else {
+        callback();
+    }
   }
   
   function loadController(route) {
@@ -233,7 +239,6 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
     renderMenu(route);
     Maps.mapOff();
     clearVars();
-    render(route.template);
     
     if (old_controller) {
       require([old_controller.controller], function(controller) {
@@ -241,10 +246,12 @@ function (Dom, Chat, Tabs, HideForms, Redirect, Storage) {
       });
     }
     
-    require([route.controller], function(controller) {
-      App.init();
-      controller.start();
-      Dom.finishLoading();
+    render(route.template, function() {
+        require([route.controller], function(controller) {
+          App.init();
+          controller.start();
+          Dom.finishLoading();
+        });
     });
   }
   

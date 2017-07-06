@@ -21,6 +21,7 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
 
     function cbUpdateZone() {
       Conn.clearCb('cbUpdateZone');
+      
       self.list[self.current_zone_id].name = self.new_name;
       self.list[self.current_zone_id].note = self.new_note;
       self.list[self.current_zone_id].polygon = self.new_polygon;
@@ -111,6 +112,7 @@ define(['Funcs', 'Storage'], function(Funcs, Storage) {
       data.note = note || '';
       data.id = id;
       
+      self.current_zone_id = Funcs.findIdArray(self.list, id);
       self.new_polygon = polygon;//JSON.stringify(polygon);
       self.new_note = data.note;
       self.new_name = data.name;

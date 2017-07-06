@@ -86,8 +86,11 @@ define(function () {
               xmlDoc.async = false;
               xmlDoc.loadXML(str);
             }
-
-            var location = xmlDoc.getElementsByTagName("tr")[3].childNodes[3].innerHTML,
+            
+            //data-loc="43.1281,131.9010"
+            //.querySelector('[data-loc]')
+            
+            var location = xmlDoc.querySelector('[data-loc]').innerHTML,
                 latLong = location.split(",");
 
             position.coords = {};

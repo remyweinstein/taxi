@@ -21,7 +21,15 @@ define(function() {
       }
 
     },
-
+    deleteArrayByID: function (array, id) {
+        for(var x in array){
+          if(array[x].id && array[x].id === id) {
+            array.splice(x, 1);
+          }
+        }
+        
+        return array;
+    },
     searchCityForIntercity: function (city, parent) {
       var currentCity,
           li = parent.children[1].children;

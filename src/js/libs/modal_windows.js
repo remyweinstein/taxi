@@ -314,6 +314,20 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
                   clock30(-30);
                 };
     },
+    deleteProfile: function (callback) {
+                this.show('<h4>Удаление профиля</h4>' +
+                          '<p class="small_text">При удалении профиля, вся информация о вас будет удалена безвозвратно. Удаленный профиль восстановить невозможно.</p>' +
+                          '<div>' +
+                            '<textarea class="small_text" name="reason" placeholder="Причина удаления"></textarea>' +
+                          '</div>' +
+                          '<div style="position:relative;">' +
+                            '<p><button class="button_rounded--red" data-click="deleteProfile">Удалить профиль</button></p>' +
+                            '<p><button class="button_rounded--green" data-click="cancel">Отмена</button></p>' +
+                          '</div>', function (response) {
+                                        close();
+                                        callback(response);
+                                      });
+    },
     ratingOrder: function (id, agentId, role, callback) {
                 this.show('<div class="score-agent">' +
                               '<div class="score-agent__but-box"></div>' +
@@ -446,8 +460,20 @@ define(['Dom', 'Stars'], function(Dom, Stars) {
                         break;
                       }
                       
+                      if (target.dataset.click === "cancel") {
+                        callback(false);
+                        close();
+                        break;
+                      }
+                      
                       if (target.dataset.click === "invite-agent-send") {
                         callback(Dom.sel('input[name="invite-agent-phone"]').value);
+                        close();
+                        break;
+                      }
+                      
+                      if (target.dataset.click === "deleteProfile") {
+                        callback({reason:Dom.sel('textarea[name="reason"]').value});
                         close();
                         break;
                       }

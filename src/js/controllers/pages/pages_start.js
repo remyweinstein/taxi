@@ -1,6 +1,14 @@
 /* global Event, MayLoading, Conn, currentHash, Maps */
 
-define(['Storage', 'Dom'], function (Storage, Dom) {
+define(['Storage', 'Dom', 'react', 'ReactDOM', 'jsx!components/StartPage'], function (Storage, Dom, React, ReactDOM, StartPage) {
+  var FactoryStartPage, storeLoadingText;
+
+  function renderLoadingPage() {
+    ReactDOM.render(
+      FactoryStartPage({text: storeLoadingText}),
+      document.querySelector('.dynamic')
+    );
+  }
 
   function checkLoading() {
     var next_page;
@@ -17,7 +25,8 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
         text = "Определяем ваше местоположение...";
       }
 
-      Dom.sel('.start_logo_state__text').innerHTML = text;
+        storeLoadingText = text;
+        renderLoadingPage();
       
     } else {
       Conn.request('getProfile');
@@ -66,6 +75,9 @@ define(['Storage', 'Dom'], function (Storage, Dom) {
   function start() {
     timerCheckLoading = setInterval(checkLoading, 250);
     addEvents();
+    FactoryStartPage = React.createFactory(StartPage);
+    storeLoadingText = '';
+    renderLoadingPage();
   }
   
   return {

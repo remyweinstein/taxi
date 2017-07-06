@@ -1,6 +1,14 @@
 /* global Event, Zones */
 
-define(['Dom'], function (Dom) {
+define(['Funcs', 'react', 'ReactDOM', 'jsx!components/ZoneList'], function (Funcs, React, ReactDOM, List) {
+  var FactoryList, storeList;
+
+  function renderList() {
+    ReactDOM.render(
+      FactoryList({list: storeList}),
+      document.querySelector('.dynamic')
+    );
+  }
 
   function addEvents() {
     Event.click = function (event) {
@@ -22,7 +30,8 @@ define(['Dom'], function (Dom) {
                     id = parent.dataset.id;
                   
                 Zones.remove(id);
-                parent.parentNode.removeChild(parent);
+                storeList = Funcs.deleteArrayByID(Zones.list, id);
+                renderList();
                 
                 return;
               }
@@ -44,17 +53,9 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
-    var listZones = Dom.selAll('.list-zone')[0];
-
-    for (var v = 0; v < Zones.list.length; v++) {
-      var li = document.createElement('li');
-      
-      li.dataset.click = 'edit-zone';
-      li.dataset.id = Zones.list[v].id;
-      li.innerHTML = Zones.list[v].name + '<i class="icon-trash" data-click="delete-zone"></i><span>' + (Zones.list[v].note || '') + '</span>';
-      listZones.appendChild(li);
-    }
-
+    FactoryList = React.createFactory(List);
+    storeList = Zones.list;
+    renderList();
     addEvents();
   }
   

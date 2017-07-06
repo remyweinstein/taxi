@@ -1,77 +1,43 @@
 /* global Event, User, Conn */
 
-define(['Dom'], function (Dom) {
+define(['Funcs', 'react', 'ReactDOM', 'jsx!components/FavList'], function (Funcs, React, ReactDOM, List) {
+ var FactoryList, storeFavList, storeBlackList;
 
   function cbFillFavorites(response) {
     Conn.clearCb('cbFillFavorites');
-    
-    var parent = Dom.sel('[data-view="favorites"]'),
-        favs = response.result.favorites,
-        innertext = '',
-        ul = document.createElement('ul');
-  
-    ul.className += 'list-favorites';
-
-    if (favs.length > 0) {          
-      for (var i = 0; i < favs.length; i++) {
-        var name = favs[i].name || 'Гость',
-            photo = favs[i].photo || User.default_avatar,
-            id = favs[i].id;
-
-        innertext += '<li class="list-favorites__fav">' +
-                        '<div class="list-favorites__fav__photo">' +
-                          '<img src="' + photo + '">' +
-                        '</div>' +
-                        '<div class="list-favorites__fav__desc">' +
-                           name +
-                        '</div>' +
-                        '<div class="list-favorites__fav__action">' +
-                          '<i class="icon-cancel-circled" data-click="remove-favorite" data-id="' + id + '"></i>' +
-                        '</div>' +
-                      '</li>';
-      }
-    } else {
-      innertext = '<li><p>Нет избранных агентов</p></li>';
-    }
-
-    ul.innerHTML = innertext;
-    parent.appendChild(ul);
+    storeFavList = response.result.favorites;
+    renderFavorites();
   }
   
   function cbFillBlackList(response) {
     Conn.clearCb('cbFillBlackList');
+    storeBlackList = response.result.blackList;
+    renderBlackList();
+  }
+  
+  function renderFavorites() {
+    var data = {};
+    data.list      = storeFavList;
+    data.emptyText = 'Нет избранных агентов';
+    data.remove = 'favorite';
     
-    var parent = Dom.sel('[data-view="blacklist"]'),
-        blacks = response.result.blackList,
-        innertext = '',
-        ul = document.createElement('ul');
-      
-    ul.className += 'list-favorites';
-
-    if (blacks.length > 0) {          
-      for (var i = 0; i < blacks.length; i++) {
-        var name = blacks[i].name || 'Гость',
-            photo = blacks[i].photo || User.default_avatar,
-            id = blacks[i].id;
-
-        innertext += '<li class="list-favorites__fav">' +
-                        '<div class="list-favorites__fav__photo">' +
-                          '<img src="' + photo + '">' +
-                        '</div>' +
-                        '<div class="list-favorites__fav__desc">' +
-                          name +
-                        '</div>' +
-                        '<div class="list-favorites__fav__action">' +
-                          '<i class="icon-cancel-circled" data-click="remove-black-list" data-id="' + id + '"></i>' +
-                        '</div>' +
-                      '</li>';
-      }
-    } else {
-      innertext = '<li><p>Нет избранных агентов</p></li>';
-    }
-
-    ul.innerHTML = innertext;
-    parent.appendChild(ul);
+    renderList(data, 'favorites');
+  }
+  
+  function renderBlackList() {
+    var data = {};
+    data.list      = storeBlackList;
+    data.emptyText = 'Нет агентов в черном списке';
+    data.remove = 'black-list';
+        
+    renderList(data, 'blacklist');
+  }
+  
+  function renderList(data, el) {
+    ReactDOM.render(
+      FactoryList({data: data}),
+      document.querySelector('[data-view="' + el + '"]')
+    );
   }
   
   function addEvents() {
@@ -82,19 +48,19 @@ define(['Dom'], function (Dom) {
           
         if (target) {
           if (target.dataset.click === "remove-favorite") {
-            var el = target,
-                li = el.parentNode.parentNode;
-              
-            li.parentNode.removeChild(li);
-            Conn.request('deleteFavorites', el.dataset.id);
+            var id = target.dataset.id;
+            
+            storeFavList = Funcs.deleteArrayByID(storeFavList, id);
+            renderFavorites();
+            Conn.request('deleteFavorites', id);
           }
           
           if (target.dataset.click === "remove-black-list") {
-            var el = target,
-                li = el.parentNode.parentNode;
-              
-            li.parentNode.removeChild(li);
-            Conn.request('deleteBlackList', el.dataset.id);
+            var id = target.dataset.id,
+                    
+            storeBlackList = Funcs.deleteArrayByID(storeBlackList, id);
+            renderBlackList();
+            Conn.request('deleteBlackList', id);
           }
         }        
 
@@ -122,6 +88,7 @@ define(['Dom'], function (Dom) {
   }
   
   function start() {
+    FactoryList = React.createFactory(List);
 
     getFavorites();
     getBlacklist();

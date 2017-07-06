@@ -139,10 +139,12 @@
         background-color: white;
         z-index: 100;
         padding-right: 1em;
+        border:1px solid $active;
         p{
             font-size: 0.75em;
+            font-style:italic;
             cursor: pointer;
-            padding: 0 1em;
+            padding: 0.25em 1em;
             margin: 0;
         }
     }

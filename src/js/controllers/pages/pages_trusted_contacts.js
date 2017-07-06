@@ -1,26 +1,20 @@
 /* global Event, Conn */
 
-define(['ModalWindows', 'PopupWindows', 'Dom', 'Dates'], function (Modal, Popup, Dom, Dates) {
-  
+define(['ModalWindows', 'react', 'ReactDOM', 'jsx!components/AgentList'], function (Modal, React, ReactDOM, List) {
+  var FactoryList, storeList;
+    
+  function renderList() {
+    ReactDOM.render(
+      FactoryList({list: storeList}),
+      document.querySelector('.dynamic')
+    );
+  }
+
   function cbGetSosAgents(response) {
     Conn.clearCb('cbGetSosAgents');
     
-    var agents = response.result.sosAgents,
-        ul = Dom.sel('ul.trusted-contacts');
-    
-    for (var i = 0; i < agents.length; i++) {
-      var li = document.createElement('li');
-
-      li.dataset.id = agents[i].id;
-      li.innerHTML = '<div>' +
-                       '<span>' + agents[i].name + '</span><br/>' + 
-                       agents[i].phone +
-                      '</div>' +
-                      '<div>' +
-                       '<i class="icon-cancel-circled" data-click="remove-agent" data-id="' + agents[i].id + '"></i>' +
-                     '</div>';
-      ul.appendChild(li);
-    }
+    storeList = response.result.sosAgents;
+    renderList();
   }
   
   function cbRemoveSosAgents() {
@@ -82,7 +76,8 @@ define(['ModalWindows', 'PopupWindows', 'Dom', 'Dates'], function (Modal, Popup,
   
   function start() {
     Conn.request('getSosAgents', '', cbGetSosAgents);
-    
+    FactoryList = React.createFactory(List);
+
     addEvents();
   }
   

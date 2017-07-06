@@ -1,6 +1,14 @@
 /* global Event, User, Conn, Car */
 
-define(['Dom', 'Storage'], function (Dom, Storage) {
+define(['Storage', 'react', 'ReactDOM', 'jsx!components/SmsPage'], function (Storage, React, ReactDOM, SmsPage) {
+  var FactorySmsPage, storeSmsCode;
+
+  function renderSmsPage() {
+    ReactDOM.render(
+      FactorySmsPage({code: storeSmsCode}),
+      document.querySelector('.dynamic')
+    );
+  }
 
   function cbConfirmSms(response) {
     var params = window.location.search;
@@ -33,11 +41,15 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
 
           while (target !== this) {
             if (target.dataset.submit === 'form-auth-sms') {
-              var sms = Dom.selAll('input[name="sms"]')[0].value,
+              var sms = document.querySelector('input[name="sms"]').value,
                   data= {};
               
               data.authToken = User.authToken;
-              data.code = sms;
+              data.code      = sms;
+              data.userAgent = window.navigator.userAgent || "";
+              data.city      = User.city;
+              data.country   = User.country;
+              
               User.save();    
               Conn.request('confirmSms', data, cbConfirmSms);
 
@@ -61,13 +73,17 @@ define(['Dom', 'Storage'], function (Dom, Storage) {
 
   function start() {
     var sms_code = localStorage.getItem('_temp_code');
+    storeSmsCode = '';
     
     addEvents();
     
     if (sms_code) {
-      Dom.sel('input[name="sms"]').value = sms_code;
+      storeSmsCode = sms_code;
       localStorage.removeItem('_temp_code');
     }
+    
+    FactorySmsPage = React.createFactory(SmsPage);
+    renderSmsPage();
   }
   
   return {
